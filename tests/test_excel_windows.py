@@ -72,8 +72,12 @@ def _answers(seen: str, *, skip: set[int]) -> list[str]:
 
 
 def _skipped(book: dict[str, Any]) -> set[int]:
-    """Caption is the model's own name for the workbook unless the VBA set it."""
-    return set() if book["name"].startswith("caption") else {READS.index("w.Caption")}
+    """Caption is the model's own name for the workbook unless the VBA set it. A book measured on a display other than
+    96 DPI, as its standard_height says, has a split's size in that display's points, which the model does not follow."""
+    skip: set[int] = set() if book["name"].startswith("caption") else {READS.index("w.Caption")}
+    if "standard_height" in book:
+        skip |= {READS.index("w.SplitVertical"), READS.index("w.SplitHorizontal")}
+    return skip
 
 
 def _views(path: Path) -> dict[str, str]:
@@ -150,6 +154,41 @@ def test_a_view_read_from_a_file_is_written_back_byte_for_byte(book: dict[str, A
     workbook.view.changed = True
     saved = app.save(tmp_path / f"{book['name']}.xlsx")
     assert _views(saved) == _views(FIXTURES / f"{book['name']}.xlsx")
+
+
+#: The books whose every sheet's window was read again after the save, each sheet activated in turn.
+LATER: list[dict[str, Any]] = [book for book in BOOKS if "sheets" in book]
+
+
+def _each_sheet(app: ExcelApplication, skip: set[int]) -> list[list[str]]:
+    """Each sheet's window, read as the measurement read it, the sheet activated first: the reads not in ``skip``."""
+    kept = [index for index in range(len(READS)) if index not in skip]
+    functions = [f'Private Function R{index}(w As Object) As String\nOn Error GoTo Bad\nR{index} = CStr({READS[index]})\n'
+                 f'Exit Function\nBad:\nR{index} = "!" & Err.Number\nEnd Function\n' for index in kept]
+    seen = ' & "|" & '.join(f"R{index}(w)" for index in kept)
+    app.add_module("".join(functions) + f"Private Function Seen(w As Object) As String\nSeen = {seen}\nEnd Function\n"
+                   + RECORD["later_reader"] + "Public Function Sheets() As String\nSheets = EachSheet(ActiveWorkbook)\n"
+                   "End Function\n", name="Sheets")
+    return [one.split("|") for one in str(app.run("Sheets")).split("~;~")[1:]]
+
+
+def _sheet_answers(seen: list[str], skip: set[int]) -> list[list[str]]:
+    return [[value for index, value in enumerate(one.split("|")) if index not in skip] for one in seen]
+
+
+@pytest.mark.parametrize("book", [pytest.param(book, id=book["name"]) for book in LATER])
+def test_each_sheet_answers_as_excel_did_after_the_save(book: dict[str, Any], tmp_path: Path) -> None:
+    app, _ = _made(book)
+    app.save(tmp_path / f"{book['name']}.xlsx", workbook=app.workbook)
+    skip = _skipped(book)
+    assert _each_sheet(app, skip) == _sheet_answers(book["sheets"], skip)
+
+
+@pytest.mark.parametrize("book", [pytest.param(book, id=book["name"]) for book in LATER])
+def test_each_sheet_of_a_workbook_excel_saved_reads_back_the_same(book: dict[str, Any]) -> None:
+    app = ExcelApplication.open(FIXTURES / f"{book['name']}.xlsx", with_vba=False)
+    skip = _skipped(book) | _SCREEN_READS
+    assert _each_sheet(app, skip) == _sheet_answers(book["sheets"], skip)
 
 
 @pytest.mark.parametrize("updating", sorted(RECORD["order"]))

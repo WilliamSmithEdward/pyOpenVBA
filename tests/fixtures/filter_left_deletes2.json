@@ -1,0 +1,1448 @@
+{
+"measured_at": "2026-11-07T12:22:49.719119+00:00",
+"source": "Private Function Dump(ws As Object) As String\n    Dim one As String, i As Long\n    On Error Resume Next\n    Dump = \"mode=\" & ws.AutoFilterMode\n    If ws.AutoFilterMode Then\n        Dump = Dump & \" range=\" & ws.AutoFilter.Range.Address(False, False) & \" count=\" & ws.AutoFilter.Filters.Count\n        For i = 1 To ws.AutoFilter.Filters.Count\n            If ws.AutoFilter.Filters(i).On Then Dump = Dump & \" f\" & i & \"=\" & ws.AutoFilter.Filters(i).Criteria1\n        Next\n    End If\n    one = ws.Names(\"_FilterDatabase\").RefersTo\n    Dump = Dump & \" db=\" & one\nEnd Function\n\nPublic Function Go(ByVal first As Long, ByVal width As Long, ByVal criteria As Boolean, ByVal other As String, ByVal target As String, ByVal typed As Boolean) As String\n    Dim wb As Object, ws As Object, wt As Worksheet, i As Long, j As Long, out As String, path As String\n    Set wb = Workbooks.Add\n    Set ws = wb.Worksheets(1)\n    Set wt = ws\n    For j = first To first + width - 1\n        ws.Cells(1, j).Value = \"h\" & j\n        For i = 2 To 12\n            ws.Cells(i, j).Value = i * 10 + j\n        Next\n    Next\n    If other <> \"\" Then ws.Range(other).Value = \"r\"\n    If criteria Then\n        ws.Range(ws.Cells(1, first), ws.Cells(12, first + width - 1)).AutoFilter Field:=1, Criteria1:=\">0\"\n    Else\n        ws.Range(ws.Cells(1, first), ws.Cells(12, first + width - 1)).AutoFilter\n    End If\n    On Error Resume Next\n    If typed Then wt.Range(target).Delete Shift:=xlToLeft Else ws.Range(target).Delete Shift:=xlToLeft\n    out = \"err=\" & Err.Number & \" \" & Dump(ws)\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_filter_left.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    out = out & \" ~ \" & Dump(wb.Worksheets(1))\n    wb.Close False\n    Kill path\n    Go = out\nEnd Function\n",
+"cases": [
+[
+5,
+4,
+true,
+"",
+"B2:B30",
+true
+],
+[
+5,
+4,
+true,
+"",
+"B2:B30",
+false
+],
+[
+2,
+2,
+false,
+"",
+"C2:F11",
+true
+],
+[
+2,
+2,
+false,
+"",
+"C2:F11",
+false
+],
+[
+3,
+1,
+false,
+"A20",
+"E1:F12",
+true
+],
+[
+3,
+1,
+false,
+"A20",
+"E1:F12",
+false
+],
+[
+2,
+1,
+false,
+"",
+"C1:C11",
+true
+],
+[
+2,
+1,
+false,
+"",
+"C1:C11",
+false
+],
+[
+5,
+3,
+false,
+"J3",
+"E1:E13",
+true
+],
+[
+5,
+3,
+false,
+"J3",
+"E1:E13",
+false
+],
+[
+1,
+6,
+false,
+"A20",
+"H1:H30",
+true
+],
+[
+1,
+6,
+false,
+"A20",
+"H1:H30",
+false
+],
+[
+5,
+5,
+false,
+"",
+"B1:C11",
+true
+],
+[
+5,
+5,
+false,
+"",
+"B1:C11",
+false
+],
+[
+3,
+2,
+false,
+"",
+"F1:G12",
+true
+],
+[
+3,
+2,
+false,
+"",
+"F1:G12",
+false
+],
+[
+5,
+2,
+false,
+"A20",
+"G2:H30",
+true
+],
+[
+5,
+2,
+false,
+"A20",
+"G2:H30",
+false
+],
+[
+1,
+2,
+false,
+"E3",
+"A1:C30",
+true
+],
+[
+1,
+2,
+false,
+"E3",
+"A1:C30",
+false
+],
+[
+6,
+3,
+false,
+"",
+"C2:D12",
+true
+],
+[
+6,
+3,
+false,
+"",
+"C2:D12",
+false
+],
+[
+6,
+4,
+true,
+"",
+"I1:I12",
+true
+],
+[
+6,
+4,
+true,
+"",
+"I1:I12",
+false
+],
+[
+4,
+1,
+false,
+"G3",
+"A1:A12",
+true
+],
+[
+4,
+1,
+false,
+"G3",
+"A1:A12",
+false
+],
+[
+1,
+3,
+false,
+"",
+"E1:E12",
+true
+],
+[
+1,
+3,
+false,
+"",
+"E1:E12",
+false
+],
+[
+2,
+4,
+false,
+"A20",
+"G1:G12",
+true
+],
+[
+2,
+4,
+false,
+"A20",
+"G1:G12",
+false
+],
+[
+6,
+6,
+false,
+"N3",
+"D1:G12",
+true
+],
+[
+6,
+6,
+false,
+"N3",
+"D1:G12",
+false
+],
+[
+2,
+5,
+true,
+"",
+"C1:G12",
+true
+],
+[
+2,
+5,
+true,
+"",
+"C1:G12",
+false
+],
+[
+4,
+3,
+false,
+"",
+"A1:C12",
+true
+],
+[
+4,
+3,
+false,
+"",
+"A1:C12",
+false
+],
+[
+4,
+5,
+true,
+"K3",
+"E2:H11",
+true
+],
+[
+4,
+5,
+true,
+"K3",
+"E2:H11",
+false
+],
+[
+3,
+3,
+false,
+"H3",
+"B1:B12",
+true
+],
+[
+3,
+3,
+false,
+"H3",
+"B1:B12",
+false
+],
+[
+4,
+1,
+false,
+"G3",
+"B1:B13",
+true
+],
+[
+4,
+1,
+false,
+"G3",
+"B1:B13",
+false
+],
+[
+3,
+2,
+true,
+"A20",
+"A1:A12",
+true
+],
+[
+3,
+2,
+true,
+"A20",
+"A1:A12",
+false
+],
+[
+5,
+3,
+false,
+"",
+"G1:H12",
+true
+],
+[
+5,
+3,
+false,
+"",
+"G1:H12",
+false
+],
+[
+6,
+3,
+true,
+"",
+"A1:C12",
+true
+],
+[
+6,
+3,
+true,
+"",
+"A1:C12",
+false
+],
+[
+1,
+5,
+false,
+"A20",
+"F1:G12",
+true
+],
+[
+1,
+5,
+false,
+"A20",
+"F1:G12",
+false
+],
+[
+5,
+1,
+false,
+"A20",
+"G1:J11",
+true
+],
+[
+5,
+1,
+false,
+"A20",
+"G1:J11",
+false
+],
+[
+6,
+5,
+false,
+"A20",
+"F2:H13",
+true
+],
+[
+6,
+5,
+false,
+"A20",
+"F2:H13",
+false
+],
+[
+6,
+1,
+true,
+"",
+"E1:G12",
+true
+],
+[
+6,
+1,
+true,
+"",
+"E1:G12",
+false
+],
+[
+1,
+6,
+false,
+"I3",
+"E1:F12",
+true
+],
+[
+1,
+6,
+false,
+"I3",
+"E1:F12",
+false
+],
+[
+4,
+2,
+false,
+"",
+"A1:A13",
+true
+],
+[
+4,
+2,
+false,
+"",
+"A1:A13",
+false
+],
+[
+2,
+2,
+false,
+"",
+"A2:B13",
+true
+],
+[
+2,
+2,
+false,
+"",
+"A2:B13",
+false
+],
+[
+1,
+2,
+true,
+"E3",
+"A1:C13",
+true
+],
+[
+1,
+2,
+true,
+"E3",
+"A1:C13",
+false
+],
+[
+5,
+2,
+false,
+"",
+"A2:C12",
+true
+],
+[
+5,
+2,
+false,
+"",
+"A2:C12",
+false
+],
+[
+1,
+3,
+true,
+"",
+"A1:A12",
+true
+],
+[
+1,
+3,
+true,
+"",
+"A1:A12",
+false
+],
+[
+2,
+1,
+false,
+"A20",
+"C1:F12",
+true
+],
+[
+2,
+1,
+false,
+"A20",
+"C1:F12",
+false
+],
+[
+3,
+6,
+false,
+"A20",
+"H1:J12",
+true
+],
+[
+3,
+6,
+false,
+"A20",
+"H1:J12",
+false
+],
+[
+5,
+2,
+true,
+"I3",
+"A2:A12",
+true
+],
+[
+5,
+2,
+true,
+"I3",
+"A2:A12",
+false
+],
+[
+4,
+4,
+true,
+"",
+"E1:G12",
+true
+],
+[
+4,
+4,
+true,
+"",
+"E1:G12",
+false
+],
+[
+5,
+5,
+false,
+"",
+"B1:B12",
+true
+],
+[
+5,
+5,
+false,
+"",
+"B1:B12",
+false
+],
+[
+6,
+5,
+true,
+"A20",
+"I1:I12",
+true
+],
+[
+6,
+5,
+true,
+"A20",
+"I1:I12",
+false
+],
+[
+5,
+3,
+false,
+"A20",
+"B1:B12",
+true
+],
+[
+5,
+3,
+false,
+"A20",
+"B1:B12",
+false
+],
+[
+3,
+3,
+false,
+"H3",
+"B1:B12",
+true
+],
+[
+3,
+3,
+false,
+"H3",
+"B1:B12",
+false
+],
+[
+3,
+4,
+true,
+"I3",
+"A2:B13",
+true
+],
+[
+3,
+4,
+true,
+"I3",
+"A2:B13",
+false
+],
+[
+5,
+3,
+false,
+"J3",
+"E1:E12",
+true
+],
+[
+5,
+3,
+false,
+"J3",
+"E1:E12",
+false
+],
+[
+1,
+3,
+true,
+"F3",
+"D1:G12",
+true
+],
+[
+1,
+3,
+true,
+"F3",
+"D1:G12",
+false
+],
+[
+1,
+2,
+true,
+"",
+"B2:D30",
+true
+],
+[
+1,
+2,
+true,
+"",
+"B2:D30",
+false
+],
+[
+2,
+4,
+false,
+"",
+"A1:A13",
+true
+],
+[
+2,
+4,
+false,
+"",
+"A1:A13",
+false
+],
+[
+2,
+2,
+true,
+"F3",
+"E1:E13",
+true
+],
+[
+2,
+2,
+true,
+"F3",
+"E1:E13",
+false
+],
+[
+1,
+4,
+false,
+"",
+"C1:G12",
+true
+],
+[
+1,
+4,
+false,
+"",
+"C1:G12",
+false
+],
+[
+1,
+2,
+true,
+"",
+"B1:B12",
+true
+],
+[
+1,
+2,
+true,
+"",
+"B1:B12",
+false
+],
+[
+2,
+6,
+false,
+"A20",
+"B1:C11",
+true
+],
+[
+2,
+6,
+false,
+"A20",
+"B1:C11",
+false
+],
+[
+3,
+5,
+false,
+"",
+"E2:F13",
+true
+],
+[
+3,
+5,
+false,
+"",
+"E2:F13",
+false
+],
+[
+4,
+6,
+false,
+"L3",
+"I1:K30",
+true
+],
+[
+4,
+6,
+false,
+"L3",
+"I1:K30",
+false
+],
+[
+3,
+3,
+true,
+"",
+"C1:C12",
+true
+],
+[
+3,
+3,
+true,
+"",
+"C1:C12",
+false
+],
+[
+5,
+5,
+false,
+"",
+"C2:C11",
+true
+],
+[
+5,
+5,
+false,
+"",
+"C2:C11",
+false
+],
+[
+5,
+6,
+true,
+"M3",
+"C1:D12",
+true
+],
+[
+5,
+6,
+true,
+"M3",
+"C1:D12",
+false
+],
+[
+2,
+6,
+false,
+"",
+"I1:L12",
+true
+],
+[
+2,
+6,
+false,
+"",
+"I1:L12",
+false
+],
+[
+3,
+2,
+false,
+"A20",
+"F1:H30",
+true
+],
+[
+3,
+2,
+false,
+"A20",
+"F1:H30",
+false
+],
+[
+3,
+3,
+false,
+"H3",
+"F1:H13",
+true
+],
+[
+3,
+3,
+false,
+"H3",
+"F1:H13",
+false
+],
+[
+4,
+6,
+true,
+"L3",
+"J2:J11",
+true
+],
+[
+4,
+6,
+true,
+"L3",
+"J2:J11",
+false
+],
+[
+1,
+1,
+false,
+"A20",
+"A1:B12",
+true
+],
+[
+1,
+1,
+false,
+"A20",
+"A1:B12",
+false
+],
+[
+4,
+4,
+true,
+"",
+"A1:A30",
+true
+],
+[
+4,
+4,
+true,
+"",
+"A1:A30",
+false
+],
+[
+5,
+5,
+false,
+"",
+"K1:L12",
+true
+],
+[
+5,
+5,
+false,
+"",
+"K1:L12",
+false
+],
+[
+4,
+3,
+false,
+"A20",
+"F1:H12",
+true
+],
+[
+4,
+3,
+false,
+"A20",
+"F1:H12",
+false
+],
+[
+3,
+1,
+false,
+"",
+"B1:B30",
+true
+],
+[
+3,
+1,
+false,
+"",
+"B1:B30",
+false
+],
+[
+5,
+1,
+false,
+"",
+"B1:E13",
+true
+],
+[
+5,
+1,
+false,
+"",
+"B1:E13",
+false
+],
+[
+6,
+4,
+false,
+"",
+"A1:A12",
+true
+],
+[
+6,
+4,
+false,
+"",
+"A1:A12",
+false
+],
+[
+3,
+4,
+false,
+"I3",
+"G1:I12",
+true
+],
+[
+3,
+4,
+false,
+"I3",
+"G1:I12",
+false
+],
+[
+1,
+1,
+false,
+"",
+"A1:A12",
+true
+],
+[
+1,
+1,
+false,
+"",
+"A1:A12",
+false
+],
+[
+6,
+6,
+true,
+"",
+"J1:L12",
+true
+],
+[
+6,
+6,
+true,
+"",
+"J1:L12",
+false
+],
+[
+2,
+4,
+false,
+"",
+"C2:D12",
+true
+],
+[
+2,
+4,
+false,
+"",
+"C2:D12",
+false
+],
+[
+2,
+4,
+false,
+"A20",
+"F1:H13",
+true
+],
+[
+2,
+4,
+false,
+"A20",
+"F1:H13",
+false
+],
+[
+4,
+2,
+false,
+"H3",
+"G2:G12",
+true
+],
+[
+4,
+2,
+false,
+"H3",
+"G2:G12",
+false
+],
+[
+6,
+6,
+true,
+"A20",
+"H1:I12",
+true
+],
+[
+6,
+6,
+true,
+"A20",
+"H1:I12",
+false
+],
+[
+4,
+3,
+true,
+"",
+"F1:F11",
+true
+],
+[
+4,
+3,
+true,
+"",
+"F1:F11",
+false
+],
+[
+2,
+5,
+false,
+"",
+"G1:G12",
+true
+],
+[
+2,
+5,
+false,
+"",
+"G1:G12",
+false
+],
+[
+6,
+4,
+false,
+"L3",
+"G2:H12",
+true
+],
+[
+6,
+4,
+false,
+"L3",
+"G2:H12",
+false
+],
+[
+5,
+1,
+false,
+"",
+"B1:C11",
+true
+],
+[
+5,
+1,
+false,
+"",
+"B1:C11",
+false
+],
+[
+2,
+6,
+true,
+"",
+"D1:G11",
+true
+],
+[
+2,
+6,
+true,
+"",
+"D1:G11",
+false
+],
+[
+6,
+6,
+false,
+"",
+"L1:O30",
+true
+],
+[
+6,
+6,
+false,
+"",
+"L1:O30",
+false
+]
+],
+"answers": [
+"err=0 mode=True range=E1:H12 count=4 f1=>0 db==Sheet1!$E$1:$H$12 ~ mode=True range=E1:H12 count=4 f1=>0 db==Sheet1!$E$1:$H$12",
+"err=0 mode=True range=E1:H12 count=4 f1=>0 db==Sheet1!$E$1:$H$12 ~ mode=True range=E1:H12 count=4 f1=>0 db==Sheet1!$E$1:$H$12",
+"err=0 mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12",
+"err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12",
+"err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$F$12 ~ mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$F$12",
+"err=0 mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$F$12 ~ mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$F$12",
+"err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12",
+"err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12",
+"err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12 ~ mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12",
+"err=0 mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12 ~ mode=True range=F1:H12 count=3 db==Sheet1!$F$1:$H$12",
+"err=0 mode=True range=F1:I12 count=4 f1=>0 db==Sheet1!$F$1:$H$12 ~ mode=True range=F1:I12 count=4 f1=>0 db==Sheet1!$F$1:$H$12",
+"err=0 mode=True range=F1:I12 count=4 f1=>0 db==Sheet1!$F$1:$H$12 ~ mode=True range=F1:I12 count=4 f1=>0 db==Sheet1!$F$1:$H$12",
+"err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12",
+"err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12",
+"err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12",
+"err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12",
+"err=0 mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12",
+"err=0 mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12",
+"err=0 mode=True range=F1:K12 count=6 db==Sheet1!$D$1:$G$12 ~ mode=True range=F1:K12 count=6 db==Sheet1!$D$1:$G$12",
+"err=0 mode=True range=F1:K12 count=6 db==Sheet1!$D$1:$G$12 ~ mode=True range=F1:K12 count=6 db==Sheet1!$D$1:$G$12",
+"err=0 mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:F12 count=5 f1=>0 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12",
+"err=0 mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 db==Sheet1!$A$1:$C$12",
+"err=0 mode=True range=D1:H12 count=5 f1=>0 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 f1=>0 db==Sheet1!$D$1:$H$12",
+"err=0 mode=True range=D1:H12 count=5 f1=>0 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 f1=>0 db==Sheet1!$D$1:$H$12",
+"err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12",
+"err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12",
+"err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12",
+"err=0 mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12 ~ mode=True range=C1:C12 count=1 db==Sheet1!$C$1:$C$12",
+"err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$E$12 ~ mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$E$12",
+"err=0 mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$E$12 ~ mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$E$12",
+"err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12",
+"err=0 mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12 ~ mode=True range=A1:E12 count=5 db==Sheet1!$A$1:$E$12",
+"err=0 mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12 ~ mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12",
+"err=0 mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12 ~ mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12",
+"err=0 mode=True range=F1:J12 count=5 db==Sheet1!$F$1:$J$12 ~ mode=True range=F1:J12 count=5 db==Sheet1!$F$1:$J$12",
+"err=0 mode=True range=F1:J12 count=5 db==Sheet1!$F$1:$J$12 ~ mode=True range=F1:J12 count=5 db==Sheet1!$F$1:$J$12",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$D$12",
+"err=0 mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:F12 count=6 db==Sheet1!$A$1:$D$12",
+"err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 db==Sheet1!$B$1:$C$12",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12",
+"err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$B$12",
+"err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=C1:H12 count=6 db==Sheet1!$C$1:$G$12 ~ mode=True range=C1:H12 count=6 db==Sheet1!$C$1:$G$12",
+"err=0 mode=True range=C1:H12 count=6 db==Sheet1!$C$1:$G$12 ~ mode=True range=C1:H12 count=6 db==Sheet1!$C$1:$G$12",
+"err=0 mode=True range=E1:F12 count=2 f1=>0 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 f1=>0 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=E1:F12 count=2 f1=>0 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:F12 count=2 f1=>0 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$D$12 ~ mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$D$12",
+"err=0 mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$D$12 ~ mode=True range=D1:G12 count=4 f1=>0 db==Sheet1!$D$1:$D$12",
+"err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12",
+"err=0 mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:H12 count=5 db==Sheet1!$D$1:$H$12",
+"err=0 mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:J12 count=5 f1=>0 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12",
+"err=0 mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$F$12",
+"err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12",
+"err=0 mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12 ~ mode=True range=B1:D12 count=3 db==Sheet1!$B$1:$D$12",
+"err=0 mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12",
+"err=0 mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12",
+"err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12 ~ mode=True range=E1:G12 count=3 db==Sheet1!$E$1:$F$12",
+"err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12",
+"err=0 mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12 ~ mode=True range=A1:C12 count=3 f1=>0 db==Sheet1!$A$1:$C$12",
+"err=0 mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12",
+"err=0 mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$B$12",
+"err=0 mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12",
+"err=0 mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12 ~ mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$D$12",
+"err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12 ~ mode=True range=B1:C12 count=2 f1=>0 db==Sheet1!$B$1:$C$12",
+"err=0 mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$B$12",
+"err=0 mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$B$12 ~ mode=True range=A1:D12 count=4 db==Sheet1!$A$1:$B$12",
+"err=0 mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$A$12",
+"err=0 mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$A$12 ~ mode=True range=A1:B12 count=2 f1=>0 db==Sheet1!$A$1:$A$12",
+"err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12",
+"err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12",
+"err=0 mode=True range=C1:G12 count=5 db==Sheet1!$C$1:$G$12 ~ mode=True range=C1:G12 count=5 db==Sheet1!$C$1:$G$12",
+"err=0 mode=True range=C1:G12 count=5 db==Sheet1!$C$1:$G$12 ~ mode=True range=C1:G12 count=5 db==Sheet1!$C$1:$G$12",
+"err=0 mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$H$12",
+"err=0 mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$H$12 ~ mode=True range=D1:I12 count=6 db==Sheet1!$D$1:$H$12",
+"err=0 mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:E12 count=3 f1=>0 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12",
+"err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12",
+"err=0 mode=True range=C1:H12 count=6 f1=>0 db==Sheet1!$C$1:$H$12 ~ mode=True range=C1:H12 count=6 f1=>0 db==Sheet1!$C$1:$H$12",
+"err=0 mode=True range=C1:H12 count=6 f1=>0 db==Sheet1!$C$1:$H$12 ~ mode=True range=C1:H12 count=6 f1=>0 db==Sheet1!$C$1:$H$12",
+"err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12",
+"err=0 mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 db==Sheet1!$B$1:$G$12",
+"err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12 ~ mode=True range=C1:D12 count=2 db==Sheet1!$C$1:$D$12",
+"err=0 mode=True range=C1:E12 count=3 db==Sheet1!$C$1:$E$12 ~ mode=True range=C1:E12 count=3 db==Sheet1!$C$1:$E$12",
+"err=0 mode=True range=C1:E12 count=3 db==Sheet1!$C$1:$E$12 ~ mode=True range=C1:E12 count=3 db==Sheet1!$C$1:$E$12",
+"err=0 mode=True range=D1:I12 count=6 f1=>0 db==Sheet1!$D$1:$I$12 ~ mode=True range=D1:I12 count=6 f1=>0 db==Sheet1!$D$1:$I$12",
+"err=0 mode=True range=D1:I12 count=6 f1=>0 db==Sheet1!$D$1:$I$12 ~ mode=True range=D1:I12 count=6 f1=>0 db==Sheet1!$D$1:$I$12",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12",
+"err=0 mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 f1=>0 db==Sheet1!$C$1:$F$12",
+"err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12",
+"err=0 mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12 ~ mode=True range=E1:I12 count=5 db==Sheet1!$E$1:$I$12",
+"err=0 mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$E$12",
+"err=0 mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:F12 count=3 db==Sheet1!$D$1:$E$12",
+"err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12",
+"err=0 mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12 ~ mode=True range=B1:B12 count=1 db==Sheet1!$B$1:$B$12",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=True range=E1:H12 count=4 db==Sheet1!$E$1:$H$12 ~ mode=True range=E1:H12 count=4 db==Sheet1!$E$1:$H$12",
+"err=0 mode=True range=E1:H12 count=4 db==Sheet1!$E$1:$H$12 ~ mode=True range=E1:H12 count=4 db==Sheet1!$E$1:$H$12",
+"err=0 mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12",
+"err=0 mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12 ~ mode=True range=C1:F12 count=4 db==Sheet1!$C$1:$F$12",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=False db= ~ mode=False db=",
+"err=0 mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12",
+"err=0 mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12",
+"err=0 mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12",
+"err=0 mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12 ~ mode=True range=B1:E12 count=4 db==Sheet1!$B$1:$E$12",
+"err=0 mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12",
+"err=0 mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12 ~ mode=True range=D1:E12 count=2 db==Sheet1!$D$1:$E$12",
+"err=0 mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:K12 count=6 f1=>0 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12",
+"err=0 mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12 ~ mode=True range=D1:F12 count=3 f1=>0 db==Sheet1!$D$1:$F$12",
+"err=0 mode=True range=B1:F12 count=5 db==Sheet1!$B$1:$F$12 ~ mode=True range=B1:F12 count=5 db==Sheet1!$B$1:$F$12",
+"err=0 mode=True range=B1:F12 count=5 db==Sheet1!$B$1:$F$12 ~ mode=True range=B1:F12 count=5 db==Sheet1!$B$1:$F$12",
+"err=0 mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12 ~ mode=True range=F1:I12 count=4 db==Sheet1!$F$1:$I$12",
+"err=0 mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12 ~ mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12",
+"err=0 mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12 ~ mode=True range=E1:E12 count=1 db==Sheet1!$E$1:$E$12",
+"err=0 mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12",
+"err=0 mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12 ~ mode=True range=B1:G12 count=6 f1=>0 db==Sheet1!$B$1:$G$12",
+"err=0 mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12 ~ mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12",
+"err=0 mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12 ~ mode=True range=F1:K12 count=6 db==Sheet1!$F$1:$K$12"
+]
+}

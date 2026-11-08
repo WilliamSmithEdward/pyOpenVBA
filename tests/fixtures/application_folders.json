@@ -1,0 +1,272 @@
+{
+ "rows": {
+  "CurDir": {
+   "late": "<home>\\AppData\\Local\\Temp\\tmpku2p7xlm\\shownFalse\\dfp"
+  },
+  "set DefaultFilePath = folder & \"\\Sub\"": {
+   "typed": "String:<folder>\\Sub",
+   "late": "String:<folder>\\Sub"
+  },
+  "set DefaultFilePath = UCase(folder & \"\\Sub\")": {
+   "typed": "String:<FOLDER>\\SUB",
+   "late": "String:<FOLDER>\\SUB"
+  },
+  "set DefaultFilePath = LCase(folder & \"\\Sub\")": {
+   "typed": "String:<folder:lower>\\sub",
+   "late": "String:<folder:lower>\\sub"
+  },
+  "set DefaultFilePath = folder & \"\\sub\"": {
+   "typed": "String:<folder>\\sub",
+   "late": "String:<folder>\\sub"
+  },
+  "set DefaultFilePath = folder & \"\\Sub\\\"": {
+   "typed": "String:<folder>\\Sub\\",
+   "late": "String:<folder>\\Sub\\"
+  },
+  "set DefaultFilePath = folder & \"\\Sub\\\\\"": {
+   "typed": "String:<folder>\\Sub\\",
+   "late": "String:<folder>\\Sub\\"
+  },
+  "set DefaultFilePath = folder & \"/Sub\"": {
+   "typed": "String:<folder>\\Sub",
+   "late": "String:<folder>\\Sub"
+  },
+  "set DefaultFilePath = folder & \"\\Sub\\..\\Sub\"": {
+   "typed": "String:<folder>\\Sub",
+   "late": "String:<folder>\\Sub"
+  },
+  "set DefaultFilePath = folder & \"\\.\\Sub\"": {
+   "typed": "String:<folder>\\Sub",
+   "late": "String:<folder>\\Sub"
+  },
+  "set DefaultFilePath = folder & \"\\f.txt\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = folder & \"\\gone\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = folder & \"\\Gone\\deeper\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = folder & \"\\gone\\\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = folder & \"\\Sub\\gone\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = folder & \"\\Sub \"": {
+   "typed": "String:<folder>\\Sub",
+   "late": "String:<folder>\\Sub"
+  },
+  "set DefaultFilePath = folder": {
+   "typed": "String:<folder>",
+   "late": "String:<folder>"
+  },
+  "set DefaultFilePath = \".\"": {
+   "typed": "String:.",
+   "late": "String:."
+  },
+  "set DefaultFilePath = \"..\"": {
+   "typed": "String:..",
+   "late": "String:.."
+  },
+  "set DefaultFilePath = \"Sub\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"abc\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"aBc\\Def\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"\\abc\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"True\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = True": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = 5": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = 1.5": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = Empty": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"C:\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"C:\\\"": {
+   "typed": "String:C:\\",
+   "late": "String:C:\\"
+  },
+  "set DefaultFilePath = \" \"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"x:y\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"a*b\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = folder & \"\\a?b\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set AltStartupPath = folder & \"\\Sub\"": {
+   "typed": "String:<FOLDER>\\SUB",
+   "late": "String:<FOLDER>\\SUB"
+  },
+  "set AltStartupPath = UCase(folder & \"\\Sub\")": {
+   "typed": "String:<FOLDER>\\SUB",
+   "late": "String:<FOLDER>\\SUB"
+  },
+  "set AltStartupPath = LCase(folder & \"\\Sub\")": {
+   "typed": "String:<FOLDER>\\SUB",
+   "late": "String:<FOLDER>\\SUB"
+  },
+  "set AltStartupPath = folder & \"\\sub\"": {
+   "typed": "String:<FOLDER>\\SUB",
+   "late": "String:<FOLDER>\\SUB"
+  },
+  "set AltStartupPath = folder & \"\\Sub\\\"": {
+   "typed": "String:<FOLDER>\\SUB",
+   "late": "String:<FOLDER>\\SUB"
+  },
+  "set AltStartupPath = folder & \"\\Sub\\\\\"": {
+   "typed": "String:<FOLDER>\\SUB\\",
+   "late": "String:<FOLDER>\\SUB\\"
+  },
+  "set AltStartupPath = folder & \"/Sub\"": {
+   "typed": "String:<FOLDER>/SUB",
+   "late": "String:<FOLDER>/SUB"
+  },
+  "set AltStartupPath = folder & \"\\Sub\\..\\Sub\"": {
+   "typed": "String:<FOLDER>\\SUB\\..\\SUB",
+   "late": "String:<FOLDER>\\SUB\\..\\SUB"
+  },
+  "set AltStartupPath = folder & \"\\.\\Sub\"": {
+   "typed": "String:<FOLDER>\\.\\SUB",
+   "late": "String:<FOLDER>\\.\\SUB"
+  },
+  "set AltStartupPath = folder & \"\\f.txt\"": {
+   "typed": "String:<FOLDER>\\F.TXT",
+   "late": "String:<FOLDER>\\F.TXT"
+  },
+  "set AltStartupPath = folder & \"\\gone\"": {
+   "typed": "String:<FOLDER>\\GONE",
+   "late": "String:<FOLDER>\\GONE"
+  },
+  "set AltStartupPath = folder & \"\\Gone\\deeper\"": {
+   "typed": "String:<FOLDER>\\GONE\\DEEPER",
+   "late": "String:<FOLDER>\\GONE\\DEEPER"
+  },
+  "set AltStartupPath = folder & \"\\gone\\\"": {
+   "typed": "String:<FOLDER>\\GONE",
+   "late": "String:<FOLDER>\\GONE"
+  },
+  "set AltStartupPath = folder & \"\\Sub\\gone\"": {
+   "typed": "String:<FOLDER>\\SUB\\GONE",
+   "late": "String:<FOLDER>\\SUB\\GONE"
+  },
+  "set AltStartupPath = folder & \"\\Sub \"": {
+   "typed": "String:<FOLDER>\\SUB ",
+   "late": "String:<FOLDER>\\SUB "
+  },
+  "set AltStartupPath = folder": {
+   "typed": "String:<FOLDER>",
+   "late": "String:<FOLDER>"
+  },
+  "set AltStartupPath = \".\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\.",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\."
+  },
+  "set AltStartupPath = \"..\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\..",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\.."
+  },
+  "set AltStartupPath = \"Sub\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\SUB",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\SUB"
+  },
+  "set AltStartupPath = \"abc\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\ABC",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\ABC"
+  },
+  "set AltStartupPath = \"aBc\\Def\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\ABC\\DEF",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\ABC\\DEF"
+  },
+  "set AltStartupPath = \"\\abc\"": {
+   "typed": "String:C:\\ABC",
+   "late": "String:C:\\ABC"
+  },
+  "set AltStartupPath = \"True\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\TRUE",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\TRUE"
+  },
+  "set AltStartupPath = True": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\TRUE",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\TRUE"
+  },
+  "set AltStartupPath = 5": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\5",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\5"
+  },
+  "set AltStartupPath = 1.5": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\1.5",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\1.5"
+  },
+  "set AltStartupPath = Empty": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set AltStartupPath = \"C:\"": {
+   "typed": "String:C:",
+   "late": "String:C:"
+  },
+  "set AltStartupPath = \"C:\\\"": {
+   "typed": "String:C:",
+   "late": "String:C:"
+  },
+  "set AltStartupPath = \" \"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\ ",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\ "
+  },
+  "set AltStartupPath = \"x:y\"": {
+   "typed": "String:X:Y",
+   "late": "String:X:Y"
+  },
+  "set AltStartupPath = \"a*b\"": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\A*B",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\A*B"
+  },
+  "set AltStartupPath = folder & \"\\a?b\"": {
+   "typed": "String:<FOLDER>\\A?B",
+   "late": "String:<FOLDER>\\A?B"
+  }
+ },
+ "measured_at": "2026-11-07T20:21:28.816262+00:00"
+}

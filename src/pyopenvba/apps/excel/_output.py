@@ -10,6 +10,16 @@ the function set with ExcelApplication.set_hook (see _hooks). The model makes no
 - PrintOut: a bad argument is 1004, Null passes as if left out, and any printer name passes. It answers True; cancelled in BeforePrint, it goes no further, raises nothing and answers False
   (tests/fixtures/print_returns.json).
 - Window.PrintOut is always 1004, so it never reaches the function.
+- Chart.Export, on a chart sheet or a chart in a frame (tests/fixtures/output_pictures.json): the name is the file's, in the current folder if relative, with
+  nothing added. FilterName, or else the name's extension, picks the kind: PNG, GIF, JPG, JPEG and BMP, in any case. Any other, or none, and Excel writes an
+  empty file and answers True, as the model does without the function. Null as the name is 94 typed and 13 late, as the filter -2147352571; an empty name and a
+  folder not there -2147287037, a folder or a read-only file -2147287035, a character a file cannot hold -2147286917, a path too long -2147024809, each with
+  Excel's text about a chart type. It answers True. A fresh automated Excel exports a chart in a frame as an empty file until some chart object has been
+  activated or selected in its session (tests/fixtures/frame_drawn.json), a state of its drawing, not of the chart, which the model does not copy: the
+  function is called for a chart in a frame as for a chart sheet.
+- CopyPicture on a Range, a Shape, a chart sheet or one in a frame, and a ChartObject: each class checks Appearance and Format its own way, below. A Range of
+  several areas is 1004. A hidden shape copies nothing. Range answers True bound late, the rest Empty. CutCopyMode reads 0 after, and what a paste of the
+  picture makes is not modelled.
 - A chart in a frame prints as a chart sheet does. It exports nothing: past its argument errors, From or To below 1, a name too long and a read-only file, -2147417848 bound late, shown or hidden and active or not, and with no name -2147024773, and no file. Bound
   typed, Excel's macro stops there, which is not modelled: it answers as bound late (tests/fixtures/output_embedded_chart.json).
 
@@ -144,6 +154,116 @@ def export_fixed_format(target: object, owner: str, book: Workbook, sheet: Works
     _check_writable(path, failed=(1004, _NOT_SAVED), read_only=(_READ_ONLY, 'Document not saved.'))
     call(application, hook, 'ExportAsFixedFormat', owner, target, book, given, path)
     return EMPTY
+
+
+_EXPORT_TEXT = 'The specified dimension is not valid for the current chart type.'
+_FILTERS = frozenset({'PNG', 'GIF', 'JPG', 'JPEG', 'BMP'})
+
+
+def _export_chart_path(book: Workbook, given: dict[str, object]) -> Path:
+    interpreter = book.application.interpreter
+    assert interpreter is not None
+    name = given.get('Filename', MISSING)
+    if name is MISSING:
+        raise error(450, 'Wrong number of arguments or invalid property assignment')
+    if name is NULL:
+        raise error(13 if BINDING.late else 94)
+    if given.get('FilterName', MISSING) is NULL:
+        raise error(-2147352571, _EXPORT_TEXT)
+    text = str(name).upper() if isinstance(name, bool) else to_text(name)
+    if not text:
+        raise error(-2147287037, _EXPORT_TEXT)
+    return Path(os.path.normpath(interpreter.files.full(text)))
+
+
+def _check_export_path(path: Path) -> None:
+    """After the gate, so a refused path says nothing of what is there."""
+    if len(str(path)) > _LONGEST_PATH:
+        raise error(-2147024809, _EXPORT_TEXT)
+    if _BAD_CHARACTERS & set(path.name):
+        raise error(-2147286917, _EXPORT_TEXT)
+    if not path.parent.is_dir():
+        raise error(-2147287037, _EXPORT_TEXT)
+    if path.is_dir() or (path.exists() and not os.access(path, os.W_OK)):
+        raise error(-2147287035, _EXPORT_TEXT)
+
+
+def export_chart(target: object, book: Workbook, given: dict[str, object]) -> object:
+    """Chart.Export, as the module's docstring has it: a kind Excel draws goes to the function, any other is the empty file Excel writes."""
+    application = book.application
+    path = _export_chart_path(book, given)
+    filter_name = given.get('FilterName', MISSING)
+    kind = (to_text(filter_name) if filter_name is not MISSING else path.suffix.removeprefix('.')).upper()
+    hook = hook_of(application, 'Export')
+    if kind in _FILTERS:
+        if hook is None:
+            raise VBAUnsupportedError('Chart.Export needs a function that draws the chart, which ExcelApplication.set_hook registers; the model draws no picture of its own')
+        gate(application, hook, 'Export', path)
+        _check_export_path(path)
+        call(application, hook, 'Export', 'Chart', target, book, given, path)
+        return True
+    if hook is not None:
+        gate(application, hook, 'Export', path)
+    else:
+        application.outside('Chart.Export writing a file')
+    _check_export_path(path)
+    path.write_bytes(b'')
+    return True
+
+
+#: Appearance xlScreen and xlPrinter; Format xlPicture and xlBitmap.
+_APPEARANCES = (1.0, 2.0)
+_FORMATS = (-4147.0, 2.0)
+#: What a class says of a value it does not take.
+_PICTURE_FAILED = {'Range': (1004, 'CopyPicture method of Range class failed'), 'Shape': (1004, 'Application-defined or object-defined error'),
+                   'ChartObject': (5, _INVALID)}
+
+
+def _picture_value(owner: str, value: object, allowed: tuple[float, ...]) -> float | None:
+    """One of CopyPicture's arguments as ``owner`` takes it, None for its default. A chart takes any number; the rest only the two each argument
+    has, and refuse the rest as _PICTURE_FAILED says. Null and True, and text that is no number, differ by class and binding."""
+    if value is MISSING:
+        return None
+    failed = _PICTURE_FAILED.get(owner)
+    if value is NULL:
+        if owner == 'Shape' or (owner == 'Range' and BINDING.late):
+            return None
+        raise error(13 if BINDING.late else 94)
+    if isinstance(value, bool):
+        if owner == 'Chart' or (owner == 'Range' and BINDING.late):
+            return None
+        assert failed is not None
+        raise error(*failed)
+    found = _number(value)
+    if found is None:
+        if failed is not None and (owner == 'Shape' or (owner == 'Range' and BINDING.late)):
+            raise error(*failed)
+        raise error(13)
+    if failed is not None and found not in allowed:
+        raise error(*failed)
+    return found
+
+
+def copy_picture(target: object, owner: str, book: Workbook, given: dict[str, object], *, shown: bool = True) -> object:
+    """CopyPicture, as the module's docstring has it. The function set for it makes the picture; the model keeps only that the clipboard holds one."""
+    application = book.application
+    appearance = _picture_value(owner, given.get('Appearance', MISSING), _APPEARANCES)
+    picture_format = _picture_value(owner, given.get('Format', MISSING), _FORMATS)
+    if 'Size' in given:
+        _picture_value(owner, given['Size'], _APPEARANCES)
+    if owner in _PICTURE_FAILED and appearance == 2.0 and picture_format == 2.0:
+        # A bitmap as printed is one only a chart makes.
+        raise error(*_PICTURE_FAILED[owner])
+    hook = hook_of(application, 'CopyPicture')
+    if hook is None:
+        raise VBAUnsupportedError(f'{owner}.CopyPicture needs a function that draws the picture, which ExcelApplication.set_hook registers; the model draws no picture of its own')
+    application.clipboard = None
+    application.copied_chart = None
+    application.copied_picture = None
+    if shown:
+        call(application, hook, 'CopyPicture', owner, target, book, given)
+        application.copied_picture = (application.clipboard,)
+    return True if owner == 'Range' and BINDING.late else EMPTY
 
 
 def _print_failed(owner: str) -> tuple[int, str]:

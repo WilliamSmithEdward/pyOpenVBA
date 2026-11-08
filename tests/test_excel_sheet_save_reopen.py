@@ -41,6 +41,8 @@ _RECORD = json.loads((FIXTURES / 'sheet_session_settings.json').read_text(encodi
 _MEASURED = _RECORD['cases']
 #: What Excel's own save loses too, hidden and shown, so a model keeping it would be wrong.
 EXCEL_LOSES = {f'{target.name}: s.{one["member"]} = {one["value"]}': 'tests/fixtures/sheet_session_settings.json' for one in _MEASURED if not one['shown'] for target in SHEETS}
+# A button's roles read True for the session and False once its workbook is opened again, as Excel reads none back from its VML.
+EXCEL_LOSES.update({f'Buttons file: s.{member} = True': 'tests/fixtures/button_flags.json' for member in ('DefaultButton', 'CancelButton')})
 
 
 @pytest.mark.parametrize('case', CASES, ids=str)

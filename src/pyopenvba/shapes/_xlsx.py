@@ -404,6 +404,7 @@ def read_controls(sheet_xml: str, parts: dict[str, str]) -> dict[int, ControlInf
                 control.kind = values.get("objectType", "control")
                 control.first_button = values.get("firstButton", "0") == "1"
                 control.lock_text = values.get("lockText", "0") == "1"
+                control.three_d = values.get("noThreeD", "0") != "1"
                 control.linked_cell = values.get("fmlaLink", "")
                 control.list_range = values.get("fmlaRange", "")
                 control.value = int(_number(values.get("val"), 0))
@@ -607,7 +608,11 @@ def control_properties(shape: Shape) -> str:
         '<formControlPr xmlns="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"'
         f' objectType="{kind}"{linked}{listed}{extra}{locked}/>'
     )
-    return with_control_bindings(xml, control) if control else xml
+    xml = with_control_bindings(xml, control) if control else xml
+    if kind in {"CheckBox", "Radio", "Drop", "List", "GBox"} and not (control and control.three_d):
+        # Shading off, as Excel writes every new one of these (tests/fixtures/new_control_settings.json), so a save read back is as new.
+        xml = _ordered_attribute(xml, "formControlPr", "noThreeD", "1", _FORM_CONTROL_ORDER)
+    return xml
 
 
 def control_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
@@ -884,12 +889,128 @@ def with_control_state(sheet_xml: str, shape: Shape) -> str:
         head = _CONTROL_HEAD.search(markup)
         if head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
             return markup
-        markup = _attribute_on_tag(markup, "controlPr", "locked", None if shape.locked else "0")
-        markup = _attribute_on_tag(markup, "controlPr", "altText", shape.description or None)
-        markup = _attribute_on_tag(markup, "anchor", "moveWithCells", None if shape.edit_as == "absolute" else "1")
-        return _attribute_on_tag(markup, "anchor", "sizeWithCells", "1" if shape.edit_as in ("", "twoCell") else None)
+        markup = _ordered_attribute(markup, "controlPr", "locked", None if shape.locked else "0", _CONTROL_PR_ORDER)
+        markup = _ordered_attribute(markup, "controlPr", "altText", shape.description or None, _CONTROL_PR_ORDER)
+        markup = _ordered_attribute(markup, "anchor", "moveWithCells", None if shape.edit_as == "absolute" else "1", _ANCHOR_ORDER)
+        return _ordered_attribute(markup, "anchor", "sizeWithCells", "1" if shape.edit_as in ("", "twoCell") else None, _ANCHOR_ORDER)
 
     return _CONTROL.sub(change, sheet_xml)
+
+
+#: The schema's order of what this module patches on a control loaded from a file: x:ClientData's children, controlPr's attributes and
+#: formControlPr's. Excel puts a new one before the first already there that comes after it, whatever order the rest keep
+#: (tests/fixtures/loaded_control_edits.json).
+_CLIENT_ORDER = ('MoveWithCells', 'SizeWithCells', 'Anchor', 'Locked', 'DefaultSize', 'PrintObject', 'Disabled', 'AutoFill', 'AutoLine', 'AutoPict',
+                 'FmlaMacro', 'TextHAlign', 'TextVAlign', 'LockText', 'JustLastX', 'SecretEdit', 'Default', 'Help', 'Cancel', 'Dismiss', 'Accel',
+                 'Accel2', 'Row', 'Column', 'Visible', 'RowHidden', 'ColHidden', 'VTEdit', 'MultiLine', 'VScroll', 'ValidIds', 'FmlaRange', 'WidthMin',
+                 'Sel', 'NoThreeD2', 'SelType', 'MultiSel', 'LCT', 'ListItem', 'DropStyle', 'Colored', 'DropLines', 'Checked', 'FmlaLink', 'FmlaPict',
+                 'NoThreeD', 'FirstButton', 'FmlaGroup', 'Val', 'Min', 'Max', 'Inc', 'Page', 'Horiz', 'Dx')
+_CONTROL_PR_ORDER = ('locked', 'defaultSize', 'print', 'disabled', 'recalcAlways', 'uiObject', 'autoFill', 'autoLine', 'autoPict', 'macro', 'altText',
+                     'linkedCell', 'listFillRange', 'cf', 'r:id')
+_ANCHOR_ORDER = ('moveWithCells', 'sizeWithCells', 'z-order')
+_FORM_CONTROL_ORDER = ('objectType', 'checked', 'colored', 'dropLines', 'dropStyle', 'dx', 'firstButton', 'fmlaGroup', 'fmlaLink', 'fmlaRange',
+                       'fmlaTxbx', 'horiz', 'inc', 'justLastX', 'lockText', 'max', 'min', 'multiSel', 'noThreeD', 'noThreeD2', 'page', 'sel', 'seltype',
+                       'textHAlign', 'textVAlign', 'val', 'widthMin', 'editVal', 'multiLine', 'verticalBar', 'passwordEdit')
+
+
+def _ordered_attribute(markup: str, tag: str, name: str, value: str | None, order: tuple[str, ...]) -> str:
+    """One attribute of ``tag`` set, or taken off for None, a new one placed where ``order`` puts it among those already there."""
+    found = re.search(rf"<{re.escape(tag)}(?=[\s/>])[^>]*>", markup)
+    if found is None:
+        return markup
+    head = found.group(0)
+    attribute = re.compile(rf'\s{re.escape(name)}="[^"]*"')
+    if value is None:
+        head = attribute.sub("", head, count=1)
+    elif attribute.search(head):
+        head = attribute.sub(lambda _: f' {name}="{escape(value)}"', head, count=1)
+    else:
+        later = order[order.index(name) + 1:]
+        place = next((match.start() for match in re.finditer(r'\s([\w:]+)="', head) if match.group(1) in later), None)
+        if place is None:
+            place = len(head) - (2 if head.endswith("/>") else 1)
+        head = head[:place] + f' {name}="{escape(value)}"' + head[place:]
+    return markup[:found.start()] + head + markup[found.end():]
+
+
+def _ordered_child(markup: str, tag: str, wanted: str) -> str:
+    """One of x:ClientData's children as ``wanted`` spells it, or taken off where that is empty, a new one placed in _CLIENT_ORDER."""
+    # Each child on a line of its own as Excel writes them, "\r\n   " before each; none in the model's own VML.
+    spacing = re.search(r"<x:ClientData\b[^>]*>(\s*)<", markup)
+    separator = spacing.group(1) if spacing else ""
+    found = re.search(rf"\s*<x:{tag}\b[^>]*?(?:/>|>.*?</x:{tag}>)", markup, re.DOTALL)
+    if found is not None:
+        if not wanted:
+            return markup[:found.start()] + markup[found.end():]
+        element = found.group(0).lstrip()
+        start = found.end() - len(element)
+        return markup if element == wanted else markup[:start] + wanted + markup[found.end():]
+    if not wanted:
+        return markup
+    later = _CLIENT_ORDER[_CLIENT_ORDER.index(tag) + 1:]
+    place = next((match.start() for match in re.finditer(r"<x:(\w+)", markup) if match.group(1) in later), None)
+    if place is not None:
+        return markup[:place] + wanted + separator + markup[place:]
+    end = markup.find("</x:ClientData>")
+    if end < 0:
+        return markup
+    # After the last child: where the space before the closing tag starts.
+    last = len(markup[:end].rstrip())
+    return markup[:last] + separator + wanted + markup[last:]
+
+
+def with_control_flags(sheet_xml: str, shape: Shape) -> str:
+    """What the sheet's controlPr says of a loaded control's PrintObject and Enabled."""
+    control = shape.control
+
+    def change(found: re.Match[str]) -> str:
+        markup = found.group(0)
+        head = _CONTROL_HEAD.search(markup)
+        if control is None or head is None or dict(_ATTRIBUTE.findall(head.group(1))).get("shapeId") != str(shape.shape_id):
+            return markup
+        markup = _ordered_attribute(markup, "controlPr", "print", "0" if control.print_object is False else None, _CONTROL_PR_ORDER)
+        return _ordered_attribute(markup, "controlPr", "disabled", "1" if control.disabled else None, _CONTROL_PR_ORDER)
+
+    return _CONTROL.sub(change, sheet_xml)
+
+
+def with_vml_flags(vml: str, shape: Shape) -> str:
+    """A loaded control's PrintObject, Disabled, LockText, DropLines and NoThreeD in its VML."""
+    control = shape.control
+    span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
+    if control is None or span is None:
+        return vml
+    markup = vml[span[0]:span[1]]
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    markup = _ordered_child(markup, "PrintObject", "<x:PrintObject>False</x:PrintObject>" if control.print_object is False else "")
+    markup = _ordered_child(markup, "Disabled", "<x:Disabled/>" if control.disabled else "")
+    if kind in ("Checkbox", "Button", "Radio"):
+        markup = _ordered_child(markup, "LockText", "" if control.lock_text else "<x:LockText>False</x:LockText>")
+    if kind == "Drop":
+        markup = _ordered_child(markup, "DropLines", f"<x:DropLines>{8 if control.drop_lines is None else control.drop_lines}</x:DropLines>")
+    # A button's flags set this session go in; one already there stays, as Excel reads none of them back to change.
+    for flag in sorted(control.button_flags):
+        markup = _ordered_child(markup, flag, f"<x:{flag}/>")
+    # A list and a drop-down keep Display3DShading turned off as NoThreeD2, a check box and an option button as NoThreeD.
+    if kind in ("Drop", "List"):
+        markup = _ordered_child(markup, "NoThreeD2", "" if control.three_d else "<x:NoThreeD2/>")
+    elif kind in ("Checkbox", "Radio"):
+        markup = _ordered_child(markup, "NoThreeD", "" if control.three_d else "<x:NoThreeD/>")
+    return vml[:span[0]] + markup + vml[span[1]:]
+
+
+def with_control_settings(properties: str, control: ControlInfo) -> str:
+    """A loaded control's part with its LockText, DropLines and Display3DShading, where it keeps them: lockText is written only while on,
+    dropLines only once set from its 8, noThreeD only while the shading is off."""
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    if kind in ("Checkbox", "Button", "Radio"):
+        properties = _ordered_attribute(properties, "formControlPr", "lockText", "1" if control.lock_text else None, _FORM_CONTROL_ORDER)
+    if kind == "Drop":
+        lines = None if control.drop_lines in (None, 8) else str(control.drop_lines)
+        properties = _ordered_attribute(properties, "formControlPr", "dropLines", lines, _FORM_CONTROL_ORDER)
+    if kind in ("Drop", "List", "Checkbox", "Radio"):
+        properties = _ordered_attribute(properties, "formControlPr", "noThreeD", None if control.three_d else "1", _FORM_CONTROL_ORDER)
+    return properties
 
 
 def _vml_flag(markup: str, tag: str, wanted: str) -> str:
@@ -902,8 +1023,147 @@ def _vml_flag(markup: str, tag: str, wanted: str) -> str:
     return markup.replace("</x:ClientData>", f"{wanted}</x:ClientData>") if wanted else markup
 
 
-def _vml_state(markup: str, shape: Shape) -> str:
-    """A control's Visible, Locked and Placement in its VML, changed only where they differ."""
+#: A button's text frame, what DrawingML writes for each value (tests/fixtures/button_text.json): HorizontalAlignment as pPr's algn and the
+#: inset it drops, VerticalAlignment as bodyPr's anchor and the inset it drops (Justify and Distributed in the VML alone), Orientation
+#: as bodyPr's vert and the insets it drops.
+_ALIGN = {-4131: ("l", "rIns"), -4108: ("ctr", ""), -4152: ("r", "lIns"), -4130: ("just", ""), -4117: ("dist", "")}
+_ANCHOR = {-4160: ("t", "bIns"), -4108: ("ctr", ""), -4107: ("b", "tIns"), -4130: (None, ""), -4117: (None, "")}
+_VERT = {-4128: (None, ()), -4171: ("vert270", ()), -4170: ("vert", ()), -4166: ("wordArtVert", ("tIns", "bIns"))}
+#: What the VML gets: TextHAlign and TextVAlign as named (none for the first, which is the default), the div's text-align (none where
+#: it goes), and the textbox's layout flow.
+_VML_H = {-4131: (None, "left"), -4108: ("Center", "center"), -4152: ("Right", "right"), -4130: ("Justify", "justify"), -4117: ("Distributed", None)}
+_VML_V = {-4160: None, -4108: "Center", -4107: "Bottom", -4130: "Justify", -4117: "Distributed"}
+_VML_FLOW = {-4128: "", -4171: "layout-flow:vertical;mso-layout-flow-alt:bottom-to-top;", -4170: "layout-flow:vertical;",
+             -4166: "layout-flow:vertical;mso-layout-flow-alt:top-to-bottom;"}
+TEXT_FRAME_VALUES = {"HorizontalAlignment": tuple(_ALIGN), "VerticalAlignment": tuple(_ANCHOR), "Orientation": tuple(_VERT)}
+_BODY_ORDER = ("rot", "spcFirstLastPara", "vertOverflow", "horzOverflow", "vert", "wrap", "lIns", "tIns", "rIns", "bIns", "numCol", "spcCol",
+               "rtlCol", "fromWordArt", "anchor", "anchorCtr", "forceAA", "upright", "compatLnSpc")
+
+
+def control_text_frame(source: str) -> dict[str, int]:
+    """A loaded control's HorizontalAlignment, VerticalAlignment and Orientation as its DrawingML holds them, what Excel reads back
+    (tests/fixtures/button_text.json); a control without one reads them centred and horizontal."""
+    body = re.search(r"<a:bodyPr\b[^>]*>", source)
+    paragraph = re.search(r'<a:pPr\b[^>]*\balgn="(\w+)"', source)
+    anchor = re.search(r'\banchor="(\w+)"', body.group(0)) if body else None
+    vert = re.search(r'\bvert="(\w+)"', body.group(0)) if body else None
+    return {
+        "HorizontalAlignment": next((key for key, (name, _) in _ALIGN.items() if paragraph and name == paragraph.group(1)), -4108),
+        "VerticalAlignment": next((key for key, (name, _) in _ANCHOR.items() if anchor and name == anchor.group(1)), -4108),
+        "Orientation": next((key for key, (name, _) in _VERT.items() if vert and name == vert.group(1)), -4128),
+    }
+
+
+def text_frame_measured(source: str) -> bool:
+    """Whether a loaded control's text is laid out as the button measured was: one paragraph centred, anchored in the middle, horizontal,
+    with every inset Excel's 27432."""
+    body = re.search(r"<a:bodyPr\b[^>]*>", source)
+    if body is None or len(re.findall(r"<a:pPr\b", source)) != 1 or ' vert="' in body.group(0) or 'anchor="ctr"' not in body.group(0):
+        return False
+    insets = dict(re.findall(r'\b([lrtb]Ins)="(\d+)"', body.group(0)))
+    return insets == {name: "27432" for name in ("lIns", "tIns", "rIns", "bIns")} and re.search(r'<a:pPr\b[^>]*\balgn="ctr"', source) is not None
+
+
+def with_text_frame(markup: str, control: ControlInfo) -> str:
+    """A loaded button's DrawingML with the text frame setting it was given this session, from the layout measured."""
+    if control.text_frame is None:
+        return markup
+    name, value = control.text_frame
+    body = re.search(r"<a:bodyPr\b[^>]*>", markup)
+    if body is None:
+        return markup
+    head = body.group(0)
+    dropped: tuple[str, ...] = ()
+    if name == "HorizontalAlignment":
+        algn, side = _ALIGN[value]
+        markup = re.sub(r'(<a:pPr\b[^>]*\balgn=")\w+"', rf'\g<1>{algn}"', markup, count=1)
+        dropped = (side,) if side else ()
+    elif name == "VerticalAlignment":
+        anchor, side = _ANCHOR[value]
+        if anchor is not None:
+            head = _ordered_attribute(head, "a:bodyPr", "anchor", anchor, _BODY_ORDER)
+        dropped = (side,) if side else ()
+    else:
+        vert, dropped = _VERT[value]
+        if vert is not None:
+            head = _ordered_attribute(head, "a:bodyPr", "vert", vert, _BODY_ORDER)
+    for side in dropped:
+        head = _ordered_attribute(head, "a:bodyPr", side, "0", _BODY_ORDER)
+    body = re.search(r"<a:bodyPr\b[^>]*>", markup)
+    assert body is not None
+    return markup[:body.start()] + head + markup[body.end():]
+
+
+def with_vml_text_frame(vml: str, shape: Shape) -> str:
+    """A loaded button's VML with the text frame setting it was given this session: TextHAlign or TextVAlign, the div's text-align and the
+    textbox's layout flow, each line laid out again as Excel lays it out (tests/fixtures/button_text.json)."""
+    control = shape.control
+    span = _vml_shape_span(vml, f"_x0000_s{shape.shape_id}")
+    if control is None or control.text_frame is None or span is None:
+        return vml
+    name, value = control.text_frame
+    markup = vml[span[0]:span[1]]
+    align: str | None = "keep"
+    if name == "HorizontalAlignment":
+        element, align = _VML_H[value]
+        markup = _ordered_child(markup, "TextHAlign", f"<x:TextHAlign>{element}</x:TextHAlign>" if element else "")
+    elif name == "VerticalAlignment":
+        element = _VML_V[value]
+        markup = _ordered_child(markup, "TextVAlign", f"<x:TextVAlign>{element}</x:TextVAlign>" if element else "")
+        # Justified or distributed down, the div loses its text-align (measured; Excel reads the alignment across unchanged).
+        align = None if value in (-4130, -4117) else "keep"
+    else:
+        box = re.search(r"<v:textbox\b[^>]*>", markup)
+        if box is not None and _VML_FLOW[value] and "layout-flow" not in box.group(0):
+            tag = re.sub(r"(\bstyle=')", rf"\g<1>{_VML_FLOW[value]}", box.group(0), count=1)
+            markup = markup[:box.start()] + _vml_rewrapped(tag, "   ", 2) + markup[box.end():]
+    if align != "keep":
+        division = re.search(r"<div\b.*?</div>", markup, re.DOTALL)
+        if division is not None:
+            text = division.group(0)
+            text = (re.sub(r"(<div\b[^>]*\bstyle=')text-align:\w+", rf"\g<1>text-align:{align}", text, count=1) if align else
+                    re.sub(r"<div\s+style='text-align:\w+'>", "<div>", text, count=1))
+            markup = markup[:division.start()] + _vml_rewrapped(text, "   ", 3) + markup[division.end():]
+    return vml[:span[0]] + markup + vml[span[1]:]
+
+
+def vml_wrapped(pieces: list[str], indent: str = "  ", column: int = 0) -> str:
+    """A line of VML as Excel's writer lays it out: it breaks, ``indent`` in, before a piece that starts with a space, an attribute or
+    a word of text, once the line has reached column 67, and before a style declaration once it has reached 70, the space dropped;
+    ``column`` is how far in the line already is where the first piece starts. Fitted to every v:shape and v:textbox tag and div line in
+    tests/fixtures/loaded_control_edits.json, button_text.json, notes.json and the workbooks they open, 1,293 lines, no other pair of
+    limits fitting them all; the words alone allow any limit from 40 to 83."""
+    lines = [pieces[0]]
+    for piece in pieces[1:]:
+        if column * (len(lines) == 1) + len(lines[-1]) >= (67 if piece.startswith(" ") else 70):
+            lines.append(indent + piece.lstrip(" "))
+        else:
+            lines[-1] += piece
+    return "\r\n".join(lines)
+
+
+_VML_ATTRIBUTE = re.compile(r"""\s[\w:]+=(?:"[^"]*"|'[^']*')""")
+
+
+def _vml_rewrapped(line: str, indent: str = "  ", column: int = 0) -> str:
+    """A line of VML Excel wrote, after an edit, laid out again as Excel lays one out: it may break before each attribute of its tags
+    and after each declaration of a style."""
+    flat = re.sub(rf";\r\n{indent}", ";", re.sub(rf"(?<!;)\r\n{indent}", " ", line))
+    # Text breaks between words, each word taking the space before it as an attribute does.
+    cuts = {0, *(text.start(1) + space.start() for text in re.finditer(r">([^<]+)<", flat) for space in re.finditer(r" ", text.group(1)))}
+    for tag in re.finditer(r"<[^>]*>", flat):
+        for attribute in _VML_ATTRIBUTE.finditer(tag.group(0)):
+            start = tag.start() + attribute.start()
+            cuts.add(start)
+            if attribute.group(0).startswith(" style="):
+                cuts.update(start + semicolon.end() for semicolon in re.finditer(";", attribute.group(0)[:-2]))
+    ordered = sorted(cuts)
+    return vml_wrapped([flat[one:two] for one, two in zip(ordered, [*ordered[1:], len(flat)])], indent, column)
+
+
+def _vml_state(markup: str, shape: Shape, *, loaded: bool = False) -> str:
+    """A control's Visible, Locked and Placement in its VML, changed only where they differ: on a loaded control each goes where Excel
+    puts it among those its file holds (_CLIENT_ORDER), on the model's own at the end."""
     if shape.hidden != ("visibility:hidden" in markup):
         if not shape.hidden:
             markup = re.sub(r";?visibility:hidden", "", markup, count=1)
@@ -912,9 +1172,10 @@ def _vml_state(markup: str, shape: Shape) -> str:
         else:
             markup = re.sub(r"(\bstyle=['\"][^'\"]*)", r"\1;visibility:hidden", markup, count=1)
     markup = _attribute_on_tag(markup, "v:shape", "alt", shape.description or None)
-    markup = _vml_flag(markup, "Locked", "" if shape.locked else "<x:Locked>False</x:Locked>")
-    markup = _vml_flag(markup, "MoveWithCells", "<x:MoveWithCells/>" if shape.edit_as == "absolute" else "")
-    return _vml_flag(markup, "SizeWithCells", "" if shape.edit_as in ("", "twoCell") else "<x:SizeWithCells/>")
+    flag = _ordered_child if loaded else _vml_flag
+    markup = flag(markup, "Locked", "" if shape.locked else "<x:Locked>False</x:Locked>")
+    markup = flag(markup, "MoveWithCells", "<x:MoveWithCells/>" if shape.edit_as == "absolute" else "")
+    return flag(markup, "SizeWithCells", "" if shape.edit_as in ("", "twoCell") else "<x:SizeWithCells/>")
 
 
 def _attribute_on_tag(markup: str, tag: str, name: str, value: str | None) -> str:
@@ -944,7 +1205,7 @@ def with_vml_control(vml: str, shape: Shape, before: Shape, grid: SheetGrid) -> 
         # What it was found by goes on, as Excel's does (tests/fixtures/old_collection_edits.json).
         markup = _attribute_on_tag(markup, "v:shape", "o:spid", f"_x0000_s{shape.shape_id}")
         markup = _attribute_on_tag(markup, "v:shape", "id", _vml_id(shape.name))
-    markup = _vml_state(markup, shape)
+    markup = _vml_state(markup, shape, loaded=True)
     if (shape.left, shape.top, shape.width, shape.height) != (before.left, before.top, before.width, before.height):
         style = re.search(r"\bstyle=([\"'])(.*?)\1", markup, re.DOTALL)
         if style:
@@ -962,13 +1223,24 @@ def with_vml_control(vml: str, shape: Shape, before: Shape, grid: SheetGrid) -> 
     if shape.text != before.text:
         body = "<div>" + "<br/>".join(escape(line) for line in shape.text.split("\n")) + "</div>"
         box = dml.element_span(markup, "v:textbox")
-        if box:
+        words = [] if box is None else list(re.finditer(r">([^<]*[^<\s][^<]*)<", markup[box[0]:box[1]]))
+        if box and len(words) == 1 and "\n" not in shape.text:
+            # One line in one run of words: Excel changes the words alone, in the div and font it has
+            # (tests/fixtures/loaded_control_edits.json).
+            start, end = box[0] + words[0].start(1), box[0] + words[0].end(1)
+            markup = markup[:start] + escape(shape.text) + markup[end:]
+        elif box:
             start = markup.find(">", box[0]) + 1
             markup = markup[:start] + body + markup[box[1] - len("</v:textbox>"):]
         else:
             start = markup.find("<x:ClientData")
             if start >= 0:
                 markup = markup[:start] + f"<v:textbox>{body}</v:textbox>" + markup[start:]
+    head, was = re.match(r"<v:shape\b[^>]*>", markup), re.match(r"<v:shape\b[^>]*>", vml[span[0]:span[1]])
+    if head is not None and was is not None and head.group(0) != was.group(0) and "\r\n" in was.group(0):
+        # An edited opening tag Excel wrote is laid out again as Excel's writer lays one out.
+        leading = vml[:span[0]]
+        markup = _vml_rewrapped(head.group(0), column=len(leading) - leading.rfind("\n") - 1) + markup[head.end():]
     return vml[:span[0]] + markup + vml[span[1]:]
 
 
@@ -1172,6 +1444,9 @@ def _with_loaded_text(markup: str, shape: Shape, was: Shape) -> str:
     """A loaded shape's markup with what a macro changed of its text: written out if the model writes this text just as the file
     does; otherwise only new words, in the first run's settings, with the frame and the first paragraph's kept."""
     span = dml.element_span(markup, "xdr:txBody")
+    if span is not None and shape.kind == "formControl":
+        # A control's caption: only the words change, in the first run's settings (tests/fixtures/loaded_control_edits.json).
+        return markup if shape.text == was.text else markup[:span[0]] + _new_words(markup[span[0]:span[1]], shape.text) + markup[span[1]:]
     if span is None or shape.kind not in ("shape", "textBox"):
         return dml.replace_text(markup, shape.text, "xdr:txBody") if shape.text != was.text else markup
     if shape.text_read:
@@ -1779,6 +2054,8 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
     # Excel-authored controls can also carry a hidden DrawingML
     # caption. Excel prefers it to VML when both exist.
     markup = _with_loaded_text(markup, shape, was)
+    if shape.kind == "formControl" and shape.control is not None:
+        markup = with_text_frame(markup, shape.control)
     if shape.kind == "picture":
         markup = _with_loaded_picture(markup, shape, was)
     if shape.kind == "line" and shape.links_read:
@@ -1881,9 +2158,12 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
                                     + "</a:extLst></xdr:cNvPr>", 1)
     if shape.fill_line is not None:
         markup = with_fill_line(markup, _fill_line(shape))
-    if shape.lock_aspect != was.lock_aspect:
+    # A control's VML says False where its drawing has no spLocks to say anything, and None; either way the aspect is free.
+    free = shape.kind == "formControl" and not shape.lock_aspect and not was.lock_aspect
+    if shape.lock_aspect != was.lock_aspect and not free:
         markup = _with_lock(markup, shape)
-    if (shape.locked, shape.prints) != (was.locked, was.prints):
+    # A control keeps its Locked and PrintObject in the sheet and its VML; Excel leaves its drawing's clientData as it is.
+    if (shape.locked, shape.prints) != (was.locked, was.prints) and shape.kind != "formControl":
         markup = re.sub(r"<xdr:clientData\b[^>]*/>", lambda _: _client_data(shape), markup, count=1)
     if shape.edit_as != was.edit_as:
         # tests/fixtures/chart_object_more.json

@@ -108,8 +108,6 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     ``below`` the line after them. ``laid`` is for a caller that lays the outline out itself once it is done, as
     Subtotal does: the lines' outline marks move with them meanwhile."""
     sheet, area = target.sheet, target.first
-    if sheet.advanced_filter is not None:
-        raise VBAUnsupportedError('Structural edits on an advanced-filtered sheet are not implemented')
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
@@ -124,6 +122,8 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     from pyopenvba.apps.excel._conditional_edits import LineEdit, planned
 
     conditional = planned(sheet, LineEdit(rows, start, count, delete), below=below)
+    validation = _validation.planned(sheet, LineEdit(rows, start, count, delete), lambda owner: lambda text: rewrite(
+        text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _data_tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
@@ -152,8 +152,9 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
         text = rewrite(entry.refers_to, name_scope(sheet.book, entry) or sheet.name, sheet.name,
                        rows=rows, start=start, count=count, delete=delete)
         names.append((entry, text))
-    from pyopenvba.apps.excel import _chart_references
+    from pyopenvba.apps.excel import _advanced_filter, _chart_references
 
+    listed = _advanced_filter.edited(sheet, names)
     chart_references = _chart_references.plan(sheet.book, lambda text, owner: rewrite(
         text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
     # All validation/conversion precedes mutation.
@@ -184,8 +185,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
 
     _held_ranges.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                    delete=delete))
-    _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
-                                                  delete=delete))
+    validation()
     conditional()
     _hyperlinks.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
@@ -210,6 +210,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     from pyopenvba.apps.excel._autofilter import filter_edited
 
     filter_edited(sheet, rows=rows, start=start, count=count, delete=delete)
+    listed()
     _spills.restore(sheet, caches)
     sheet.shape_changed()
 
@@ -265,8 +266,6 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     is a table the shift may run through, a row or a column of it going in or out, whose block the caller keeps
     up to date. Inserted cells take the formats of those before them, or with ``below`` those after them."""
     sheet = target.sheet
-    if sheet.advanced_filter is not None:
-        raise VBAUnsupportedError('Cell shifts on an advanced-filtered sheet are not implemented')
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
     refuse_sparklines(sheet, "Shifting cells on")
@@ -277,6 +276,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     from pyopenvba.apps.excel._conditional_edits import planned
 
     conditional = planned(sheet, shift, below=below)
+    validation = _validation.planned(sheet, shift, lambda owner: lambda text: rewrite_shift(text, owner, sheet.name, shift))
     _arrays.shift_admitted(sheet, area, region, delete=delete)
     _data_tables.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
@@ -315,8 +315,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     for entry in sheet.book.names_.entries:
         names.append((entry, rewrite_shift(entry.refers_to, name_scope(sheet.book, entry) or sheet.name, sheet.name,
                                            shift)))
-    from pyopenvba.apps.excel import _chart_references
+    from pyopenvba.apps.excel import _advanced_filter, _chart_references
 
+    listed = _advanced_filter.edited(sheet, names)
     chart_references = _chart_references.plan(sheet.book, lambda text, owner: rewrite_shift(
         text, owner, sheet.name, shift))
     from pyopenvba.apps.excel._autofilter import filter_shifted
@@ -344,7 +345,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _data_tables.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
-    _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    validation()
     from pyopenvba.apps.excel import _held_ranges
 
     _held_ranges.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
@@ -361,6 +362,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     if carried:
         lines_edited(sheet, carried, rows=vertical, start=start, count=count, delete=delete)
     follow()
+    listed()
     _spills.restore(sheet, caches)
     sheet.shape_changed()
 

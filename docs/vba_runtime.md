@@ -147,19 +147,22 @@ app.set_hook("ExportAsFixedFormat", export, folders=["C:/reports"])
 app.set_hook("PrintOut", my_print_function)
 ```
 
-`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat` or `PrintOut`; any other name raises `ValueError`, and `None` removes the function.
+`set_hook(name, function, folders=[...])` takes `ExportAsFixedFormat`, `PrintOut`, `Export` (`Chart.Export`), `CopyPicture` or `Refresh`;
+any other name raises `ValueError`, and `None` removes the function.
 
 The model answers what it measured itself: a macro's argument errors, then `BeforePrint`, then the file. Only then does it call the function with a
 `HookRequest`:
 
 | Field | Holds |
 | --- | --- |
-| `member` | `ExportAsFixedFormat` or `PrintOut` |
-| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart` or `Sheets` |
+| `member` | `ExportAsFixedFormat`, `PrintOut`, `Export` or `CopyPicture` |
+| `owner` | The class it was called on: `Worksheet`, `Workbook`, `Range`, `Chart`, `Sheets`, `Shape` or `ChartObject` |
 | `target`, `workbook` | The live objects |
 | `arguments` | Only what the macro gave, under Excel's names, read-only |
 | `path` | The file to write, past the gate and with Excel's name rules applied, or `None` |
 | `saved_bytes()` | What `SaveCopyAs` would write now, changing nothing about the workbook |
+| `caller` | The procedure making the call, as `"Module1.SaveReport"` |
+| `entry` | What the host itself started the run with: the macro it ran, or the event that fired, as `"ThisWorkbook.Workbook_Open"`. A macro names its own procedures, so a rule about what the user started goes by `entry`, not `caller` |
 
 Trust `path`, not `arguments`. Every value in `arguments` comes from the macro, which may be untrusted. `Copies` and `ActivePrinter` are yours to honour or not.
 `OpenAfterPublish` and `Preview` are values only: the model opens no viewer, prints nothing and shows nothing. Excel's names rule on `path`: a name left out goes to the
@@ -188,6 +191,24 @@ files reports itself, as `SaveCopyAs` elsewhere does.
 `PrToFileName` empty, `Null` or left out puts up a form in Excel, which is not measured: it takes the next answer queued with `answer_dialogs`, and reports itself with none. `Preview` true and a
 printer's name were never run in Excel, so what the function does with them is unmeasured.
 
+### Pictures
+
+`Chart.Export`, on a chart sheet or a chart in a frame, and `CopyPicture`, on a `Range`, a `Shape`, a `ChartObject` and a chart, are two more members with a
+function (measured in `tests/fixtures/output_pictures.json`):
+
+- `Export`: `path` is the name the macro gave, a relative one in the current folder, with nothing added. `FilterName`, or else the name's extension, says
+  what to draw: `PNG`, `GIF`, `JPG`, `JPEG` or `BMP`, in any case. For any other, or none, Excel writes an empty file and answers `True`, and the model does
+  the same without calling the function, through the same gate. A missing folder, a folder, a read-only file, a bad character and a path too long each
+  give Excel's own error first.
+- A chart in a frame: in a fresh Excel started by automation, Excel exports every chart in a frame as an empty file until some chart object has been
+  activated or selected in that session, and draws every one after (`tests/fixtures/frame_drawn.json`). That is a state of Excel's drawing across the
+  session, not of the chart: a person's Excel has nearly always had a chart clicked already. The model does not copy it, and calls the function for a
+  chart in a frame as it does for a chart sheet.
+- `CopyPicture`: `path` is `None`. Each class checks `Appearance` and `Format` its own way, as Excel does: a chart takes any number, the rest only
+  `xlScreen` or `xlPrinter` and `xlPicture` or `xlBitmap`, and a bitmap as printed only on a chart. A `Range` of several areas is 1004, and a hidden shape
+  copies nothing and does not call the function. Like a `PrintOut` with no file, it runs under the sandbox: registering it is the grant. Afterwards
+  `CutCopyMode` reads 0, and pasting the picture reports itself, as the model has no picture to make a shape of, until cells or a chart are copied again.
+
 ### Linked files
 
 A macro reads another workbook's file in four places: `UpdateLink`, `ChangeLink`, `LinkInfo`'s status, and a formula naming a closed workbook the file has no
@@ -205,6 +226,191 @@ stays refused.
 A formula that names a workbook by its file alone, `=[Alpha.xlsx]Sheet1!A1`, makes Excel look for it in the current folder. A macro under the sandbox cannot
 change the current folder, so it is the folder your process was in when you made the `ExcelApplication`. The file is read only if that folder, or one above it, is
 granted. If you do not want bare names read at all, grant only folders other than that one.
+
+### Refresh: rows from a database
+
+`set_hook("Refresh", function)` gives a query table over a database its rows. A macro adds one as Excel's does, with an `OLEDB;` or `ODBC;`
+connection string and SQL, and refreshes it:
+
+```vba
+Set q = ActiveSheet.QueryTables.Add("OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\data\sales.accdb", Range("B2"), "SELECT * FROM Sales")
+q.Refresh False
+```
+
+The function fetches and the model lays out. `request.source` is an `ExternalSource`:
+
+| Field | Holds |
+| --- | --- |
+| `kind` | `OLEDB` or `ODBC` |
+| `connection` | The connection string as the macro set it, without its `OLEDB;` or `ODBC;` |
+| `command_text` | The SQL |
+| `command_type` | `xlCmdSql` |
+| `parameters` | The parameters given, as `(name, value)` pairs |
+| `fields_wanted` | Whether the field names head the rows |
+
+It returns the rows, the field names first:
+
+```python
+from pyopenvba.access import AccessDatabase
+
+
+def from_access(request):
+    # An .accdb read through pyOpenVBA's own Access engine: an example of a host's source, not a dependency of the hook.
+    path = request.source.connection.partition("Data Source=")[2].partition(";")[0]
+    with AccessDatabase(path) as db:
+        found = db.execute(request.source.command_text)
+    names = list(found[0]) if found else []
+    return [names, *[[row[name] for name in names] for row in found]]
+
+
+app.set_hook("Refresh", from_access)
+```
+
+A value goes on the sheet by its Python type, as Excel puts a database's by its type (measured through ACE OLEDB against an Access file):
+`str` as text, even one that looks like a number, and `""` as a cell holding it; `int`, `float` and `Decimal` as numbers in General, Currency
+included; `bool` as a Boolean; a `date` or `datetime` as a Date shown `m/d/yyyy`, its time kept in the value; `None` as an empty cell. Rows of
+another length, a name that is not text or a value no cell holds are 1004.
+
+The model does what Excel does with the rows, measured in tests/fixtures/query_refresh_layout.json: the names in bold, `RowNumbers` from 0,
+`RefreshStyle` on a first and a later refresh, `FillAdjacentFormulas`, `PreserveFormatting`, the result range and its `ExternalData_` name, and
+the file Excel opens and refreshes itself.
+
+**In the background.** A table a macro adds has `BackgroundQuery` False. With it True, or `Refresh True`, Excel returns at once with the sheet
+as it was and `Refreshing` True until no macro runs. So does the model: `ExcelApplication.run` calls the function once the macro is over, before
+`OnTime`'s macros. Every waiting refresh runs. If any fails, `run` raises `pyopenvba.exceptions.BackgroundRefreshError` after the run's own
+result, with each failure in `failures` and the first as `__cause__`. If the run itself failed, its error is raised, with the failures as its
+`refresh_failures` and, on Python 3.11 and later, a note. Excel shows such a failure in a message the macro never sees, so nothing reaches the macro.
+
+**The step limit** does not count a refresh that runs after the macro: that is the host's code, outside the run. VBA the function runs is a new
+entry, with a budget of its own.
+
+**Passwords.** The function gets the connection string whole, since it needs it to connect. Everywhere the model shows one, in
+`ExternalSource`'s repr and in its errors, a password is `****`: any key with `password` or `pwd` in it, such as `Pwd`, `Password` or
+`Jet OLEDB:Database Password`. A function's own error text stays in `__cause__` alone, as it may echo the string. As Excel does, once a refresh
+has run `Connection` drops the password unless `SavePassword` is True, and a save writes it only then. What Excel drops goes by the key, not by
+the value: `Password=""` goes though it is empty, and `Jet OLEDB:New Database Password=""`, which ACE's own string holds, stays.
+
+**A file opened again.** A book Excel saved with a query table over a database, on a sheet or as a ListObject's, opens with it, measured
+against Excel's own saves over an Access file and a CSV file (tests/fixtures/query_refresh_loaded.json). The model keeps what the file says of
+the connection it did not make: the provider's fuller string, `Mode=Share Deny None;Jet OLEDB:Engine Type=6` and the rest, the command, the
+connection's name and number, and every setting. The function gets that string, and an untouched save writes Excel's parts as they came. A
+ListObject's `QueryTable` is not in the sheet's `QueryTables`; its `Name` and `FieldNames` are 1004, `PreserveColumnInfo` is True, its names
+are not bold, and a refresh resizes the ListObject. Excel opens what the model saved and refreshes it itself
+(tests/fixtures/query_refresh_loaded_saved.json). A file whose query tables or connections say anything the model would not write back the
+same keeps them all refused, its parts saved as they came.
+
+**A ListObject over a database.** `ListObjects.Add(xlSrcExternal, Array(connection), , , Destination)` makes a table of one column at the
+destination under `ExternalData_1: Getting Data ...`, named `Table_ExternalData_1`, with a hidden `ExternalData_1` over its block and a
+connection named `Connection`, measured against Excel over an Access file (tests/fixtures/list_query_add.json). The source may be the string
+alone; the headers argument changes nothing; with no `Destination` it is error 5. Before its first refresh its `CommandText` is error 7 and a
+refresh is 1004; its `CommandType` is xlCmdDefault, and xlCmdTable takes a table's name. `ListObject.Refresh` refreshes it. A refresh gives the
+table its fields' columns: columns it has keep their order and their ids, new fields follow, and one it no longer has goes. A first refresh moves
+only what is in the new columns' way, right in their rows; a later one inserts or deletes columns beside the table, and what is below moves in the
+table's columns. `Unlist` and `Delete` take the query table, its connection and its name with the table, and a save of a book Excel saved
+leaves no part of them. A save writes the table, its query table and its connection as Excel does, ids and all, before the first refresh too,
+and Excel opens what the model saved and refreshes it itself (tests/fixtures/list_query_add_saved.json).
+
+**RefreshAll.** `Workbook.RefreshAll` refreshes each table over a database a refresh has run on, a sheet's or a ListObject's, with its command
+as it is now, and a ListObject's never refreshed where it has a command; a sheet's never refreshed, and a ListObject's with no command, it
+passes over without an error, as it does one whose `EnableRefresh` is False or whose connection's `RefreshWithRefreshAll` is False. A table
+whose `BackgroundQuery` is True waits for the macro to end, `Refreshing` True meanwhile, as its own `Refresh` does
+(tests/fixtures/refresh_all_database.json). A source that has gone puts up the provider's prompt in Excel, which is not modelled.
+
+Known differences: Excel reads back and saves the provider's own fuller string where the macro set a shorter one; the model keeps the one the
+macro set, so the file differs there. The uid Excel writes on each part is not written for a part the model writes again. Not built:
+`Workbook.RefreshAll` over tables on text files and on databases together, or with pivot tables; `ListObjects.Add` over cells in use, which Excel moves by a rule one case does not settle; a refresh
+that changes both the columns and the rows of a ListObject with cells to its right, or the columns of one a file gave; a ListObject's query
+table with row numbers, without field names or with another `RefreshStyle`; a refresh of one a file holds that was saved before its first
+refresh; and saving one beside a sheet's own query tables. A text file's query table is the model's own, with no function.
+
+### Not supported
+
+These reach outside the engine and have no function to stand in for them, and none is planned. Each reports itself where it would reach out.
+
+- `FollowHyperlink` and `Hyperlink.Follow`: they open a browser, a mail program or a file with whatever handles it.
+- `Shell`: it starts a program.
+- `CheckSpelling`, on the application, a range, a sheet or a chart: it uses Office's proofing tools and puts up their form.
+- `Speak`, and the `Speech` members: they use the computer's speech output.
+- `GetPhonetic`: it asks a Japanese input method for a reading. The model answers the empty text Excel gives without one, as measured, and makes no
+  reading.
+- `SendMail`, `MailEnvelope`, `MailLogon`, `MailLogoff` and the other mail members: they send mail, or sign in to a mail system. `Mailer` answers
+  as Excel does on Windows, which has no mailer.
+
+## COM classes the host supplies
+
+pyOpenVBA starts no COM server and never looks at what is running on the machine. A macro's `CreateObject` and `GetObject` make what a factory the
+host registers makes, and nothing else reaches the system's COM unless that factory does it itself.
+
+```python
+from pyopenvba.interpreter._com_hook import ComRequest
+
+ALLOWED = {"scripting.filesystemobject": make_my_file_system}
+
+
+def factory(request: ComRequest) -> object:
+    make = ALLOWED.get(request.prog_id.lower())
+    return None if make is None else make(request)
+
+
+app = ExcelApplication.open("book.xlsm")
+app.set_com_class("Scripting.FileSystemObject", factory, folders=["C:/data"])
+```
+
+`set_com_class(prog_id, factory, folders=[...])` is on Excel, Word and PowerPoint. `None` in place of the factory takes the class away again. A
+registered name wins over pyOpenVBA's own class of that name, so a host can put its own `FileSystemObject` in, or keep a macro from ours with a factory
+that returns `None`.
+
+**The ProgID comes from the macro.** A factory that hands any name to the system's COM, `win32com.client.Dispatch(request.prog_id)` say, hands the macro
+the machine: a shell, mail, a database on any server. Allow-list the names, as above. What a registered object does is the host's: the model cannot gate
+calls inside it, so an object that reaches files or the network reaches them. A factory that attaches to running programs attaches whatever the user has
+open: their Excel, their mail.
+
+The factory is called with a `ComRequest`:
+
+| Field | Holds |
+| --- | --- |
+| `prog_id` | The name as the macro spelled it |
+| `kind` | `"create"` for `CreateObject` and `GetObject("", class)`; `"get"` for `GetObject(, class)` and `GetObject(path, class)` |
+| `server` | `CreateObject`'s `ServerName`, `""` when none was given. No server is reached by the model |
+| `path` | `GetObject`'s file, past the gate, or `None` |
+| `caller`, `entry` | As on `HookRequest` |
+| `document` | The Workbook, Document or Presentation whose project runs the call |
+
+It returns the object, or `None` for no such class, which the macro sees as 429. An object of the model crosses as it is. Any other Python object is
+wrapped, bound late: its public attributes are its members, matched without regard to case, a method called and anything else read or set. A missing
+member is 438, nothing that starts with an underscore is a member, `For Each` walks what `__iter__` gives, and `o(1)` is `__getitem__`. Every object its
+members answer is wrapped the same way, at every depth, so `fso.GetFolder(p).Files` works. `Set o = Nothing` calls nothing, and `WithEvents` on a wrapped
+object is refused. A host object that runs VBA, as a callback, draws on the step limit of the run that called it.
+
+Values cross both ways as this table says:
+
+| VBA | Python | Back to VBA |
+| --- | --- | --- |
+| String | `str` | String |
+| Byte, Integer, Long, LongLong | `int` | Long if it fits, else Double |
+| Single, Double | `float` | Double |
+| Currency, Decimal | `decimal.Decimal` | Currency |
+| Date | `datetime.datetime` | Date |
+| Boolean | `bool` | Boolean |
+| Empty, a missing argument | `None` | Empty |
+| Null | `pyopenvba.interpreter._values.NULL` | Null |
+| An array | `VBAArray`, keeping its bounds and dimensions | the same |
+| (none) | a `list` or `tuple` | a 0-based Variant array, which `For Each` walks into a Variant only, as VBA has it |
+
+What a factory or an object raises: a `VBAError` goes on as it is, so either can give any error number. Any other `Exception` is error 440, VBA's
+Automation error, with the original as `__cause__`.
+
+`GetObject("", class)` makes a new object, as `CreateObject` does. `GetObject(, class)` asks the factory with `kind="get"`; with none it is 429, as Excel
+answers for a class that is not running, except that in Excel `GetObject(, "Excel.Application")` is the Excel the macro runs in. `GetObject(path, class)`
+needs a registered class, and **under the sandbox** the file must lie in one of `folders`, by the same gate as `set_hook`'s; with no `folders`, no file
+passes. `GetObject(path)` with no class is refused, as Windows would choose the program.
+
+**With nothing registered**, behaviour is as before: pyOpenVBA's own `Scripting.Dictionary`, `VBScript.RegExp`, `ADODB.Stream`, `FileSystemObject`'s path
+functions and the HTTP objects answer, and anything else is `VBASandboxError` under the sandbox and `VBAUnsupportedError` without it. The model cannot know
+what a machine has, so it does not answer 429 for a name it does not know, except for a name no ProgID can be: blank, or with spaces round it.
+
+Measured live, bound late (`tests/fixtures/com_objects.json`): a class that does not exist is 429 however it is spelled, `Null` is 94, a Let of an object
+with no default member is 91 into an `Object` and 450 otherwise, and an unknown member is 438.
 
 ## Dialogs
 
@@ -484,6 +690,30 @@ Three live gates ask what only Office can answer, behind
 the same macro leaves the same state behind on both sides, that a file
 written here opens with everything the model does not describe still in
 it, and that shapes drawn here are the shapes Office reads back.
+
+### An object given by Let
+
+`o.Prop = obj`, with no `Set`, hands the property the object itself when
+the call is bound late, and when it is typed but the property is declared
+a Variant or an object. Only a typed property of a value type gets the
+object's default value, which VBA reads first. Typed, a Let of `Nothing`
+or of a `New Collection` does not compile.
+
+What a property then makes of the object goes by the property, not by
+its type. `Workbook.Date1904` and `Workbook.CheckCompatibility` are both
+Booleans: given a Font bound late, the first is error 1004 and the second
+13. So the model answers from a table measured per member,
+`interpreter/_late_object_lets.py`, which `scripts/build_late_object_lets.py`
+builds from `tests/fixtures/late_object_lets.json` and
+`late_object_lets_2.json`, and the Workbook setter rounds. An object with
+a value, a one-cell Range or a Name, gives that value, and a Range of
+several cells gives its value too, an array or its first cell's, as
+`tests/fixtures/given_value_rounds.json` measured for every settable
+member of Range, Font, Interior, Border, Borders, Style and Characters.
+An object with no value, a Collection or Nothing, given to a member not
+measured for it, is refused openly, with `VBAUnsupportedError`. The name's own references,
+`Name.RefersTo` and its kin, take a Range's address rather than its
+value, so they refuse any object until they are measured.
 
 ## What is implemented
 

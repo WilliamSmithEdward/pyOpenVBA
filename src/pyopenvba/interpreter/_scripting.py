@@ -81,7 +81,8 @@ class Dictionary(VBAObject):
     @method
     def Add(self, Key: object = MISSING, Item: object = MISSING) -> object:
         if Key is MISSING or Item is MISSING:
-            raise error(449)
+            # Bound late, the object counts its arguments itself: o.Add 1 is 450 (tests/fixtures/com_objects.json).
+            raise error(450 if BINDING.late else 449)
         identity = self._identity(Key)
         if identity in self._entries:
             raise error(457)
@@ -94,6 +95,9 @@ class Dictionary(VBAObject):
 
     @member(default=True)
     def Item(self, Key: object = MISSING) -> object:
+        if Key is MISSING:
+            # A Let of the dictionary itself reads its default member with no key, which is 450 (tests/fixtures/com_objects.json).
+            raise error(450)
         identity = self._identity(Key)
         if identity not in self._entries:
             # Reading a key the dictionary has not got adds it, holding Empty.

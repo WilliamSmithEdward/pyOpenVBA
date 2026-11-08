@@ -589,20 +589,20 @@ def edit_admitted(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
 
 
 def edited(sheet: Worksheet, *, rows: bool, start: int, count: int, delete: bool) -> None:
-    """The frozen rows or columns grow or shrink with an edit among them, and the pane past them moves as far; the
-    selections and the window's top left stay where they were, measured."""
+    """The frozen rows or columns grow or shrink with an edit among them, and the pane past them is scrolled back to
+    the first row or column after them, however far it was scrolled, on that axis only; the selections and the
+    window's top left stay where they were. The sheet active or not, measured."""
     view = sheet.view
     after = _frozen_after(view, rows=rows, start=start, count=count, delete=delete)
     if after is None:
         return
     axis = 0 if rows else 1
-    moved = after - (view.rows if rows else view.columns)
     if rows:
         view.rows = after
     else:
         view.columns = after
     corner = list(view.pane_top_left)
-    corner[axis] += moved
+    corner[axis] = view.top_left[axis] + after
     view.pane_top_left = (corner[0], corner[1])
     view.changed = True
 

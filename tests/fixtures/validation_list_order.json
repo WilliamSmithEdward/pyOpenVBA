@@ -1,0 +1,180 @@
+{
+"measured_at": "2026-11-07T16:44:02.000789+00:00",
+"source": "Public Function Go(ByVal edit As String, ByVal path As String) As String\n    Dim wb As Object, ws As Object, parts() As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"C3:D6\").Validation.Add Type:=xlValidateWholeNumber, Operator:=xlBetween, Formula1:=\"1\", Formula2:=\"100\"\n    ws.Range(\"A1\").Validation.Add Type:=xlValidateWholeNumber, Operator:=xlBetween, Formula1:=\"1\", Formula2:=\"200\"\n    ws.Range(\"A2\").Validation.Add Type:=xlValidateWholeNumber, Operator:=xlBetween, Formula1:=\"1\", Formula2:=\"300\"\n    parts = Split(edit, \" \")\n    Select Case parts(1)\n        Case \"down\": ws.Range(parts(0)).Insert Shift:=xlShiftDown\n        Case \"right\": ws.Range(parts(0)).Insert Shift:=xlShiftToRight\n        Case \"up\": ws.Range(parts(0)).Delete Shift:=xlShiftUp\n        Case \"left\": ws.Range(parts(0)).Delete Shift:=xlShiftToLeft\n        Case \"insert\": ws.Range(parts(0)).Insert\n        Case \"delete\": ws.Range(parts(0)).Delete\n    End Select\n    wb.SaveAs path, 51\n    wb.Close False\n    Go = \"ok\"\nEnd Function\n",
+"cases": [
+[
+"C1:D1 down"
+],
+[
+"C4:D4 down"
+],
+[
+"C7:D7 down"
+],
+[
+"C3:D3 down"
+],
+[
+"C6:D6 down"
+],
+[
+"C2:D2 down"
+],
+[
+"C3:D3 up"
+],
+[
+"C4:D4 up"
+],
+[
+"C6:D6 up"
+],
+[
+"C2:D2 up"
+],
+[
+"C4 down"
+],
+[
+"D5 up"
+],
+[
+"C4:D5 up"
+],
+[
+"C5:D7 up"
+],
+[
+"C1:D3 up"
+],
+[
+"A3:A6 right"
+],
+[
+"D3:D6 right"
+],
+[
+"E3:E6 right"
+],
+[
+"C3:C6 right"
+],
+[
+"C3:C6 left"
+],
+[
+"D3:D6 left"
+],
+[
+"B3:C6 left"
+],
+[
+"D3:E6 left"
+],
+[
+"A3:B6 left"
+],
+[
+"C3:D4 down"
+],
+[
+"C4:D6 up"
+],
+[
+"4:4 insert"
+],
+[
+"7:7 insert"
+],
+[
+"3:3 insert"
+],
+[
+"6:6 insert"
+],
+[
+"3:3 delete"
+],
+[
+"4:4 delete"
+],
+[
+"6:6 delete"
+],
+[
+"2:3 delete"
+],
+[
+"6:7 delete"
+],
+[
+"C:C delete"
+],
+[
+"D:D delete"
+],
+[
+"D:D insert"
+],
+[
+"C:C insert"
+],
+[
+"E:E insert"
+],
+[
+"B:C delete"
+],
+[
+"D:E delete"
+],
+[
+"1:1 insert"
+]
+],
+"answers": [
+"100:C4:D7 200:A1 300:A2",
+"200:A1 300:A2 100:C3:D7",
+"100:C3:D7 200:A1 300:A2",
+"100:C4:D7 200:A1 300:A2",
+"200:A1 300:A2 100:C3:D7",
+"100:C4:D7 200:A1 300:A2",
+"200:A1 300:A2 100:C3:D5",
+"200:A1 300:A2 100:C3:D5",
+"100:C3:D5 200:A1 300:A2",
+"100:C2:D5 200:A1 300:A2",
+"200:A1 300:A2 100:C3:D3 D4:D6 C4:C7",
+"200:A1 300:A2 100:C6 C3:D5",
+"200:A1 300:A2 100:C3:D4",
+"100:C3:D4 200:A1 300:A2",
+"200:A1 300:A2 100:C1:D3",
+"100:D3:E6 200:A1 300:A2",
+"200:A1 300:A2 100:C3:E6",
+"100:C3:E6 200:A1 300:A2",
+"100:D3:E6 200:A1 300:A2",
+"200:A1 300:A2 100:C3:C6",
+"100:C3:C6 200:A1 300:A2",
+"200:A1 300:A2 100:B3:B6",
+"100:C3:C6 200:A1 300:A2",
+"100:A3:B6 200:A1 300:A2",
+"100:C5:D8 200:A1 300:A2",
+"100:C3:D3 200:A1 300:A2",
+"100:C3:D7 200:A1 300:A2",
+"100:C3:D7 200:A1 300:A2",
+"100:C4:D7 200:A1 300:A2:A3",
+"100:C3:D7 200:A1 300:A2",
+"200:A1 300:A2 100:C3:D5",
+"200:A1 300:A2 100:C3:D5",
+"100:C3:D5 200:A1 300:A2",
+"200:A1 100:C2:D4",
+"100:C3:D5 200:A1 300:A2",
+"200:A1 300:A2 100:C3:C6",
+"100:C3:C6 200:A1 300:A2",
+"100:C3:E6 200:A1 300:A2",
+"100:D3:E6 200:A1 300:A2",
+"100:C3:E6 200:A1 300:A2",
+"200:A1 300:A2 100:B3:B6",
+"100:C3:C6 200:A1 300:A2",
+"100:C4:D7 200:A2 300:A3"
+]
+}

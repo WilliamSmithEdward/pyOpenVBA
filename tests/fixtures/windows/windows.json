@@ -1,5 +1,6 @@
 {
  "reader": "Private Function R0(w As Object) As String\n    On Error GoTo Bad\n    R0 = CStr(w.Caption)\n    Exit Function\nBad:\n    R0 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R1(w As Object) As String\n    On Error GoTo Bad\n    R1 = CStr(w.FreezePanes)\n    Exit Function\nBad:\n    R1 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R2(w As Object) As String\n    On Error GoTo Bad\n    R2 = CStr(w.SplitRow)\n    Exit Function\nBad:\n    R2 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R3(w As Object) As String\n    On Error GoTo Bad\n    R3 = CStr(w.SplitColumn)\n    Exit Function\nBad:\n    R3 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R4(w As Object) As String\n    On Error GoTo Bad\n    R4 = CStr(w.ScrollRow)\n    Exit Function\nBad:\n    R4 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R5(w As Object) As String\n    On Error GoTo Bad\n    R5 = CStr(w.ScrollColumn)\n    Exit Function\nBad:\n    R5 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R6(w As Object) As String\n    On Error GoTo Bad\n    R6 = CStr(w.Zoom)\n    Exit Function\nBad:\n    R6 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R7(w As Object) As String\n    On Error GoTo Bad\n    R7 = CStr(w.DisplayGridlines)\n    Exit Function\nBad:\n    R7 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R8(w As Object) As String\n    On Error GoTo Bad\n    R8 = CStr(w.DisplayHeadings)\n    Exit Function\nBad:\n    R8 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R9(w As Object) As String\n    On Error GoTo Bad\n    R9 = CStr(w.DisplayZeros)\n    Exit Function\nBad:\n    R9 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R10(w As Object) As String\n    On Error GoTo Bad\n    R10 = CStr(w.DisplayFormulas)\n    Exit Function\nBad:\n    R10 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R11(w As Object) As String\n    On Error GoTo Bad\n    R11 = CStr(w.View)\n    Exit Function\nBad:\n    R11 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R12(w As Object) As String\n    On Error GoTo Bad\n    R12 = CStr(w.ActiveSheet.Name)\n    Exit Function\nBad:\n    R12 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R13(w As Object) As String\n    On Error GoTo Bad\n    R13 = CStr(w.ActiveCell.Address)\n    Exit Function\nBad:\n    R13 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R14(w As Object) As String\n    On Error GoTo Bad\n    R14 = CStr(w.Selection.Address)\n    Exit Function\nBad:\n    R14 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R15(w As Object) As String\n    On Error GoTo Bad\n    R15 = CStr(w.RangeSelection.Address)\n    Exit Function\nBad:\n    R15 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R16(w As Object) As String\n    On Error GoTo Bad\n    R16 = CStr(w.Split)\n    Exit Function\nBad:\n    R16 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R17(w As Object) As String\n    On Error GoTo Bad\n    R17 = CStr(w.WindowState)\n    Exit Function\nBad:\n    R17 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R18(w As Object) As String\n    On Error GoTo Bad\n    R18 = CStr(w.Visible)\n    Exit Function\nBad:\n    R18 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R19(w As Object) As String\n    On Error GoTo Bad\n    R19 = CStr(w.Index)\n    Exit Function\nBad:\n    R19 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R20(w As Object) As String\n    On Error GoTo Bad\n    R20 = CStr(TypeName(w))\n    Exit Function\nBad:\n    R20 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R21(w As Object) As String\n    On Error GoTo Bad\n    R21 = CStr(TypeName(w.Parent))\n    Exit Function\nBad:\n    R21 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R22(w As Object) As String\n    On Error GoTo Bad\n    R22 = CStr(w.DisplayWorkbookTabs)\n    Exit Function\nBad:\n    R22 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R23(w As Object) As String\n    On Error GoTo Bad\n    R23 = CStr(w.DisplayHorizontalScrollBar)\n    Exit Function\nBad:\n    R23 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R24(w As Object) As String\n    On Error GoTo Bad\n    R24 = CStr(w.DisplayVerticalScrollBar)\n    Exit Function\nBad:\n    R24 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R25(w As Object) As String\n    On Error GoTo Bad\n    R25 = CStr(w.TabRatio)\n    Exit Function\nBad:\n    R25 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R26(w As Object) As String\n    On Error GoTo Bad\n    R26 = CStr(w.SplitVertical)\n    Exit Function\nBad:\n    R26 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R27(w As Object) As String\n    On Error GoTo Bad\n    R27 = CStr(w.SplitHorizontal)\n    Exit Function\nBad:\n    R27 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function R28(w As Object) As String\n    On Error GoTo Bad\n    R28 = CStr(w.Panes.Count)\n    Exit Function\nBad:\n    R28 = \"!\" & Err.Number\nEnd Function\n\nPrivate Function Seen(w As Object) As String\n    Seen = R0(w) & \"|\" & R1(w) & \"|\" & R2(w) & \"|\" & R3(w) & \"|\" & R4(w) & \"|\" & R5(w) & \"|\" & R6(w) & \"|\" & R7(w) & \"|\" & R8(w) & \"|\" & R9(w) & \"|\" & R10(w) & \"|\" & R11(w) & \"|\" & R12(w) & \"|\" & R13(w) & \"|\" & R14(w) & \"|\" & R15(w) & \"|\" & R16(w) & \"|\" & R17(w) & \"|\" & R18(w) & \"|\" & R19(w) & \"|\" & R20(w) & \"|\" & R21(w) & \"|\" & R22(w) & \"|\" & R23(w) & \"|\" & R24(w) & \"|\" & R25(w) & \"|\" & R26(w) & \"|\" & R27(w) & \"|\" & R28(w)\nEnd Function\n",
+ "later_reader": "\nPrivate Function EachSheet(wb As Object) As String\n    Dim i As Long, out As String\n    For i = 1 To wb.Worksheets.Count\n        wb.Worksheets(i).Activate\n        out = out & \"~;~\" & Seen(ActiveWindow)\n    Next\n    EachSheet = out\nEnd Function\n",
  "reads": [
   "w.Caption",
   "w.FreezePanes",
@@ -1055,6 +1056,431 @@
     "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"1\" topLeftCell=\"B2\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
     "bookViews": "<bookViews><workbookView xWindow=\"735\" yWindow=\"735\" windowWidth=\"13995\" windowHeight=\"9990\" xr2:uid=\"{8FB9E109-10EC-4869-97BE-2FC12A7C5385}\"/></bookViews>"
    }
+  },
+  {
+   "name": "later_frozen",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"C4\").Select\nActiveWindow.FreezePanes = True\nws.Activate",
+   "seen": "0|Sheet1|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"2\" ySplit=\"3\" topLeftCell=\"C4\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"C1\" sqref=\"C1\"/><selection pane=\"bottomLeft\" activeCell=\"A4\" sqref=\"A4\"/><selection pane=\"bottomRight\" activeCell=\"C4\" sqref=\"C4\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{A34C4717-BB33-490D-B63D-9886A44E7574}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen.xlsx|True|3|2|4|3|100|True|True|True|False|1|Sheet2|$C$4|$C$4|$C$4|True|-4143|True|1|Window|Workbook|True|True|True|0.6|43.5|96|4"
+   ]
+  },
+  {
+   "name": "later_frozen_scrolled",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 3\nwb.Worksheets(2).Range(\"D12\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 30\nActiveWindow.ScrollColumn = 8\nws.Activate",
+   "seen": "0|Sheet2|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView topLeftCell=\"C10\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"H30\" activePane=\"bottomRight\" state=\"frozen\"/><selection activeCell=\"C10\" sqref=\"C10\"/><selection pane=\"topRight\" activeCell=\"D10\" sqref=\"D10\"/><selection pane=\"bottomLeft\" activeCell=\"C12\" sqref=\"C12\"/><selection pane=\"bottomRight\" activeCell=\"D12\" sqref=\"D12\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{9F93A890-A5B2-4E53-8219-898D782D6466}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled.xlsx|True|2|1|30|8|100|True|True|True|False|1|Sheet2|$D$12|$D$12|$D$12|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4"
+   ]
+  },
+  {
+   "name": "later_scrolled",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 20\nActiveWindow.ScrollColumn = 5\nws.Activate",
+   "seen": "0|Sheet3|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView topLeftCell=\"E20\" workbookViewId=\"0\"/></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{B55E2A39-6FAA-4D1B-9E61-BF8541696403}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_scrolled.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_scrolled.xlsx|False|0|0|20|5|100|True|True|True|False|1|Sheet2|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1"
+   ]
+  },
+  {
+   "name": "later_recorded",
+   "making": "wb.Worksheets.Add After:=ws\nWith ActiveWindow\n.SplitColumn = 0\n.SplitRow = 1\nEnd With\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 30\nwb.Worksheets.Add After:=wb.Worksheets(2)\nWith ActiveWindow\n.SplitColumn = 1\n.SplitRow = 0\nEnd With\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollColumn = 6\nws.Activate",
+   "seen": "0|Sheet4|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"A30\" activePane=\"bottomLeft\" state=\"frozenSplit\"/><selection pane=\"bottomLeft\"/></sheetView></sheetViews>",
+    "xl/worksheets/sheet3.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" topLeftCell=\"F1\" activePane=\"topRight\" state=\"frozenSplit\"/><selection pane=\"topRight\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{B0644470-3A09-463C-A405-F899021335B7}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_recorded.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_recorded.xlsx|True|1|0|30|1|100|True|True|True|False|1|Sheet2|$A$1|$A$1|$A$1|True|-4143|True|1|Window|Workbook|True|True|True|0.6|14.5|0|2",
+    "later_recorded.xlsx|True|0|1|1|6|100|True|True|True|False|1|Sheet3|$A$1|$A$1|$A$1|True|-4143|True|1|Window|Workbook|True|True|True|0.6|0|48|2"
+   ]
+  },
+  {
+   "name": "later_frozen_active",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B2\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10",
+   "seen": "0|Sheet5|True|1|1|10|2|100|True|True|True|False|1|Sheet2|$B$2|$B$2|$B$2|True|-4143|True|1|Window|Workbook|True|True|True|0.6|14.5|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"1\" topLeftCell=\"B10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A2\" sqref=\"A2\"/><selection pane=\"bottomRight\" activeCell=\"B2\" sqref=\"B2\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" activeTab=\"1\" xr2:uid=\"{A5102F5E-405B-47A6-8AD2-96CE6B9051FD}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_active.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_active.xlsx|True|1|1|10|2|100|True|True|True|False|1|Sheet2|$B$2|$B$2|$B$2|True|-4143|True|1|Window|Workbook|True|True|True|0.6|14.5|48|4"
+   ]
+  },
+  {
+   "name": "later_displays",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.DisplayHeadings = False\nActiveWindow.DisplayZeros = False\nActiveWindow.DisplayFormulas = True\nActiveWindow.Zoom = 85\nwb.Worksheets.Add After:=wb.Worksheets(2)\nActiveWindow.View = xlPageLayoutView\nActiveWindow.Zoom = 80\nwb.Worksheets.Add After:=wb.Worksheets(3)\nActiveWindow.View = xlPageBreakPreview\nws.Activate",
+   "seen": "0|Sheet6|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView showFormulas=\"1\" showRowColHeaders=\"0\" showZeros=\"0\" zoomScale=\"85\" zoomScaleNormal=\"85\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet3.xml": "<sheetViews><sheetView view=\"pageLayout\" zoomScale=\"80\" zoomScaleNormal=\"100\" zoomScalePageLayoutView=\"80\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet4.xml": "<sheetViews><sheetView view=\"pageBreakPreview\" zoomScale=\"60\" zoomScaleNormal=\"100\" workbookViewId=\"0\"/></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{2D34AEA5-F718-4F84-933A-DCEC1E6A8DA7}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_displays.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_displays.xlsx|False|0|0|1|1|85|True|False|False|True|1|Sheet2|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_displays.xlsx|False|0|0|1|1|80|True|True|True|False|3|Sheet3|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_displays.xlsx|False|0|0|1|1|60|True|True|True|False|2|Sheet4|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1"
+   ]
+  },
+  {
+   "name": "later_right_to_left",
+   "making": "wb.Worksheets.Add After:=ws\nActiveSheet.DisplayRightToLeft = True\nwb.Worksheets(2).Range(\"C3\").Select\nActiveWindow.FreezePanes = True\nws.Activate",
+   "seen": "0|Sheet7|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><pane xSplit=\"2\" ySplit=\"2\" topLeftCell=\"C3\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"C1\" sqref=\"C1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"C3\" sqref=\"C3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{EE2AFA24-DDC9-487F-870A-01DC4B89BAB8}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_right_to_left.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_right_to_left.xlsx|True|2|2|3|3|100|True|True|True|False|1|Sheet2|$C$3|$C$3|$C$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|96|4"
+   ]
+  },
+  {
+   "name": "later_frozen_rows_inserted",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nws.Activate\nwb.Worksheets(2).Rows(1).Insert\nwb.Worksheets(2).Columns(\"A\").Delete",
+   "seen": "0|Sheet8|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"3\" topLeftCell=\"B4\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{485DBA88-08C6-497A-8E54-AE24E077EEE2}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_rows_inserted.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_rows_inserted.xlsx|True|3|1|4|2|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|43.5|48|4"
+   ]
+  },
+  {
+   "name": "later_scrolled_rows_deleted",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 4\nwb.Worksheets(2).Range(\"E12\").Select\nws.Activate\nwb.Worksheets(2).Rows(\"2:3\").Delete\nwb.Worksheets(2).Columns(\"B\").Insert",
+   "seen": "0|Sheet9|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView topLeftCell=\"D10\" workbookViewId=\"0\"><selection activeCell=\"E12\" sqref=\"E12\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{642F4E55-0BB5-4F0E-B4B0-AB91B22DC0EE}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_scrolled_rows_deleted.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_scrolled_rows_deleted.xlsx|False|0|0|10|4|100|True|True|True|False|1|Sheet2|$E$12|$E$12|$E$12|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1"
+   ]
+  },
+  {
+   "name": "later_copied",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"C4\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 20\nActiveWindow.Zoom = 120\nws.Activate\nwb.Worksheets(2).Copy After:=wb.Worksheets(2)\nws.Activate",
+   "seen": "0|Sheet10|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView zoomScale=\"120\" zoomScaleNormal=\"120\" workbookViewId=\"0\"><pane xSplit=\"2\" ySplit=\"3\" topLeftCell=\"C20\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"C1\" sqref=\"C1\"/><selection pane=\"bottomLeft\" activeCell=\"A4\" sqref=\"A4\"/><selection pane=\"bottomRight\" activeCell=\"C4\" sqref=\"C4\"/></sheetView></sheetViews>",
+    "xl/worksheets/sheet3.xml": "<sheetViews><sheetView zoomScale=\"120\" zoomScaleNormal=\"120\" workbookViewId=\"0\"><pane xSplit=\"2\" ySplit=\"3\" topLeftCell=\"C20\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"C1\" sqref=\"C1\"/><selection pane=\"bottomLeft\" activeCell=\"A4\" sqref=\"A4\"/><selection pane=\"bottomRight\" activeCell=\"C4\" sqref=\"C4\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{143EF05D-C1B0-45DE-8C55-5D90C8C2FDEE}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_copied.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_copied.xlsx|True|3|2|20|3|120|True|True|True|False|1|Sheet2|$C$4|$C$4|$C$4|True|-4143|True|1|Window|Workbook|True|True|True|0.6|52.5|115|4",
+    "later_copied.xlsx|True|3|2|20|3|120|True|True|True|False|1|Sheet2 (2)|$C$4|$C$4|$C$4|True|-4143|True|1|Window|Workbook|True|True|True|0.6|52.5|115|4"
+   ]
+  },
+  {
+   "name": "later_moved",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B2\").Select\nActiveWindow.FreezePanes = True\nwb.Worksheets.Add After:=wb.Worksheets(2)\nActiveWindow.ScrollRow = 15\nwb.Worksheets(3).Move Before:=ws\nws.Activate",
+   "seen": "0|Sheet11|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView topLeftCell=\"A15\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet3.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"1\" topLeftCell=\"B2\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A2\" sqref=\"A2\"/><selection pane=\"bottomRight\" activeCell=\"B2\" sqref=\"B2\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" activeTab=\"1\" xr2:uid=\"{EDE07D12-2C56-48D7-8CE1-AA0B9B052EA6}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_moved.xlsx|False|0|0|15|1|100|True|True|True|False|1|Sheet3|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_moved.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_moved.xlsx|True|1|1|2|2|100|True|True|True|False|1|Sheet2|$B$2|$B$2|$B$2|True|-4143|True|1|Window|Workbook|True|True|True|0.6|14.5|48|4"
+   ]
+  },
+  {
+   "name": "later_unfrozen_back",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B2\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 12\nws.Activate\nwb.Worksheets(2).Activate\nActiveWindow.FreezePanes = False\nws.Activate",
+   "seen": "0|Sheet12|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><selection activeCell=\"B2\" sqref=\"B2\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{AC729613-0FE4-435B-85F7-77F6C38A8E59}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_unfrozen_back.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_unfrozen_back.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet2|$B$2|$B$2|$B$2|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1"
+   ]
+  },
+  {
+   "name": "later_scrolled_back",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 20\nActiveWindow.ScrollColumn = 3\nws.Activate\nActiveWindow.ScrollRow = 5\nwb.Worksheets(2).Activate",
+   "seen": "0|Sheet13|False|0|0|20|3|100|True|True|True|False|1|Sheet2|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView topLeftCell=\"A5\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView tabSelected=\"1\" topLeftCell=\"C20\" workbookViewId=\"0\"/></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" activeTab=\"1\" xr2:uid=\"{2EAC667B-7E28-430E-9886-C3A31A0D37CA}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_scrolled_back.xlsx|False|0|0|5|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_scrolled_back.xlsx|False|0|0|20|3|100|True|True|True|False|1|Sheet2|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1"
+   ]
+  },
+  {
+   "name": "later_frozen_back",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 10\nwb.Worksheets(2).Range(\"D12\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 25\nws.Activate\nActiveWindow.ScrollRow = 5\nwb.Worksheets(2).Activate",
+   "seen": "0|Sheet14|True|2|3|25|4|100|True|True|True|False|1|Sheet2|$D$12|$D$12|$D$12|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|144|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView topLeftCell=\"A5\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView tabSelected=\"1\" topLeftCell=\"A10\" workbookViewId=\"0\"><pane xSplit=\"3\" ySplit=\"2\" topLeftCell=\"D25\" activePane=\"bottomRight\" state=\"frozen\"/><selection activeCell=\"A10\" sqref=\"A10\"/><selection pane=\"topRight\" activeCell=\"D10\" sqref=\"D10\"/><selection pane=\"bottomLeft\" activeCell=\"A12\" sqref=\"A12\"/><selection pane=\"bottomRight\" activeCell=\"D12\" sqref=\"D12\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" activeTab=\"1\" xr2:uid=\"{B3928DD2-114F-4DF5-9C3B-76F44D6FDF03}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_back.xlsx|False|0|0|5|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_back.xlsx|True|2|3|25|4|100|True|True|True|False|1|Sheet2|$D$12|$D$12|$D$12|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|144|4"
+   ]
+  },
+  {
+   "name": "later_goto",
+   "making": "wb.Worksheets.Add After:=ws\nws.Activate\nApplication.Goto wb.Worksheets(2).Range(\"Z100\"), True",
+   "seen": "0|Sheet15|False|0|0|100|26|100|True|True|True|False|1|Sheet2|$Z$100|$Z$100|$Z$100|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView tabSelected=\"1\" topLeftCell=\"Z100\" workbookViewId=\"0\"><selection activeCell=\"Z100\" sqref=\"Z100\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" activeTab=\"1\" xr2:uid=\"{541F3A7F-62FB-4E88-8AD6-F22A3F5DD288}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_goto.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_goto.xlsx|False|0|0|100|26|100|True|True|True|False|1|Sheet2|$Z$100|$Z$100|$Z$100|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1"
+   ]
+  },
+  {
+   "name": "later_zoom_frozen",
+   "making": "wb.Worksheets.Add After:=ws\nActiveWindow.Zoom = 150\nwb.Worksheets(2).Range(\"D5\").Select\nActiveWindow.FreezePanes = True\nws.Activate",
+   "seen": "0|Sheet16|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView zoomScale=\"150\" zoomScaleNormal=\"150\" workbookViewId=\"0\"><pane xSplit=\"3\" ySplit=\"4\" topLeftCell=\"D5\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"D1\" sqref=\"D1\"/><selection pane=\"bottomLeft\" activeCell=\"A5\" sqref=\"A5\"/><selection pane=\"bottomRight\" activeCell=\"D5\" sqref=\"D5\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{7085B832-3B0E-4DD4-8EA0-D067E1E5F83F}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_zoom_frozen.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_zoom_frozen.xlsx|True|4|3|5|4|150|True|True|True|False|1|Sheet2|$D$5|$D$5|$D$5|True|-4143|True|1|Window|Workbook|True|True|True|0.6|88|216|4"
+   ]
+  },
+  {
+   "name": "shift_frozen_row_inserted_frozen",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Rows(1).Insert",
+   "seen": "0|Sheet4|True|3|1|4|5|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|43.5|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"3\" topLeftCell=\"E4\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{2D0B2CF7-1CEA-4E2C-84E7-40660434328B}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "shift_frozen_column_deleted_frozen",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Columns(\"A\").Delete",
+   "seen": "0|Sheet5|True|2|1|10|2|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"B10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{D865B8CF-7A0F-488D-9C42-366EEE960544}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "shift_frozen_row_inserted_below",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Rows(20).Insert",
+   "seen": "0|Sheet6|True|2|1|10|5|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"E10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{A1F22D5D-13F0-4995-9D4F-895799D77341}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "shift_frozen_row_inserted_between",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Rows(5).Insert",
+   "seen": "0|Sheet7|True|2|1|10|5|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"E10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{32BF605E-C6A7-4829-B243-6825403194B6}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "shift_frozen_row_deleted_frozen",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Rows(1).Delete",
+   "seen": "0|Sheet8|True|1|1|2|5|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|14.5|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"1\" topLeftCell=\"E2\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{2F626D12-8081-48E8-B99E-6003A4A1172C}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "shift_frozen_column_inserted_frozen",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Columns(\"A\").Insert",
+   "seen": "0|Sheet9|True|2|2|10|3|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|96|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"2\" ySplit=\"2\" topLeftCell=\"C10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{D78B7B69-748D-4A62-86AC-D13C00A8F22B}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "shift_frozen_rows_deleted_between",
+   "making": "ws.Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\n\nws.Rows(\"4:6\").Delete",
+   "seen": "0|Sheet10|True|2|1|10|5|100|True|True|True|False|1|Sheet1|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"E10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{EE011A44-050D-4E1A-A13E-E83F64195132}\"/></bookViews>"
+   },
+   "standard_height": 14.5
+  },
+  {
+   "name": "later_shift_frozen_row_inserted_frozen",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Rows(1).Insert",
+   "seen": "0|Sheet11|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"3\" topLeftCell=\"E4\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{A16C6A99-9AF2-4969-A3DE-34CC9E81E232}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_row_inserted_frozen.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_row_inserted_frozen.xlsx|True|3|1|4|5|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|43.5|48|4"
+   ]
+  },
+  {
+   "name": "later_shift_frozen_column_deleted_frozen",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Columns(\"A\").Delete",
+   "seen": "0|Sheet12|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"B10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{3BD0BA90-3FFF-496E-BD56-5A319B6E2B64}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_column_deleted_frozen.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_column_deleted_frozen.xlsx|True|2|1|10|2|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4"
+   ]
+  },
+  {
+   "name": "later_shift_frozen_row_inserted_below",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Rows(20).Insert",
+   "seen": "0|Sheet13|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"E10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{9A183331-6FD7-460F-BF5D-BF657743FB21}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_row_inserted_below.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_row_inserted_below.xlsx|True|2|1|10|5|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4"
+   ]
+  },
+  {
+   "name": "later_shift_frozen_row_inserted_between",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Rows(5).Insert",
+   "seen": "0|Sheet14|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"E10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{9B19E9E0-62CA-4A13-9FBA-7AF311043012}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_row_inserted_between.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_row_inserted_between.xlsx|True|2|1|10|5|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4"
+   ]
+  },
+  {
+   "name": "later_shift_frozen_row_deleted_frozen",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Rows(1).Delete",
+   "seen": "0|Sheet15|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"1\" topLeftCell=\"E2\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{AD0CC3A3-D0E8-4EDC-B99A-162FEF1C4C37}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_row_deleted_frozen.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_row_deleted_frozen.xlsx|True|1|1|2|5|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|14.5|48|4"
+   ]
+  },
+  {
+   "name": "later_shift_frozen_column_inserted_frozen",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Columns(\"A\").Insert",
+   "seen": "0|Sheet16|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"2\" ySplit=\"2\" topLeftCell=\"C10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{7800822B-CD6D-4223-AE06-80CA10E28027}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_column_inserted_frozen.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_column_inserted_frozen.xlsx|True|2|2|10|3|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|96|4"
+   ]
+  },
+  {
+   "name": "later_shift_frozen_rows_deleted_between",
+   "making": "wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range(\"B3\").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 5\nws.Activate\nwb.Worksheets(2).Rows(\"4:6\").Delete",
+   "seen": "0|Sheet17|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+   "views": {
+    "xl/worksheets/sheet1.xml": "<sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews>",
+    "xl/worksheets/sheet2.xml": "<sheetViews><sheetView workbookViewId=\"0\"><pane xSplit=\"1\" ySplit=\"2\" topLeftCell=\"E10\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"topRight\" activeCell=\"B1\" sqref=\"B1\"/><selection pane=\"bottomLeft\" activeCell=\"A3\" sqref=\"A3\"/><selection pane=\"bottomRight\" activeCell=\"B3\" sqref=\"B3\"/></sheetView></sheetViews>",
+    "bookViews": "<bookViews><workbookView xWindow=\"1100\" yWindow=\"1100\" windowWidth=\"14000\" windowHeight=\"10000\" xr2:uid=\"{850689AA-929B-46ED-A0B9-2C57E333A795}\"/></bookViews>"
+   },
+   "standard_height": 14.5,
+   "sheets": [
+    "later_frozen_scrolled_rows_deleted_between.xlsx|False|0|0|1|1|100|True|True|True|False|1|Sheet1|$A$1|$A$1|$A$1|False|-4143|True|1|Window|Workbook|True|True|True|0.6|0|0|1",
+    "later_frozen_scrolled_rows_deleted_between.xlsx|True|2|1|10|5|100|True|True|True|False|1|Sheet2|$B$3|$B$3|$B$3|True|-4143|True|1|Window|Workbook|True|True|True|0.6|29|48|4"
+   ]
   }
  ],
  "order_probe": "Private n1 As String, n2 As String, n3 As String\n\nPrivate Function Named(text As String) As String\n    Named = \"other\"\n    If text = n1 Then Named = \"b1\"\n    If text = n2 Then Named = \"b2\"\n    If text = n3 Then Named = \"b3\"\nEnd Function\n\nPrivate Function Listed() As String\n    Dim i As Long, out As String\n    For i = 1 To Windows.Count\n        out = out & Named(Windows(i).Caption) & \":\" & Windows(i).Index & \" \"\n    Next\n    Listed = Trim(out)\nEnd Function\n\nPrivate Function Order(updating As Boolean) As String\n    Dim b1 As Object, b2 As Object, b3 As Object, out As String, was As Boolean\n    was = Application.ScreenUpdating\n    Application.ScreenUpdating = updating\n    Set b1 = Workbooks.Add(xlWBATWorksheet)\n    Set b2 = Workbooks.Add(xlWBATWorksheet)\n    Set b3 = Workbooks.Add(xlWBATWorksheet)\n    n1 = b1.Name: n2 = b2.Name: n3 = b3.Name\n    out = \"added \" & Listed()\n    b1.Activate\n    out = out & \"~;~b1 activated \" & Listed()\n    Windows(n2).Activate\n    out = out & \"~;~b2 activated by its window \" & Listed() & \" active \" & Named(ActiveWorkbook.Name)\n    out = out & \"~;~b2.Windows \" & b2.Windows.Count & \" \" & Named(b2.Windows(1).Caption) & \":\" & _\n        b2.Windows(1).Index & \" ActiveWindow.Index \" & ActiveWindow.Index\n    b2.Close False\n    out = out & \"~;~b2 closed active \" & Named(ActiveWorkbook.Name) & \" \" & Listed()\n    b1.Close False\n    b3.Close False\n    Application.ScreenUpdating = was\n    Order = out\nEnd Function\n",

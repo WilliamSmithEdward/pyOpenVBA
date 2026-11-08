@@ -1,0 +1,9915 @@
+{
+"font": "Arial",
+"cases": [
+{
+"call": [
+"Justified",
+"Ampere Oxbow volume Quince Quince mill naive tariff Harbour WAREHOUSE jetty lily tariff pre-tax",
+"Arial",
+11.0,
+30.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Fit",
+"volume Sixty 9%",
+"Arial",
+14.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"Ampere A&B",
+"Arial",
+12.0,
+false,
+false,
+"56.25,65.25,108.75,112.5,138.0,189.75,208.5,312.0,313.5,336.75"
+],
+"model": "|5,5,|7,3,|10,|10,|10,|10,|10,|10,|10,|10,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince rate-card tariff 1,250.75",
+"Arial",
+16.0,
+false,
+true,
+0
+],
+"model": "Double:44.86|Double:239.25|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow",
+"Arial",
+18.0,
+true,
+true,
+0
+],
+"model": "Double:13.57|Double:75|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag mill MMXX",
+"Arial",
+11.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"volume 9%~9%",
+"Arial",
+18.0,
+true,
+false,
+0,
+"44.5,12,38,36,6.5,16,27.5,10.5,20"
+],
+"model": "|46.5,46.5,46.5|69.75,69.75,69.75|46.5,46.5,46.5|46.5,46.5,46.5|116.25,116.25,93|69.75,69.75,69.75|46.5,46.5,46.5|93,93,69.75|46.5,46.5,46.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"1,250.75 Wimble A&B~caf\u00e9 Wimble tariff volume",
+"Arial",
+36.0,
+true,
+true,
+0,
+"31,35.5,37.5,27,17.5,1.5,19.5,29.5,29"
+],
+"model": "|309.75,309.75,309.75|309.75,309.75,309.75|309.75,309.75,309.75|398.25,398.25,354|409.5,409.5,409.5|409.5,409.5,409.5|409.5,409.5,409.5|354,354,309.75|354,354,309.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax",
+"Arial",
+16.0,
+true,
+true,
+0
+],
+"model": "Double:11.57|Double:64.5|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+9.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"(net)~MMXX",
+"Arial",
+10.0,
+true,
+false,
+0,
+"25,37,45,25.5,6.5,19.5,9.5,17,26.5"
+],
+"model": "|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive",
+"Arial",
+8.0,
+true,
+true,
+0
+],
+"model": "Double:5.14|Double:30.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Harbour illicit zig-zag~Harbour",
+"Arial",
+18.0,
+true,
+true,
+0,
+"39,37.5,35.5,4.5,11.5,34,44,34.5,9"
+],
+"model": "|46.5,46.5,46.5|46.5,46.5,46.5|69.75,69.75,46.5|409.5,409.5,302.25|162.75,162.75,116.25|69.75,69.75,69.75|46.5,46.5,46.5|69.75,69.75,69.75|162.75,162.75,162.75",
+"refused": null
+},
+{
+"call": [
+"Pivoted",
+"Arial",
+11.0,
+false
+],
+"model": "|15.71|14.14|8.43",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"rate-card A&B tariff fifty Oxbow Quince pre-tax",
+"Arial",
+24.0,
+true,
+true,
+"21.0,54.0,92.25,120.75,122.25,129.0,130.5,207.75,226.5,310.5"
+],
+"model": "|1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,|3,2,3,2,2,2,4,3,4,2,2,2,2,2,3,2,3,1,3,|5,5,4,7,6,4,2,5,6,3,|10,4,13,6,7,7,|10,4,13,6,7,7,|10,11,6,6,7,7,|10,11,6,6,7,7,|14,19,14,|14,19,14,|27,20,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill 9% mill A&B",
+"Arial",
+11.5,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.5,
+true,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"(net) lily Sixty MMXX",
+"Arial",
+12.0,
+false,
+true,
+1,
+"11,41.5,12.5,20.5,9,10,14,27.5,2.5"
+],
+"model": "|45,45,45|15.75,15.75,15.75|45,45,45|30,30,30|75,75,45|60,60,45|45,45,30|15.75,15.75,15.75|270,270,180",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX",
+"Arial",
+11.5,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"mill ledger",
+"Arial",
+36.0,
+false,
+true,
+0
+],
+"model": "Double:36.14|Double:193.5|Double:45",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX 9% ledger",
+"Arial",
+14.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+20.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|1E+06|1E+06|1234568",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9",
+"Arial",
+9.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"Harbour pre-tax",
+"Arial",
+20.0,
+false,
+false,
+0
+],
+"model": "Double:28.29|Double:152.25|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+12.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Oxbow~fifty",
+"Arial",
+11.0,
+false,
+true,
+0,
+"43,42,24,37,1.5,14.5,19.5,22.5,5"
+],
+"model": "|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|129,129,72|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|43.5,43.5,29.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty",
+"Arial",
+10.0,
+true,
+true,
+0
+],
+"model": "Double:4.57|Double:27.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Ampere Quince fifty",
+"Arial",
+18.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+8.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|#######|########|2023-07-16|2023-07-16|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Sixty A&B WAREHOUSE~caf\u00e9 1,250.75",
+"Arial",
+9.0,
+true,
+false,
+0,
+"18.5,5.5,22,16,31,40,3,32,30.5"
+],
+"model": "|36.75,36.75,24.75|96.75,96.75,72.75|24.75,24.75,24.75|36.75,36.75,36.75|24.75,24.75,24.75|24.75,24.75,24.75|168.75,168.75,96.75|24.75,24.75,24.75|24.75,24.75,24.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+8.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE caf\u00e9 mill Sixty",
+"Arial",
+11.0,
+true,
+true,
+0
+],
+"model": "Double:30.43|Double:163.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+12.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|1E+06|1E+06|1E+06|1234568|1234567.9|1234567.89|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX",
+"Arial",
+16.0,
+false,
+true,
+0
+],
+"model": "Double:10.29|Double:57.75|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty zig-zag 1,250.75",
+"Arial",
+36.0,
+true,
+true,
+0
+],
+"model": "Double:72.57|Double:384.75|Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff",
+"Arial",
+24.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"caf\u00e9 naive Sixty",
+"Arial",
+16.0,
+false,
+true,
+"22.5,25.5,33.0,48.0,94.5,116.25,164.25,183.0,291.0,348.75"
+],
+"model": "|1,1,1,2,1,1,1,1,2,1,1,1,1,1,|1,1,1,2,1,1,1,1,2,1,1,1,1,1,|2,3,2,2,2,2,2,1,|5,4,2,4,1,|11,5,|11,5,|16,|16,|16,|16,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+24.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+12.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 tariff naive",
+"Arial",
+10.5,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+9.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+12.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|#####|######|######|#######|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+9.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"lily~jetty volume A&B",
+"Arial",
+10.5,
+true,
+false,
+0,
+"33.5,44.5,34.5,29.5,31.5,24,8,19,39.5"
+],
+"model": "|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|54.75,54.75,54.75|27.75,27.75,27.75|27.75,27.75,27.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+18.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|1E-04|0.0001|0.00012|0.0001235",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+8.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|1E-04|0.0001|0.00012|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+18.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|#####|######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"1,250.75 Sixty",
+"Arial",
+10.5,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+9.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234567.9|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"rate-card~lily mill tariff rate-card",
+"Arial",
+10.5,
+true,
+true,
+0,
+"35.5,24.5,29,43.5,7.5,6.5,35.5,39.5,34"
+],
+"model": "|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|81.75,81.75,54.75|95.25,95.25,81.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill",
+"Arial",
+8.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"fifty lily naive",
+"Arial",
+10.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"naive tariff 1,250.75 fifty fifty Wimble",
+"Arial",
+8.0,
+true,
+true,
+"39.0,48.75,54.0,115.5,132.0,155.25,184.5,228.75,249.0,366.75"
+],
+"model": "|6,7,6,3,6,6,5,1,|6,7,9,12,6,|6,7,9,12,6,|28,12,|34,6,|40,|40,|40,|40,|40,",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Wimble Sixty",
+"Arial",
+16.0,
+true,
+false,
+"62.25,77.25,93.0,96.0,101.25,130.5,171.75,177.75,237.75,337.5"
+],
+"model": "|4,3,5,|7,5,|7,5,|7,5,|7,5,|12,|12,|12,|12,|12,",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.0,
+false,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble 1,250.75",
+"Arial",
+10.5,
+true,
+true,
+0
+],
+"model": "Double:17|Double:93|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+12.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|#####|######|#######|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Pivoted",
+"Arial",
+9.0,
+true
+],
+"model": "|15.71|14.14|8.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+20.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|0|1E-04|0.0001|0.000123",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+16.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|1E+06|1E+06|1234568|1234567.89",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+24.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+14.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|#####|#####|#######|########|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+16.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|#####|######|#######|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty caf\u00e9 volume Sixty",
+"Arial",
+9.0,
+false,
+false,
+0
+],
+"model": "Double:17.29|Double:94.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble tariff",
+"Arial",
+16.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"ledger Quince lily",
+"Arial",
+16.0,
+false,
+false,
+0
+],
+"model": "Double:23.71|Double:128.25|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net)",
+"Arial",
+11.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"ledger",
+"Arial",
+36.0,
+false,
+false,
+0
+],
+"model": "Double:21.14|Double:114.75|Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"volume Wimble tariff lily",
+"Arial",
+10.0,
+false,
+false,
+"34.5,101.25,164.25,165.75,168.75,225.0,243.0,276.75,310.5,324.0"
+],
+"model": "|4,3,3,4,7,4,|14,11,|25,|25,|25,|25,|25,|25,|25,|25,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow fifty Wimble tariff",
+"Arial",
+10.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+8.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE Oxbow 9%~MMXX ledger tariff",
+"Arial",
+24.0,
+true,
+false,
+0,
+"33,35,3.5,14.5,37,31.5,13,41.5,43.5"
+],
+"model": "|120,120,120|120,120,120|409.5,409.5,409.5|300,300,240|120,120,120|120,120,120|300,300,240|120,120,90|90,90,90",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince Oxbow rate-card",
+"Arial",
+36.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"MMXX Sixty (net)~naive WAREHOUSE 1,250.75 MMXX",
+"Arial",
+24.0,
+false,
+false,
+0,
+"12.5,44,18,31.5,16.5,22.5,20.5,35.5,14.5"
+],
+"model": "|360,360,360|120,120,90|270,270,240|180,180,180|300,300,270|210,210,210|240,240,210|150,150,120|360,360,300",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.0,
+false,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9% WAREHOUSE ledger",
+"Arial",
+36.0,
+true,
+false,
+0
+],
+"model": "Double:83.43|Double:441.75|Double:45",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"1,250.75 9%",
+"Arial",
+12.0,
+true,
+false,
+"169.5,182.25,197.25,213.75,243.75,303.0,319.5,343.5,347.25,348.0"
+],
+"model": "|11,|11,|11,|11,|11,|11,|11,|11,|11,|11,",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"volume",
+"Arial",
+24.0,
+true,
+false,
+1,
+"33,35,3.5,14.5,37,31.5,13,41.5,43.5"
+],
+"model": "|30,30,30|30,30,30|180,180,180|60,60,60|30,30,30|30,30,30|60,60,60|30,30,30|30,30,30",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty ledger",
+"Arial",
+11.5,
+true,
+true,
+0
+],
+"model": "Double:12.86|Double:71.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger",
+"Arial",
+9.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"zig-zag caf\u00e9",
+"Arial",
+11.5,
+false,
+true,
+"39.75,66.0,76.5,105.75,188.25,202.5,255.75,284.25,285.0,285.75"
+],
+"model": "|4,4,4,|8,4,|12,|12,|12,|12,|12,|12,|12,|12,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234567.9|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+12.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||0|0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|1E+06|1234568|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+18.0,
+true,
+true
+],
+"model": "Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"ledger Quince MMXX jetty Wimble",
+"Arial",
+9.0,
+false,
+true,
+1,
+"21.5,20.5,33,8.5,37,12.5,34,11,40.5"
+],
+"model": "|24.75,24.75,24.75|24.75,24.75,24.75|15,15,15|60.75,60.75,48.75|15,15,15|48.75,48.75,36.75|15,15,15|48.75,48.75,36.75|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) (net) Ampere WAREHOUSE",
+"Arial",
+12.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+16.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|#####|######|#######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.5,
+false,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|#########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+16.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|#####|######|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+9.0,
+true,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"A&B pre-tax MMXX rate-card volume jetty",
+"Arial",
+11.5,
+true,
+false,
+"63.75,69.0,113.25,116.25,135.0,150.0,198.75,228.75,279.75,305.25"
+],
+"model": "|4,8,5,10,7,5,|8,9,10,7,5,|12,15,12,|12,15,12,|17,22,|22,17,|27,12,|34,5,|39,|39,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+12.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|#####|######|#######|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.5,
+false,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"ledger Ampere Harbour tariff MMXX",
+"Arial",
+8.0,
+true,
+true,
+0,
+"5.5,14.5,4.5,27.5,42.5,6.5,1,20.5,44"
+],
+"model": "|84.75,84.75,53.25|32.25,32.25,32.25|95.25,95.25,53.25|21.75,21.75,21.75|15,15,15|53.25,53.25,53.25|305.25,305.25,158.25|21.75,21.75,21.75|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"rate-card tariff Harbour pre-tax WAREHOUSE ledger",
+"Arial",
+11.0,
+true,
+false,
+0,
+"26,40,42,6,30,15,38.5,15.5,35.5"
+],
+"model": "|45,45,45|30,30,30|30,30,30|180,180,135|30,30,30|75,75,60|30,30,30|75,75,60|30,30,30",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+12.0,
+true,
+false
+],
+"model": "Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX WAREHOUSE Oxbow",
+"Arial",
+10.0,
+false,
+false,
+0
+],
+"model": "Double:25.14|Double:135.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9% fifty",
+"Arial",
+11.5,
+false,
+true,
+0
+],
+"model": "Double:7.71|Double:44.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume Quince fifty WAREHOUSE",
+"Arial",
+12.0,
+false,
+false,
+0
+],
+"model": "Double:35.29|Double:189|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+24.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+24.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|1E+06",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"mill WAREHOUSE caf\u00e9 jetty WAREHOUSE ledger",
+"Arial",
+11.5,
+true,
+true,
+"29.25,44.25,51.75,63.0,114.75,120.75,141.75,198.0,211.5,297.75"
+],
+"model": "|2,3,1,1,1,1,1,1,1,1,2,2,3,3,3,1,1,1,1,1,1,1,1,2,2,2,2,|5,3,3,4,5,6,3,3,4,4,2,|5,4,4,7,6,4,4,2,6,|5,5,5,5,6,5,5,6,|15,11,10,6,|15,11,10,6,|20,16,6,|26,16,|26,16,|42,",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"MMXX jetty~illicit pre-tax",
+"Arial",
+12.0,
+true,
+false,
+0,
+"16.5,39,13,29,34,12,14.5,6.5,17"
+],
+"model": "|31.5,31.5,31.5|31.5,31.5,31.5|47.25,47.25,31.5|31.5,31.5,31.5|31.5,31.5,31.5|63,63,31.5|31.5,31.5,31.5|94.5,94.5,63|31.5,31.5,31.5",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+18.0,
+true,
+false
+],
+"model": "Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+18.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|#####|######|#########",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 Sixty WAREHOUSE 1,250.75",
+"Arial",
+36.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"naive ledger WAREHOUSE",
+"Arial",
+11.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"illicit",
+"Arial",
+10.5,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"Wimble ledger~Oxbow 1,250.75 volume Sixty",
+"Arial",
+11.5,
+true,
+false,
+0,
+"30,44,35,39.5,40.5,5.5,7,23.5,12"
+],
+"model": "|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30|165,165,105|135,135,90|45,45,45|90,90,75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+24.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+14.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||0|0|0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill MMXX 1,250.75 Oxbow",
+"Arial",
+9.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+9.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"A&B Wimble pre-tax~lily Ampere",
+"Arial",
+12.0,
+true,
+true,
+0,
+"42.5,14,2.5,33,3.5,9,29.5,36.5,44.5"
+],
+"model": "|30,30,30|60,60,45|360,360,165|30,30,30|255,255,165|90,90,75|30,30,30|30,30,30|30,30,30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+8.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||0|0|0|0|0|1E-04|0.00012|0.000123|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+18.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|0|1E-04|0.0001|0.0001235",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+12.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|#####|######|######|#######|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+12.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|#####|######|######|#######|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+20.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|1E+06|1234568",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"caf\u00e9 lily~naive",
+"Arial",
+11.0,
+true,
+false,
+0,
+"26,40,42,6,30,15,38.5,15.5,35.5"
+],
+"model": "|30,30,30|30,30,30|30,30,30|45,45,30|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+24.0,
+false,
+false
+],
+"model": "Double:30",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX",
+"Arial",
+14.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+36.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|###",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) zig-zag Quince",
+"Arial",
+8.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+8.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|#####|######|#######|#########|2023-07-16|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+36.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||0|0|0|0|0|0|0",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+12.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|#####|######|######|#######|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill pre-tax ledger",
+"Arial",
+9.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"zig-zag volume Sixty Harbour",
+"Arial",
+24.0,
+false,
+true,
+0
+],
+"model": "Double:64.29|Double:341.25|Double:30.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily fifty Harbour",
+"Arial",
+11.0,
+true,
+true,
+0
+],
+"model": "Double:17.29|Double:94.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"tariff Oxbow 1,250.75 pre-tax",
+"Arial",
+8.0,
+true,
+false,
+"73.5,93.75,165.0,176.25,216.75,224.25,247.5,256.5,272.25,310.5"
+],
+"model": "|13,13,3,|13,16,|29,|29,|29,|29,|29,|29,|29,|29,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+18.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|######|#######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+9.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|#########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Ampere Sixty",
+"Arial",
+9.0,
+true,
+true,
+0
+],
+"model": "Double:11.86|Double:66|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX Wimble rate-card",
+"Arial",
+10.5,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"rate-card",
+"Arial",
+10.0,
+false,
+false,
+0,
+"43,24.5,36,33,22,28.5,32.5,1.5,1"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|102.75,102.75,39|115.5,115.5,51.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty tariff rate-card",
+"Arial",
+8.0,
+true,
+false,
+0
+],
+"model": "Double:15.57|Double:85.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"pre-tax~volume zig-zag",
+"Arial",
+20.0,
+true,
+true,
+0,
+"10,39,17,36.5,28.5,21.5,36.5,34.5,8"
+],
+"model": "|153,153,153|51,51,51|76.5,76.5,76.5|51,51,51|76.5,76.5,51|76.5,76.5,76.5|51,51,51|51,51,51|178.5,178.5,153",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+20.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|#####|#######",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive Ampere Harbour",
+"Arial",
+12.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+36.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|####",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger illicit Ampere Oxbow",
+"Arial",
+9.0,
+true,
+false,
+0
+],
+"model": "Double:23|Double:124.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty lily",
+"Arial",
+18.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"(net) (net) Wimble Harbour",
+"Arial",
+11.5,
+false,
+false,
+"33.0,48.0,55.5,88.5,100.5,174.75,258.75,276.75,325.5,361.5"
+],
+"model": "|3,3,3,3,2,3,2,3,2,2,|6,6,5,2,5,2,|6,6,7,6,1,|12,7,7,|12,14,|26,|26,|26,|26,|26,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty Oxbow WAREHOUSE",
+"Arial",
+36.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"caf\u00e9 Wimble Harbour WAREHOUSE (net) mill MMXX jetty Oxbow Oxbow ledger ledger fifty caf\u00e9",
+"Arial",
+14.0,
+14.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Lined",
+"(net) Wimble mill lily",
+"Arial",
+18.0,
+false,
+false,
+"41.25,54.0,78.75,170.25,183.0,188.25,205.5,237.0,264.75,285.0"
+],
+"model": "|3,3,2,2,3,3,2,4,|6,3,4,5,4,|6,7,9,|18,4,|22,|22,|22,|22,|22,|22,",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"(net) (net) jetty Harbour",
+"Arial",
+11.0,
+true,
+true,
+"24.0,72.75,127.5,202.5,215.25,237.75,239.25,272.25,305.25,310.5"
+],
+"model": "|1,1,1,3,1,1,1,3,2,2,2,1,1,1,1,1,1,1,|12,6,7,|18,7,|25,|25,|25,|25,|25,|25,|25,",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"mill Ampere",
+"Arial",
+8.0,
+false,
+false,
+"26.25,76.5,84.0,87.75,124.5,145.5,272.25,282.0,312.0,342.75"
+],
+"model": "|3,2,1,2,3,|11,|11,|11,|11,|11,|11,|11,|11,|11,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+24.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|1E+06",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 illicit Oxbow",
+"Arial",
+20.0,
+true,
+true,
+0
+],
+"model": "Double:34.14|Double:183|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"naive Ampere tariff Oxbow Harbour",
+"Arial",
+12.0,
+false,
+true,
+"73.5,113.25,119.25,147.75,223.5,319.5,323.25,338.25,342.0,365.25"
+],
+"model": "|6,7,7,6,7,|13,13,7,|20,13,|20,13,|33,|33,|33,|33,|33,|33,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+14.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|1E-04|1E-04|0.00012|0.000123|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1234568|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty tariff",
+"Arial",
+10.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+14.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|#####|######|#######|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Pivoted",
+"Arial",
+14.0,
+false
+],
+"model": "|15.71|14.14|8.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+9.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234567.9|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag Ampere ledger",
+"Arial",
+9.0,
+false,
+true,
+0
+],
+"model": "Double:19.29|Double:105|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+36.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|####",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill illicit",
+"Arial",
+14.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"mill jetty jetty Quince",
+"Arial",
+11.0,
+true,
+false,
+0
+],
+"model": "Double:21.71|Double:117.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+24.0,
+false,
+true
+],
+"model": "Double:30.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+18.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|1E+06|1E+06|1234567.9",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Pivoted",
+"Arial",
+14.0,
+true
+],
+"model": "|15.71|14.14|8.43",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"Harbour (net) 9% caf\u00e9 naive naive mill lily pre-tax lily illicit Quince rate-card Sixty",
+"Arial",
+11.0,
+8.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"tariff A&B WAREHOUSE volume",
+"Arial",
+20.0,
+true,
+false,
+0,
+"4,34.5,24,11.5,8,21.5,38,19,16"
+],
+"model": "|409.5,409.5,409.5|78.75,78.75,78.75|78.75,78.75,78.75|183.75,183.75,183.75|315,315,183.75|105,105,78.75|78.75,78.75,78.75|131.25,131.25,105|131.25,131.25,131.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag WAREHOUSE A&B tariff",
+"Arial",
+10.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Normal",
+"Arial",
+9.0
+],
+"model": null,
+"refused": "changing the Normal font to Arial 11, which the sheets' column widths and row heights rest on, is not implemented"
+},
+{
+"call": [
+"Lined",
+"illicit Quince Quince",
+"Arial",
+10.0,
+false,
+true,
+"60.0,60.75,119.25,174.0,192.0,300.75,308.25,312.75,354.75,366.0"
+],
+"model": "|8,7,6,|8,7,6,|21,|21,|21,|21,|21,|21,|21,|21,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+18.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|######|#######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+24.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+20.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|#####|######|########",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger",
+"Arial",
+36.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+20.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|#####|######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX Sixty A&B caf\u00e9",
+"Arial",
+8.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"lily",
+"Arial",
+8.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+8.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty rate-card illicit Sixty",
+"Arial",
+12.0,
+true,
+true,
+0
+],
+"model": "Double:27.86|Double:150|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+20.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|1E+06|1234568",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+8.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive (net) MMXX",
+"Arial",
+10.5,
+true,
+false,
+0
+],
+"model": "Double:18.29|Double:99.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+36.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble 9% MMXX",
+"Arial",
+11.5,
+true,
+true,
+0
+],
+"model": "Double:19.43|Double:105.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"zig-zag~Oxbow naive Harbour",
+"Arial",
+16.0,
+true,
+true,
+0,
+"23.5,2,45.5,4.5,4,33.5,31,7,7"
+],
+"model": "|60.75,60.75,60.75|409.5,409.5,384.75|40.5,40.5,40.5|324,324,202.5|384.75,384.75,222.75|40.5,40.5,40.5|60.75,60.75,40.5|182.25,182.25,141.75|182.25,182.25,141.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit zig-zag pre-tax ledger",
+"Arial",
+18.0,
+true,
+true,
+0
+],
+"model": "Double:47.14|Double:251.25|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B",
+"Arial",
+24.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+14.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|#####|#####|#######|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty caf\u00e9 mill",
+"Arial",
+9.0,
+false,
+true,
+0
+],
+"model": "Double:11|Double:61.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"naive 9%~tariff",
+"Arial",
+9.0,
+false,
+false,
+0,
+"11.5,14.5,42.5,23,23,18,27.5,17,2"
+],
+"model": "|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|96.75,96.75,48.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit naive Quince",
+"Arial",
+12.0,
+true,
+false,
+0
+],
+"model": "Double:20.43|Double:111|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Sixty WAREHOUSE~pre-tax Harbour",
+"Arial",
+8.0,
+true,
+false,
+0,
+"29.5,31.5,39.5,38,37,1,5,10.5,33.5"
+],
+"model": "|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|315.75,315.75,135.75|90.75,90.75,57|45.75,45.75,45.75|23.25,23.25,23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"jetty",
+"Arial",
+24.0,
+true,
+true,
+0,
+"37,13,44.5,18.5,42.5,6.5,6,26,1"
+],
+"model": "|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30|90,90,60|90,90,60|30,30,30|150,150,150",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax volume",
+"Arial",
+11.0,
+true,
+false,
+0
+],
+"model": "Double:15.57|Double:85.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.0,
+true,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"zig-zag 1,250.75 tariff",
+"Arial",
+9.0,
+false,
+false,
+"55.5,74.25,75.75,107.25,168.75,178.5,198.75,272.25,287.25,323.25"
+],
+"model": "|8,9,6,|8,15,|8,15,|23,|23,|23,|23,|23,|23,|23,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+16.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|1E+06|1E+06|1234568|1234567.89",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"mill~1,250.75 MMXX Ampere",
+"Arial",
+11.0,
+false,
+false,
+0,
+"11.5,37.5,28.5,40,6,36,9,7.5,4.5"
+],
+"model": "|57.75,57.75,57.75|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|86.25,86.25,57.75|29.25,29.25,29.25|57.75,57.75,57.75|72,72,57.75|100.5,100.5,86.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow Quince A&B",
+"Arial",
+11.5,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE Quince Sixty",
+"Arial",
+20.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"1,250.75 1,250.75 Sixty (net)",
+"Arial",
+24.0,
+true,
+false,
+"19.5,43.5,165.0,181.5,225.75,235.5,242.25,243.75,303.0,326.25"
+],
+"model": "|1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,|2,2,2,3,2,2,2,3,2,2,2,2,2,1,|9,9,11,|9,15,5,|18,11,|18,11,|18,11,|18,11,|24,5,|24,5,",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+18.0,
+false,
+true
+],
+"model": "Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive (net)",
+"Arial",
+8.0,
+false,
+false,
+0
+],
+"model": "Double:7.71|Double:44.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+16.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|#####|######|#######|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"lily illicit 1,250.75 fifty tariff Harbour 1,250.75",
+"Arial",
+10.5,
+false,
+false,
+0,
+"19,24,6,1.5,34,38.5,23.5,28.5,31"
+],
+"model": "|41.25,41.25,41.25|27.75,27.75,27.75|135.75,135.75,95.25|409.5,409.5,203.25|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.0,
+true,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"MMXX Quince WAREHOUSE A&B ledger Quince",
+"Arial",
+11.5,
+false,
+true,
+0,
+"21,15,28.5,10,26,22.5,12,43,40.5"
+],
+"model": "|43.5,43.5,43.5|57.75,57.75,57.75|43.5,43.5,29.25|100.5,100.5,86.25|43.5,43.5,43.5|43.5,43.5,43.5|86.25,86.25,72|29.25,29.25,29.25|29.25,29.25,29.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Wimble 9%",
+"Arial",
+12.0,
+false,
+false,
+1,
+"18,8,10,20,29.5,17.5,39.5,29.5,7"
+],
+"model": "|15.75,15.75,15.75|30,30,30|30,30,30|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|45,45,30",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B",
+"Arial",
+11.5,
+true,
+true,
+0
+],
+"model": "Double:5.57|Double:33|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1234568|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill 1,250.75 pre-tax lily",
+"Arial",
+20.0,
+true,
+false,
+0
+],
+"model": "Double:46.43|Double:247.5|Double:26.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+16.0,
+false,
+false
+],
+"model": "Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"pre-tax jetty jetty fifty",
+"Arial",
+10.0,
+true,
+false,
+0,
+"25,37,45,25.5,6.5,19.5,9.5,17,26.5"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|64.5,64.5,39|26.25,26.25,15|39,39,26.25|26.25,26.25,26.25|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+20.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||0|0|0|0|0|0|0|1E-04|1E-04|0.00012",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Ampere",
+"Arial",
+36.0,
+true,
+false,
+"38.25,52.5,71.25,87.75,180.0,255.75,282.0,292.5,329.25,345.75"
+],
+"model": "|1,1,1,1,1,1,|1,1,1,2,1,|1,2,3,|2,3,1,|6,|6,|6,|6,|6,|6,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+16.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|1E+06|1E+06|1234568|1234567.89",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"jetty Ampere volume",
+"Arial",
+11.0,
+false,
+false,
+"80.25,103.5,112.5,150.75,174.0,189.75,260.25,340.5,351.75,364.5"
+],
+"model": "|13,6,|13,6,|13,6,|19,|19,|19,|19,|19,|19,|19,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|1E+06|1234568|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"MMXX A&B naive Oxbow pre-tax 1,250.75 naive Quince rate-card Wimble pre-tax jetty WAREHOUSE lily",
+"Arial",
+14.0,
+8.0
+],
+"model": "|MMXX|A&B|naive|Oxbow|pre-tax|1,250.75|naive|Quince|rate-card|Wimble|pre-tax|jetty",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+16.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||0|0|0|0|0|0|0|1E-04|1E-04|0.0001|0.000123|0.00012346",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"naive",
+"Arial",
+36.0,
+false,
+true,
+0,
+"19.5,43,31,9,7.5,17,20.5,39.5,2.5"
+],
+"model": "|45,45,45|45,45,45|45,45,45|180,180,135|225,225,180|90,90,90|45,45,45|45,45,45|225,225,225",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+14.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|1E+06|1E+06|1234568|1234568|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill Oxbow jetty",
+"Arial",
+16.0,
+false,
+false,
+0
+],
+"model": "Double:21.57|Double:117|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+14.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|#####|#####|#######|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily",
+"Arial",
+16.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+9.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|#########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+16.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||0|0|0|0|0|0|0|1E-04|1E-04|0.0001|0.000123|0.00012346",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX volume",
+"Arial",
+18.0,
+false,
+false,
+0
+],
+"model": "Double:23|Double:124.5|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+20.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|#####|#######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+20.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|#####|######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Harbour",
+"Arial",
+10.5,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+20.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||0|0|0|0|0|0|0|1E-04|1E-04|0.00012",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9",
+"Arial",
+36.0,
+true,
+false,
+0
+],
+"model": "Double:15.71|Double:86.25|Double:45",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Sixty naive Sixty~ledger rate-card A&B",
+"Arial",
+36.0,
+true,
+false,
+0,
+"24,36,5,16,35.5,8,41,41.5,11.5"
+],
+"model": "|315,315,315|270,270,225|409.5,409.5,409.5|409.5,409.5,409.5|270,270,270|409.5,409.5,409.5|180,180,180|180,180,180|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily Ampere 1,250.75",
+"Arial",
+11.0,
+true,
+false,
+0
+],
+"model": "Double:20.14|Double:109.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince fifty 9% 1,250.75",
+"Arial",
+10.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"pre-tax",
+"Arial",
+18.0,
+false,
+true,
+0
+],
+"model": "Double:12.57|Double:69.75|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9",
+"Arial",
+11.5,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"naive 1,250.75 mill ledger",
+"Arial",
+14.0,
+false,
+true,
+"87.75,90.0,96.75,103.5,136.5,170.25,204.75,205.5,240.0,297.75"
+],
+"model": "|6,9,11,|6,9,11,|6,14,6,|6,14,6,|20,6,|20,6,|26,|26,|26,|26,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag",
+"Arial",
+16.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+14.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|#####|#####|#######|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Oxbow",
+"Arial",
+20.0,
+false,
+true,
+0,
+"45,28.5,19.5,45.5,7,29.5,45,20.5,14"
+],
+"model": "|25.5,25.5,25.5|25.5,25.5,25.5|25.5,25.5,25.5|25.5,25.5,25.5|76.5,76.5,51|25.5,25.5,25.5|25.5,25.5,25.5|25.5,25.5,25.5|25.5,25.5,25.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive zig-zag",
+"Arial",
+18.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE lily caf\u00e9 9%",
+"Arial",
+24.0,
+false,
+true,
+0,
+"43,8.5,31.5,38,38.5,39,28.5,25.5,24.5"
+],
+"model": "|61.5,61.5,61.5|307.5,307.5,246|61.5,61.5,61.5|61.5,61.5,61.5|61.5,61.5,61.5|61.5,61.5,61.5|92.25,92.25,61.5|92.25,92.25,92.25|92.25,92.25,92.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Wimble~A&B ledger A&B rate-card",
+"Arial",
+8.0,
+true,
+true,
+0,
+"5.5,14.5,4.5,27.5,42.5,6.5,1,20.5,44"
+],
+"model": "|74.25,74.25,53.25|32.25,32.25,32.25|84.75,84.75,63.75|21.75,21.75,21.75|21.75,21.75,21.75|63.75,63.75,53.25|284.25,284.25,147.75|32.25,32.25,21.75|21.75,21.75,21.75",
+"refused": null
+},
+{
+"call": [
+"Normal",
+"Arial",
+14.0
+],
+"model": null,
+"refused": "changing the Normal font to Arial 11, which the sheets' column widths and row heights rest on, is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+20.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|#####|#######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+12.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|#####|######|#######|########|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 jetty Oxbow",
+"Arial",
+8.0,
+false,
+true,
+0
+],
+"model": "Double:12.71|Double:70.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"rate-card~pre-tax ledger",
+"Arial",
+20.0,
+false,
+true,
+0,
+"45,28.5,19.5,45.5,7,29.5,45,20.5,14"
+],
+"model": "|51,51,51|51,51,51|76.5,76.5,76.5|51,51,51|255,255,178.5|51,51,51|51,51,51|76.5,76.5,76.5|102,102,102",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"1,250.75 1,250.75 WAREHOUSE",
+"Arial",
+11.5,
+true,
+true,
+0
+],
+"model": "Double:33|Double:177|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9% ledger",
+"Arial",
+18.0,
+false,
+false,
+0
+],
+"model": "Double:16.57|Double:90.75|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince zig-zag",
+"Arial",
+18.0,
+false,
+true,
+0
+],
+"model": "Double:25|Double:135|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+36.0,
+false,
+true
+],
+"model": "Double:45",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"fifty~Sixty 1,250.75 A&B",
+"Arial",
+18.0,
+false,
+true,
+0,
+"38.5,22,3,31.5,44,27,36.5,31,16"
+],
+"model": "|46.5,46.5,46.5|93,93,69.75|409.5,409.5,325.5|69.75,69.75,46.5|46.5,46.5,46.5|69.75,69.75,69.75|46.5,46.5,46.5|69.75,69.75,46.5|93,93,93",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill WAREHOUSE rate-card illicit",
+"Arial",
+10.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+12.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|0|1E-04|0.0001|0.0001|0.00012|0.0001235|0.00012346|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble rate-card mill",
+"Arial",
+11.0,
+false,
+true,
+0
+],
+"model": "Double:21.14|Double:114.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+18.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|1E-04|0.0001|0.00012|0.0001235",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty",
+"Arial",
+24.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Plain",
+"Arial",
+14.0,
+true,
+true
+],
+"model": "Double:18.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+9.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|1E+06|1234568|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+9.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+20.0,
+false,
+true
+],
+"model": "Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow illicit naive Ampere",
+"Arial",
+11.5,
+true,
+false,
+0
+],
+"model": "Double:27.57|Double:148.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+18.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|1E+06|1E+06|1234567.9",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+8.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|#######|########|2023-07-16|2023-07-16|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"naive zig-zag~1,250.75",
+"Arial",
+10.0,
+true,
+true,
+0,
+"20,11.5,32,6.5,43.5,10.5,12,14.5,36"
+],
+"model": "|26.25,26.25,26.25|39,39,26.25|26.25,26.25,26.25|64.5,64.5,39|26.25,26.25,26.25|39,39,26.25|39,39,26.25|26.25,26.25,26.25|26.25,26.25,26.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+24.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|######",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.0,
+false,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive",
+"Arial",
+16.0,
+true,
+false,
+0
+],
+"model": "Double:8.43|Double:48|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+18.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|######|#######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"ledger zig-zag Wimble",
+"Arial",
+20.0,
+false,
+false,
+1,
+"10,15.5,34.5,37,43.5,24.5,22,37.5,33.5"
+],
+"model": "|178.5,178.5,127.5|76.5,76.5,76.5|51,51,51|51,51,51|25.5,25.5,25.5|51,51,51|76.5,76.5,51|51,51,51|51,51,51",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"fifty A&B pre-tax volume A&B WAREHOUSE ledger MMXX rate-card lily Wimble Sixty caf\u00e9 Oxbow",
+"Arial",
+9.0,
+30.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Fit",
+"Ampere Wimble lily tariff",
+"Arial",
+16.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"pre-tax",
+"Arial",
+16.0,
+false,
+true,
+0
+],
+"model": "Double:10.86|Double:60.75|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+8.0,
+true,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"rate-card",
+"Arial",
+11.0,
+true,
+true,
+0
+],
+"model": "Double:9.86|Double:55.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive jetty",
+"Arial",
+14.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+36.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|####",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+36.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX Sixty rate-card",
+"Arial",
+10.5,
+false,
+true,
+0
+],
+"model": "Double:20.71|Double:112.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger",
+"Arial",
+20.0,
+true,
+false,
+0
+],
+"model": "Double:12.71|Double:70.5|Double:26.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty MMXX volume Sixty",
+"Arial",
+8.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+8.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+20.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|1E+06|1E+06|1234568",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+20.0,
+false,
+false
+],
+"model": "Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"1,250.75 A&B fifty~volume fifty",
+"Arial",
+14.0,
+true,
+false,
+0,
+"30.5,4.5,23,35.5,29.5,31,34.5,11.5,29"
+],
+"model": "|36,36,36|216,216,126|54,54,36|36,36,36|36,36,36|36,36,36|36,36,36|90,90,72|36,36,36",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX Wimble",
+"Arial",
+24.0,
+false,
+false,
+0
+],
+"model": "Double:32.14|Double:172.5|Double:30",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE 1,250.75 Wimble",
+"Arial",
+8.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"zig-zag~9%",
+"Arial",
+9.0,
+false,
+true,
+0,
+"21.5,20.5,33,8.5,37,12.5,34,11,40.5"
+],
+"model": "|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince Quince Ampere tariff",
+"Arial",
+10.5,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+24.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|1E+06",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+20.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|#####|#######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+36.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|####",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+20.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|#####|######|########",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble",
+"Arial",
+24.0,
+true,
+true,
+0
+],
+"model": "Double:19.14|Double:104.25|Double:30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+14.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|1E+06|1E+06|1234568|1234568|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE",
+"Arial",
+18.0,
+false,
+true,
+0
+],
+"model": "Double:25|Double:135|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+36.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|###",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax (net)",
+"Arial",
+11.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"fifty fifty mill~lily Wimble 1,250.75 MMXX",
+"Arial",
+18.0,
+false,
+false,
+0,
+"31,17,22.5,10,14.5,42.5,42,31.5,1.5"
+],
+"model": "|69.75,69.75,69.75|139.5,139.5,116.25|93,93,93|232.5,232.5,209.25|139.5,139.5,139.5|69.75,69.75,46.5|69.75,69.75,46.5|69.75,69.75,69.75|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"lily fifty MMXX Sixty naive",
+"Arial",
+36.0,
+false,
+true,
+"117.75,134.25,135.75,142.5,177.75,207.75,211.5,218.25,256.5,309.75"
+],
+"model": "|5,6,3,2,6,5,|11,5,6,5,|11,5,6,5,|11,5,6,5,|11,5,6,5,|11,5,11,|11,11,5,|11,11,5,|16,11,|16,11,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234567.9|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE tariff 9%",
+"Arial",
+24.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"mill ledger fifty Quince",
+"Arial",
+11.0,
+true,
+false,
+"31.5,73.5,153.0,162.75,205.5,221.25,228.0,261.75,307.5,365.25"
+],
+"model": "|3,2,3,2,2,4,2,2,3,1,|12,6,6,|24,|24,|24,|24,|24,|24,|24,|24,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE",
+"Arial",
+14.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+20.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|#####|######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Oxbow ledger WAREHOUSE WAREHOUSE MMXX MMXX 1,250.75",
+"Arial",
+16.0,
+false,
+false,
+"63.75,75.0,78.75,160.5,174.75,288.0,299.25,321.0,327.0,347.25"
+],
+"model": "|4,2,7,4,4,2,4,4,2,5,5,6,2,|6,7,5,5,5,5,5,5,7,1,|6,7,5,5,5,5,5,5,8,|13,10,10,10,8,|13,10,15,13,|23,20,8,|23,28,|23,28,|23,28,|33,18,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty",
+"Arial",
+12.0,
+false,
+false,
+0
+],
+"model": "Double:3.86|Double:24|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+36.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.5,
+false,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+8.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|1E+06|1E+06|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.5,
+true,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE ledger pre-tax",
+"Arial",
+12.0,
+true,
+true,
+0
+],
+"model": "Double:32.71|Double:175.5|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax",
+"Arial",
+12.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"fifty tariff lily Oxbow",
+"Arial",
+14.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+8.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|1E+06|1234568|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"1,250.75 Quince Sixty volume",
+"Arial",
+18.0,
+true,
+false,
+"33.0,54.0,144.0,145.5,199.5,225.75,232.5,323.25,351.75,367.5"
+],
+"model": "|2,1,1,2,1,2,1,2,1,1,2,2,2,2,1,2,1,1,1,|4,5,3,4,4,2,4,2,|9,13,6,|9,13,6,|22,6,|22,6,|22,6,|28,|28,|28,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax Wimble",
+"Arial",
+11.5,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+20.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|0|1E-04|0.0001|0.000123",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Harbour MMXX tariff jetty",
+"Arial",
+14.0,
+false,
+true,
+0
+],
+"model": "Double:32.86|Double:176.25|Double:18.75",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"lily",
+"Arial",
+14.0,
+true,
+true,
+0,
+"28,28.5,24.5,45,12.5,10.5,43.5,4,27"
+],
+"model": "|18.75,18.75,18.75|18.75,18.75,18.75|18.75,18.75,18.75|18.75,18.75,18.75|18.75,18.75,18.75|18.75,18.75,18.75|18.75,18.75,18.75|37.5,37.5,18.75|18.75,18.75,18.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+18.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|#####|######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+16.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|#####|######|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill mill",
+"Arial",
+24.0,
+false,
+false,
+0
+],
+"model": "Double:16.29|Double:89.25|Double:30",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Ampere naive WAREHOUSE A&B 1,250.75 illicit",
+"Arial",
+36.0,
+true,
+true,
+0,
+"31,35.5,37.5,27,17.5,1.5,19.5,29.5,29"
+],
+"model": "|309.75,309.75,309.75|265.5,265.5,265.5|265.5,265.5,265.5|309.75,309.75,309.75|409.5,409.5,409.5|409.5,409.5,409.5|409.5,409.5,409.5|309.75,309.75,309.75|309.75,309.75,309.75",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"9% Wimble MMXX tariff mill Oxbow",
+"Arial",
+36.0,
+true,
+true,
+"22.5,128.25,154.5,174.0,175.5,198.0,202.5,254.25,334.5,366.0"
+],
+"model": "|1,2,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,|3,5,2,5,7,5,4,1,|3,7,5,7,5,5,|3,7,5,12,5,|3,7,5,12,5,|3,7,5,12,5,|3,7,5,12,5,|10,12,10,|15,17,|15,17,",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"naive~1,250.75 caf\u00e9 1,250.75",
+"Arial",
+20.0,
+true,
+false,
+0,
+"4,34.5,24,11.5,8,21.5,38,19,16"
+],
+"model": "|409.5,409.5,341.25|78.75,78.75,78.75|105,105,78.75|157.5,157.5,157.5|262.5,262.5,183.75|105,105,105|78.75,78.75,78.75|105,105,105|131.25,131.25,105",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"zig-zag mill volume pre-tax tariff tariff",
+"Arial",
+14.0,
+false,
+true,
+0,
+"34.5,6,28,10,38,8,22,14.5,43.5"
+],
+"model": "|37.5,37.5,37.5|225,225,168.75|37.5,37.5,37.5|150,150,112.5|37.5,37.5,37.5|168.75,168.75,150|56.25,56.25,56.25|93.75,93.75,75|37.5,37.5,37.5",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Wimble ledger rate-card Harbour",
+"Arial",
+9.0,
+true,
+false,
+"23.25,58.5,63.0,72.75,150.75,183.75,267.0,275.25,279.0,342.75"
+],
+"model": "|1,1,1,2,2,2,1,1,3,2,2,1,1,2,2,1,2,1,1,1,1,|7,7,10,7,|7,7,10,7,|7,12,12,|24,7,|31,|31,|31,|31,|31,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.5,
+true,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"MMXX",
+"Arial",
+16.0,
+true,
+false,
+0,
+"41.5,41.5,36,34,11,3,6.5,2,35"
+],
+"model": "|20.25,20.25,20.25|20.25,20.25,20.25|20.25,20.25,20.25|20.25,20.25,20.25|20.25,20.25,20.25|81,81,60.75|40.5,40.5,40.5|81,81,81|20.25,20.25,20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble Sixty 9%",
+"Arial",
+9.0,
+false,
+false,
+0
+],
+"model": "Double:13.29|Double:73.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) jetty pre-tax rate-card",
+"Arial",
+18.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+8.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||0|0|0|0|0|1E-04|0.00012|0.000123|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty",
+"Arial",
+9.0,
+true,
+false,
+0
+],
+"model": "Double:3.71|Double:23.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily rate-card Wimble fifty",
+"Arial",
+11.5,
+true,
+false,
+0
+],
+"model": "Double:25.43|Double:137.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"WAREHOUSE Quince Quince Oxbow Harbour WAREHOUSE",
+"Arial",
+20.0,
+false,
+true,
+"47.25,66.0,83.25,108.75,153.0,204.75,215.25,228.0,275.25,319.5"
+],
+"model": "|2,2,2,2,2,3,4,3,4,2,2,2,3,2,3,2,2,2,2,1,|3,3,4,4,3,4,3,4,2,4,4,3,3,3,|4,4,2,7,7,6,6,2,4,4,1,|6,4,7,7,6,8,6,3,|10,14,6,8,9,|10,14,14,9,|17,13,8,9,|17,21,9,|17,21,9,|24,23,",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"illicit naive Oxbow Oxbow A&B",
+"Arial",
+9.0,
+false,
+true,
+"39.75,174.75,198.75,211.5,219.75,258.0,290.25,340.5,342.0,347.25"
+],
+"model": "|8,6,4,2,4,2,3,|29,|29,|29,|29,|29,|29,|29,|29,|29,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+14.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|#####|######|#######|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume mill volume naive",
+"Arial",
+14.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff pre-tax A&B",
+"Arial",
+11.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger",
+"Arial",
+36.0,
+true,
+false,
+0
+],
+"model": "Double:22.71|Double:123|Double:45",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+24.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|######",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"lily (net) caf\u00e9 tariff",
+"Arial",
+10.5,
+true,
+true,
+"18.0,18.75,84.75,89.25,235.5,236.25,266.25,269.25,280.5,288.75"
+],
+"model": "|1,1,1,2,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,|1,1,1,2,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,|16,6,|16,6,|22,|22,|22,|22,|22,|22,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit jetty",
+"Arial",
+10.0,
+false,
+false,
+0
+],
+"model": "Double:8.14|Double:46.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"naive rate-card ledger Wimble 1,250.75 caf\u00e9 pre-tax",
+"Arial",
+18.0,
+false,
+true,
+"18.0,98.25,126.75,127.5,135.0,162.0,165.75,175.5,230.25,352.5"
+],
+"model": "|1,1,1,1,2,1,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,|6,10,7,7,9,9,3,|11,12,7,14,7,|11,12,7,14,7,|16,14,14,7,|16,14,18,3,|16,14,18,3,|16,14,18,3,|23,25,3,|39,12,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+16.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|#####|######|########|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE Quince lily A&B",
+"Arial",
+18.0,
+true,
+true,
+1,
+"39,37.5,35.5,4.5,11.5,34,44,34.5,9"
+],
+"model": "|46.5,46.5,46.5|46.5,46.5,46.5|46.5,46.5,46.5|409.5,409.5,409.5|162.75,162.75,139.5|46.5,46.5,46.5|46.5,46.5,46.5|46.5,46.5,46.5|232.5,232.5,162.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince",
+"Arial",
+20.0,
+true,
+true,
+0
+],
+"model": "Double:15.29|Double:84|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Oxbow pre-tax caf\u00e9 illicit Harbour (net)",
+"Arial",
+16.0,
+true,
+true,
+0,
+"23.5,2,45.5,4.5,4,33.5,31,7,7"
+],
+"model": "|60.75,60.75,60.75|409.5,409.5,409.5|40.5,40.5,40.5|405,405,283.5|409.5,409.5,283.5|40.5,40.5,40.5|40.5,40.5,40.5|263.25,263.25,162|263.25,263.25,162",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+18.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|#####|######|#########",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+9.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"fifty A&B zig-zag Harbour",
+"Arial",
+36.0,
+false,
+false,
+0,
+"9.5,44,25,40,45,39.5,44,24.5,9"
+],
+"model": "|409.5,409.5,409.5|88.5,88.5,88.5|221.25,221.25,221.25|132.75,132.75,88.5|88.5,88.5,88.5|132.75,132.75,88.5|88.5,88.5,88.5|221.25,221.25,221.25|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B 1,250.75 ledger",
+"Arial",
+24.0,
+false,
+false,
+0
+],
+"model": "Double:44.14|Double:235.5|Double:30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+24.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|######",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE Oxbow Oxbow mill",
+"Arial",
+24.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"(net)",
+"Arial",
+24.0,
+true,
+true,
+0
+],
+"model": "Double:12.71|Double:70.5|Double:30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+12.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|0|1E-04|0.0001|0.0001|0.00012|0.0001235|0.00012346|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty mill illicit rate-card",
+"Arial",
+10.5,
+true,
+false,
+0
+],
+"model": "Double:24.43|Double:132|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+8.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|1E+06|1E+06|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"mill ledger naive~volume Ampere Sixty Oxbow",
+"Arial",
+24.0,
+false,
+true,
+0,
+"43,8.5,31.5,38,38.5,39,28.5,25.5,24.5"
+],
+"model": "|92.25,92.25,92.25|409.5,409.5,409.5|153.75,153.75,153.75|92.25,92.25,92.25|92.25,92.25,92.25|92.25,92.25,92.25|153.75,153.75,153.75|184.5,184.5,184.5|184.5,184.5,184.5",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+14.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|#####|######|#######|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill A&B mill",
+"Arial",
+12.0,
+true,
+true,
+0
+],
+"model": "Double:15.14|Double:83.25|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger",
+"Arial",
+16.0,
+false,
+true,
+0
+],
+"model": "Double:10|Double:56.25|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily Wimble",
+"Arial",
+36.0,
+false,
+false,
+0
+],
+"model": "Double:35.14|Double:188.25|Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+18.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|1E+06|1234568|1234567.9",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"volume lily Oxbow",
+"Arial",
+10.0,
+true,
+true,
+"43.5,89.25,134.25,147.0,167.25,171.0,179.25,216.0,258.75,311.25"
+],
+"model": "|4,3,5,4,1,|12,5,|17,|17,|17,|17,|17,|17,|17,|17,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily tariff jetty",
+"Arial",
+11.0,
+true,
+true,
+0
+],
+"model": "Double:14|Double:77.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"tariff illicit mill naive Wimble 9%",
+"Arial",
+16.0,
+true,
+true,
+"63.75,66.75,90.75,144.75,150.0,183.0,295.5,315.75,357.75,358.5"
+],
+"model": "|7,8,5,6,5,4,|7,8,5,6,5,4,|7,13,6,7,2,|20,15,|20,15,|26,9,|35,|35,|35,|35,",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+9.0,
+false,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+8.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|#####|######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9% Harbour lily Sixty",
+"Arial",
+14.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"Oxbow Sixty",
+"Arial",
+18.0,
+false,
+true,
+0,
+"38.5,22,3,31.5,44,27,36.5,31,16"
+],
+"model": "|23.25,23.25,23.25|23.25,23.25,23.25|232.5,232.5,162.75|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|46.5,46.5,46.5",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+14.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|#####|######|#######|########|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"illicit Quince",
+"Arial",
+10.5,
+false,
+true,
+1,
+"22.5,40.5,26,35,2.5,25,9.5,26.5,7.5"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|176.25,176.25,68.25|15,15,15|27.75,27.75,27.75|15,15,15|41.25,41.25,27.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble A&B WAREHOUSE",
+"Arial",
+18.0,
+true,
+true,
+0
+],
+"model": "Double:47|Double:250.5|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+24.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||0|0|0|0|0|0|0|0|1E-04|0.0001",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+20.0,
+true,
+false
+],
+"model": "Double:26.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+9.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag pre-tax fifty",
+"Arial",
+14.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"Harbour~pre-tax Harbour (net) Sixty",
+"Arial",
+9.0,
+true,
+true,
+0,
+"44.5,10,31.5,20,11,9,17.5,17.5,14"
+],
+"model": "|24.75,24.75,24.75|48.75,48.75,48.75|24.75,24.75,24.75|36.75,36.75,36.75|48.75,48.75,48.75|48.75,48.75,48.75|36.75,36.75,36.75|36.75,36.75,36.75|36.75,36.75,36.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit lily WAREHOUSE",
+"Arial",
+20.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+9.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger fifty",
+"Arial",
+11.0,
+false,
+true,
+0
+],
+"model": "Double:10.43|Double:58.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 mill volume fifty",
+"Arial",
+10.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"lily 1,250.75",
+"Arial",
+24.0,
+false,
+true,
+"102.0,109.5,139.5,174.75,222.75,228.75,253.5,261.0,276.0,362.25"
+],
+"model": "|5,7,1,|5,8,|5,8,|13,|13,|13,|13,|13,|13,|13,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9% lily Quince",
+"Arial",
+20.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+9.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9",
+"Arial",
+8.0,
+false,
+true,
+0
+],
+"model": "Double:3.86|Double:24|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty fifty",
+"Arial",
+8.0,
+true,
+false,
+0
+],
+"model": "Double:7.43|Double:42.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag",
+"Arial",
+16.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"1,250.75 Quince volume WAREHOUSE Sixty Ampere Harbour",
+"Arial",
+10.0,
+true,
+false,
+"40.5,69.0,78.0,148.5,154.5,223.5,233.25,249.0,283.5,361.5"
+],
+"model": "|5,4,4,3,4,3,3,3,4,6,3,4,4,3,|9,7,7,7,9,7,7,|9,7,7,8,8,7,7,|23,23,7,|23,23,7,|39,14,|39,14,|39,14,|46,7,|53,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow (net) Harbour WAREHOUSE",
+"Arial",
+9.0,
+false,
+true,
+0
+],
+"model": "Double:29.71|Double:159.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume Sixty MMXX 1,250.75",
+"Arial",
+12.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty",
+"Arial",
+8.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"A&B ledger Harbour illicit",
+"Arial",
+14.0,
+true,
+false,
+"20.25,33.75,34.5,89.25,95.25,210.0,238.5,321.75,354.75,355.5"
+],
+"model": "|1,1,2,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,1,1,1,|1,1,2,2,2,3,2,2,2,2,4,3,|1,1,2,2,2,3,2,2,2,2,4,3,|4,7,8,7,|11,8,7,|26,|26,|26,|26,|26,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+18.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|#####|######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+16.0,
+true,
+true
+],
+"model": "Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"naive Sixty",
+"Arial",
+12.0,
+true,
+true,
+"45.75,81.0,96.75,105.75,112.5,226.5,248.25,260.25,264.0,327.75"
+],
+"model": "|6,5,|11,|11,|11,|11,|11,|11,|11,|11,|11,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B Harbour lily",
+"Arial",
+10.5,
+true,
+false,
+0
+],
+"model": "Double:16.71|Double:91.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+12.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||0|0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble illicit rate-card illicit",
+"Arial",
+10.5,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Plain",
+"Arial",
+9.0,
+false,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"A&B Quince rate-card pre-tax zig-zag pre-tax lily ledger tariff A&B Quince ledger zig-zag MMXX",
+"Arial",
+9.0,
+14.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+9.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX",
+"Arial",
+9.0,
+true,
+true,
+0
+],
+"model": "Double:6.29|Double:36.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+24.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|######",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+8.0,
+false,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+16.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|#####|######|#######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"pre-tax tariff naive~volume illicit volume lily",
+"Arial",
+10.5,
+false,
+false,
+0,
+"19,24,6,1.5,34,38.5,23.5,28.5,31"
+],
+"model": "|41.25,41.25,41.25|27.75,27.75,27.75|108.75,108.75,95.25|409.5,409.5,203.25|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"jetty zig-zag caf\u00e9~Sixty caf\u00e9 illicit",
+"Arial",
+14.0,
+false,
+false,
+0,
+"26.5,9,30.5,45,30,6.5,44.5,17.5,9.5"
+],
+"model": "|36,36,36|126,126,90|36,36,36|36,36,36|36,36,36|126,126,126|36,36,36|72,72,54|108,108,72",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Harbour fifty volume Sixty WAREHOUSE caf\u00e9",
+"Arial",
+10.0,
+false,
+true,
+0,
+"40.5,19,35.5,33,10,43.5,13,33.5,17"
+],
+"model": "|15,15,15|39,39,39|26.25,26.25,26.25|26.25,26.25,26.25|64.5,64.5,51.75|15,15,15|51.75,51.75,51.75|26.25,26.25,26.25|51.75,51.75,39",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+9.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Quince 9% 1,250.75 illicit 9% Sixty",
+"Arial",
+8.0,
+false,
+true,
+"24.0,84.0,94.5,160.5,172.5,218.25,229.5,231.75,329.25,348.75"
+],
+"model": "|1,2,2,2,1,2,2,2,2,3,4,4,1,2,2,2,1,|10,20,5,|19,16,|35,|35,|35,|35,|35,|35,|35,",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"caf\u00e9 zig-zag Oxbow caf\u00e9 illicit tariff caf\u00e9",
+"Arial",
+10.5,
+false,
+false,
+"64.5,103.5,134.25,185.25,252.75,263.25,330.0,352.5,357.0,373.5"
+],
+"model": "|9,4,6,13,11,|13,19,11,|24,19,|39,4,|43,|43,|43,|43,|43,|43,",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Sixty Wimble illicit A&B",
+"Arial",
+20.0,
+true,
+true,
+"22.5,63.75,95.25,108.0,112.5,125.25,154.5,186.0,227.25,275.25"
+],
+"model": "|1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,|6,3,4,8,3,|6,7,8,3,|6,7,8,3,|6,7,11,|6,7,11,|13,11,|13,11,|21,3,|24,",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"pre-tax WAREHOUSE~fifty rate-card",
+"Arial",
+8.0,
+false,
+true,
+0,
+"31,45,27,28,35.5,32,16.5,37.5,23.5"
+],
+"model": "|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+18.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|######|#######|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger jetty lily fifty",
+"Arial",
+9.0,
+true,
+false,
+0
+],
+"model": "Double:15.43|Double:84.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+12.0,
+false,
+true
+],
+"model": "Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX lily 9% A&B",
+"Arial",
+18.0,
+true,
+false,
+0
+],
+"model": "Double:31.71|Double:170.25|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+14.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|1E-04|1E-04|0.00012|0.000123|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B illicit (net) ledger",
+"Arial",
+10.5,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"mill caf\u00e9 tariff",
+"Arial",
+18.0,
+true,
+true,
+"49.5,60.75,141.75,193.5,215.25,248.25,290.25,345.0,357.75,362.25"
+],
+"model": "|5,3,2,5,1,|5,5,6,|16,|16,|16,|16,|16,|16,|16,|16,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE Sixty (net)",
+"Arial",
+24.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 fifty mill Quince",
+"Arial",
+18.0,
+true,
+false,
+0
+],
+"model": "Double:35.29|Double:189|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+16.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|#####|######|#######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"1,250.75~zig-zag zig-zag volume fifty",
+"Arial",
+14.0,
+true,
+true,
+0,
+"28,28.5,24.5,45,12.5,10.5,43.5,4,27"
+],
+"model": "|56.25,56.25,56.25|56.25,56.25,56.25|56.25,56.25,56.25|37.5,37.5,37.5|93.75,93.75,93.75|112.5,112.5,93.75|37.5,37.5,37.5|393.75,393.75,206.25|56.25,56.25,56.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+36.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Pivoted",
+"Arial",
+9.0,
+false
+],
+"model": "|15.71|14.14|8.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty Harbour Sixty",
+"Arial",
+11.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Pivoted",
+"Arial",
+11.0,
+true
+],
+"model": "|15.71|14.14|8.43",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+36.0,
+false,
+false
+],
+"model": "Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+14.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|1E+06|1E+06|1234568|1234568|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) Quince Wimble",
+"Arial",
+36.0,
+true,
+true,
+0
+],
+"model": "Double:72.43|Double:384|Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"rate-card naive Oxbow 1,250.75",
+"Arial",
+12.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+14.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|#####|#####|#######|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty 1,250.75 fifty",
+"Arial",
+9.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"Harbour volume",
+"Arial",
+10.0,
+false,
+true,
+0
+],
+"model": "Double:14|Double:77.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B (net) tariff",
+"Arial",
+24.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"pre-tax~ledger Quince",
+"Arial",
+10.5,
+false,
+true,
+0,
+"22.5,40.5,26,35,2.5,25,9.5,26.5,7.5"
+],
+"model": "|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|27.75,27.75,27.75|176.25,176.25,81.75|27.75,27.75,27.75|41.25,41.25,41.25|27.75,27.75,27.75|41.25,41.25,41.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|#########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+24.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|######",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"rate-card mill (net) volume rate-card A&B Wimble A&B fifty Ampere zig-zag tariff A&B jetty",
+"Arial",
+14.0,
+30.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Fit",
+"naive",
+"Arial",
+20.0,
+false,
+false,
+0
+],
+"model": "Double:10|Double:56.25|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.0,
+false,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+8.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|##|###|####|#####|######|#######|#########|2023-07-16|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill Oxbow",
+"Arial",
+24.0,
+false,
+false,
+0
+],
+"model": "Double:23.43|Double:126.75|Double:30",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"1,250.75 Ampere A&B 9% illicit",
+"Arial",
+9.0,
+true,
+true,
+"60.75,81.75,93.75,103.5,120.0,125.25,203.25,207.0,362.25,369.0"
+],
+"model": "|9,7,7,7,|9,11,10,|16,14,|16,14,|20,10,|23,7,|30,|30,|30,|30,",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"9% zig-zag Wimble pre-tax illicit Wimble",
+"Arial",
+9.0,
+true,
+false,
+0,
+"18.5,5.5,22,16,31,40,3,32,30.5"
+],
+"model": "|24.75,24.75,24.75|96.75,96.75,72.75|24.75,24.75,24.75|36.75,36.75,24.75|24.75,24.75,15|15,15,15|168.75,168.75,108.75|24.75,24.75,15|24.75,24.75,24.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax Quince Quince",
+"Arial",
+20.0,
+true,
+true,
+0
+],
+"model": "Double:44.29|Double:236.25|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"caf\u00e9~Oxbow MMXX 9%",
+"Arial",
+12.0,
+false,
+true,
+0,
+"11,41.5,12.5,20.5,9,10,14,27.5,2.5"
+],
+"model": "|60,60,45|30,30,30|45,45,45|30,30,30|60,60,60|60,60,45|45,45,45|30,30,30|225,225,135",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"tariff fifty pre-tax volume jetty",
+"Arial",
+11.5,
+true,
+false,
+1,
+"30,44,35,39.5,40.5,5.5,7,23.5,12"
+],
+"model": "|30,30,15|15,15,15|15,15,15|15,15,15|15,15,15|150,150,105|105,105,75|30,30,30|60,60,45",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince Quince jetty",
+"Arial",
+12.0,
+false,
+true,
+0
+],
+"model": "Double:21.71|Double:117.75|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1234568|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+16.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|#####|######|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9%",
+"Arial",
+16.0,
+false,
+true,
+0
+],
+"model": "Double:5.86|Double:34.5|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"jetty~Harbour Oxbow naive",
+"Arial",
+36.0,
+false,
+false,
+0,
+"9.5,44,25,40,45,39.5,44,24.5,9"
+],
+"model": "|409.5,409.5,409.5|132.75,132.75,132.75|221.25,221.25,221.25|177,177,177|132.75,132.75,132.75|177,177,177|132.75,132.75,132.75|221.25,221.25,221.25|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE Quince illicit~Harbour",
+"Arial",
+14.0,
+false,
+true,
+0,
+"34.5,6,28,10,38,8,22,14.5,43.5"
+],
+"model": "|56.25,56.25,37.5|225,225,150|56.25,56.25,56.25|131.25,131.25,93.75|37.5,37.5,37.5|150,150,131.25|56.25,56.25,56.25|93.75,93.75,75|37.5,37.5,37.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"1,250.75~1,250.75 1,250.75",
+"Arial",
+16.0,
+false,
+false,
+0,
+"29,41,28.5,20.5,18,4.5,42,10.5,20"
+],
+"model": "|40.5,40.5,40.5|40.5,40.5,40.5|40.5,40.5,40.5|60.75,60.75,60.75|60.75,60.75,60.75|243,243,121.5|40.5,40.5,40.5|121.5,121.5,60.75|60.75,60.75,60.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) (net) rate-card",
+"Arial",
+36.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+12.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|#####|######|#######|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+14.0,
+false,
+false
+],
+"model": "Double:18",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty fifty pre-tax Sixty",
+"Arial",
+14.0,
+true,
+false,
+0
+],
+"model": "Double:30.71|Double:165|Double:18",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+12.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|#####|######|######|#######|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"1,250.75 rate-card",
+"Arial",
+11.0,
+false,
+true,
+0,
+"43,42,24,37,1.5,14.5,19.5,22.5,5"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|243,243,100.5|29.25,29.25,29.25|15,15,15|15,15,15|57.75,57.75,43.5",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+14.0,
+false,
+true
+],
+"model": "Double:18.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Ampere Sixty Oxbow",
+"Arial",
+18.0,
+false,
+true,
+0
+],
+"model": "Double:34.71|Double:186|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume volume",
+"Arial",
+11.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Lined",
+"1,250.75",
+"Arial",
+20.0,
+false,
+false,
+"69.75,86.25,110.25,157.5,209.25,233.25,305.25,327.75,359.25,367.5"
+],
+"model": "|5,3,|7,1,|8,|8,|8,|8,|8,|8,|8,|8,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+12.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|1E+06|1E+06|1E+06|1234568|1234567.9|1234567.89|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+14.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|#####|######|#######|########|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+36.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|###",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+14.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|#####|#####|#######|########|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit tariff",
+"Arial",
+24.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+24.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||0|0|0|0|0|0|0|0|0.0001",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) pre-tax zig-zag Quince",
+"Arial",
+12.0,
+false,
+true,
+0
+],
+"model": "Double:29.86|Double:160.5|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+36.0,
+true,
+true
+],
+"model": "Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+10.5,
+false,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+14.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|##|##|###|####|####|1E+06|1E+06|1234568|1234568|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+8.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|1E+06|1234568|1234568|1234567.9|1234567.89|1234567.891|1234567.891|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince illicit",
+"Arial",
+10.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.5,
+true,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B Oxbow",
+"Arial",
+9.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"Sixty rate-card",
+"Arial",
+11.5,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+16.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|1E+06|1E+06|1234568|1234567.89",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+24.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|######",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"pre-tax rate-card Quince",
+"Arial",
+14.0,
+false,
+false,
+1,
+"26.5,9,30.5,45,30,6.5,44.5,17.5,9.5"
+],
+"model": "|36,36,36|108,108,72|36,36,18|18,18,18|36,36,18|126,126,108|18,18,18|36,36,36|108,108,72",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+18.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|######|#######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+24.0,
+true,
+false
+],
+"model": "Double:30",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE zig-zag Ampere",
+"Arial",
+36.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"1,250.75 lily Oxbow ledger",
+"Arial",
+36.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"ledger MMXX tariff",
+"Arial",
+20.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Plain",
+"Arial",
+14.0,
+true,
+false
+],
+"model": "Double:18",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+20.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|###|####|#####|######|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill rate-card",
+"Arial",
+24.0,
+true,
+false,
+0
+],
+"model": "Double:31.29|Double:168|Double:30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+9.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+9.0,
+true,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE fifty 1,250.75~9% WAREHOUSE",
+"Arial",
+16.0,
+true,
+false,
+0,
+"41.5,41.5,36,34,11,3,6.5,2,35"
+],
+"model": "|40.5,40.5,40.5|40.5,40.5,40.5|60.75,60.75,60.75|60.75,60.75,60.75|162,162,141.75|409.5,409.5,324|243,243,202.5|409.5,409.5,409.5|60.75,60.75,60.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net)",
+"Arial",
+20.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"pre-tax WAREHOUSE Oxbow 1,250.75",
+"Arial",
+20.0,
+false,
+false,
+0
+],
+"model": "Double:70.57|Double:374.25|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"jetty (net)~volume",
+"Arial",
+10.0,
+false,
+false,
+0,
+"43,24.5,36,33,22,28.5,32.5,1.5,1"
+],
+"model": "|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|179.25,179.25,77.25|204.75,204.75,90",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+36.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||0|0|0|0|0|0|0|0",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9",
+"Arial",
+10.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+12.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|##|###|####|#####|######|######|#######|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"lily jetty",
+"Arial",
+36.0,
+false,
+false,
+"64.5,100.5,151.5,165.75,190.5,258.75,315.75,326.25,331.5,342.75"
+],
+"model": "|5,4,1,|5,5,|10,|10,|10,|10,|10,|10,|10,|10,",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"A&B Wimble",
+"Arial",
+36.0,
+true,
+false,
+0,
+"24,36,5,16,35.5,8,41,41.5,11.5"
+],
+"model": "|135,135,135|90,90,90|405,405,405|225,225,135|90,90,90|360,360,315|90,90,90|90,90,90|225,225,225",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty Ampere Harbour",
+"Arial",
+11.5,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Normal",
+"Arial",
+11.0
+],
+"model": null,
+"refused": "changing the Normal font to Arial 11, which the sheets' column widths and row heights rest on, is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"Wimble MMXX Wimble~MMXX volume",
+"Arial",
+16.0,
+false,
+true,
+0,
+"45,6.5,3.5,5.5,20.5,12.5,33.5,43.5,14.5"
+],
+"model": "|40.5,40.5,40.5|263.25,263.25,202.5|409.5,409.5,303.75|303.75,303.75,202.5|101.25,101.25,60.75|101.25,101.25,101.25|40.5,40.5,40.5|40.5,40.5,40.5|101.25,101.25,101.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume",
+"Arial",
+8.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"fifty caf\u00e9 naive",
+"Arial",
+14.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"Quince naive volume 1,250.75",
+"Arial",
+9.0,
+true,
+true,
+0,
+"44.5,10,31.5,20,11,9,17.5,17.5,14"
+],
+"model": "|15,15,15|48.75,48.75,36.75|15,15,15|24.75,24.75,24.75|48.75,48.75,36.75|48.75,48.75,48.75|24.75,24.75,24.75|24.75,24.75,24.75|24.75,24.75,24.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+36.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"tariff caf\u00e9 MMXX~tariff naive ledger",
+"Arial",
+11.5,
+false,
+false,
+0,
+"15,28,32.5,36.5,16,12,32,18,26"
+],
+"model": "|57.75,57.75,29.25|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|43.5,43.5,29.25|57.75,57.75,57.75|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"rate-card",
+"Arial",
+16.0,
+false,
+false,
+0,
+"29,41,28.5,20.5,18,4.5,42,10.5,20"
+],
+"model": "|20.25,20.25,20.25|20.25,20.25,20.25|20.25,20.25,20.25|20.25,20.25,20.25|20.25,20.25,20.25|81,81,40.5|20.25,20.25,20.25|40.5,40.5,40.5|20.25,20.25,20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE illicit illicit",
+"Arial",
+14.0,
+false,
+true,
+0
+],
+"model": "Double:33.14|Double:177.75|Double:18.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily MMXX lily zig-zag",
+"Arial",
+11.5,
+false,
+true,
+0
+],
+"model": "Double:21|Double:114|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily fifty caf\u00e9 Sixty",
+"Arial",
+36.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+24.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||#|#|##|##|##|###|####|####|######",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+16.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|1E-04|0.0001|0.00012|0.00012346",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"Sixty caf\u00e9 Oxbow WAREHOUSE Ampere",
+"Arial",
+14.0,
+false,
+false,
+"50.25,115.5,123.0,126.75,139.5,147.75,165.75,216.75,230.25,234.75"
+],
+"model": "|6,5,4,2,3,3,4,3,3,|11,6,10,6,|17,10,6,|17,10,6,|17,10,6,|17,10,6,|17,16,|17,16,|27,6,|27,6,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty",
+"Arial",
+11.5,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1234568|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+8.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"volume Ampere 1,250.75 fifty",
+"Arial",
+11.5,
+true,
+true,
+0,
+"16.5,3,20,24.5,15.5,31.5,43.5,39.5,2.5"
+],
+"model": "|43.5,43.5,29.25|200.25,200.25,100.5|29.25,29.25,29.25|29.25,29.25,29.25|43.5,43.5,29.25|15,15,15|15,15,15|15,15,15|257.25,257.25,129",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit 9%",
+"Arial",
+14.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+24.0,
+true,
+true
+],
+"model": "Double:30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"rate-card WAREHOUSE fifty Ampere",
+"Arial",
+18.0,
+false,
+false,
+0
+],
+"model": "Double:58.86|Double:312.75|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|########|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"tariff illicit caf\u00e9 jetty volume Quince jetty",
+"Arial",
+20.0,
+true,
+false,
+"18.0,18.75,22.5,66.0,87.0,132.75,154.5,288.75,314.25,352.5"
+],
+"model": "|1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,|1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,|1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,|7,8,5,6,4,3,4,3,5,|7,8,5,6,7,7,5,|15,11,7,12,|15,11,7,12,|33,12,|33,12,|40,5,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+16.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|#####|######|########|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+16.0,
+true,
+false
+],
+"model": "Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow Oxbow 9% 9%",
+"Arial",
+11.5,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"9% Ampere jetty",
+"Arial",
+20.0,
+false,
+true,
+0
+],
+"model": "Double:31.57|Double:169.5|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9%",
+"Arial",
+12.0,
+false,
+true,
+0
+],
+"model": "Double:4.71|Double:28.5|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"ledger A&B volume mill Oxbow",
+"Arial",
+18.0,
+false,
+false,
+1,
+"31,17,22.5,10,14.5,42.5,42,31.5,1.5"
+],
+"model": "|69.75,69.75,46.5|116.25,116.25,116.25|69.75,69.75,69.75|186,186,139.5|116.25,116.25,116.25|46.5,46.5,46.5|46.5,46.5,46.5|69.75,69.75,46.5|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"1,250.75 fifty lily MMXX mill 9% A&B 9% Ampere A&B jetty naive mill ledger",
+"Arial",
+11.0,
+14.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"lily Oxbow",
+"Arial",
+11.0,
+true,
+true,
+1,
+"20.5,15,9.5,36,20.5,44.5,2,6.5,40.5"
+],
+"model": "|15,15,15|15,15,15|29.25,29.25,29.25|15,15,15|15,15,15|15,15,15|129,129,100.5|43.5,43.5,43.5|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+36.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"ledger",
+"Arial",
+11.0,
+false,
+true,
+"23.25,42.75,50.25,180.0,220.5,242.25,260.25,283.5,292.5,302.25"
+],
+"model": "|2,1,1,1,1,|5,1,|6,|6,|6,|6,|6,|6,|6,|6,",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+18.0,
+false,
+false
+],
+"model": "Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff MMXX pre-tax 9%",
+"Arial",
+10.5,
+false,
+false,
+0
+],
+"model": "Double:21|Double:114|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+24.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||0|0|0|0|0|0|0|0|1E-04|0.0001",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff",
+"Arial",
+24.0,
+false,
+true,
+0
+],
+"model": "Double:11.57|Double:64.5|Double:30.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE MMXX 9% WAREHOUSE",
+"Arial",
+24.0,
+true,
+false,
+0
+],
+"model": "Double:86.71|Double:459|Double:30",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Harbour 1,250.75 Ampere volume",
+"Arial",
+12.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"caf\u00e9",
+"Arial",
+36.0,
+false,
+false,
+0
+],
+"model": "Double:14.86|Double:81.75|Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"volume ledger ledger~mill",
+"Arial",
+10.0,
+false,
+true,
+0,
+"40.5,19,35.5,33,10,43.5,13,33.5,17"
+],
+"model": "|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|26.25,26.25,26.25|51.75,51.75,39|26.25,26.25,26.25|39,39,39|26.25,26.25,26.25|39,39,26.25",
+"refused": null
+},
+{
+"call": [
+"Justified",
+"1,250.75 A&B jetty rate-card (net) Sixty volume ledger 9% Ampere 1,250.75 Oxbow pre-tax A&B",
+"Arial",
+9.0,
+8.0
+],
+"model": null,
+"refused": "Justify on a line about as wide as its column is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+11.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE naive jetty volume",
+"Arial",
+10.5,
+true,
+true,
+0,
+"35.5,24.5,29,43.5,7.5,6.5,35.5,39.5,34"
+],
+"model": "|15,15,15|27.75,27.75,27.75|27.75,27.75,27.75|15,15,15|68.25,68.25,68.25|95.25,95.25,68.25|15,15,15|15,15,15|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+18.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|1E+06|1234568|1234567.9",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"1,250.75 mill WAREHOUSE 9%",
+"Arial",
+14.0,
+false,
+false,
+0
+],
+"model": "Double:40.57|Double:216.75|Double:18",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Wimble~9%",
+"Arial",
+20.0,
+false,
+false,
+0,
+"10,15.5,34.5,37,43.5,24.5,22,37.5,33.5"
+],
+"model": "|76.5,76.5,76.5|51,51,51|51,51,51|51,51,51|51,51,51|51,51,51|51,51,51|51,51,51|51,51,51",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff zig-zag naive Harbour",
+"Arial",
+10.5,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"9% Sixty tariff",
+"Arial",
+10.0,
+false,
+false,
+0
+],
+"model": "Double:11.86|Double:66|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+14.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||0|0|0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"illicit A&B illicit Ampere WAREHOUSE zig-zag",
+"Arial",
+12.0,
+true,
+true,
+0,
+"42.5,14,2.5,33,3.5,9,29.5,36.5,44.5"
+],
+"model": "|30,30,30|75,75,60|409.5,409.5,240|30,30,30|360,360,240|135,135,105|30,30,30|30,30,30|30,30,30",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"naive",
+"Arial",
+14.0,
+true,
+false,
+0,
+"30.5,4.5,23,35.5,29.5,31,34.5,11.5,29"
+],
+"model": "|18,18,18|36,36,36|18,18,18|18,18,18|18,18,18|18,18,18|18,18,18|18,18,18|18,18,18",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+8.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|1E-04|0.0001|0.00012|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag fifty",
+"Arial",
+18.0,
+true,
+false,
+0
+],
+"model": "Double:20.14|Double:109.5|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty mill",
+"Arial",
+10.0,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"illicit~mill ledger jetty",
+"Arial",
+11.0,
+true,
+true,
+0,
+"20.5,15,9.5,36,20.5,44.5,2,6.5,40.5"
+],
+"model": "|29.25,29.25,29.25|43.5,43.5,29.25|57.75,57.75,43.5|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|243,243,114.75|57.75,57.75,57.75|29.25,29.25,29.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Sixty",
+"Arial",
+10.0,
+true,
+true,
+0,
+"20,11.5,32,6.5,43.5,10.5,12,14.5,36"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.5,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty MMXX",
+"Arial",
+10.0,
+true,
+true,
+0
+],
+"model": "Double:11.86|Double:66|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+36.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+18.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|####|####|#####|######|#######|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily",
+"Arial",
+11.0,
+true,
+false,
+0
+],
+"model": "Double:3|Double:19.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+16.0,
+false,
+true
+],
+"model": "Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff ledger",
+"Arial",
+9.0,
+true,
+false,
+0
+],
+"model": "Double:9.71|Double:54.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty Harbour",
+"Arial",
+11.0,
+false,
+false,
+0
+],
+"model": "Double:11.43|Double:63.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+8.0,
+false,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger Harbour WAREHOUSE",
+"Arial",
+20.0,
+true,
+true,
+0
+],
+"model": "Double:58|Double:308.25|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince jetty pre-tax volume",
+"Arial",
+12.0,
+false,
+false,
+0
+],
+"model": "Double:27.57|Double:148.5|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Harbour Quince mill Harbour 1,250.75 fifty",
+"Arial",
+16.0,
+false,
+true,
+1,
+"45,6.5,3.5,5.5,20.5,12.5,33.5,43.5,14.5"
+],
+"model": "|40.5,40.5,40.5|364.5,364.5,202.5|409.5,409.5,409.5|409.5,409.5,263.25|81,81,81|162,162,121.5|40.5,40.5,40.5|40.5,40.5,40.5|121.5,121.5,121.5",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+36.0,
+true,
+false
+],
+"model": "Double:45",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.0,
+true,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"WAREHOUSE mill",
+"Arial",
+10.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+10.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"MMXX~Wimble rate-card Ampere illicit",
+"Arial",
+12.0,
+false,
+false,
+0,
+"18,8,10,20,29.5,17.5,39.5,29.5,7"
+],
+"model": "|45,45,45|90,90,75|75,75,75|45,45,45|45,45,45|60,60,45|30,30,30|45,45,45|120,120,90",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+16.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|###|###|####|####|#####|######|#######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"pre-tax Harbour",
+"Arial",
+8.0,
+false,
+true,
+0,
+"31,45,27,28,35.5,32,16.5,37.5,23.5"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+9.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.00012346|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"rate-card ledger Sixty",
+"Arial",
+18.0,
+false,
+false,
+0
+],
+"model": "Double:34.43|Double:184.5|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+24.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|##|###|###|####|#####|1E+06",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+12.0,
+true,
+true
+],
+"model": "Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+18.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|0|1E-04|0.0001|0.0001235",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"illicit Ampere",
+"Arial",
+10.5,
+true,
+false,
+"69.75,146.25,191.25,227.25,234.0,240.0,247.5,248.25,266.25,310.5"
+],
+"model": "|8,6,|14,|14,|14,|14,|14,|14,|14,|14,|14,",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+9.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"jetty",
+"Arial",
+16.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+9.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"tariff rate-card ledger",
+"Arial",
+10.5,
+false,
+true,
+"18.75,21.75,25.5,54.75,63.75,120.75,192.0,284.25,321.0,365.25"
+],
+"model": "|1,1,1,1,1,2,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,|1,1,2,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,|2,3,2,2,2,1,2,3,2,1,1,2,|7,5,5,6,|12,5,6,|23,|23,|23,|23,|23,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax zig-zag Harbour 9%",
+"Arial",
+12.0,
+false,
+false,
+0
+],
+"model": "Double:28.14|Double:151.5|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Ampere",
+"Arial",
+18.0,
+true,
+false,
+0
+],
+"model": "Double:13.57|Double:75|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"9% (net)",
+"Arial",
+14.0,
+false,
+false,
+0
+],
+"model": "Double:10.71|Double:60|Double:18",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble naive Sixty",
+"Arial",
+8.0,
+true,
+true,
+0
+],
+"model": "Double:15.86|Double:87|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince ledger caf\u00e9 pre-tax",
+"Arial",
+10.5,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"WAREHOUSE caf\u00e9~MMXX MMXX lily Quince",
+"Arial",
+11.5,
+false,
+true,
+0,
+"21,15,28.5,10,26,22.5,12,43,40.5"
+],
+"model": "|43.5,43.5,43.5|57.75,57.75,57.75|29.25,29.25,29.25|100.5,100.5,72|29.25,29.25,29.25|43.5,43.5,43.5|72,72,72|29.25,29.25,29.25|29.25,29.25,29.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill",
+"Arial",
+24.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"zig-zag 1,250.75",
+"Arial",
+16.0,
+true,
+false,
+0
+],
+"model": "Double:24.14|Double:130.5|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily Oxbow WAREHOUSE WAREHOUSE",
+"Arial",
+11.5,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"9% Sixty volume",
+"Arial",
+10.0,
+false,
+true,
+0
+],
+"model": "Double:14.71|Double:81|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag",
+"Arial",
+36.0,
+true,
+true,
+0
+],
+"model": "Double:28|Double:150.75|Double:44.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+20.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|#####|#######",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty Ampere",
+"Arial",
+10.5,
+false,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Plain",
+"Arial",
+20.0,
+true,
+true
+],
+"model": "Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"pre-tax",
+"Arial",
+12.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"MMXX (net) rate-card",
+"Arial",
+20.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+18.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||#|#|##|##|###|###|####|####|#####|######|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"(net) Harbour illicit",
+"Arial",
+20.0,
+false,
+false,
+0
+],
+"model": "Double:33.14|Double:177.75|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Sixty Quince tariff naive",
+"Arial",
+16.0,
+false,
+false,
+0
+],
+"model": "Double:33.14|Double:177.75|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"MMXX MMXX",
+"Arial",
+20.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"lily volume Wimble Oxbow",
+"Arial",
+20.0,
+false,
+true,
+0
+],
+"model": "Double:48.57|Double:258.75|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+11.0,
+true,
+false
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume fifty",
+"Arial",
+10.0,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"lily Ampere",
+"Arial",
+18.0,
+true,
+true,
+0
+],
+"model": "Double:20.57|Double:111.75|Double:23.25",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow fifty zig-zag",
+"Arial",
+36.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"9% 9%",
+"Arial",
+11.5,
+false,
+false,
+0,
+"15,28,32.5,36.5,16,12,32,18,26"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Harbour naive lily Ampere mill",
+"Arial",
+10.5,
+true,
+false,
+1,
+"33.5,44.5,34.5,29.5,31.5,24,8,19,39.5"
+],
+"model": "|15,15,15|15,15,15|15,15,15|27.75,27.75,27.75|27.75,27.75,15|27.75,27.75,27.75|81.75,81.75,68.25|27.75,27.75,27.75|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+11.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|1E-04|0.0001|0.00012|0.000123|0.00012346|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"mill Sixty Sixty volume",
+"Arial",
+16.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"jetty jetty~lily 1,250.75 naive",
+"Arial",
+36.0,
+false,
+true,
+0,
+"19.5,43,31,9,7.5,17,20.5,39.5,2.5"
+],
+"model": "|270,270,270|135,135,135|180,180,180|409.5,409.5,409.5|409.5,409.5,409.5|315,315,315|270,270,270|180,180,135|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Sixty illicit mill Wimble naive Wimble MMXX",
+"Arial",
+8.0,
+false,
+false,
+0,
+"27,16.5,16.5,4,35,30.5,6.5,16.5,41.5"
+],
+"model": "|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|113.25,113.25,68.25|15,15,15|15,15,15|68.25,68.25,57|23.25,23.25,23.25|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily",
+"Arial",
+11.5,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"fifty Oxbow fifty zig-zag",
+"Arial",
+9.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"volume Quince (net) Sixty Wimble",
+"Arial",
+8.0,
+true,
+false,
+1,
+"29.5,31.5,39.5,38,37,1,5,10.5,33.5"
+],
+"model": "|15,15,15|15,15,15|15,15,15|15,15,15|15,15,15|315.75,315.75,248.25|113.25,113.25,79.5|45.75,45.75,34.5|15,15,15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+14.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|###|####|####|#####|######|#######|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"fifty MMXX",
+"Arial",
+12.0,
+true,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+12.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|#####|######|#######|########|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff tariff",
+"Arial",
+24.0,
+false,
+true,
+0
+],
+"model": "Double:22.29|Double:120.75|Double:30.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"A&B tariff pre-tax illicit",
+"Arial",
+20.0,
+false,
+true,
+0
+],
+"model": "Double:41.57|Double:222|Double:25.5",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.5,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Quince naive",
+"Arial",
+8.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"Ampere tariff jetty",
+"Arial",
+9.0,
+true,
+true,
+0
+],
+"model": "Double:15.86|Double:87|Double:15",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+8.0,
+true,
+true
+],
+"model": "Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+36.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||#|#|#|#|##|##|###|####",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"1,250.75 pre-tax",
+"Arial",
+18.0,
+true,
+false,
+1,
+"44.5,12,38,36,6.5,16,27.5,10.5,20"
+],
+"model": "|23.25,23.25,23.25|93,93,69.75|23.25,23.25,23.25|23.25,23.25,23.25|186,186,116.25|46.5,46.5,46.5|46.5,46.5,23.25|93,93,69.75|46.5,46.5,46.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Harbour ledger",
+"Arial",
+12.0,
+false,
+true,
+0
+],
+"model": "Double:16.86|Double:92.25|Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"1,250.75 zig-zag caf\u00e9",
+"Arial",
+11.5,
+false,
+false,
+0
+],
+"model": "Double:20.71|Double:112.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+16.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|##|###|###|####|#####|#####|######|########|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+12.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||#|#|##|###|####|####|#####|######|#######|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"Harbour~caf\u00e9 tariff rate-card illicit",
+"Arial",
+11.5,
+true,
+true,
+0,
+"16.5,3,20,24.5,15.5,31.5,43.5,39.5,2.5"
+],
+"model": "|43.5,43.5,43.5|228.75,228.75,143.25|43.5,43.5,43.5|43.5,43.5,29.25|43.5,43.5,43.5|29.25,29.25,29.25|29.25,29.25,29.25|29.25,29.25,29.25|285.75,285.75,171.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive WAREHOUSE fifty",
+"Arial",
+16.0,
+true,
+true,
+0
+],
+"model": "Double:37.14|Double:198.75|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"volume ledger Quince fifty Oxbow ledger",
+"Arial",
+20.0,
+true,
+true,
+0,
+"10,39,17,36.5,28.5,21.5,36.5,34.5,8"
+],
+"model": "|280.5,280.5,280.5|76.5,76.5,76.5|153,153,153|76.5,76.5,76.5|76.5,76.5,76.5|153,153,127.5|76.5,76.5,76.5|76.5,76.5,76.5|382.5,382.5,280.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Ampere Wimble",
+"Arial",
+10.5,
+false,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Wrapped",
+"Oxbow Harbour MMXX~Wimble",
+"Arial",
+8.0,
+false,
+false,
+0,
+"27,16.5,16.5,4,35,30.5,6.5,16.5,41.5"
+],
+"model": "|23.25,23.25,23.25|23.25,23.25,23.25|23.25,23.25,23.25|90.75,90.75,45.75|23.25,23.25,23.25|23.25,23.25,23.25|45.75,45.75,45.75|23.25,23.25,23.25|23.25,23.25,23.25",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"rate-card~volume 9%",
+"Arial",
+24.0,
+true,
+true,
+0,
+"37,13,44.5,18.5,42.5,6.5,6,26,1"
+],
+"model": "|60,60,60|150,150,150|60,60,60|120,120,120|60,60,60|360,360,240|409.5,409.5,300|60,60,60|409.5,409.5,409.5",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"ledger 9% jetty naive",
+"Arial",
+10.0,
+true,
+false,
+0
+],
+"model": "Double:19.43|Double:105.75|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag",
+"Arial",
+10.5,
+true,
+true,
+0
+],
+"model": "Double:7.29|Double:42|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+11.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|1E+06|1E+06|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+36.0,
+false,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||||0|0|0|0|0|0|0|0",
+"refused": null
+},
+{
+"call": [
+"Shown",
+45123.0,
+"yyyy-mm-dd",
+"Arial",
+11.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|########|2023-07-16|2023-07-16|2023-07-16",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"1,250.75 A&B mill Ampere",
+"Arial",
+16.0,
+true,
+true,
+0
+],
+"model": "Double:40.14|Double:214.5|Double:20.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+36.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||#|#|#|#|##|##|###",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"naive",
+"Arial",
+12.0,
+true,
+false,
+0,
+"16.5,39,13,29,34,12,14.5,6.5,17"
+],
+"model": "|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75|15.75,15.75,15.75",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume illicit",
+"Arial",
+8.0,
+true,
+false,
+0
+],
+"model": "Double:10.14|Double:57|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Oxbow Sixty",
+"Arial",
+14.0,
+true,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+10.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|1250.00%|1250.00%|1250.00%|1250.00%",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+24.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||0|0|0|0|0|0|0|0|0.0001",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"volume lily",
+"Arial",
+8.0,
+false,
+false,
+0
+],
+"model": "Double:7.29|Double:42|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"zig-zag Wimble illicit Sixty",
+"Arial",
+11.0,
+true,
+true,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Fit",
+"zig-zag naive",
+"Arial",
+14.0,
+false,
+false,
+0
+],
+"model": "Double:16.29|Double:89.25|Double:18",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"9% A&B fifty naive Oxbow lily",
+"Arial",
+11.0,
+false,
+false,
+0,
+"11.5,37.5,28.5,40,6,36,9,7.5,4.5"
+],
+"model": "|43.5,43.5,43.5|15,15,15|15,15,15|15,15,15|86.25,86.25,72|15,15,15|57.75,57.75,43.5|86.25,86.25,57.75|114.75,114.75,86.25",
+"refused": null
+},
+{
+"call": [
+"Shown",
+12.5,
+"0.00%",
+"Arial",
+20.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||||||#|#|##|##|###|###|####|#####|#####|#######",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"illicit",
+"Arial",
+11.0,
+false,
+true,
+0
+],
+"model": "Double:4.71|Double:28.5|Double:15",
+"refused": null
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+16.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||0|0|0|0|0|0|0|1E-04|0.0001|0.00012|0.00012346",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble WAREHOUSE Oxbow volume",
+"Arial",
+8.0,
+false,
+true,
+0
+],
+"model": "Double:28.43|Double:153|Double:15",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"lily",
+"Arial",
+8.0,
+false,
+false,
+3
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+10.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||0|0|0|0|0|1E-04|0.0001|0.00012|0.000123|0.0001235|0.000123456|0.000123456|0.000123456",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"caf\u00e9 zig-zag lily pre-tax",
+"Arial",
+36.0,
+true,
+false,
+0
+],
+"model": "Double:79|Double:418.5|Double:45",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"naive ledger A&B 9%",
+"Arial",
+10.5,
+true,
+true,
+0
+],
+"model": "Double:21.43|Double:116.25|Double:15",
+"refused": null
+},
+{
+"call": [
+"Plain",
+"Arial",
+12.0,
+false,
+false
+],
+"model": "Double:15.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+8.0,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "||#|#|##|###|####|#####|#######|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"zig-zag 1,250.75 Sixty Harbour tariff",
+"Arial",
+14.0,
+true,
+true,
+"48.0,81.75,117.75,163.5,170.25,198.0,315.75,316.5,331.5,353.25"
+],
+"model": "|4,4,4,5,6,4,4,6,|8,9,6,8,6,|8,15,14,|23,14,|23,14,|23,14,|37,|37,|37,|37,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"tariff",
+"Arial",
+9.0,
+true,
+false,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+1234567.891,
+"General",
+"Arial",
+10.5,
+true,
+false,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|1E+06|1E+06|1234568|1234568|1234568|1234567.89|1234567.891|1234567.891",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"caf\u00e9",
+"Arial",
+24.0,
+false,
+false,
+0,
+"12.5,44,18,31.5,16.5,22.5,20.5,35.5,14.5"
+],
+"model": "|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30|30,30,30",
+"refused": null
+},
+{
+"call": [
+"Wrapped",
+"9% 9% Oxbow Sixty A&B lily",
+"Arial",
+9.0,
+false,
+false,
+0,
+"11.5,14.5,42.5,23,23,18,27.5,17,2"
+],
+"model": "|24.75,24.75,24.75|24.75,24.75,24.75|15,15,15|15,15,15|15,15,15|24.75,24.75,24.75|15,15,15|24.75,24.75,24.75|192.75,192.75,84.75",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+11.0,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Shown",
+98765.4321,
+"#,##0.00",
+"Arial",
+10.5,
+false,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||#|#|##|###|####|#####|#####|######|#######|98,765.43|98,765.43|98,765.43|98,765.43",
+"refused": null
+},
+{
+"call": [
+"Lined",
+"ledger volume Sixty 9% Oxbow zig-zag",
+"Arial",
+24.0,
+false,
+false,
+"51.75,148.5,180.0,189.75,208.5,210.0,216.0,247.5,267.0,309.0"
+],
+"model": "|3,4,3,2,2,3,3,3,2,2,2,3,1,2,1,|7,7,9,10,3,|14,9,13,|14,15,7,|14,15,7,|14,15,7,|14,15,7,|20,16,|23,13,|23,13,",
+"refused": null
+},
+{
+"call": [
+"Fit",
+"Wimble Wimble Sixty",
+"Arial",
+14.0,
+false,
+true,
+1
+],
+"model": null,
+"refused": "AutoFit of a column whose text wraps, is indented or is turned is not implemented"
+},
+{
+"call": [
+"Shown",
+0.000123456,
+"General",
+"Arial",
+36.0,
+true,
+true,
+"0.5,1,1.5,2,3,4,5,6,7,8,9,10,12,14,18"
+],
+"model": "|||||||||0|0|0|0|0|0|0",
+"refused": null
+}
+]
+}

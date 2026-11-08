@@ -19,8 +19,6 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / 'old_collection_members.json').r
 CASES: list[dict[str, Any]] = RECORD['cases']
 #: These report themselves: the text layout of a drawing from a file, and a form control's Border and Interior.
 REFUSED = re.compile(r'o\.(AutoScaleFont|HorizontalAlignment|VerticalAlignment|Orientation|Font\b|Characters\b|Border|Interior)')
-#: Late, these are Doubles; the model follows the typed binding.
-TYPED_LONG = re.compile(r'o\.(ListCount|ListIndex|Value|DropDownLines)\)?$')
 DRIVER = '''
 Public Function InModel(ByVal routine As String, ByVal which As Long) As String
     InModel = Application.Run(routine, ActiveWorkbook.Worksheets(1), which)
@@ -56,8 +54,6 @@ def answered(app: ExcelApplication, case: dict[str, Any]) -> str:
 def allowed(case: dict[str, Any], got: str) -> bool:
     if got == 'reports itself':
         return REFUSED.search(case['read']) is not None
-    if case['binding'] == 'Late' and TYPED_LONG.search(case['read']) and 'Double' in case['excel']:
-        return got == case['excel'].replace('Double', 'Long')
     return False
 
 

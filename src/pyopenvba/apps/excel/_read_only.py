@@ -5,8 +5,9 @@ from __future__ import annotations
 _OTHER_LET_ERRORS: dict[int, dict[str, tuple[str, ...]]] = {
     1004: {
         'application': ('build', 'caller', 'canplaysounds', 'canrecordsounds', 'customlistcount', 'international',
-                        'mailsystem', 'mathcoprocessoravailable', 'mouseavailable', 'operatingsystem', 'path',
-                        'pathseparator', 'previousselections', 'recordrelative', 'version'),
+                        'mailsystem', 'mathcoprocessoravailable', 'mouseavailable', 'networktemplatespath',
+                        'operatingsystem', 'organizationname', 'path', 'pathseparator', 'previousselections',
+                        'recordrelative', 'startuppath', 'templatespath', 'version'),
         'chart': ('codename', 'index', 'protectcontents', 'protectdrawingobjects', 'protectionmode'),
         'filter': ('count', 'criteria1', 'criteria2'),
         'formatcondition': ('formula2',),

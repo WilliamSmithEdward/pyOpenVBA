@@ -1,0 +1,187 @@
+{
+ "rows": {
+  "read StartupPath": {
+   "typed": "String:<home>\\AppData\\Roaming\\Microsoft\\Excel\\XLSTART",
+   "late": "String:<home>\\AppData\\Roaming\\Microsoft\\Excel\\XLSTART"
+  },
+  "read AltStartupPath": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "read UserLibraryPath": {
+   "typed": "String:<home>\\AppData\\Roaming\\Microsoft\\AddIns\\",
+   "late": "String:<home>\\AppData\\Roaming\\Microsoft\\AddIns\\"
+  },
+  "read TemplatesPath": {
+   "typed": "String:<home>\\AppData\\Roaming\\Microsoft\\Templates\\",
+   "late": "String:<home>\\AppData\\Roaming\\Microsoft\\Templates\\"
+  },
+  "read NetworkTemplatesPath": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "read OrganizationName": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "read ProductCode": {
+   "typed": "String:{90160000-000F-0000-1000-0000000FF1CE}",
+   "late": "String:{90160000-000F-0000-1000-0000000FF1CE}"
+  },
+  "read DefaultFilePath": {
+   "typed": "String:<left by an earlier run>",
+   "late": "String:<left by an earlier run>"
+  },
+  "read ActivePrinter": {
+   "typed": "String:Microsoft Print to PDF on Ne00:",
+   "late": "String:Microsoft Print to PDF on Ne00:"
+  },
+  "read FeatureInstall": {
+   "typed": "Long:0",
+   "late": "Long:0"
+  },
+  "read SharePointVersion(\"http://example.invalid/\")": {
+   "typed": "Long:0",
+   "late": "Long:0"
+  },
+  "read SharePointVersion(\"\")": {
+   "typed": "Long:-1",
+   "late": "Long:-1"
+  },
+  "read SharePointVersion(5)": {
+   "typed": "Long:-1",
+   "late": "Long:-1"
+  },
+  "read SharePointVersion(True)": {
+   "typed": "Long:-1",
+   "late": "Long:-1"
+  },
+  "set StartupPath": {
+   "late": "E1004"
+  },
+  "set UserLibraryPath": {
+   "late": "E450"
+  },
+  "set TemplatesPath": {
+   "late": "E1004"
+  },
+  "set NetworkTemplatesPath": {
+   "late": "E1004"
+  },
+  "set OrganizationName": {
+   "late": "E1004"
+  },
+  "set ProductCode": {
+   "late": "E450"
+  },
+  "set DefaultFilePath = \"{folder}\"": {
+   "typed": "String:<folder>",
+   "late": "String:<folder>"
+  },
+  "set DefaultFilePath = \"{gone}\"": {
+   "typed": "String:<folder>",
+   "late": "String:<folder>"
+  },
+  "set DefaultFilePath = \"\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = 5": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = True": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set DefaultFilePath = \"{folder}\\\"": {
+   "typed": "String:<folder>\\",
+   "late": "String:<folder>\\"
+  },
+  "set DefaultFilePath = Null": {
+   "typed": "E94",
+   "late": "String:<folder>\\"
+  },
+  "set AltStartupPath = \"{folder}\"": {
+   "typed": "String:<folder>",
+   "late": "String:<folder>"
+  },
+  "set AltStartupPath = \"{gone}\"": {
+   "typed": "String:<folder>\\GONE",
+   "late": "String:<folder>\\GONE"
+  },
+  "set AltStartupPath = \"\"": {
+   "typed": "String:",
+   "late": "String:"
+  },
+  "set AltStartupPath = 5": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\5",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\5"
+  },
+  "set AltStartupPath = True": {
+   "typed": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\TRUE",
+   "late": "String:C:\\Program Files\\Microsoft Office\\Root\\Office16\\TRUE"
+  },
+  "set AltStartupPath = \"{folder}\\\"": {
+   "typed": "String:<folder>",
+   "late": "String:<folder>"
+  },
+  "set AltStartupPath = Null": {
+   "typed": "E94",
+   "late": "String:<folder>"
+  },
+  "set FeatureInstall = 0": {
+   "typed": "Long:0",
+   "late": "Long:0"
+  },
+  "set FeatureInstall = 1": {
+   "typed": "Long:1",
+   "late": "Long:1"
+  },
+  "set FeatureInstall = 2": {
+   "typed": "Long:2",
+   "late": "Long:2"
+  },
+  "set FeatureInstall = 3": {
+   "typed": "E1004",
+   "late": "E1004"
+  },
+  "set FeatureInstall = -1": {
+   "typed": "E1004",
+   "late": "E1004"
+  },
+  "set FeatureInstall = \"1\"": {
+   "typed": "Long:1",
+   "late": "Long:1"
+  },
+  "set FeatureInstall = True": {
+   "typed": "E1004",
+   "late": "E1004"
+  },
+  "set FeatureInstall = 1.6": {
+   "typed": "Long:2",
+   "late": "Long:2"
+  },
+  "set FeatureInstall = Null": {
+   "typed": "E94",
+   "late": "E13"
+  },
+  "set ActivePrinter = \"Nobody at all\"": {
+   "typed": "E1004",
+   "late": "E1004"
+  },
+  "set ActivePrinter = \"\"": {
+   "typed": "E1004",
+   "late": "E1004"
+  },
+  "set ActivePrinter = 5": {
+   "typed": "E1004",
+   "late": "E1004"
+  },
+  "set ActivePrinter = Null": {
+   "typed": "E94",
+   "late": "String:Microsoft Print to PDF on Ne00:"
+  }
+ },
+ "measured_at": "2026-11-05T04:44:27.970973+00:00"
+}

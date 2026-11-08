@@ -23,8 +23,10 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests' / 'fixtures'
@@ -107,6 +109,23 @@ COLLECTIONS = ('ListObjects', 'ListColumns', 'ListRows', 'PivotTables', 'PivotFi
 #: What an Item index can be; the names come from the setup's variables.
 INDEXES = ['1', '0', '-1', 'o.Count', 'o.Count + 1', '1.6', '"1"', 'CLng(2)', 'True', 'Empty', '"nosuch"']
 NAMED = {'ListObjects': 'tname', 'ListColumns': 'tcolumn', 'PivotTables': 'ptname', 'PivotFields': 'pfield', 'PivotItems': 'pitem', 'Names': 'nname'}
+DIMS = ('    Dim wbT As Object, wbL As Object, ws As Object, ws2 As Object, wsL As Object, lo As Object, pt As Object, o As {kind}, x As String, book As String\n'
+        '    Dim tname As String, tcell As String, tcolumn As String, ptname As String, ptcell As String, pfield As String, pitem As String\n'
+        '    Dim hcell As String, ccell As String, nname As String, fcells As String, saved As String\n')
+
+
+class Plan(NamedTuple):
+    """One set of rounds: the classes and how a macro reaches them, the members asked, the book each kind builds or opens, the
+    declarations its macro needs ({kind} is the object's type) and the folder its rounds are kept in."""
+    reaches: dict[str, list[str]]
+    members: dict[str, list[str]]
+    collections: tuple[str, ...]
+    named: dict[str, str]
+    setup: Callable[[str, int], str]
+    books: Callable[[Path], None]
+    dims: str
+    out: Path
+    sample: int
 
 
 def setup(kind: str, seed: int) -> str:
@@ -161,17 +180,18 @@ def setup(kind: str, seed: int) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def calls(seed: int) -> list[dict[str, str]]:
+def calls(seed: int, plan: Plan | None = None) -> list[dict[str, str]]:
     """Every class and member at least once, then a seeded fill, each with its kind of book, its reach and whether the object is
     held across an insert that moves it."""
+    plan = plan or TABLES
     rng = random.Random(seed)
     every: list[dict[str, str]] = []
-    for cls, reaches in REACHES.items():
-        statements = [*TRIO, *ASSIGNS, *MEMBERS.get(cls, [])]
-        if cls in COLLECTIONS:
+    for cls, reaches in plan.reaches.items():
+        statements = [*TRIO, *ASSIGNS, *plan.members.get(cls, [])]
+        if cls in plan.collections:
             statements += ['x = Key(o.Count, book)'] + [f'x = Key(o.Item({index}), book)' for index in INDEXES]
-            if cls in NAMED:
-                statements += [f'x = Key(o.Item({NAMED[cls]}), book)', f'x = Key(o.Item(UCase({NAMED[cls]})), book)']
+            if cls in plan.named:
+                statements += [f'x = Key(o.Item({plan.named[cls]}), book)', f'x = Key(o.Item(UCase({plan.named[cls]})), book)']
         for statement in statements:
             every += [{'cls': cls, 'reach': reach, 'call': statement} for reach in reaches]
     by_member: dict[tuple[str, str], list[dict[str, str]]] = {}
@@ -180,7 +200,7 @@ def calls(seed: int) -> list[dict[str, str]]:
         by_member.setdefault((one['cls'], member.split('(')[0].split(' ')[0].split(',')[0]), []).append(one)
     chosen = [rng.choice(group) for group in by_member.values()]
     rest = [one for one in every if one not in chosen]
-    chosen += rng.sample(rest, max(0, SAMPLE - len(chosen)))
+    chosen += rng.sample(rest, max(0, plan.sample - len(chosen)))
     edits = ['', 'ws.Rows(1).Insert', 'ws.Columns(1).Insert', 'wsL.Rows(1).Insert']
     for one in chosen:
         one['kind'] = rng.choice(KINDS)
@@ -189,8 +209,9 @@ def calls(seed: int) -> list[dict[str, str]]:
     return chosen
 
 
-def source(case: dict[str, str], typed: bool, seed: int) -> str:
+def source(case: dict[str, str], typed: bool, seed: int, plan: Plan | None = None) -> str:
     """A function One(path) that builds the book, runs the call and closes what it opened."""
+    plan = plan or TABLES
     kind = case['cls'] if typed else 'Object'
     edit = case['edit']
     hold = f'    Set o = {case["reach"]}\n'
@@ -198,11 +219,8 @@ def source(case: dict[str, str], typed: bool, seed: int) -> str:
     statement = case['call']
     if typed and statement in ASSIGNS:
         statement = 'x = "late only"'
-    return (HELPER + 'Public Function One(ByVal path As String) As String\n'
-            f'    Dim wbT As Object, wbL As Object, ws As Object, ws2 As Object, wsL As Object, lo As Object, pt As Object, o As {kind}, x As String, book As String\n'
-            '    Dim tname As String, tcell As String, tcolumn As String, ptname As String, ptcell As String, pfield As String, pitem As String\n'
-            '    Dim hcell As String, ccell As String, nname As String, fcells As String, saved As String\n'
-            '    Application.DisplayAlerts = False\n' + setup(case['kind'], seed) + '    book = wbT.Name\n    On Error Resume Next\n' + body
+    return (HELPER + 'Public Function One(ByVal path As String) As String\n' + plan.dims.format(kind=kind)
+            + '    Application.DisplayAlerts = False\n' + plan.setup(case['kind'], seed) + '    book = wbT.Name\n    On Error Resume Next\n' + body
             + '    If Err.Number <> 0 Then\n        One = "reach E" & Err.Number\n    Else\n'
             f'        {statement}\n        One = x & " E" & Err.Number\n    End If\n    Err.Clear\n    On Error GoTo 0\n'
             '    If Not wbL Is wbT Then wbL.Close False\n    wbT.Close False\nEnd Function\n')
@@ -213,18 +231,19 @@ def books(folder: Path) -> None:
     shutil.copyfile(LINK_BOOK, folder / 'l.xlsx')
 
 
-def model_answer(case: dict[str, str], typed: bool, seed: int) -> str:
+def model_answer(case: dict[str, str], typed: bool, seed: int, plan: Plan | None = None) -> str:
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBAError
 
+    plan = plan or TABLES
     with tempfile.TemporaryDirectory() as held:
         folder = Path(held)
-        books(folder)
+        plan.books(folder)
         app = ExcelApplication(sandbox=False)
         # Excel answers Author with the measuring user's name, which tests/fixtures/notes.json records; the model takes it too.
         app.application.user_name = json.loads((FIXTURES / 'notes.json').read_text(encoding='utf-8'))['author']
         app.add_workbook()
-        app.add_module(source(case, typed, seed), name='Round')
+        app.add_module(source(case, typed, seed, plan), name='Round')
         try:
             return str(app.run('Round.One', str(folder)))
         except VBAError as failed:
@@ -236,14 +255,15 @@ def digest(cases: list[dict[str, str]]) -> str:
     return hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]
 
 
-def predict(seed: int) -> None:
-    path = OUT / f'round_{seed}.json'
+def predict(seed: int, plan: Plan | None = None) -> None:
+    plan = plan or TABLES
+    path = plan.out / f'round_{seed}.json'
     assert not path.exists(), f'{path} exists: a round is predicted once'
-    cases = calls(seed)
+    cases = calls(seed, plan)
     for case in cases:
-        case['model_late'] = model_answer(case, False, seed)
-        case['model_typed'] = model_answer(case, True, seed)
-    OUT.mkdir(parents=True, exist_ok=True)
+        case['model_late'] = model_answer(case, False, seed, plan)
+        case['model_typed'] = model_answer(case, True, seed, plan)
+    plan.out.mkdir(parents=True, exist_ok=True)
     record = {'seed': seed, 'predicted_at': datetime.now(timezone.utc).isoformat(), 'predictions_sha256_16': digest(cases), 'cases': cases}
     path.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     print('predicted', len(cases), 'cases, digest', record['predictions_sha256_16'])
@@ -254,18 +274,19 @@ def _lock() -> Path:
     return (ROOT / common).resolve() / 'excel-coordination' / 'live.lock'
 
 
-def measure(seed: int, chunks: int) -> None:
+def measure(seed: int, chunks: int, plan: Plan | None = None) -> None:
     """Up to ``chunks`` runs of CHUNK cases, carrying on from what the round file already holds; the comparison once all are in."""
     from pyvbaharness import ExcelSession, HarnessConfig
 
-    path = OUT / f'round_{seed}.json'
+    plan = plan or TABLES
+    path = plan.out / f'round_{seed}.json'
     record = json.loads(path.read_text(encoding='utf-8'))
     cases = record['cases']
     assert digest(cases) == record['predictions_sha256_16'], 'the predictions changed after they were written'
     lock = _lock()
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as held:
         folder = Path(held)
-        books(folder)
+        plan.books(folder)
         for tag, typed in (('late', False), ('typed', True)):
             # A case the harness gave no answer for is asked again: the run failed, not Excel's answer.
             todo = [case for case in cases if not str(case.get(tag, 'no answer')).startswith('no answer')]
@@ -289,7 +310,7 @@ def measure(seed: int, chunks: int) -> None:
                             excel.new_document()
                             while left:
                                 case = left.pop(0)
-                                done = excel.run_vba(source(case, typed, seed), 'One', (str(folder),), timeout=60.0, line_numbers=False)
+                                done = excel.run_vba(source(case, typed, seed, plan), 'One', (str(folder),), timeout=60.0, line_numbers=False)
                                 case[tag] = str(done.value) if done.ok else f'no answer: {str(done)[:600]}'
                                 if not done.ok:
                                     break
@@ -308,9 +329,13 @@ def measure(seed: int, chunks: int) -> None:
     print('differ', len(differ), 'of', 2 * len(cases))
 
 
-def main() -> None:
+#: The rounds this script keeps: tables, pivot tables and the held families.
+TABLES = Plan(REACHES, MEMBERS, COLLECTIONS, NAMED, setup, books, DIMS, OUT, SAMPLE)
+
+
+def main(plan: Plan | None = None) -> None:
     action, seed = sys.argv[1], int(sys.argv[2])
-    predict(seed) if action == 'predict' else measure(seed, int(sys.argv[3]) if len(sys.argv) > 3 else 1000)
+    predict(seed, plan) if action == 'predict' else measure(seed, int(sys.argv[3]) if len(sys.argv) > 3 else 1000, plan)
 
 
 if __name__ == '__main__':

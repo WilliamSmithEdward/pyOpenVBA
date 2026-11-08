@@ -62,6 +62,13 @@ class ExcelBridge(HostBridge):
         found = _by_lower_case().get(name.lower())
         return UNRESOLVED if found is None else _as_vba(name.lower(), found)
 
+    def document(self) -> object:
+        return self.workbook or self.application.vba_get("ThisWorkbook")
+
+    def running(self, class_name: str) -> object:
+        # GetObject(, "Excel.Application") is the Excel the macro runs in (tests/fixtures/com_objects.json).
+        return self.application if class_name.lower() == "excel.application" else UNRESOLVED
+
     def create(self, type_name_: str) -> object:
         self.application.outside(f"CreateObject({type_name_!r})")
         raise VBAUnsupportedError(

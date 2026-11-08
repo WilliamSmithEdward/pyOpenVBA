@@ -1,0 +1,169 @@
+{
+ "log": "Public Log As String\nPublic Sink As Object\n",
+ "sink": "Public WithEvents App As Application\nPrivate Sub App_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"change:\" & Sh.Name & \"!\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub App_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"calculate:\" & Sh.Name & \"|\"\nEnd Sub\nPrivate Sub App_AfterCalculate()\nLog = Log & \"after|\"\nEnd Sub\n",
+ "watch": "Public Function Watch(how As Long) As String\n    Dim wb As Object, s1 As Object, s2 As Object, made As New AfterSink\n    Application.DisplayAlerts = False\n    Application.EnableEvents = False\n    Application.Calculation = xlCalculationAutomatic\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set s1 = wb.Worksheets(1)\n    s1.Name = \"s1\"\n    Set s2 = wb.Worksheets.Add(After:=s1)\n    s2.Name = \"s2\"\n    s1.Range(\"A1\").Value = 1\n    Select Case how\n        Case 2, 5, 18, 22\n            s1.Range(\"C1\").Formula = \"=RAND()\"\n        Case 4, 6, 10, 11, 13, 14, 16, 17, 19, 23\n            s1.Range(\"B1\").Formula = \"=A1*2\"\n        Case 20\n            s2.Range(\"C1\").Formula = \"=RAND()\"\n            s1.Range(\"C1\").Formula = \"=RAND()\"\n        Case 21\n            s2.Range(\"B1\").Formula = \"=s1!A1*2\"\n    End Select\n    If how = 10 Or how = 11 Or how = 14 Then Application.Calculation = xlCalculationManual\n    Set made.App = Application\n    Set Sink = made\n    Application.EnableEvents = True\n    Log = \"\"\n    Select Case how\n        Case 1, 2, 20\n            Application.Calculate\n        Case 3, 4, 5, 10, 21\n            s1.Range(\"A1\").Value = 5\n        Case 6\n            s1.Range(\"B1\").Calculate\n        Case 7, 22\n            s1.Calculate\n        Case 8\n            Application.CalculateFull\n        Case 9\n            Application.CalculateFullRebuild\n        Case 11\n            s1.Range(\"A1\").Value = 5\n            Log = Log & \"then|\"\n            Application.Calculate\n        Case 12\n            s1.Range(\"B1\").Formula = \"=1+1\"\n        Case 13\n            s1.Range(\"A1\").ClearContents\n        Case 14\n            s1.Range(\"A1\").Value = 5\n            Log = Log & \"then|\"\n            Application.Calculation = xlCalculationAutomatic\n        Case 15\n            s1.Range(\"A2\").Value = 5\n            s1.Range(\"A3\").Value = 6\n        Case 16\n            s1.Range(\"A1\").Value = 5\n            s1.Range(\"A1\").Value = 6\n        Case 17\n            s1.Range(\"A1:A3\").Value = Array(7, 8, 9)\n        Case 18\n            s1.Range(\"A1\").Calculate\n        Case 19\n            s1.Range(\"A1\").Value = 1\n        Case 23\n            DoEvents\n            s1.Range(\"A1\").Value = 5\n            DoEvents\n    End Select\n    Watch = Log & \"end|\"\nEnd Function\n\nPublic Function Report() As String\n    Report = Log\n    Application.EnableEvents = False\n    Application.Calculation = xlCalculationAutomatic\n    Set Sink = Nothing\n    Do While Workbooks.Count > 1\n        Workbooks(Workbooks.Count).Close False\n    Loop\n    Application.EnableEvents = True\n    Log = \"\"\nEnd Function\n",
+ "cases": [
+  {
+   "name": "calculate_constants",
+   "how": 1,
+   "what": "Application.Calculate with no formula",
+   "inside": "after|end|",
+   "after": "after|"
+  },
+  {
+   "name": "calculate_volatile",
+   "how": 2,
+   "what": "Application.Calculate with =RAND() on s1",
+   "inside": "calculate:s1|after|end|",
+   "after": "calculate:s1|after|"
+  },
+  {
+   "name": "edit_constants",
+   "how": 3,
+   "what": "an edit with no formula",
+   "inside": "after|change:s1!A1|end|",
+   "after": "after|change:s1!A1|"
+  },
+  {
+   "name": "edit_precedent",
+   "how": 4,
+   "what": "an edit to A1, which B1 =A1*2 reads",
+   "inside": "calculate:s1|after|change:s1!A1|end|",
+   "after": "calculate:s1|after|change:s1!A1|"
+  },
+  {
+   "name": "edit_with_volatile",
+   "how": 5,
+   "what": "an edit to A1 with =RAND() in C1",
+   "inside": "calculate:s1|after|change:s1!A1|end|",
+   "after": "calculate:s1|after|change:s1!A1|"
+  },
+  {
+   "name": "range_calculate",
+   "how": 6,
+   "what": "B1.Calculate on =A1*2",
+   "inside": "calculate:s1|after|end|",
+   "after": "calculate:s1|after|"
+  },
+  {
+   "name": "sheet_calculate_constants",
+   "how": 7,
+   "what": "s1.Calculate with no formula",
+   "inside": "end|",
+   "after": ""
+  },
+  {
+   "name": "calculate_full",
+   "how": 8,
+   "what": "Application.CalculateFull with no formula",
+   "inside": "after|end|",
+   "after": "after|"
+  },
+  {
+   "name": "calculate_full_rebuild",
+   "how": 9,
+   "what": "Application.CalculateFullRebuild with no formula",
+   "inside": "after|end|",
+   "after": "after|"
+  },
+  {
+   "name": "manual_edit",
+   "how": 10,
+   "what": "manual calculation; an edit to A1, which B1 reads",
+   "inside": "change:s1!A1|end|",
+   "after": "change:s1!A1|"
+  },
+  {
+   "name": "manual_edit_calculate",
+   "how": 11,
+   "what": "manual calculation; an edit to A1, which B1 reads, then Application.Calculate",
+   "inside": "change:s1!A1|then|calculate:s1|after|end|",
+   "after": "change:s1!A1|then|calculate:s1|after|"
+  },
+  {
+   "name": "formula_written",
+   "how": 12,
+   "what": "B1.Formula = \"=1+1\"",
+   "inside": "calculate:s1|after|change:s1!B1|end|",
+   "after": "calculate:s1|after|change:s1!B1|"
+  },
+  {
+   "name": "clear_precedent",
+   "how": 13,
+   "what": "A1.ClearContents, which B1 reads",
+   "inside": "calculate:s1|change:s1!A1|after|end|",
+   "after": "calculate:s1|change:s1!A1|after|"
+  },
+  {
+   "name": "manual_then_automatic",
+   "how": 14,
+   "what": "manual; an edit to A1, which B1 reads, then Calculation = xlCalculationAutomatic",
+   "inside": "change:s1!A1|then|calculate:s1|after|end|",
+   "after": "change:s1!A1|then|calculate:s1|after|"
+  },
+  {
+   "name": "two_edits_constants",
+   "how": 15,
+   "what": "two edits with no formula",
+   "inside": "after|change:s1!A2|after|change:s1!A3|end|",
+   "after": "after|change:s1!A2|after|change:s1!A3|"
+  },
+  {
+   "name": "two_edits_precedent",
+   "how": 16,
+   "what": "two edits to A1, which B1 reads",
+   "inside": "calculate:s1|after|change:s1!A1|calculate:s1|after|change:s1!A1|end|",
+   "after": "calculate:s1|after|change:s1!A1|calculate:s1|after|change:s1!A1|"
+  },
+  {
+   "name": "block_edit_precedent",
+   "how": 17,
+   "what": "A1:A3 set at once, B1 reading A1",
+   "inside": "calculate:s1|after|change:s1!A1:A3|end|",
+   "after": "calculate:s1|after|change:s1!A1:A3|"
+  },
+  {
+   "name": "range_calculate_constant",
+   "how": 18,
+   "what": "A1.Calculate on a constant, =RAND() in C1",
+   "inside": "calculate:s1|after|end|",
+   "after": "calculate:s1|after|"
+  },
+  {
+   "name": "same_value_precedent",
+   "how": 19,
+   "what": "A1 set to the 1 it holds, B1 reading A1",
+   "inside": "calculate:s1|after|change:s1!A1|end|",
+   "after": "calculate:s1|after|change:s1!A1|"
+  },
+  {
+   "name": "calculate_two_sheets",
+   "how": 20,
+   "what": "Application.Calculate with =RAND() on s1 and s2",
+   "inside": "calculate:s1|calculate:s2|after|end|",
+   "after": "calculate:s1|calculate:s2|after|"
+  },
+  {
+   "name": "edit_precedent_other_sheet",
+   "how": 21,
+   "what": "an edit to s1!A1, which s2!B1 reads",
+   "inside": "calculate:s2|after|change:s1!A1|end|",
+   "after": "calculate:s2|after|change:s1!A1|"
+  },
+  {
+   "name": "sheet_calculate_volatile",
+   "how": 22,
+   "what": "s1.Calculate with =RAND() in C1",
+   "inside": "calculate:s1|end|",
+   "after": "calculate:s1|"
+  },
+  {
+   "name": "edit_precedent_do_events",
+   "how": 23,
+   "what": "DoEvents, an edit to A1 which B1 reads, DoEvents",
+   "inside": "calculate:s1|after|change:s1!A1|end|",
+   "after": "calculate:s1|after|change:s1!A1|"
+  }
+ ],
+ "measured_at": "2026-11-07T20:28:41.269676+00:00"
+}

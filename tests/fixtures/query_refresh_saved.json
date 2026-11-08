@@ -1,0 +1,9 @@
+{
+ "check": [
+  "opened tables=1 conns=1 result=$B$2:$C$5 name=ExternalData_1 type=5 command=SELECT * FROM T WHERE Id <= 3 ORDER BY Id",
+  "before|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Double:10|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+  "refresh E0  result=$B$2:$C$7",
+  "after|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Double:10|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Double:5|String:n5|Empty:|Empty:"
+ ],
+ "measured_at": "2026-11-07T02:46:42.473605+00:00"
+}

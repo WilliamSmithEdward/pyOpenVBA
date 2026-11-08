@@ -1901,6 +1901,12 @@ class ShapeObject(_Drawn):
         self.Delete()
         return EMPTY
 
+    @method
+    def CopyPicture(self, Appearance: object = MISSING, Format: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._output import copy_picture, given_arguments
+
+        return copy_picture(self, 'Shape', self.sheet.book, given_arguments(Appearance=Appearance, Format=Format), shown=not self.shape.hidden)
+
     def _position(self) -> int:
         """Its place in the stack, in which a group's members each have one after the group's
         (tests/fixtures/object_roundtrip.json)."""
@@ -4488,8 +4494,7 @@ class ControlFormat(_Drawn):
         from pyopenvba.apps.excel._protection import guard_drawing
 
         control = self._settings(*kinds)
-        if self.shape.source:
-            raise VBAUnsupportedError("Changing this setting of a control loaded from a file is not implemented")
+        # A control loaded from a file is patched where Excel writes each setting (see _io._sync_control_flags).
         guard_drawing(self.sheet, "ControlFormat")
         self.sheet.drawing_changed()
         return control

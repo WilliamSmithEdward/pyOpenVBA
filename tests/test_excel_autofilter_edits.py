@@ -25,6 +25,8 @@ LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
 
 def _run(layout: dict[str, Any]) -> object:
     code = ["Public Function Report() As String", "Dim ws As Object, failed As String, v As Variant, dest As Object",
+            # As the measurement ran: with DisplayAlerts off (scripts/measure_autofilter_edits.py).
+            "Application.DisplayAlerts = False",
             "Set ws = ActiveWorkbook.Worksheets(1)", f'ws.Name = "{layout["name"][:28]}"', "On Error Resume Next",
             "Err.Clear", *RECORD["table"].splitlines(), *layout["setup"].splitlines(),
             'If Err.Number <> 0 Then failed = "S" & Err.Number & ";"', "On Error GoTo 0",

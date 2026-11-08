@@ -22,10 +22,21 @@ Measured in live Excel (scripts/measure_validation.py, tests/fixtures/validation
   TRUE where the cell is.
 * Delete takes the cells out of their rules, a rule splitting round them;
   Clear does too, ClearContents does not. A copy takes the rule of the
-  cells copied along, and inserting or deleting rows or columns moves a
-  rule as it moves a reference.
+  cells copied along.
 * A list read from another sheet is kept in the worksheet's x14
   extension; the model reads such a rule and does not make one.
+* Inserting or deleting cells, rows or columns carries each rule's blocks
+  as conditional formats carry theirs, cut into strips round the moved
+  cells, and its formulas as references move, on every sheet: a list on
+  Sheet1 reading Sheet2 follows Sheet2's edits. A rule the edit reshapes,
+  or whose formula's reference it resizes, goes last among the sheet's
+  rules, and rules it leaves alike join into the first. Rules in the x14
+  extension are written back there as Excel writes them
+  (scripts/measure_x14_validation_shifts.py; planned has the details).
+  Reporting itself: a shift whose blocks would come together, a delete
+  moving as many cells as it deletes in one line of a block across, or in
+  one wider than two columns, a block reading cells relative to itself whose first cell
+  moves elsewhere, and an edit that would empty the x14 extension.
 """
 
 from __future__ import annotations
@@ -45,6 +56,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, VBAInt, error
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from pyopenvba.apps.excel._conditional_edits import Edit
     from pyopenvba.apps.excel._model import Worksheet
 
 #: xlDVType, by its number, as a file names it.
@@ -168,9 +180,33 @@ def _rule_xml(rule: Rule) -> str:
     return f"{head}>{formulas}</dataValidation>" if formulas else head + "/>"
 
 
+def _extended_xml(rule: Rule) -> str:
+    """One rule as Excel writes it in the x14 extension: the attributes of a plain rule but the range, its formulas
+    in xm:f, then its range in xm:sqref (tests/fixtures/x14_validation_base.xlsx)."""
+    head = _rule_xml(replace(rule, areas=[], formula1="", formula2=""))
+    head = re.sub(r' sqref=""', "", head).removesuffix("/>").removesuffix(">").replace("<dataValidation", "<x14:dataValidation", 1)
+    formulas = "".join(f"<x14:formula{number}><xm:f>{escape_text(text)}</xm:f></x14:formula{number}>"
+                       for number, text in ((1, rule.formula1), (2, rule.formula2)) if text)
+    ranges = " ".join(area.address(absolute=False) for area in rule.areas)
+    return f"{head}>{formulas}<xm:sqref>{ranges}</xm:sqref></x14:dataValidation>"
+
+
+def _with_extension(sheet: Worksheet, xml: str) -> str:
+    """A worksheet part with the x14 extension's dataValidations element as the model has its rules."""
+    rules = [rule for rule in sheet.validations if rule.extension]
+    existing = re.search(r"<x14:dataValidations\b[^>]*>.*?</x14:dataValidations>", xml, re.DOTALL)
+    if existing is None or not rules:
+        # A planned edit refuses before it would empty the extension; a sheet without one keeps none.
+        return xml
+    markup = (f'<x14:dataValidations count="{len(rules)}" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">'
+              f'{"".join(_extended_xml(rule) for rule in rules)}</x14:dataValidations>')
+    return xml[:existing.start()] + markup + xml[existing.end():]
+
+
 def with_rules(sheet: Worksheet, xml: str) -> str:
     """A worksheet part with its dataValidations element as the model has the rules: replaced, put in its place,
-    or taken out."""
+    or taken out; and the x14 extension's rules as the model has them."""
+    xml = _with_extension(sheet, xml)
     markup = rules_xml(sheet)
     existing = re.search(r"<dataValidations\b[^>]*(?:/>|>.*?</dataValidations>)", xml, re.DOTALL)
     if existing is not None:
@@ -267,37 +303,257 @@ def _moved(formula: str, source: tuple[int, int], target: tuple[int, int]) -> st
         return formula
 
 
-def moved(sheet: Worksheet, rewrite: Callable[[str], str]) -> None:
-    """Carry each rule through an insert or a delete, its blocks and its formulas moving as references move."""
-    from pyopenvba.formula._parse import FormulaError
+def _relative(formula: str) -> bool:
+    """Whether a rule's formula reads a cell relative to the rule's first cell."""
+    from pyopenvba.formula._parse import FormulaError, tokenize
 
-    changed = False
-    for rule in list(sheet.validations):
-        areas: list[Area] = []
-        for area in rule.areas:
-            text = rewrite("=" + area.address(absolute=False))
+    if not formula or formula.startswith('"'):
+        return False
+    try:
+        tokens = tokenize("=" + formula)
+    except FormulaError:
+        return True
+    return any(token.kind == "ref" and re.search(r"(?<![$A-Za-z])[A-Za-z]{1,3}\$?[0-9]|(?<!\$)\b[0-9]+:", token.text)
+               for token in tokens)
+
+
+def _to_end(box: tuple[int, int, int, int], edit: Edit) -> bool:
+    """Whether Excel puts a rule last among the sheet's rules for what the edit does to this block of it: a delete
+    cutting its front or middle, a shift splitting it, or a shift inserting cells inside it; not a block that moves
+    whole, grows by whole lines or by cells inserted just after it, or loses its last lines
+    (tests/fixtures/x14_validation_shifts.json, validation_list_order.json)."""
+    from pyopenvba.apps.excel._conditional_edits import LineEdit
+
+    top, left, bottom, right = box
+    vertical = edit.rows if isinstance(edit, LineEdit) else edit.vertical
+    low, high = (top, bottom) if vertical else (left, right)
+    if not isinstance(edit, LineEdit):
+        across = (left, right) if vertical else (top, bottom)
+        if across[1] < edit.band[0] or edit.band[1] < across[0] or high < edit.start:
+            return False
+        if not (edit.band[0] <= across[0] and across[1] <= edit.band[1]):
+            # A delete taking all the block has in some of its lines keeps it whole, or without that edge, and keeps
+            # its place (x14_validation_shifts.json A4:H4, x14_validation_shifts3.json B2:E2).
+            if edit.delete and edit.start <= low and high <= edit.start + edit.count - 1:
+                return False
+            return True
+        if not edit.delete:
+            return low < edit.start <= high
+    if not edit.delete:
+        return False
+    end = edit.start + edit.count - 1
+    return edit.start <= high and low <= end < high
+
+
+def _resized(before: str, after: str, edit: Edit, *, owner: str, edited: str) -> bool:
+    """Whether what an edit did to a rule's formula puts the rule last.
+
+    Through a cell shift, any reference to the edited sheet that grew, shrank, went to #REF! or that the shift cuts
+    through, its text kept, does; one that only moved does not (validation_formula_order.json, x14_validation_shifts4.json
+    A1:B1 right). Through whole lines, a reference to another sheet than the rule's that shrank does, one they grew
+    does not (x14_validation_shifts4.json Sheet2's row 1 deleted, x14_validation_shifts5.json rows 2:5 inserted); on the
+    rule's own sheet only a reference a delete starting inside it shrank does: not one the delete takes from its first
+    line, one an insert grew, or one that went to #REF! (x14_validation_shifts.json, x14_validation_shifts2.json)."""
+    from pyopenvba.apps.excel._conditional_edits import LineEdit
+    from pyopenvba.formula._parse import FormulaError, tokenize
+
+    if not before or before.startswith('"'):
+        return False
+    try:
+        old, new = ([token.text for token in tokenize("=" + text) if token.kind == "ref"] for text in (before, after))
+    except FormulaError:
+        return False
+
+    def on_edited(text: str) -> bool:
+        place = text.rsplit("!", 1)[0].strip("'") if "!" in text else owner
+        return place.lower() == edited.lower()
+
+    lines = isinstance(edit, LineEdit)
+    strict = not lines
+    if not lines:
+        for one in old:
+            if not on_edited(one):
+                continue
             try:
-                areas.append(parse_area(text.removeprefix("="), sheet=""))
+                box = parse_area(one.split("!")[-1], sheet="")
             except ValueError:
                 continue
-        formulas: list[str] = []
-        for formula in (rule.formula1, rule.formula2):
-            try:
-                formulas.append(rewrite("=" + formula)[1:] if formula and not formula.startswith('"') else formula)
-            except FormulaError:
-                formulas.append(formula)
-        if (areas, formulas) != (rule.areas, [rule.formula1, rule.formula2]):
-            if rule.extension:
-                raise VBAUnsupportedError("moving a validation kept in the worksheet's x14 extension is not "
-                                          "implemented")
-            changed = True
-            rule.formula1, rule.formula2 = formulas
-            if areas:
-                rule.areas = areas
+            along = (box.top, box.bottom) if edit.vertical else (box.left, box.right)
+            across = (box.left, box.right) if edit.vertical else (box.top, box.bottom)
+            if across[0] <= edit.band[1] and edit.band[0] <= across[1] and along[1] >= edit.start and not (
+                    edit.band[0] <= across[0] and across[1] <= edit.band[1]):
+                return True
+    if before == after:
+        return False
+    if len(new) < len(old) and (strict or any("!" in one for one in old)):
+        # A reference gone to #REF!, which reads as an error rather than a reference: last through a cell shift, and
+        # through whole lines where it named another sheet (x14_validation_shifts6.json, Sheet2's rows 2:5 deleted).
+        return True
+    for one, other in zip(old, new):
+        try:
+            first = parse_area(one.split("!")[-1], sheet="")
+        except ValueError:
+            continue
+        try:
+            second = parse_area(other.split("!")[-1], sheet="")
+        except ValueError:
+            if strict:
+                return True
+            continue
+        size, now = first.rows * first.columns, second.rows * second.columns
+        if size == now:
+            continue
+        if strict:
+            return True
+        # Whole lines: a reference they grow keeps the rule's place; one a delete shrinks puts it last where it names
+        # another sheet, or where the delete starts inside it.
+        if now < size and edit.delete and ("!" in one or edit.start > (first.top if edit.rows else first.left)):
+            return True
+    return False
+
+
+def _through(rule: Rule, edit: Edit, *, formula_changed: bool = False) -> tuple[list[Area], bool]:
+    """A rule's blocks through an edit, and whether Excel puts the rule last for it; ``formula_changed`` where the edit
+    changes the rule's formula too."""
+    from pyopenvba.apps.excel._conditional_edits import LineEdit, range_through
+
+    vertical = edit.rows if isinstance(edit, LineEdit) else edit.vertical
+    areas: list[Area] = []
+    last = False
+    for area in rule.areas:
+        box = (area.top, area.left, area.bottom, area.right)
+        if not isinstance(edit, LineEdit) and edit.delete:
+            low, high = (area.top, area.bottom) if vertical else (area.left, area.right)
+            across = (area.left, area.right) if vertical else (area.top, area.bottom)
+            partly = across[0] <= edit.band[1] and edit.band[0] <= across[1] and not (
+                edit.band[0] <= across[0] and across[1] <= edit.band[1])
+            if partly and low < edit.start <= high <= edit.start + edit.count - 1:
+                # The band runs through the block and the delete takes its far edge there, so none of its cells
+                # move in: Excel keeps the block whole, as a reference keeps it (x14_validation_shifts.json).
+                areas.append(area)
+                continue
+            if partly and edit.start <= low and high <= edit.start + edit.count - 1 and \
+                    across[0] < edit.band[0] and edit.band[1] < across[1]:
+                # A delete taking all the block's cells in lines strictly inside it keeps the block whole, as a
+                # reference keeps it, unless the edit changes the rule's formula too: then Excel makes the rule anew from
+                # its cells and the block comes apart round the lines (x14_validation_shifts.json and later rounds: 13
+                # kept whole; x14_validation_shifts9.json A3:D3 left: B2:B4 reading $A$1:$A$3 to B2 B4).
+                if not formula_changed:
+                    areas.append(area)
+                    continue
+                boxes, kinds, _ = range_through([box], edit)
+                areas += [Area(*one) for one in boxes]
+                last = True
+                continue
+            width = min(across[1], edit.band[1]) - max(across[0], edit.band[0]) + 1
+            moved = high - (edit.start + edit.count - 1)
+            if partly and width == 1 and low < edit.start and moved == edit.count:
+                # A delete up in one column of a block two columns wide that moves as many cells as it deletes: Excel
+                # writes the other column's last cells, as many, then the whole block down to above them
+                # (validation_list_order.json D5 up: C6 C3:D5; x14_validation_shifts4.json B8 up: C9 B7:C8;
+                # x14_validation_shifts6.json E3:H4 up: D5:D6 D2:E4). Moving more or fewer it cuts strips (E3 up,
+                # E4:H5 up). Across, or in a wider block, it was not measured.
+                if not vertical or area.right - area.left != 1:
+                    raise VBAUnsupportedError("Deleting cells that move as many cells as they delete within a validation's "
+                                              "block is not implemented")
+                other = area.right if edit.band[0] == area.left else area.left
+                areas += [Area(high - edit.count + 1, other, high, other), Area(area.top, area.left, high - edit.count, area.right)]
+                last = True
+                continue
+        try:
+            boxes, kinds, _ = range_through([box], edit, whole_blocks=True)
+        except VBAUnsupportedError:
+            raise VBAUnsupportedError("Inserting or deleting cells where a validation's blocks would come together is not "
+                                      "implemented") from None
+        # A block one cell long across the shift puts the strip after the moved cells first where the strip ahead of
+        # them is a single cell and it is not (tests/fixtures/validation_pieces.json).
+        thin = (area.left == area.right) if not vertical else (area.top == area.bottom)
+        strips = [index for index, kind in enumerate(kinds[:-1]) if kind == "split"]
+        if thin and not isinstance(edit, LineEdit) and len(strips) >= 2:
+            first, second = boxes[strips[0]], boxes[strips[1]]
+            if (first[0], first[1]) == (first[2], first[3]) and (second[0], second[1]) != (second[2], second[3]):
+                boxes[strips[0]], boxes[strips[1]] = second, first
+        areas += [Area(*one) for one in boxes]
+        last = last or _to_end(box, edit)
+    return areas, last
+
+
+def planned(sheet: Worksheet, edit: Edit, rewrite_for: Callable[[str], Callable[[str], str]]) -> Callable[[], None]:
+    """What an insert or a delete does to the validation of every sheet, worked out before anything moves; the call it
+    answers makes the changes. The edited sheet's rules take their blocks through the edit as conditional formats do,
+    and every sheet's rules their formulas as references move; a rule the edit cuts or splits goes last, and rules the
+    edit leaves alike are joined into the first, its uid kept (tests/fixtures/x14_validation_shifts.json)."""
+    from pyopenvba.apps.excel._conditional_edits import LineEdit
+    from pyopenvba.formula._parse import FormulaError
+
+    plans: list[tuple[Worksheet, list[Rule]]] = []
+    for owner in sheet.book.sheets_:
+        if not owner.validations:
+            continue
+        rewrite = rewrite_for(owner.name)
+        staying: list[Rule] = []
+        moving: list[Rule] = []
+        changed = False
+        for rule in owner.validations:
+            formulas: list[str] = []
+            for formula in (rule.formula1, rule.formula2):
+                try:
+                    formulas.append(rewrite("=" + formula)[1:] if formula and not formula.startswith('"') else formula)
+                except FormulaError:
+                    formulas.append(formula)
+            changed_formula = formulas != [rule.formula1, rule.formula2]
+            areas, last = _through(rule, edit, formula_changed=changed_formula) if owner is sheet else (rule.areas, False)
+            # A formula whose reference grows, shrinks or goes, not only moves, puts the rule last too
+            # (x14_validation_shifts2.json: A2 down, rows 3:6 deleted); through a cell shift not where the shift moves
+            # the rule's own cells whole (x14_validation_shifts7.json: A2:D2 down), though where it reshapes them
+            # (x14_validation_shifts8.json: A2:D2 left).
+            whole = len(areas) == len(rule.areas) and areas != rule.areas and all(
+                (one.rows, one.columns) == (other.rows, other.columns) for one, other in zip(areas, rule.areas))
+            if isinstance(edit, LineEdit) or not whole:
+                last = last or any(_resized(old, new, edit, owner=owner.name, edited=sheet.name) for old, new in zip(
+                    (rule.formula1, rule.formula2), formulas, strict=True))
+            if not areas:
+                changed = True
+                continue
+            if areas != rule.areas and (areas[0].top, areas[0].left) != _moved_corner(rule.areas[0], rewrite) and \
+                    any(_relative(one) for one in (rule.formula1, rule.formula2)):
+                raise VBAUnsupportedError("Inserting or deleting cells where a validation reading cells relative to "
+                                          "itself starts its blocks elsewhere is not implemented")
+            made = replace(rule, areas=areas, formula1=formulas[0], formula2=formulas[1])
+            changed = changed or made != rule or areas != rule.areas or last
+            (moving if last else staying).append(made)
+        rules: list[Rule] = []
+        for rule in staying + moving:
+            alike = next((one for one in rules if one.extension == rule.extension and _same(one, rule)), None)
+            if alike is None:
+                rules.append(rule)
             else:
-                sheet.validations.remove(rule)
-    if changed:
-        sheet.validations_changed = True
+                alike.areas = alike.areas + rule.areas
+                changed = True
+        if not changed:
+            continue
+        if any(rule.extension for rule in owner.validations) and not any(rule.extension for rule in rules):
+            raise VBAUnsupportedError("Inserting or deleting cells that takes the last validation out of the "
+                                      "worksheet's x14 extension is not implemented")
+        plans.append((owner, rules))
+
+    def commit() -> None:
+        for owner, rules in plans:
+            owner.validations = rules
+            owner.validations_changed = True
+            owner.touched()
+
+    return commit
+
+
+def _moved_corner(area: Area, rewrite: Callable[[str], str]) -> tuple[int, int] | None:
+    """Where a block's first cell goes, as a reference to it goes; None where it is deleted."""
+    try:
+        corner = parse_area(rewrite("=" + Area(area.top, area.left, area.top, area.left).address(absolute=False))[1:],
+                            sheet="")
+    except ValueError:
+        return None
+    return corner.top, corner.left
 
 
 def copied(source: Worksheet, area: Area, target: Worksheet, destination: Area) -> None:

@@ -1,0 +1,793 @@
+{
+ "measured_at": "2026-11-07T03:34:42.466269+00:00",
+ "cases": [
+  {
+   "row": "new_nothing",
+   "binding": "Typed",
+   "how": "new",
+   "action": "",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_nothing",
+   "binding": "Late",
+   "how": "new",
+   "action": "",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_doevents",
+   "binding": "Typed",
+   "how": "new",
+   "action": "DoEvents",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_doevents",
+   "binding": "Late",
+   "how": "new",
+   "action": "DoEvents",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_wait",
+   "binding": "Typed",
+   "how": "new",
+   "action": "Application.Wait Now + TimeSerial(0, 0, 2)",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_wait",
+   "binding": "Late",
+   "how": "new",
+   "action": "Application.Wait Now + TimeSerial(0, 0, 2)",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_calculate",
+   "binding": "Typed",
+   "how": "new",
+   "action": "Application.Calculate",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_calculate",
+   "binding": "Late",
+   "how": "new",
+   "action": "Application.Calculate",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_screen_updating",
+   "binding": "Typed",
+   "how": "new",
+   "action": "Application.ScreenUpdating = False\n    Application.ScreenUpdating = True",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_screen_updating",
+   "binding": "Late",
+   "how": "new",
+   "action": "Application.ScreenUpdating = False\n    Application.ScreenUpdating = True",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_sheet_activate",
+   "binding": "Typed",
+   "how": "new",
+   "action": "w.Activate",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_sheet_activate",
+   "binding": "Late",
+   "how": "new",
+   "action": "w.Activate",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_other_then_back",
+   "binding": "Typed",
+   "how": "new",
+   "action": "b.Worksheets.Add.Activate\n    w.Activate",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_other_then_back",
+   "binding": "Late",
+   "how": "new",
+   "action": "b.Worksheets.Add.Activate\n    w.Activate",
+   "excel": "E0|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_range_select",
+   "binding": "Typed",
+   "how": "new",
+   "action": "w.Range(\"H20\").Select",
+   "excel": "E1004|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_range_select",
+   "binding": "Late",
+   "how": "new",
+   "action": "w.Range(\"H20\").Select",
+   "excel": "E1004|export=0",
+   "drawn": false,
+   "sizes": {
+    "frame.png": 0
+   }
+  },
+  {
+   "row": "new_object_activate",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_object_activate",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_object_select",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_object_select",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_chart_activate",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Activate",
+   "excel": "E1004|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_chart_activate",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Activate",
+   "excel": "E1004|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_chart_area_select",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.ChartArea.Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_chart_area_select",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.ChartArea.Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_refresh",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_refresh",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_title",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.HasTitle = True",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2542
+   }
+  },
+  {
+   "row": "new_title",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.HasTitle = True",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2542
+   }
+  },
+  {
+   "row": "new_chart_sheet_made",
+   "binding": "Typed",
+   "how": "new",
+   "action": "b.Charts.Add.SetSourceData w.Range(\"A1:B5\")\n    w.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_chart_sheet_made",
+   "binding": "Late",
+   "how": "new",
+   "action": "b.Charts.Add.SetSourceData w.Range(\"A1:B5\")\n    w.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_chart_sheet_exported",
+   "binding": "Typed",
+   "how": "new",
+   "action": "b.Charts.Add.SetSourceData w.Range(\"A1:B5\")\n    b.Charts(1).Export folder & \"\\sheet.png\"\n    w.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080,
+    "sheet.png": 1136
+   }
+  },
+  {
+   "row": "new_chart_sheet_exported",
+   "binding": "Late",
+   "how": "new",
+   "action": "b.Charts.Add.SetSourceData w.Range(\"A1:B5\")\n    b.Charts(1).Export folder & \"\\sheet.png\"\n    w.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080,
+    "sheet.png": 1136
+   }
+  },
+  {
+   "row": "new_other_frame_exported",
+   "binding": "Typed",
+   "how": "new",
+   "action": "w.ChartObjects.Add(400, 10, 200, 150).Chart.SetSourceData w.Range(\"A1:B5\")\n    w.ChartObjects(2).Activate\n    w.ChartObjects(2).Chart.Export folder & \"\\other.png\"\n    w.Range(\"A1\").Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080,
+    "other.png": 1996
+   }
+  },
+  {
+   "row": "new_other_frame_exported",
+   "binding": "Late",
+   "how": "new",
+   "action": "w.ChartObjects.Add(400, 10, 200, 150).Chart.SetSourceData w.Range(\"A1:B5\")\n    w.ChartObjects(2).Activate\n    w.ChartObjects(2).Chart.Export folder & \"\\other.png\"\n    w.Range(\"A1\").Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080,
+    "other.png": 1996
+   }
+  },
+  {
+   "row": "new_export_twice",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Export folder & \"\\first.png\"",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "first.png": 2080,
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_export_twice",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Export folder & \"\\first.png\"",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "first.png": 2080,
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_refresh_then_data",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    w.Range(\"B2\").Value = 99",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2144
+   }
+  },
+  {
+   "row": "new_refresh_then_data",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    w.Range(\"B2\").Value = 99",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2144
+   }
+  },
+  {
+   "row": "new_refresh_then_other_sheet",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    b.Worksheets.Add.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_refresh_then_other_sheet",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    b.Worksheets.Add.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_refresh_then_resize",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    o.Width = 300",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2513
+   }
+  },
+  {
+   "row": "new_refresh_then_resize",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    o.Width = 300",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2513
+   }
+  },
+  {
+   "row": "new_refresh_then_save",
+   "binding": "Typed",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    b.SaveAs folder & \"\\again.xlsx\", xlOpenXMLWorkbook",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "new_refresh_then_save",
+   "binding": "Late",
+   "how": "new",
+   "action": "o.Chart.Refresh\n    b.SaveAs folder & \"\\again.xlsx\", xlOpenXMLWorkbook",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_nothing",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_nothing",
+   "binding": "Late",
+   "how": "opened",
+   "action": "",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_sheet_activate",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "w.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_sheet_activate",
+   "binding": "Late",
+   "how": "opened",
+   "action": "w.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_object_activate",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "o.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_object_activate",
+   "binding": "Late",
+   "how": "opened",
+   "action": "o.Activate",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_object_select",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "o.Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_object_select",
+   "binding": "Late",
+   "how": "opened",
+   "action": "o.Select",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_refresh",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_refresh",
+   "binding": "Late",
+   "how": "opened",
+   "action": "o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_chart_activate",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "o.Chart.Activate",
+   "excel": "E1004|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_chart_activate",
+   "binding": "Late",
+   "how": "opened",
+   "action": "o.Chart.Activate",
+   "excel": "E1004|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_on_other_sheet",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "b.Worksheets(\"Two\").Activate\n    o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_on_other_sheet",
+   "binding": "Late",
+   "how": "opened",
+   "action": "b.Worksheets(\"Two\").Activate\n    o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_hidden_sheet_refresh",
+   "binding": "Typed",
+   "how": "opened",
+   "action": "w.Visible = xlSheetHidden\n    o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  },
+  {
+   "row": "opened_hidden_sheet_refresh",
+   "binding": "Late",
+   "how": "opened",
+   "action": "w.Visible = xlSheetHidden\n    o.Chart.Refresh",
+   "excel": "E0|export=0",
+   "drawn": true,
+   "sizes": {
+    "frame.png": 2080
+   }
+  }
+ ],
+ "first_acts": [
+  {
+   "first": "new_object_activate",
+   "binding": "Typed",
+   "itself_drawn": true,
+   "next_new_chart_drawn": true
+  },
+  {
+   "first": "new_object_activate",
+   "binding": "Late",
+   "itself_drawn": true,
+   "next_new_chart_drawn": true
+  },
+  {
+   "first": "new_object_select",
+   "binding": "Typed",
+   "itself_drawn": true,
+   "next_new_chart_drawn": true
+  },
+  {
+   "first": "new_object_select",
+   "binding": "Late",
+   "itself_drawn": true,
+   "next_new_chart_drawn": true
+  },
+  {
+   "first": "new_chart_activate",
+   "binding": "Typed",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_activate",
+   "binding": "Late",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_area_select",
+   "binding": "Typed",
+   "itself_drawn": true,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_area_select",
+   "binding": "Late",
+   "itself_drawn": true,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_refresh",
+   "binding": "Typed",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_refresh",
+   "binding": "Late",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_title",
+   "binding": "Typed",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_title",
+   "binding": "Late",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_sheet_made",
+   "binding": "Typed",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_sheet_made",
+   "binding": "Late",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_sheet_exported",
+   "binding": "Typed",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "new_chart_sheet_exported",
+   "binding": "Late",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "opened_object_activate",
+   "binding": "Typed",
+   "itself_drawn": true,
+   "next_new_chart_drawn": true
+  },
+  {
+   "first": "opened_object_activate",
+   "binding": "Late",
+   "itself_drawn": true,
+   "next_new_chart_drawn": true
+  },
+  {
+   "first": "opened_refresh",
+   "binding": "Typed",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  },
+  {
+   "first": "opened_refresh",
+   "binding": "Late",
+   "itself_drawn": false,
+   "next_new_chart_drawn": false
+  }
+ ]
+}

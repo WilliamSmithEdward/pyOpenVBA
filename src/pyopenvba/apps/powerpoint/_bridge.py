@@ -12,7 +12,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBAError, VBAUnsupportedError
 from pyopenvba.interpreter._constants_data import OFFICE_CONSTANTS, VBA_CONSTANTS
 from pyopenvba.interpreter._inventory import members_of
 from pyopenvba.interpreter._runtime import UNRESOLVED, HostBridge
@@ -33,6 +33,12 @@ class PowerPointBridge(HostBridge):
         if name == "application":
             return self.application
         return UNRESOLVED
+
+    def document(self) -> object:
+        try:
+            return self.application.vba_get("ActivePresentation")
+        except VBAError:
+            return None
 
     def has_global_member(self, name: str) -> bool:
         return name.lower() in self._global_members

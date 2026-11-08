@@ -9,6 +9,9 @@ styles.xml's tableStyles and the custom properties are recorded.
     python scripts/measure_workbook_settings.py
 
 writes tests/fixtures/workbook_settings.json, which tests/test_excel_workbook_settings.py replays.
+
+Password is no longer set: no live probe sets a user-level setting it does not put back, a mail envelope, the cloud save or a password
+(tests/test_probes_leave_user_settings_alone.py). The fixture keeps what an earlier run recorded for it: do not remeasure it.
 """
 from __future__ import annotations
 
@@ -51,7 +54,6 @@ CASES += [
     (['wbo.AccuracyVersion = 1', 'r = CStr(wb.AccuracyVersion)'], 'r', 'AccuracyVersion.xlsx'),
     (['wbo.AccuracyVersion = 2'], 'r', ''),
     (['wbo.HasPassword = True'], 'r', ''),
-    (['wbo.Password = "a"', 'r = CStr(wb.HasPassword)'], 'r', ''),
     (['ws.Range("A1:A3").Value = Application.Transpose(Array("ab", "AB", "a*"))', 'wbo.CaseSensitive = True',
       'ws.Range("B1").Formula = "=COUNTIF(A1:A3,""ab"")"', 'r = ws.Range("B1").Value'], 'r', ''),
     (['ws.Range("A1:A3").Value = Application.Transpose(Array("ab", "AB", "a*"))', 'wbo.UseWildcards = False',

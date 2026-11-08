@@ -25,9 +25,6 @@ FIXTURES = Path(__file__).parent / "fixtures"
 RECORD = json.loads((FIXTURES / "save_copy_as.json").read_text(encoding="utf-8"))
 NOW = dt.datetime(2026, 10, 25, 4, 21, 32)
 LEFT_OUT = ("ChDrive ", "ChDir ", "MkDir ", "Hyperlinks.Add", 'link_before^"', 'link_after^"')
-#: A new workbook the model saves macro-enabled carries an empty VBA project, where Excel writes none: a matter
-#: of SaveAs, which made these files and the copy of one, not of SaveCopyAs.
-EMPTY_PROJECT = ("macro.xlsm", "macro_copy.xlsx")
 _OVERRIDE = re.compile(r'<Override\b[^>]*PartName="/xl/workbook\.xml"[^>]*ContentType="([^"]+)"')
 _CELL = re.compile(r'<c r="([AB]1)"[^>]*?(?:/>|>(.*?)</c>)', re.S)
 _VALUE = re.compile(r"<v>(.*?)</v>", re.S)
@@ -97,8 +94,6 @@ def test_each_file_holds_what_excels_holds(replayed: tuple[list[list[str]], Path
     assert sorted(files) == sorted(RECORD["files"])
     for name, seen in files.items():
         measured = {key: value for key, value in RECORD["files"][name].items() if key in seen}
-        if name in EMPTY_PROJECT:
-            assert seen.pop("vba") and not measured.pop("vba"), name
         assert seen == measured, name
 
 

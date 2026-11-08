@@ -27,8 +27,10 @@ from __future__ import annotations
 
 import datetime as _dt
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
+from pyopenvba.interpreter._com_hook import ComRequest
 from pyopenvba.apps.excel._model import (
     Application,
     Cell,
@@ -440,12 +442,34 @@ class ExcelApplication(NamedRangeAPI):
     def run(self, macro: str, *args: object) -> object:
         """Run a macro by name, as Application.Run would, then what Application.OnTime has due, as Excel does once no
         macro is running."""
-        if "!" in macro:
-            answer = _plain(self.application.Run(macro, *args))
-        else:
-            answer = _plain(self.interpreter.run(macro, list(args)))
+        try:
+            if "!" in macro:
+                answer = _plain(self.application.Run(macro, *args))
+            else:
+                answer = _plain(self.interpreter.run(macro, list(args)))
+        except Exception as failed:
+            # The run's own error goes first; what the refreshes it left waiting then did rides along with it.
+            failures = self._finish_background()
+            if failures:
+                setattr(failed, "refresh_failures", failures)
+                note = getattr(failed, "add_note", None)  # Python 3.11 on
+                if callable(note):
+                    note(f"and {len(failures)} background refresh(es) failed after it: " + "; ".join(str(one) for one in failures))
+            raise
+        failures = self._finish_background()
         self.run_on_time()
+        if failures:
+            from pyopenvba.exceptions import BackgroundRefreshError
+
+            raise BackgroundRefreshError(failures) from failures[0]
         return answer
+
+    def _finish_background(self) -> list[Exception]:
+        """The query tables a macro refreshed in the background, refreshed now that it is over, as Excel does once no macro runs. Each is
+        the host's function called outside the run, with nothing counted against the run's steps."""
+        from pyopenvba.apps.excel._query_databases import finish
+
+        return finish(self.application)
 
     def run_on_time(self) -> None:
         """Run what Application.OnTime has due by now; freeze_clock moves a later one's time along."""
@@ -483,6 +507,14 @@ class ExcelApplication(NamedRangeAPI):
         """Pin Now, Date and Time, so two runs can be compared."""
         self.interpreter.freeze(when)
 
+    def set_com_class(self, prog_id: str, factory: Callable[[ComRequest], object] | None, *, folders: object = ()) -> None:
+        """What a macro's CreateObject and GetObject make for ``prog_id``: ``factory`` is called with a ComRequest and returns the object, or None
+        for no such class, error 429. None in place of a factory takes the class away again. A registered name wins over pyOpenVBA's own class of
+        the name, and registering it is the grant the sandbox lets through. ``folders`` are where a file GetObject names may be while the sandbox
+        is on. The name comes from the macro, so a factory must allow-list: one that passes any name to the system's COM hands the macro the
+        machine (docs/vba_runtime.md)."""
+        self.interpreter.set_com_class(prog_id, factory, folders=folders)  # type: ignore[arg-type]
+
     def answer_dialogs(self, *answers: object) -> None:
         """Queue what the next dialogs come back with, oldest first: each answer is what the dialog returns to the macro.
 
@@ -495,7 +527,7 @@ class ExcelApplication(NamedRangeAPI):
         self.interpreter.answers.extend(answers)
 
     def set_hook(self, name: str, function: object, *, folders: object = ()) -> None:
-        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat or PrintOut; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
+        """Have ``function`` do what the engine cannot for a member, ExportAsFixedFormat, PrintOut or Refresh; ``None`` removes it. It is called with a HookRequest after the macro's argument errors and
         BeforePrint. Its output is its own, and not claimed to match Excel; a library that draws needs its own layout for that. Under the sandbox, a macro's file must lie in one of ``folders``
         or the function is not called; with none named, no file passes. Docs: docs/vba_runtime.md, Hooks."""
         from pyopenvba.apps.excel._hooks import set_hook

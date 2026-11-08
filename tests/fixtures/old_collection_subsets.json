@@ -1,0 +1,2778 @@
+{
+"measured_at": "2026-11-07T04:25:46.478841+00:00",
+"source": "Public Function Row(ByVal path As String, ByVal saved As String) As String\n    Dim wb As Workbook, ws As Object, o As Object, e As Long, s As String, x As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set ws = wb.Worksheets(1)\n    Set o = ws.DrawingObjects(Array(ws.{c}(1).Name, ws.{c}(2).Name))\n    On Error Resume Next\n    o.{m} = {v}\n    e = Err.Number\n    Err.Clear\n    For Each x In o\n        Err.Clear\n        s = s & \";\" & TypeName(x.{m}) & \" \" & CStr(x.{m})\n        If Err.Number Then s = s & \"E\" & Err.Number\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Row = \"E\" & e & \"|\" & Mid(s, 2)\nEnd Function\n",
+"cases": [
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "Buttons",
+"excel": "E0|String ;String "
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "CheckBoxes",
+"excel": "E0|String ;String "
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "OptionButtons",
+"excel": "E0|String ;String "
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "Accelerator",
+"value": "\"K\"",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "Arcs",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E0|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E0|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "Ovals",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "AddIndent",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "Lines",
+"excel": "E1004|Long 3;Long 3"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadLength",
+"value": "xlArrowHeadLengthLong",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "Arcs",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "Buttons",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "CheckBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "DropDowns",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "Lines",
+"excel": "E0|Long 2;Long 2"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "OptionButtons",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "Ovals",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "Rectangles",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadStyle",
+"value": "xlArrowHeadStyleOpen",
+"kind": "TextBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "Arcs",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "Buttons",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "CheckBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "DropDowns",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "Lines",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "OptionButtons",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "Ovals",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "Rectangles",
+"excel": "E0|438E438"
+},
+{
+"member": "ArrowHeadWidth",
+"value": "xlArrowHeadWidthWide",
+"kind": "TextBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "Arcs",
+"excel": "E438|Boolean False;Boolean False"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "Buttons",
+"excel": "E438|Boolean False;Boolean False"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E438|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E438|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "Lines",
+"excel": "E438|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E438|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E438|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "Ovals",
+"excel": "E438|Boolean False;Boolean False"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "Pictures",
+"excel": "E438|438E438"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E438|Boolean False;Boolean False"
+},
+{
+"member": "AutoScaleFont",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E438|Boolean False;Boolean False"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "Arcs",
+"excel": "E0|1004E1004"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "Ovals",
+"excel": "E0|Boolean TrueE1004"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E0|Boolean TrueE1004"
+},
+{
+"member": "AutoSize",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean True"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "CancelButton",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "Arcs",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "Buttons",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "CheckBoxes",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "DropDowns",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "OptionButtons",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "Ovals",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "Rectangles",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Caption",
+"value": "\"Fresh\"",
+"kind": "TextBoxes",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean True"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "DefaultButton",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "DismissButton",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|Boolean False;Boolean False"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|Boolean False;Boolean False"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "Display3DShading",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "DisplayVerticalScrollBar",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "DropDowns",
+"excel": "E0|Double 4;Double 4"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "DropDownLines",
+"value": "4",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "Arcs",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "CheckBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "DropDowns",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "Lines",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "ListBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "OptionButtons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "Ovals",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "Pictures",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "Rectangles",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Enabled",
+"value": "False",
+"kind": "TextBoxes",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "Arcs",
+"excel": "E438|String ;String "
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "Buttons",
+"excel": "E438|String ;String "
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "CheckBoxes",
+"excel": "E438|438E438"
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "DropDowns",
+"excel": "E438|438E438"
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "Lines",
+"excel": "E438|438E438"
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "ListBoxes",
+"excel": "E438|438E438"
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "OptionButtons",
+"excel": "E438|438E438"
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "Ovals",
+"excel": "E438|String ;String "
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "Pictures",
+"excel": "E438|String ;String "
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "Rectangles",
+"excel": "E438|String ;String "
+},
+{
+"member": "Formula",
+"value": "\"=$A$21\"",
+"kind": "TextBoxes",
+"excel": "E438|String ;String $A$20 "
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean True"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "HelpButton",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "Arcs",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "Buttons",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "Ovals",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "Rectangles",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "HorizontalAlignment",
+"value": "xlCenter",
+"kind": "TextBoxes",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "InputType",
+"value": "xlNumber",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "LargeChange",
+"value": "7",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "CheckBoxes",
+"excel": "E0|String $D$20;String $D$20"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "DropDowns",
+"excel": "E0|String $D$20;String $D$20"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "ListBoxes",
+"excel": "E0|String $D$20;String $D$20"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "OptionButtons",
+"excel": "E0|String $D$20;String $D$20"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "LinkedCell",
+"value": "\"$D$20\"",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "DropDowns",
+"excel": "E1004|13E94"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "ListBoxes",
+"excel": "E1004|13E94"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "List",
+"value": "Array(\"x\", \"y\")",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "DropDowns",
+"excel": "E0|String $A$21:$A$22;String $A$21:$A$22"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "ListBoxes",
+"excel": "E0|String $A$21:$A$22;String $A$21:$A$22"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListFillRange",
+"value": "\"$A$21:$A$22\"",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "Arcs",
+"excel": "E0|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "DropDowns",
+"excel": "E0|Double 1;Double 0"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "ListBoxes",
+"excel": "E0|Double 1;Double 0"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "Ovals",
+"excel": "E0|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "Rectangles",
+"excel": "E0|438E438"
+},
+{
+"member": "ListIndex",
+"value": "1",
+"kind": "TextBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "Arcs",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "CheckBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "DropDowns",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "Lines",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "ListBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "OptionButtons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "Ovals",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "Pictures",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "Rectangles",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Locked",
+"value": "False",
+"kind": "TextBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "Arcs",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "CheckBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "DropDowns",
+"excel": "E0|438E438"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "OptionButtons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "Ovals",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "Rectangles",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "LockedText",
+"value": "False",
+"kind": "TextBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "Max",
+"value": "50",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "Min",
+"value": "2",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiLine",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "ListBoxes",
+"excel": "E1004|Long -4142;Long -4142"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "MultiSelect",
+"value": "xlSimple",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "Arcs",
+"excel": "E0|Long -4171;Long -4171"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "Buttons",
+"excel": "E0|Long -4171;Long -4171"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "Ovals",
+"excel": "E0|Long -4171;Long -4171"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "Rectangles",
+"excel": "E0|Long -4171;Long -4171"
+},
+{
+"member": "Orientation",
+"value": "xlUpward",
+"kind": "TextBoxes",
+"excel": "E0|Long -4171;Long -4171"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "Buttons",
+"excel": "E1004|String ;String "
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "CheckBoxes",
+"excel": "E0|String ;String "
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "OptionButtons",
+"excel": "E0|String ;String "
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "PhoneticAccelerator",
+"value": "\"Q\"",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "Arcs",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "Buttons",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "CheckBoxes",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "DropDowns",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "Lines",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "ListBoxes",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "OptionButtons",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "Ovals",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "Pictures",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "Rectangles",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "Placement",
+"value": "xlFreeFloating",
+"kind": "TextBoxes",
+"excel": "E0|Long 3;Long 3"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "Arcs",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "CheckBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "DropDowns",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "Lines",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "ListBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "OptionButtons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "Ovals",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "Pictures",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "Rectangles",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "PrintObject",
+"value": "False",
+"kind": "TextBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "Arcs",
+"excel": "E0|Long -5004;Long -5004"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "Buttons",
+"excel": "E0|Long 27;Long 27"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "CheckBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "DropDowns",
+"excel": "E0|438E438"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "OptionButtons",
+"excel": "E0|438E438"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "Ovals",
+"excel": "E0|Long -5004;Long -5004"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "Rectangles",
+"excel": "E0|Long -5004;Long -5004"
+},
+{
+"member": "ReadingOrder",
+"value": "xlRTL",
+"kind": "TextBoxes",
+"excel": "E0|Long -5004;Long -5004"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "Arcs",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "Buttons",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "Ovals",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "RoundedCorners",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "Arcs",
+"excel": "E0|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "CheckBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "OptionButtons",
+"excel": "E0|438E438"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "Ovals",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "Pictures",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "Rectangles",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "Shadow",
+"value": "True",
+"kind": "TextBoxes",
+"excel": "E0|Boolean True;Boolean True"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "Arcs",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "Buttons",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "Lines",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "Ovals",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "Pictures",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "Rectangles",
+"excel": "E1004|438E438"
+},
+{
+"member": "SmallChange",
+"value": "3",
+"kind": "TextBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "Arcs",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "Buttons",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "CheckBoxes",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "DropDowns",
+"excel": "E0|1004E1004"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "OptionButtons",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "Ovals",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "Rectangles",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Text",
+"value": "\"Fresh\"",
+"kind": "TextBoxes",
+"excel": "E0|String Fresh;String Fresh"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "Arcs",
+"excel": "E0|438E438"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "Buttons",
+"excel": "E0|438E438"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "CheckBoxes",
+"excel": "E0|Double 1;Double 1"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "DropDowns",
+"excel": "E0|Double 1;Double 0"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "ListBoxes",
+"excel": "E0|Double 1;Double 0"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "OptionButtons",
+"excel": "E0|Long -4146;Double 1"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "Ovals",
+"excel": "E0|438E438"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "Rectangles",
+"excel": "E0|438E438"
+},
+{
+"member": "Value",
+"value": "xlOn",
+"kind": "TextBoxes",
+"excel": "E0|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "Arcs",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "Buttons",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "CheckBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "DropDowns",
+"excel": "E1004|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "Lines",
+"excel": "E0|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "ListBoxes",
+"excel": "E1004|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "OptionButtons",
+"excel": "E1004|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "Ovals",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "Pictures",
+"excel": "E0|438E438"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "Rectangles",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "VerticalAlignment",
+"value": "xlCenter",
+"kind": "TextBoxes",
+"excel": "E0|Long -4108;Long -4108"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "Arcs",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "Buttons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "CheckBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "DropDowns",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "Lines",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "ListBoxes",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "OptionButtons",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "Ovals",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "Pictures",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "Rectangles",
+"excel": "E0|Boolean False;Boolean False"
+},
+{
+"member": "Visible",
+"value": "False",
+"kind": "TextBoxes",
+"excel": "E0|Boolean False;Boolean False"
+}
+]
+}

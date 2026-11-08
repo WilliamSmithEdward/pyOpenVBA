@@ -475,7 +475,7 @@ class SheetDimensions:
             return sum(table[character] for character in text)
 
         lines = lines_of(value, self.column_pixels(column) - taken, extent, font_pad(table))
-        return 0 if lines == 1 else row_pixels_for(lines, _font_rows.row_of(family, pixels, alone=True)[0])
+        return 0 if lines == 1 else row_pixels_for(lines, *_font_rows.row_of(family, pixels, alone=True))
 
     # -- the standard sizes
 

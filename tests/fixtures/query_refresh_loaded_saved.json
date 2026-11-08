@@ -1,0 +1,25 @@
+{
+ "cases": {
+  "access_query": [
+   "querytables=1 listobjects=0 connections=1",
+   "opened result=$B$2:$C$7 tables=0 Sheet1!ExternalData_1==Sheet1!$B$2:$C$7/True|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id!b|String:Name!b|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Double:5|String:n5|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "three E0  result=$B$2:$C$5 tables=0 Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/True|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id!b|String:Name!b|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "access_table": [
+   "querytables=0 listobjects=1 connections=1",
+   "opened result=$B$2:$C$7 tables=1 $B$2:$C$7 Table_ExternalData_1 Sheet1!ExternalData_1==Sheet1!$B$2:$C$7/False|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Double:5|String:n5|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "three E0  result=$B$2:$C$5 tables=1 $B$2:$C$5 Table_ExternalData_1 Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "csv_query": [
+   "querytables=1 listobjects=0 connections=1",
+   "opened result=$B$2:$C$7 tables=0 Sheet1!ExternalData_1==Sheet1!$B$2:$C$7/True|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id!b|String:Name!b|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Double:5|String:n5|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "three E0  result=$B$2:$C$5 tables=0 Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/True|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id!b|String:Name!b|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "csv_table": [
+   "querytables=0 listobjects=1 connections=1",
+   "opened result=$B$2:$C$7 tables=1 $B$2:$C$7 Table_ExternalData_1 Sheet1!ExternalData_1==Sheet1!$B$2:$C$7/False|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Double:5|String:n5|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "three E0  result=$B$2:$C$5 tables=1 $B$2:$C$5 Table_ExternalData_1 Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False|String:marker|Empty:|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ]
+ },
+ "measured_at": "2026-11-07T09:12:18.350868+00:00"
+}

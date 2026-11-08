@@ -1,0 +1,3028 @@
+{
+ "cases": [
+  {
+   "text": "٠",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "١",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "٢",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "٣",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "٤",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "٥",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "٦",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "٧",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "٨",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "٩",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "۰",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "۱",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "۲",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "۳",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "۴",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "۵",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "۶",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "۷",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "۸",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "۹",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "߀",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߁",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߃",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߄",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߅",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߆",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߇",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߉",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "०",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "१",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "२",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "३",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "४",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "५",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "६",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "७",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "८",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "९",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "০",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "১",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "২",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "৩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "৪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "৫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "৬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "৭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "৮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "৯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "੦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "੧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "੨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "੩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "੪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "੫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "੬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "੭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "੮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "੯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "૦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "૧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "૨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "૩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "૪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "૫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "૬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "૭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "૮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "૯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "୦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "୧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "୨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "୩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "୪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "୫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "୬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "୭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "୮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "୯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "௦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "௧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "௨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "௩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "௪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "௫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "௬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "௭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "௮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "௯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "౦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "౧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "౨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "౩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "౪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "౫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "౬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "౭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "౮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "౯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "೦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "೧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "೨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "೩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "೪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "೫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "೬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "೭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "೮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "೯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "൦",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "൧",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "൨",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "൩",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "൪",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "൫",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "൬",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "൭",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "൮",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "൯",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "෦",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෧",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෨",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෩",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෪",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෫",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෬",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෭",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෮",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෯",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "๐",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "๑",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "๒",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "๓",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "๔",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "๕",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "๖",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "๗",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "๘",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "๙",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "໐",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "໑",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "໒",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "໓",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "໔",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "໕",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "໖",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "໗",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "໘",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "໙",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "༠",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "༡",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "༢",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "༣",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "༤",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "༥",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "༦",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "༧",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "༨",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "༩",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "၀",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "၁",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "၂",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "၃",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "၄",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "၅",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "၆",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "၇",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "၈",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "၉",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "႐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "០",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "១",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "២",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "៣",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "៤",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "៥",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "៦",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "៧",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "៨",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "៩",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "᠐",
+   "rule": "Double 0",
+   "model": "String ",
+   "excel": "Double 0"
+  },
+  {
+   "text": "᠑",
+   "rule": "Double 1",
+   "model": "String ",
+   "excel": "Double 1"
+  },
+  {
+   "text": "᠒",
+   "rule": "Double 2",
+   "model": "String ",
+   "excel": "Double 2"
+  },
+  {
+   "text": "᠓",
+   "rule": "Double 3",
+   "model": "String ",
+   "excel": "Double 3"
+  },
+  {
+   "text": "᠔",
+   "rule": "Double 4",
+   "model": "String ",
+   "excel": "Double 4"
+  },
+  {
+   "text": "᠕",
+   "rule": "Double 5",
+   "model": "String ",
+   "excel": "Double 5"
+  },
+  {
+   "text": "᠖",
+   "rule": "Double 6",
+   "model": "String ",
+   "excel": "Double 6"
+  },
+  {
+   "text": "᠗",
+   "rule": "Double 7",
+   "model": "String ",
+   "excel": "Double 7"
+  },
+  {
+   "text": "᠘",
+   "rule": "Double 8",
+   "model": "String ",
+   "excel": "Double 8"
+  },
+  {
+   "text": "᠙",
+   "rule": "Double 9",
+   "model": "String ",
+   "excel": "Double 9"
+  },
+  {
+   "text": "᥆",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥇",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥉",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥊",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥋",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥌",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥍",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥎",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥏",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪀",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪁",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪃",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪄",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪅",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪆",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪇",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪉",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮰",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮱",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮳",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮴",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮵",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮶",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮷",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮸",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮹",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱀",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱁",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱃",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱄",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱅",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱆",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱇",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱉",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘠",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘡",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘢",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘣",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘤",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘥",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘦",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘧",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘨",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘩",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤀",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤁",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤃",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤄",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤅",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤆",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤇",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤉",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧰",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧱",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧳",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧴",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧵",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧶",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧷",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧸",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧹",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩐",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩑",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩓",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩔",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩕",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩖",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩗",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩘",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩙",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯰",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯱",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯳",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯴",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯵",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯶",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯷",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯸",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯹",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "０",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "１",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "２",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "３",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "４",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "５",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "６",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "７",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "８",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "９",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "١٢",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-١٢",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "١.٢",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "١,٢",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "۱۲",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-۱۲",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "۱.۲",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "۱,۲",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߁߂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-߁߂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߁.߂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "߁,߂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "१२",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-१२",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "१.२",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "१,२",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "১২",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-১২",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "১.২",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "১,২",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "੧੨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-੧੨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "੧.੨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "੧,੨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "૧૨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-૧૨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "૧.૨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "૧,૨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "୧୨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-୧୨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "୧.୨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "୧,୨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "௧௨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-௧௨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "௧.௨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "௧,௨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "౧౨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-౧౨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "౧.౨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "౧,౨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "೧೨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-೧೨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "೧.೨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "೧,೨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "൧൨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-൧൨",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "൧.൨",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "൧,൨",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෧෨",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-෧෨",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෧.෨",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "෧,෨",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "๑๒",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-๑๒",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "๑.๒",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "๑,๒",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "໑໒",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-໑໒",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "໑.໒",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "໑,໒",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "༡༢",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-༡༢",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "༡.༢",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "༡,༢",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "၁၂",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-၁၂",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "၁.၂",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "၁,၂",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႑႒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-႑႒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႑.႒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "႑,႒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "១២",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-១២",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "១.២",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "១,២",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᠑᠒",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "Double 12"
+  },
+  {
+   "text": "-᠑᠒",
+   "rule": "Double -12",
+   "model": "String ",
+   "excel": "Double -12"
+  },
+  {
+   "text": "᠑.᠒",
+   "rule": "Double 1.2",
+   "model": "String ",
+   "excel": "Double 1.2"
+  },
+  {
+   "text": "᠑,᠒",
+   "rule": "Double 12",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥇᥈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᥇᥈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥇.᥈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᥇,᥈",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧑᧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᧑᧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧑.᧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᧑,᧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪁᪂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᪁᪂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪁.᪂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪁,᪂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪑᪒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᪑᪒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪑.᪒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᪑,᪒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭑᭒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᭑᭒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭑.᭒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᭑,᭒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮱᮲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᮱᮲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮱.᮲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᮱,᮲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱁᱂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᱁᱂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱁.᱂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱁,᱂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱑᱒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-᱑᱒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱑.᱒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "᱑,᱒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘡꘢",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꘡꘢",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘡.꘢",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꘡,꘢",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣑꣒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꣑꣒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣑.꣒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꣑,꣒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤁꤂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꤁꤂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤁.꤂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꤁,꤂",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧑꧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꧑꧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧑.꧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧑,꧒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧱꧲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꧱꧲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧱.꧲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꧱,꧲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩑꩒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꩑꩒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩑.꩒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꩑,꩒",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯱꯲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-꯱꯲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯱.꯲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "꯱,꯲",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "１２",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "-１２",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "１.２",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  },
+  {
+   "text": "１,２",
+   "rule": "String ",
+   "model": "String ",
+   "excel": "String "
+  }
+ ]
+}

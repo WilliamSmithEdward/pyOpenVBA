@@ -195,8 +195,14 @@ class _Part(Created):
     def wipe(self, point: PointState) -> None:
         """What a change to the series takes from a point set apart (tests/fixtures/series_points.json)."""
 
-    def change(self) -> FillLine:
-        self.series.chart.changed()
+    def change(self, member: str = "") -> FillLine:
+        """The series' look to change by this member. A change takes what it sets from its points, so a loaded chart
+        writes their dPt elements again too."""
+        chart, entry = self.series.chart, self.series.entry
+        named = member and f"Series.Format.{member}"
+        chart.part_changed(entry, "look", named)
+        if chart.state.original and entry.points:
+            chart.part_changed(entry, "points", named)
         if self.series.entry.format_look is None:
             self.series.entry.format_look = FillLine()
         points = self.series.entry.points
@@ -262,7 +268,7 @@ class SeriesFill(_Part):
             raise unmeasured("The visibility of this kind of series' fill")
         if wanted == 0 and self.look().line_full:
             raise unmeasured("Hiding a series' fill once its line was hidden")
-        look = self.change()
+        look = self.change("Fill.Visible")
         look.fill_hidden = wanted == 0
         look.fill_solid = True
 
@@ -296,14 +302,14 @@ class SeriesFill(_Part):
             raise error(*_INVALID)
         # A fill with no colour written takes none.
         if self.written():
-            self.change().fill_alpha = round((1 - wanted) * 100000)
+            self.change("Fill.Transparency").fill_alpha = round((1 - wanted) * 100000)
 
     @method
     def Solid(self) -> object:
         self.admit()
         if not self.filled() or self.look().fill_hidden:
             raise unmeasured("Solid on this kind of series, or on a hidden fill,")
-        self.change().fill_solid = True
+        self.change("Fill.Solid").fill_solid = True
         return EMPTY
 
 
@@ -363,13 +369,13 @@ class SeriesLine(_Part):
         before = self.look()
         if wanted == -1:
             if before.line_hidden:
-                self.change().line_hidden = False
+                self.change("Line.Visible").line_hidden = False
             return
         if before.line_hidden:
             return
         if before != FillLine():
             raise unmeasured("Hiding the line of a series with a look set")
-        look = self.change()
+        look = self.change("Line.Visible")
         look.line_hidden = look.line_full = look.effects = True
         look.fill_solid = kind in FILLED
 
@@ -398,7 +404,7 @@ class SeriesLine(_Part):
         self.settable("weight")
         if wanted < 0:
             raise error(*_INVALID)
-        self.change().line_width = emu(wanted)
+        self.change("Line.Weight").line_width = emu(wanted)
 
     @member
     def DashStyle(self) -> object:
@@ -413,7 +419,7 @@ class SeriesLine(_Part):
         self.settable("dash")
         if wanted not in _DASHES or (_DASHES[wanted][1] is not None and self.kind() != "line"):
             raise unmeasured("This line dash style")
-        look = self.change()
+        look = self.change("Line.DashStyle")
         look.line_dash, look.line_cap = _DASHES[wanted]
 
     @member
@@ -491,7 +497,7 @@ class SeriesColor(Created):
                 entry.marker_line = wanted
             else:
                 self.owner.settable("colour")
-            self.owner.change().line_rgb = wanted
+            self.owner.change("Line.ForeColor.RGB").line_rgb = wanted
             return
         if self.owner.marker_took(wanted):
             return
@@ -505,7 +511,7 @@ class SeriesColor(Created):
             return
         if self.owner.look().fill_hidden or self.owner.look().line_full:
             raise unmeasured("A colour for a series' hidden fill, or once its line was hidden,")
-        self.owner.change().fill_rgb = wanted
+        self.owner.change("Fill.ForeColor.RGB").fill_rgb = wanted
 
     @member
     def ObjectThemeColor(self) -> object:

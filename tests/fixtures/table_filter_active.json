@@ -1,0 +1,644 @@
+{
+ "cases": [
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B5 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B5 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "T, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": false,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": true,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B5 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": true,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": false,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  },
+  {
+   "where": "Other, another book in front",
+   "reopen": true,
+   "totals": false,
+   "criteria": false,
+   "typed": true,
+   "rule": "A1:B4 E0",
+   "model": "A1:B4 E0",
+   "excel": "A1:B4 E0"
+  }
+ ]
+}

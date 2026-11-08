@@ -10,7 +10,10 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
   400 strings Excel sorted as Windows' CompareStringEx orders them).
   ``text_key`` builds Windows' own sort key from each character's
   weights, baked in _sort_weights for Latin and its extensions, combining
-  marks, Greek, Cyrillic, punctuation, symbols and control characters:
+  marks, Greek, Cyrillic, punctuation, symbols and control characters, and
+  in _sort_weights_scripts for Hebrew, Arabic, Thai and Hangul, which live
+  Excel sorted, filtered, deduplicated and named by the same keys
+  (scripts/measure_sort_scripts.py, tests/fixtures/sort_scripts.json):
   spaces and marks before digits, digits before letters, accents after
   the letters they sit on, case ignored unless MatchCase asks for lower
   case first, and hyphens, apostrophes, dashes and control characters
@@ -118,11 +121,18 @@ class Key:
 
 @cache
 def _weights() -> dict[int, tuple[bytes, bytes, bytes, bytes, bytes]]:
+    """Every character weighed alike under every locale: _sort_weights' Latin, Greek and Cyrillic, and
+    _sort_weights_scripts' Hebrew, Arabic, Thai and Hangul."""
     from pyopenvba.apps.excel._sort_weights import WEIGHTS
+    from pyopenvba.apps.excel._sort_weights_scripts import HANGUL, SCRIPTS
 
-    return {code: (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring), bytes.fromhex(matching),
-                   bytes.fromhex(skipped))
-            for code, (primary, accent, ignoring, matching, skipped) in WEIGHTS.items()}
+    table = {code: (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring), bytes.fromhex(matching),
+                    bytes.fromhex(skipped))
+             for code, (primary, accent, ignoring, matching, skipped) in (*WEIGHTS.items(), *SCRIPTS.items())}
+    for first, weight, count in HANGUL:
+        for step in range(count):
+            table[first + step] = ((weight + step).to_bytes(2, "big"), b"", b"", b"", b"")
+    return table
 
 
 #: The extra weights' flags (_sort_weights_cjk): a small kana, a katakana, a half-width form, a kana at all; and a
@@ -225,8 +235,8 @@ def text_key(text: str, match_case: bool, locale: Locale | None = None) -> bytes
         else:
             kana = None
         if found is None:
-            raise VBAUnsupportedError("sorting text with characters beyond Latin, Greek and Cyrillic, their marks "
-                                      "and punctuation is not implemented" if locale is None else
+            raise VBAUnsupportedError("sorting text with characters beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai "
+                                      "and Hangul, their marks and punctuation is not implemented" if locale is None else
                                       "sorting text with these characters is not implemented")
         units, accent, ignoring, matching, skipped = found
         previous = units

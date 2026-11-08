@@ -5,6 +5,9 @@ fileSharing recorded.
     python scripts/measure_workbook_properties.py
 
 writes tests/fixtures/workbook_properties.json, which tests/test_excel_workbook_properties.py replays.
+
+DoNotPromptForConvert, EnvelopeVisible, AutoSaveOn, WritePassword and Password are no longer set: no live probe sets a user-level setting it does not put back, a mail envelope, the cloud save or a password
+(tests/test_probes_leave_user_settings_alone.py). The fixture keeps what an earlier run recorded for them: do not remeasure them.
 """
 from __future__ import annotations
 
@@ -29,11 +32,11 @@ CASES: list[tuple[list[str], str]] = [([], '')]
 CASES.append((['wb.SaveAs folder & "\\plain.xlsx", xlOpenXMLWorkbook', 'wb.Close',
                'Set wb = Workbooks.Open(folder & "\\plain.xlsx")', 'Set wbo = wb'], ''))
 for name, value in (('PersonalViewListSettings', 'False'), ('PersonalViewPrintSettings', 'False'),
-                    ('TemplateRemoveExtData', 'True'), ('DoNotPromptForConvert', 'True'), ('EnvelopeVisible', 'True'),
+                    ('TemplateRemoveExtData', 'True'),
                     ('ChangeHistoryDuration', '30'), ('KeepChangeHistory', 'False'), ('ConflictResolution', '2'),
                     ('HighlightChangesOnScreen', 'True'), ('ListChangesOnNewSheet', 'True'),
                     ('ShowConflictHistory', 'True'), ('AutoUpdateFrequency', '5'), ('AutoUpdateSaveChanges', 'False'),
-                    ('IsAddin', 'True'), ('AutoSaveOn', 'True'), ('WritePassword', '"w"'), ('Password', '"p"')):
+                    ('IsAddin', 'True')):
     CASES.append(([f'wbo.{name} = {value}'], f'set_{name}.xlsx'))
 
 

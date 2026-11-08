@@ -53,9 +53,6 @@ NOTE_SHAPE_TYPE = ('<v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt=
                    '  <v:stroke joinstyle="miter"/>\r\n'
                    '  <v:path gradientshapeok="t" o:connecttype="rect"/>\r\n'
                    ' </v:shapetype>')
-#: How long a line of a shape's opening tag gets before Excel breaks it.
-_LINE = 70
-
 _COMMENT = re.compile(r"<comment\b[^>]*?(?:/>|>.*?</comment>)", re.DOTALL)
 _AUTHOR = re.compile(r"<author>(.*?)</author>|<author/>", re.DOTALL)
 _TEXT = re.compile(r"<t\b[^>]*?(?:/>|>(.*?)</t>)", re.DOTALL)
@@ -134,25 +131,14 @@ def _points(pixels: int) -> str:
     return f"{quarters / 4:.2f}".rstrip("0")
 
 
-def _wrapped(pieces: list[str]) -> str:
-    """A shape's opening tag as Excel's VML writer lays it out: a line breaks, two spaces in, before any piece once
-    it has reached 70 characters, the space a piece starts with dropped."""
-    lines = [pieces[0]]
-    for piece in pieces[1:]:
-        if len(lines[-1]) >= _LINE:
-            lines.append("  " + piece.lstrip(" "))
-        else:
-            lines[-1] += piece
-    return "\r\n".join(lines)
-
-
 def shape_xml(sheet: Worksheet, row: int, column: int, note: Note, z_index: int) -> str:
     """A note's box, as Excel writes one."""
     from pyopenvba.apps.excel._notes import anchor_of, box
+    from pyopenvba.shapes._xlsx import vml_wrapped
 
     left, top, right, bottom = box(sheet, note)
     shown = "visible" if note.visible else "hidden"
-    tag = _wrapped([
+    tag = vml_wrapped([
         "<v:shape", f' id="_x0000_s{note.shape_id}"', ' type="#_x0000_t202"', " style='position:absolute;",
         f"margin-left:{_points(left)}pt;", f"margin-top:{_points(top)}pt;", f"width:{_points(right - left)}pt;",
         f"height:{_points(bottom - top)}pt;", f"z-index:{z_index};", f"visibility:{shown}'",

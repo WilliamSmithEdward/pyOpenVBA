@@ -1,0 +1,244 @@
+{
+ "cases": [
+  {
+   "order": "totals",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "none",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I4 | H1:I4 E0",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "none",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I4 | H1:I4 E0",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "none",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I4 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "none",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I4 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "filter off, totals, filter on",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "filter off, totals, filter on",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "filter off, totals, filter on",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "filter off, totals, filter on",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, filter off, filter on",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, filter off, filter on",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, filter off, filter on",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, filter off, filter on",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, criteria",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, criteria",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, criteria",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals, criteria",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "totals then off",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I4 | H1:I4 E0",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "totals then off",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I4 | H1:I4 E0",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "totals then off",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I4 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "totals then off",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I4 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I4 | H1:I4 E0"
+  },
+  {
+   "order": "criteria, totals",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals, criteria",
+   "reopen": false,
+   "typed": false,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals, criteria",
+   "reopen": false,
+   "typed": true,
+   "model": "H1:I5 | H1:I5 E0",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals, criteria",
+   "reopen": true,
+   "typed": false,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  },
+  {
+   "order": "criteria, totals, criteria",
+   "reopen": true,
+   "typed": true,
+   "model": "H1:I5 | H1:I4 E0",
+   "file_ref": "H1:I4",
+   "excel": "H1:I5 | H1:I5 E0"
+  }
+ ]
+}

@@ -311,7 +311,7 @@ class IconSetCondition(PointRule):
     @member
     def IconSet(self) -> object:
         icons = self.icons()
-        return IconSet(self.sheet.book, -1 if icons.custom else icons.set_id, len(icons.criteria))
+        return IconSet(self.sheet.book, -1 if icons.custom else icons.set_id, len(icons.criteria), self)
 
     @setter('IconSet')
     def set_icon_set(self, value: object) -> None:
@@ -502,8 +502,10 @@ class IconSet(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = 'IconSet'
     vba_let_as_object = True
 
-    def __init__(self, book: Workbook, identifier: int, count: int) -> None:
+    def __init__(self, book: Workbook, identifier: int, count: int, condition: IconSetCondition | None = None) -> None:
         self.book, self.identifier, self.count = book, identifier, count
+        #: The condition whose IconSet this was, which is then its Parent.
+        self.condition = condition
 
     @member
     def Application(self) -> object:
@@ -524,8 +526,9 @@ class IconSet(VBACollection, ItemDefault, ExcelObject):
 
     @member
     def Parent(self) -> object:
-        """The workbook's IconSets (tests/fixtures/object_trio.json)."""
-        return IconSets(self.book)
+        """The condition it was taken from, else the workbook's IconSets (tests/fixtures/icon_set_parent.json,
+        tests/fixtures/object_trio.json)."""
+        return IconSets(self.book) if self.condition is None else self.condition
 
 
 class Icon(ExcelObject):

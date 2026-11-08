@@ -214,6 +214,7 @@ def attach_project(book: Workbook) -> ExcelInterpreter | None:
         project.event_sinks = root.event_sinks
         project.err = root.err
         project.steps = root.steps
+        project.com_classes = root.com_classes
     book.project_runtime = project
     return project
 

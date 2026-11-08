@@ -13,9 +13,14 @@ Measured in live Excel (scripts/measure_data_bars_icons.py, tests/fixtures/data_
   makes of its sheet's place and its priority (loaded_identifier).
 - A point's formula naming its own sheet loses the sheet's name as the point takes it.
 
+- A cell-value or formula rule whose formula names another sheet is an x14:cfRule alone too, its formulas as xm:f and
+  its format as x14:dxf. It is read as a plain rule of its kind, so edits carry it as they carry those, and written
+  back into the entry it came from, its formulas and format as they are now (scripts/measure_x14_format_shifts.py).
+  One VBA changed otherwise, its operator, its kind or by a new format where it had none, reports itself.
+
 A worksheet whose extension holds rules this module does not read keeps its extension as the file had it, and
 those rules stay out of FormatConditions as before; a data bar or icon set there reports itself unsupported
-(see foreign).
+(see foreign). A save that changes no rule keeps the extension's bytes as the file had them.
 """
 from __future__ import annotations
 
@@ -43,7 +48,7 @@ XM = '{' + XM_URI + '}'
 RULES_URI = '{78C0D931-6437-407d-A8EE-F0AAD7539E65}'
 LINK_URI = '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}'
 #: The rule types this module reads from the extension.
-KNOWN = ('dataBar', 'iconSet', 'colorScale')
+KNOWN = ('dataBar', 'iconSet', 'colorScale', 'cellIs', 'expression')
 _PREFIXES = {X14_URI: 'x14:', XM_URI: 'xm:', NS[1:-1]: ''}
 
 
@@ -201,7 +206,8 @@ def read(root: XmlElement, rules: list[Rule], *, imported: bool, plain_load: boo
                 return False
             found.extend((sqref.text or '', entry, (number, sqref.text or '', place))
                          for place, entry in enumerate(group.findall(X14 + 'cfRule')))
-    checks = {'dataBar': bar_known, 'iconSet': icons_known, 'colorScale': scale_known}
+    checks = {'dataBar': bar_known, 'iconSet': icons_known, 'colorScale': scale_known, 'cellIs': _formula_known,
+              'expression': _formula_known}
     for _, entry, _ in found:
         kind = entry.get('type', '')
         paired = entry.get('id', '') in by_id
@@ -221,16 +227,51 @@ def read(root: XmlElement, rules: list[Rule], *, imported: bool, plain_load: boo
     return True
 
 
+#: A cell-value or formula rule the extension holds alone, because its formula names another sheet: what it may hold.
+_FORMULA_KEYS = {'type', 'priority', 'stopIfTrue', 'operator', 'id'}
+
+
+def _formula_known(entry: XmlElement, *, paired: bool) -> bool:
+    """Whether an x14:cfRule of type cellIs or expression holds only what this module writes back as the file had it:
+    its formulas, one or two, then its format as x14:dxf (tests/fixtures/x14_format_base.xlsx)."""
+    keys = {key for key in entry.attrib if not key.startswith('xmlns')}
+    children = list(entry)
+    formulas = [child for child in children if child.tag == XM + 'f']
+    rest = children[len(formulas):]
+    return (not paired and keys <= _FORMULA_KEYS and 1 <= len(formulas) <= 2 and children[:len(formulas)] == formulas
+            and all(not len(formula) for formula in formulas) and len(rest) <= 1
+            and all(child.tag == X14 + 'dxf' for child in rest))
+
+
 def alone(areas: list[Area], entry: XmlElement, *, imported: bool, plain_load: bool | None) -> Rule:
     """A rule the extension holds alone, its cfRule a stand-in carrying its type and priority; a colour scale's
-    stand-in holds its points and colours, as the colour-scale code reads them (see _colour_scales)."""
-    root = XmlElement(NS + 'cfRule', {'type': entry.get('type', ''), 'priority': entry.get('priority', '1')})
-    if entry.get('type') == 'colorScale':
+    stand-in holds its points and colours, as the colour-scale code reads them (see _colour_scales); a cell-value or
+    formula rule's its attributes and its formulas, as a plain one holds them, and its format as the rule's dxf."""
+    kind = entry.get('type', '')
+    root = XmlElement(NS + 'cfRule', {'type': kind, 'priority': entry.get('priority', '1')})
+    dxf: XmlElement | None = None
+    if kind == 'colorScale':
         from pyopenvba.apps.excel._colour_scales import from_extension
 
         root.append(from_extension(entry))
-    return Rule(list(areas), root, None, imported=imported, loaded=True, plain_load=plain_load, extension=entry,
+    elif kind in ('cellIs', 'expression'):
+        for key, value in entry.attrib.items():
+            if key in ('stopIfTrue', 'operator'):
+                root.set(key, value)
+        for child in entry.findall(XM + 'f'):
+            formula = XmlElement(NS + 'formula')
+            formula.text = child.text or ''
+            root.append(formula)
+        held = entry.find(X14 + 'dxf')
+        if held is not None:
+            dxf = XmlElement(NS + 'dxf')
+            for child in held:
+                dxf.append(deepcopy(child))
+    made = Rule(list(areas), root, None, imported=imported, loaded=True, plain_load=plain_load, extension=entry,
                 extension_only=True, identifier=entry.get('id', ''))
+    if dxf is not None:
+        made.dxf = dxf
+    return made
 
 
 def foreign(sheet: Worksheet) -> None:
@@ -255,8 +296,36 @@ def parts(rule: Rule) -> tuple[XmlElement | None, XmlElement | None]:
     if rule.extension_only and rule.extension is not None:
         entry = deepcopy(rule.extension)
         entry.set('priority', rule.root.get('priority', '1'))
+        if entry.get('type') in ('cellIs', 'expression'):
+            _formulas_back(rule, entry)
         return None, entry
     return deepcopy(rule.root), deepcopy(rule.extension) if rule.extension is not None else None
+
+
+def _formulas_back(rule: Rule, entry: XmlElement) -> None:
+    """A cell-value or formula rule's x14:cfRule with the formulas and format its stand-in holds now; one whose stand-in
+    no longer fits the entry it came from reports itself rather than be written otherwise than as read."""
+    formulas = rule.root.findall(NS + 'formula')
+    held = entry.findall(XM + 'f')
+    if len(formulas) != len(held) or any(key not in ('type', 'priority', 'stopIfTrue', 'operator')
+                                         for key in rule.root.attrib) or rule.root.get('dxfId') is not None:
+        raise VBAUnsupportedError("Changing a conditional format kept in the worksheet's Excel 2010 extension otherwise "
+                                  "than through its formulas is not implemented")
+    for formula, child in zip(formulas, held):
+        child.text = formula.text or ''
+    for key in ('stopIfTrue', 'operator'):
+        if rule.root.get(key) != entry.get(key):
+            raise VBAUnsupportedError("Changing a conditional format kept in the worksheet's Excel 2010 extension "
+                                      "otherwise than through its formulas is not implemented")
+    dxf = entry.find(X14 + 'dxf')
+    if rule.dxf is not None:
+        if dxf is None:
+            raise VBAUnsupportedError("Giving a format to a conditional format kept in the worksheet's Excel 2010 "
+                                      "extension is not implemented")
+        for child in list(dxf):
+            dxf.remove(child)
+        for child in rule.dxf:
+            dxf.append(deepcopy(child))
 
 
 def grouped(placed: list[tuple[Rule, XmlElement]]) -> list[tuple[str, list[XmlElement]]]:

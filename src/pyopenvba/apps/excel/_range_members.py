@@ -252,6 +252,9 @@ def justify(target: Range) -> object:
         raise VBAUnsupportedError('Justify in a font or with characters whose widths are not known is not implemented')
     fits = sum(sheet.dims.column_pixels(column) for column in range(first.left, first.right + 1))
     lines = _broken(text.split(' '), fits, table)
+    if first.bottom > first.top and len(lines) > first.bottom - first.top + 1:
+        # Excel asks first whether to write past the range (tests/fixtures/font_round_arial.json, where its dialog stopped the probe).
+        raise VBAUnsupportedError('Justify of more lines than its range has rows is not implemented: Excel asks first')
     for offset in range(max(len(lines), first.bottom - first.top + 1)):
         # What it writes is text, a word that looks like a number included.
         if offset < len(lines):

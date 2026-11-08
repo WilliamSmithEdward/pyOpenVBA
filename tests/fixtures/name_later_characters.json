@@ -1,0 +1,483 @@
+{
+ "excel_count": 41,
+ "model_count": 14,
+ "cases": [
+  {
+   "point": "U+0E37",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0E48",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0E31",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0301",
+   "category": "Mn",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+093F",
+   "category": "Mc",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+094D",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0651",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+05B4",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+3099",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+20DD",
+   "category": "Me",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+FE0F",
+   "category": "Mn",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+4E2D",
+   "category": "Lo",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+3042",
+   "category": "Lo",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+AC00",
+   "category": "Lo",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0627",
+   "category": "Lo",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0E01",
+   "category": "Lo",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00E9",
+   "category": "Ll",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0661",
+   "category": "Nd",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0E51",
+   "category": "Nd",
+   "excel": 1004,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+FF11",
+   "category": "Nd",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00B2",
+   "category": "No",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2167",
+   "category": "Nl",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+20AC",
+   "category": "Sc",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00D7",
+   "category": "Sm",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00F7",
+   "category": "Sm",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2014",
+   "category": "Pd",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00BF",
+   "category": "Po",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00A1",
+   "category": "Po",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+3001",
+   "category": "Po",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+FF01",
+   "category": "Po",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00B7",
+   "category": "Po",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2026",
+   "category": "Po",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00AB",
+   "category": "Pi",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2018",
+   "category": "Pi",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00A0",
+   "category": "Zs",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+3000",
+   "category": "Zs",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2003",
+   "category": "Zs",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+200B",
+   "category": "Cf",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+200D",
+   "category": "Cf",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00AD",
+   "category": "Cf",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2060",
+   "category": "Cf",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+FEFF",
+   "category": "Cf",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+0085",
+   "category": "Cc",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2028",
+   "category": "Zl",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00A9",
+   "category": "So",
+   "excel": 1004,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2122",
+   "category": "So",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+263A",
+   "category": "So",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+2190",
+   "category": "Sm",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00B0",
+   "category": "So",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00B5",
+   "category": "Ll",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+00AA",
+   "category": "Lo",
+   "excel": 0,
+   "model": 0,
+   "rule_a": 0,
+   "rule_b": 0,
+   "rule_c": 0
+  },
+  {
+   "point": "U+E000",
+   "category": "Co",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  },
+  {
+   "point": "U+FFFD",
+   "category": "So",
+   "excel": 0,
+   "model": 1004,
+   "rule_a": 1004,
+   "rule_b": 1004,
+   "rule_c": 0
+  }
+ ]
+}

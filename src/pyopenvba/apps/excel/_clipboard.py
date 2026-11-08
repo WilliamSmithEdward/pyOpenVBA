@@ -137,6 +137,12 @@ class Clip:
         return self.block.parts[0][0]
 
 
+def picture_held(application: Application) -> bool:
+    """Whether the clipboard still holds what CopyPicture put there: nothing copied since, cells or a chart."""
+    held = application.copied_picture
+    return held is not None and held[0] is application.clipboard and application.copied_chart is None
+
+
 def mode(clip: Clip | None) -> VBAInt:
     return VBAInt(0 if clip is None or clip.orphaned else 2 if clip.cut else 1, "Long")
 
@@ -294,7 +300,10 @@ def cut(target: Range, destination: object) -> object:
 
 
 def _clip(target: Range, empty: str = "There is nothing to paste") -> Clip:
-    clip = target.sheet.book.application.clipboard
+    application = target.sheet.book.application
+    clip = application.clipboard
+    if clip is None and picture_held(application):
+        raise VBAUnsupportedError("pasting the picture CopyPicture made is not implemented")
     if clip is None:
         raise error(1004, empty)
     if clip.orphaned:

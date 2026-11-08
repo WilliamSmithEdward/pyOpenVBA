@@ -1,0 +1,309 @@
+{
+"measured_at": "2026-11-07T18:04:09.935677+00:00",
+"base": "x14_format_base.xlsx",
+"source": "Private Function Rules(ws As Object) As String\n    Dim fc As Object, out As String, i As Long, formula As String\n    For i = 1 To ws.Cells.FormatConditions.Count\n        Set fc = ws.Cells.FormatConditions(i)\n        formula = \"\"\n        On Error Resume Next\n        formula = fc.Formula1\n        On Error GoTo 0\n        out = out & fc.Type & \":\" & fc.AppliesTo.Address(False, False) & \":\" & fc.Priority & \":\" & formula & \";\"\n    Next\n    Rules = out\nEnd Function\n\nPublic Function Go(ByVal path As String, ByVal saved As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Object, ws As Object, wt As Worksheet, place As Object, out As String, parts() As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path)\n    Set ws = wb.Worksheets(\"Sheet1\")\n    parts = Split(edit, \" \")\n    If parts(0) = \"other\" Then\n        Set place = wb.Worksheets(\"Sheet2\")\n    Else\n        Set place = ws\n    End If\n    Set wt = place\n    On Error Resume Next\n    Select Case parts(1) & \" \" & parts(3)\n        Case \"insert down\": If typed Then wt.Range(parts(2)).Insert Shift:=xlShiftDown Else place.Range(parts(2)).Insert Shift:=xlShiftDown\n        Case \"insert right\": If typed Then wt.Range(parts(2)).Insert Shift:=xlShiftToRight Else place.Range(parts(2)).Insert Shift:=xlShiftToRight\n        Case \"delete up\": If typed Then wt.Range(parts(2)).Delete Shift:=xlShiftUp Else place.Range(parts(2)).Delete Shift:=xlShiftUp\n        Case \"delete left\": If typed Then wt.Range(parts(2)).Delete Shift:=xlShiftToLeft Else place.Range(parts(2)).Delete Shift:=xlShiftToLeft\n        Case \"insert lines\": If typed Then wt.Range(parts(2)).Insert Else place.Range(parts(2)).Insert\n        Case \"delete lines\": If typed Then wt.Range(parts(2)).Delete Else place.Range(parts(2)).Delete\n    End Select\n    out = \"err=\" & Err.Number & \" rules=\" & Rules(ws)\n    Err.Clear\n    On Error GoTo 0\n    wb.SaveAs saved, 51\n    wb.Close False\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"sheet insert B3 down",
+true
+],
+[
+"sheet insert B3 down",
+false
+],
+[
+"sheet insert B1 down",
+true
+],
+[
+"sheet insert B1 down",
+false
+],
+[
+"sheet insert A1:H1 down",
+true
+],
+[
+"sheet insert A1:H1 down",
+false
+],
+[
+"sheet insert A3:H3 down",
+true
+],
+[
+"sheet insert A3:H3 down",
+false
+],
+[
+"sheet delete B3 up",
+true
+],
+[
+"sheet delete B3 up",
+false
+],
+[
+"sheet delete A3:H3 up",
+true
+],
+[
+"sheet delete A3:H3 up",
+false
+],
+[
+"sheet delete B2:B6 up",
+true
+],
+[
+"sheet delete B2:B6 up",
+false
+],
+[
+"sheet insert A3:A4 right",
+true
+],
+[
+"sheet insert A3:A4 right",
+false
+],
+[
+"sheet insert C2:C6 right",
+true
+],
+[
+"sheet insert C2:C6 right",
+false
+],
+[
+"sheet delete A2:A6 left",
+true
+],
+[
+"sheet delete A2:A6 left",
+false
+],
+[
+"sheet delete C4 left",
+true
+],
+[
+"sheet delete C4 left",
+false
+],
+[
+"sheet insert E3 down",
+true
+],
+[
+"sheet insert E3 down",
+false
+],
+[
+"sheet delete D3 up",
+true
+],
+[
+"sheet delete D3 up",
+false
+],
+[
+"sheet insert D4:E4 down",
+true
+],
+[
+"sheet insert D4:E4 down",
+false
+],
+[
+"sheet delete D2:E6 left",
+true
+],
+[
+"sheet delete D2:E6 left",
+false
+],
+[
+"sheet insert 3:3 lines",
+true
+],
+[
+"sheet insert 3:3 lines",
+false
+],
+[
+"sheet delete 3:3 lines",
+true
+],
+[
+"sheet delete 3:3 lines",
+false
+],
+[
+"sheet delete 2:6 lines",
+true
+],
+[
+"sheet delete 2:6 lines",
+false
+],
+[
+"sheet insert C:C lines",
+true
+],
+[
+"sheet insert C:C lines",
+false
+],
+[
+"sheet delete D:D lines",
+true
+],
+[
+"sheet delete D:D lines",
+false
+],
+[
+"sheet delete B:B lines",
+true
+],
+[
+"sheet delete B:B lines",
+false
+],
+[
+"other insert A1 down",
+true
+],
+[
+"other insert A1 down",
+false
+],
+[
+"other delete A1 up",
+true
+],
+[
+"other delete A1 up",
+false
+],
+[
+"other insert 1:1 lines",
+true
+],
+[
+"other insert 1:1 lines",
+false
+],
+[
+"other delete 2:2 lines",
+true
+],
+[
+"other delete 2:2 lines",
+false
+],
+[
+"other delete A1:A6 up",
+true
+],
+[
+"other delete A1:A6 up",
+false
+],
+[
+"other insert A:A lines",
+true
+],
+[
+"other insert A:A lines",
+false
+],
+[
+"sheet insert F3 down",
+true
+],
+[
+"sheet insert F3 down",
+false
+],
+[
+"sheet delete G4 up",
+true
+],
+[
+"sheet delete G4 up",
+false
+],
+[
+"sheet insert A5:H5 down",
+true
+],
+[
+"sheet insert A5:H5 down",
+false
+]
+],
+"answers": [
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B3:B7:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B3:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B3:B7:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B3:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B3:B7:1:=Sheet2!$A$1;2:D3:E7:2:=D3>Sheet2!$A$2;1:F3:F9:3:=50; ~ <conditionalFormatting sqref=\"F3:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B3:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D3&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D3:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B3:B7:1:=Sheet2!$A$1;2:D3:E7:2:=D3>Sheet2!$A$2;1:F3:F9:3:=50; ~ <conditionalFormatting sqref=\"F3:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B3:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D3&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D3:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B5:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B5</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B5:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B5</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B5:1:=Sheet2!$A$1;2:D2:E5:2:=D2>Sheet2!$A$2;1:F2:F7:3:=50; ~ <conditionalFormatting sqref=\"F2:F7\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B5</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E5</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B5:1:=Sheet2!$A$1;2:D2:E5:2:=D2>Sheet2!$A$2;1:F2:F7:3:=50; ~ <conditionalFormatting sqref=\"F2:F7\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B5</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E5</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2,B5:B6,C3:C4:1:=Sheet2!$A$1;2:D2:E2,D5:E6,E3:F4:2:=D2>Sheet2!$A$2;1:F2,F5:F8,G3:G4:3:=50; ~ <conditionalFormatting sqref=\"F2 F5:F8 G3:G4\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2 B5:B6 C3:C4</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E2 D5:E6 E3:F4</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2,B5:B6,C3:C4:1:=Sheet2!$A$1;2:D2:E2,D5:E6,E3:F4:2:=D2>Sheet2!$A$2;1:F2,F5:F8,G3:G4:3:=50; ~ <conditionalFormatting sqref=\"F2 F5:F8 G3:G4\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2 B5:B6 C3:C4</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E2 D5:E6 E3:F4</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:C6:1:=Sheet2!$A$1;2:E2:F6:2:=E2>Sheet2!$A$2;1:F7:F8,G2:G6:3:=50; ~ <conditionalFormatting sqref=\"F7:F8 G2:G6\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:C6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>E2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>E2:F6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:C6:1:=Sheet2!$A$1;2:E2:F6:2:=E2>Sheet2!$A$2;1:F7:F8,G2:G6:3:=50; ~ <conditionalFormatting sqref=\"F7:F8 G2:G6\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:C6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>E2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>E2:F6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:A2:A6:1:=Sheet2!$A$1;2:C2:D6:2:=C2>Sheet2!$A$2;1:F7:F8,E2:E6:3:=50; ~ <conditionalFormatting sqref=\"F7:F8 E2:E6\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>A2:A6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>C2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>C2:D6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:A2:A6:1:=Sheet2!$A$1;2:C2:D6:2:=C2>Sheet2!$A$2;1:F7:F8,E2:E6:3:=50; ~ <conditionalFormatting sqref=\"F7:F8 E2:E6\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>A2:A6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>C2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>C2:D6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E3,D5:E6,C4:D4:2:=C2>Sheet2!$A$2;1:F2:F3,F5:F8,E4:3:=50; ~ <conditionalFormatting sqref=\"F2:F3 F5:F8 E4\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>C2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E3 D5:E6 C4:D4</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E3,D5:E6,C4:D4:2:=C2>Sheet2!$A$2;1:F2:F3,F5:F8,E4:3:=50; ~ <conditionalFormatting sqref=\"F2:F3 F5:F8 E4\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>C2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E3 D5:E6 C4:D4</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E2,D3:D6,E3:E7:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E2 D3:D6 E3:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E2,D3:D6,E3:E7:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E2 D3:D6 E3:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E2,E3:E6,D3:D5:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E2 E3:E6 D3:D5</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E2,E3:E6,D3:D5:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E2 E3:E6 D3:D5</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;1:F7:F8,D2:D6:3:=50; ~ <conditionalFormatting sqref=\"F7:F8 D2:D6\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;1:F7:F8,D2:D6:3:=50; ~ <conditionalFormatting sqref=\"F7:F8 D2:D6\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B5:1:=Sheet2!$A$1;2:D2:E5:2:=D2>Sheet2!$A$2;1:F2:F7:3:=50; ~ <conditionalFormatting sqref=\"F2:F7\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B5</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E5</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B5:1:=Sheet2!$A$1;2:D2:E5:2:=D2>Sheet2!$A$2;1:F2:F7:3:=50; ~ <conditionalFormatting sqref=\"F2:F7\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B5</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E5</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:F2:F3:3:=50; ~ <conditionalFormatting sqref=\"F2:F3\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | ",
+"err=0 rules=1:F2:F3:3:=50; ~ <conditionalFormatting sqref=\"F2:F3\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | ",
+"err=0 rules=1:B2:C6:1:=Sheet2!$A$1;2:E2:F6:2:=E2>Sheet2!$A$2;1:G2:G8:3:=50; ~ <conditionalFormatting sqref=\"G2:G8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:C6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>E2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>E2:F6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:C6:1:=Sheet2!$A$1;2:E2:F6:2:=E2>Sheet2!$A$2;1:G2:G8:3:=50; ~ <conditionalFormatting sqref=\"G2:G8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:C6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>E2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>E2:F6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:D6:2:=D2>Sheet2!$A$2;1:E2:E8:3:=50; ~ <conditionalFormatting sqref=\"E2:E8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:D6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:D6:2:=D2>Sheet2!$A$2;1:E2:E8:3:=50; ~ <conditionalFormatting sqref=\"E2:E8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:D6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=2:C2:D6:2:=C2>Sheet2!$A$2;1:E2:E8:3:=50; ~ <conditionalFormatting sqref=\"E2:E8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>C2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>C2:D6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=2:C2:D6:2:=C2>Sheet2!$A$2;1:E2:E8:3:=50; ~ <conditionalFormatting sqref=\"E2:E8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>C2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>C2:D6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$2;2:D2:E6:2:=D2>Sheet2!$A$3;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$3</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$2;2:D2:E6:2:=D2>Sheet2!$A$3;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$3</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=2:D2:E6:2:=D2>Sheet2!$A$1;1:F2:F8:3:=50;1:B2:B6:4:=Sheet2!#REF!; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"4\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=2:D2:E6:2:=D2>Sheet2!$A$1;1:F2:F8:3:=50;1:B2:B6:4:=Sheet2!#REF!; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"4\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$2;2:D2:E6:2:=D2>Sheet2!$A$3;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$3</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$2;2:D2:E6:2:=D2>Sheet2!$A$3;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$3</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;1:F2:F8:3:=50;2:D2:E6:4:=D2>Sheet2!#REF!; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"4\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;1:F2:F8:3:=50;2:D2:E6:4:=D2>Sheet2!#REF!; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"4\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:F2:F8:3:=50;1:B2:B6:4:=Sheet2!#REF!;2:D2:E6:5:=D2>Sheet2!#REF!; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"4\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"5\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:F2:F8:3:=50;1:B2:B6:4:=Sheet2!#REF!;2:D2:E6:5:=D2>Sheet2!#REF!; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"4\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"5\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!#REF!</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$B$1;2:D2:E6:2:=D2>Sheet2!$B$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$B$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$B$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$B$1;2:D2:E6:2:=D2>Sheet2!$B$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$B$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$B$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B6:1:=Sheet2!$A$1;2:D2:E6:2:=D2>Sheet2!$A$2;1:F2:F8:3:=50; ~ <conditionalFormatting sqref=\"F2:F8\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B6</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E6</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>",
+"err=0 rules=1:B2:B7:1:=Sheet2!$A$1;2:D2:E7:2:=D2>Sheet2!$A$2;1:F2:F9:3:=50; ~ <conditionalFormatting sqref=\"F2:F9\"><cfRule type=\"cellIs\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting> | <x14:conditionalFormattings><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"cellIs\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\" id=\"{6D7AB15B-F8BA-4E53-B2FF-7B231FCF69DC}\"><xm:f>Sheet2!$A$1</xm:f><x14:dxf/></x14:cfRule><xm:sqref>B2:B7</xm:sqref></x14:conditionalFormatting><x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"expression\" priority=\"2\" stopIfTrue=\"1\" id=\"{83427CE1-D739-4C20-BC0E-63001AE6E66E}\"><xm:f>D2&gt;Sheet2!$A$2</xm:f><x14:dxf/></x14:cfRule><xm:sqref>D2:E7</xm:sqref></x14:conditionalFormatting></x14:conditionalFormattings>"
+]
+}

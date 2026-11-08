@@ -57,6 +57,10 @@ CASES = [
     'Opened folder, "Alpha.xlsx": Opened folder, "Other.xlsx": s.Range("A1").Formula = "=[Alpha.xlsx]Sheet1!A1": s.Range("A2").Formula = "=[Other.xlsx]Elsewhere!A1"',
     'Opened folder, "Alpha.xlsx": s.Range("A1").Value = "=[Alpha.xlsx]Sheet1!A2"',
     'ChDir folder & "\\Sub": s.Range("A1").Formula = "=[Deep.xlsx]Sheet1!A1"',
+    # A workbook's name in a file that is not there: by its file alone, into one cell and three, and by a path.
+    'ChDir folder & "\\Sub": s.Range("A1").Formula = "=Alpha.xlsx!Rate"',
+    'ChDir folder & "\\Sub": s.Range("A1:C1").Formula = "=Alpha.xlsx!Rate"',
+    's.Range("A1").Formula = "=\'" & folder & "\\Nope.xlsx\'!Rate"',
 ]
 
 MODULE = r'''Option Explicit

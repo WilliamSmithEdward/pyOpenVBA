@@ -1,0 +1,110 @@
+{
+ "provider": "Microsoft.ACE.OLEDB.16.0",
+ "cases": {
+  "sheet_refreshed": [
+   "Err.Clear: Set q = ws.QueryTables.Add(connection, ws.Range(\"B2\"), Rows_(2)): q.Refresh False: s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: q.CommandText = Rows_(4): s = s & vbTab & \"command E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "sheet_never": [
+   "Err.Clear: Set q = ws.QueryTables.Add(connection, ws.Range(\"B2\"), Rows_(3)): s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "list_refreshed": [
+   "Err.Clear: Set lo = ws2.ListObjects.Add(xlSrcExternal, Array(connection), , xlYes, ws2.Range(\"B2\")): lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False: s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: lo.QueryTable.CommandText = Rows_(5): s = s & vbTab & \"command E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "list_never_command": [
+   "Err.Clear: Set lo = ws2.ListObjects.Add(xlSrcExternal, Array(connection), , xlYes, ws2.Range(\"B2\")): lo.QueryTable.CommandText = Rows_(3): s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "list_never_bare": [
+   "Err.Clear: Set lo = ws2.ListObjects.Add(xlSrcExternal, Array(connection), , xlYes, ws2.Range(\"B2\")): s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "both": [
+   "Err.Clear: Set q = ws.QueryTables.Add(connection, ws.Range(\"B2\"), Rows_(2)): q.Refresh False: Set lo = ws2.ListObjects.Add(xlSrcExternal, Array(connection), , xlYes, ws2.Range(\"B2\")): lo.QueryTable.CommandText = Rows_(1): lo.QueryTable.Refresh False: s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: q.CommandText = Rows_(3): lo.QueryTable.CommandText = Rows_(4): s = s & vbTab & \"command E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "sheet_background": [
+   "Err.Clear: Set q = ws.QueryTables.Add(connection, ws.Range(\"B2\"), Rows_(2)): q.Refresh False: q.BackgroundQuery = True: q.CommandText = Rows_(4): s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)",
+   "Err.Clear: DoEvents: s = s & vbTab & \"after E\" & Err.Number & State(wb)"
+  ],
+  "list_background": [
+   "Err.Clear: Set lo = ws2.ListObjects.Add(xlSrcExternal, Array(connection), , xlYes, ws2.Range(\"B2\")): lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False: lo.QueryTable.BackgroundQuery = True: s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: lo.QueryTable.CommandText = Rows_(4): s = s & vbTab & \"command E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "sheet_disabled": [
+   "Err.Clear: Set q = ws.QueryTables.Add(connection, ws.Range(\"B2\"), Rows_(2)): q.Refresh False: q.CommandText = Rows_(4): q.EnableRefresh = False: s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ],
+  "list_excluded": [
+   "Err.Clear: Set lo = ws2.ListObjects.Add(xlSrcExternal, Array(connection), , xlYes, ws2.Range(\"B2\")): lo.QueryTable.CommandText = Rows_(2): lo.QueryTable.Refresh False: lo.QueryTable.CommandText = Rows_(4): s = s & vbTab & \"made E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.Connections(1).RefreshWithRefreshAll = False: s = s & vbTab & \"excluded E\" & Err.Number & State(wb)",
+   "Err.Clear: wb.RefreshAll: s = s & vbTab & \"all E\" & Err.Number & State(wb)"
+  ]
+ },
+ "rows": {
+  "sheet_refreshed": [
+   "",
+   "made E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "command E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1:ExternalData_1=$B$2:$C$6/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Double:3|String:n3|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "sheet_never": [
+   "",
+   "made E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "list_refreshed": [
+   "",
+   "made E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "command E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$7/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Double:3|String:n3|Empty:|Double:4|String:n4|Empty:|Double:5|String:n5|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "list_never_command": [
+   "",
+   "made E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$B$3/False Sheet2|String:ExternalData_1: Getting Data ...|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$5/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "list_never_bare": [
+   "",
+   "made E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$B$3/False Sheet2|String:ExternalData_1: Getting Data ...|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$B$3/False Sheet2|String:ExternalData_1: Getting Data ...|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "both": [
+   "",
+   "made E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$3/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "command E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$3/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1:ExternalData_1=$B$2:$C$5/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$6/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Double:3|String:n3|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "sheet_background": [
+   "",
+   "made E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1:ExternalData_1=$B$2:$C$4/True Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "after E0 Sheet1:ExternalData_1=$B$2:$C$4/True Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "list_background": [
+   "",
+   "made E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "command E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/True Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "sheet_disabled": [
+   "",
+   "made E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1:ExternalData_1=$B$2:$C$4/False Sheet1|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "list_excluded": [
+   "",
+   "made E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "excluded E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "all E0 Sheet1|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty: Sheet2:Table_ExternalData_1=$B$2:$C$4/False Sheet2|String:Id|String:Name|Empty:|Double:1|String:n1|Empty:|Double:2|String:n2|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ]
+ },
+ "measured_at": "2026-11-07T15:52:57.793659+00:00"
+}

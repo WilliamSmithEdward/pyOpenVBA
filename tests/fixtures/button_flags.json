@@ -1,0 +1,56 @@
+{
+ "measured_at": "2026-11-07T09:07:06.296929+00:00",
+ "source": "Public Function Row(ByVal path As String, ByVal saved As String, ByVal member As String, ByVal fresh As Boolean) As String\n    Dim wb As Workbook, o As Object, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    If fresh Then\n        Set o = wb.Worksheets(1).Buttons.Add(300, 300, 60, 30)\n    Else\n        Set o = wb.Worksheets(1).Buttons(1)\n    End If\n    s = \"before \" & CallByName(o, member, VbGet)\n    On Error Resume Next\n    CallByName o, member, VbLet, True\n    s = s & \"|set E\" & Err.Number\n    Err.Clear\n    s = s & \"|after \" & CallByName(o, member, VbGet) & \"|first \" & CallByName(wb.Worksheets(1).Buttons(1), member, VbGet)\n    On Error GoTo 0\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    s = s & \"|reopened \" & CallByName(wb.Worksheets(1).Buttons(wb.Worksheets(1).Buttons.Count), member, VbGet)\n    wb.Close False\n    Row = s\nEnd Function\n",
+ "cases": [
+  {
+   "member": "AddIndent",
+   "new": false,
+   "excel": "before False|set E0|after False|first False|reopened False"
+  },
+  {
+   "member": "DefaultButton",
+   "new": false,
+   "excel": "before False|set E0|after True|first True|reopened False"
+  },
+  {
+   "member": "CancelButton",
+   "new": false,
+   "excel": "before False|set E0|after True|first True|reopened False"
+  },
+  {
+   "member": "DismissButton",
+   "new": false,
+   "excel": "before False|set E0|after True|first True|reopened False"
+  },
+  {
+   "member": "HelpButton",
+   "new": false,
+   "excel": "before False|set E0|after True|first True|reopened False"
+  },
+  {
+   "member": "AddIndent",
+   "new": true,
+   "excel": "before False|set E0|after False|first False|reopened False"
+  },
+  {
+   "member": "DefaultButton",
+   "new": true,
+   "excel": "before False|set E0|after True|first False|reopened False"
+  },
+  {
+   "member": "CancelButton",
+   "new": true,
+   "excel": "before False|set E0|after True|first False|reopened False"
+  },
+  {
+   "member": "DismissButton",
+   "new": true,
+   "excel": "before False|set E0|after True|first False|reopened False"
+  },
+  {
+   "member": "HelpButton",
+   "new": true,
+   "excel": "before False|set E0|after True|first False|reopened False"
+  }
+ ]
+}

@@ -194,8 +194,11 @@ def _series_span(chart: Chart, entry: SeriesState) -> tuple[int, int]:
 
 
 def name_series(chart: Chart, entry: SeriesState, reference: str, literal: str, shown: str) -> None:
-    """Series.Name: its own text, or a cell's with that cell's text cached, in place of what c:tx held."""
+    """Series.Name: its own text, or a cell's with that cell's text cached, in place of what c:tx held. Once the plot area
+    is written whole at save, that writes it (tests/fixtures/loaded_chart_structure_edits.json)."""
     admit(chart)
+    if chart.state.plot_pending:
+        return
     start, end = _series_span(chart, entry)
     series = chart.state.original[start:end]
     if _SERIES_TEXT.search(series) is None:
@@ -312,3 +315,218 @@ def type_axis_title(chart: Chart, entry: AxisState, wanted: str) -> None:
         raise VBAUnsupportedError('Typing this imported chart axis title is not implemented')
     axis = axis[:found.start()] + retitled(found.group(0), wanted) + axis[found.end():]
     _edited(chart, chart.state.original[:start] + axis + chart.state.original[end:])
+
+
+#: A series' own parts a loaded chart rewrites at save, by name: its spPr, its points' dPt elements and its dLbls.
+LOOK, POINTS, LABELS = 'look', 'points', 'labels'
+_PARTS = (LOOK, POINTS, LABELS)
+_HEAD = re.compile(r'<c:ser><c:idx val="\d+"/><c:order val="\d+"/>(?:<c:tx>.*?</c:tx>)?', re.DOTALL)
+_OWN_LOOK = re.compile(r'<c:spPr>.*?</c:spPr>', re.DOTALL)
+_FOUND = {POINTS: re.compile(r'(?:<c:dPt>.*?</c:dPt>)+', re.DOTALL), LABELS: re.compile(r'<c:dLbls>.*?</c:dLbls>', re.DOTALL)}
+#: What follows each in its c:ser, whichever the series has first.
+_AFTER = {POINTS: re.compile(r'<c:(?:dLbls|trendline|errBars|cat|val|xVal|yVal)>'),
+          LABELS: re.compile(r'<c:(?:trendline|errBars|cat|val|xVal|yVal)>')}
+_IDENTIFIED = re.compile(r'<c:(dPt|dLbl)><c:idx val="(\d+)"/>.*?</c:\1>', re.DOTALL)
+_UNIQUE = re.compile(r'(<c16:uniqueId val="\{)([0-9A-F]{8})([^}"]*)(\}"/>)')
+
+
+def _part_span(series: str, part: str) -> tuple[int, int]:
+    """Where a part is in a series' markup, or where it would go."""
+    if part == LOOK:
+        head = _HEAD.match(series)
+        if head is None:
+            raise VBAUnsupportedError('Finding the look of this imported chart series is not implemented')
+        found = _OWN_LOOK.match(series, head.end())
+        return head.end(), found.end() if found else head.end()
+    found = _FOUND[part].search(series)
+    if found is not None:
+        return found.span()
+    place = _AFTER[part].search(series)
+    if place is None:
+        raise VBAUnsupportedError('Placing this part of an imported chart series is not implemented')
+    return place.start(), place.start()
+
+
+def _part_now(chart: Chart, entry: SeriesState, part: str) -> str:
+    """The part as the model writes it."""
+    from pyopenvba.apps.excel._chart_xml import CHART_KINDS
+    from pyopenvba.apps.excel._charts import CHART_TYPES, series_type
+    from pyopenvba.apps.excel._charts_file import series_parts
+
+    if CHART_TYPES.get(series_type(chart.state, entry), '') not in CHART_KINDS:
+        raise VBAUnsupportedError('Editing a series of this kind of imported chart is not implemented')
+    return series_parts(chart.sheet, chart, entry)[_PARTS.index(part)]
+
+
+def _without_tails(xml: str) -> str:
+    """Unique ids by their number alone: the rest is the part's, or Excel's at random for a label it adds."""
+    from pyopenvba.apps.excel._chart_xml import UNIQUE_END
+
+    return _UNIQUE.sub(lambda hit: hit.group(1) + hit.group(2) + hit.group(4), xml.replace(UNIQUE_END, ''))
+
+
+_SERIES_LOOKS = frozenset(f'Series.Format.{member}' for member in (
+    'Fill.ForeColor.RGB', 'Fill.Visible', 'Fill.Transparency', 'Fill.Solid', 'Line.ForeColor.RGB', 'Line.Weight', 'Line.Visible',
+    'Line.DashStyle'))
+#: The edits measured on loaded charts, by the part they change (tests/fixtures/loaded_chart_label_edits.json,
+#: tests/fixtures/loaded_chart_look_edits.json).
+EDITS: dict[str, frozenset[str]] = {
+    LABELS: frozenset({'Series.HasDataLabels', 'Point.HasDataLabel', 'DataLabels.ShowValue', 'DataLabels.ShowCategoryName',
+                       'DataLabels.ShowSeriesName', 'DataLabels.Position', 'DataLabels.NumberFormat', 'DataLabels.Separator',
+                       'DataLabel.Text', 'DataLabel.ShowCategoryName', 'DataLabel.Position'}),
+    LOOK: _SERIES_LOOKS,
+    # A series' look takes what it sets from its points.
+    POINTS: _SERIES_LOOKS | {'Point.Format.Fill.ForeColor.RGB', 'Point.Format.Line.ForeColor.RGB'},
+}
+
+
+def admit_part(chart: Chart, entry: SeriesState, part: str, member: str) -> None:
+    """Whether a series' part can change in this chart's part: by a member measured, and only where the model writes it as
+    the file holds it, so that writing it again changes only what the edit did. A chart with a style is refused: Excel gives
+    what it adds there the style's look (tests/fixtures/loaded_chart_label_edits.json)."""
+    admit(chart)
+    if member not in EDITS[part]:
+        raise VBAUnsupportedError(f'Changing {member or "this"} on an imported chart is not implemented')
+    if part == LABELS:
+        from pyopenvba.apps.excel._chart_xml import LabelLook
+
+        if member.startswith(('DataLabel.', 'Point.')) and entry.data_labels and entry.label_look != LabelLook():
+            # Excel gives such a point its series' place and the value alone, which the model does not.
+            raise VBAUnsupportedError("Changing a point's label on an imported chart whose series' labels have a look is not implemented")
+    if part == POINTS and member.startswith('Point.') and entry.format_look is not None:
+        # Excel gives such a point the series' look beside what is set, its transparency too, which the model does not.
+        raise VBAUnsupportedError("Changing a point's look on an imported chart whose series has a look is not implemented")
+    state = chart.state
+    if any(pending is entry and named == part for pending, named in state.parts_pending):
+        return
+    if state.style_part:
+        raise VBAUnsupportedError('Editing a series of an imported chart with a style is not implemented')
+    start, end = _series_span(chart, entry)
+    series = state.original[start:end]
+    at, to = _part_span(series, part)
+    if _without_tails(series[at:to]) != _without_tails(_part_now(chart, entry, part)):
+        raise VBAUnsupportedError('Editing this series of an imported chart is not implemented')
+    if part == LABELS:
+        entry.labels_read = True
+    state.parts_pending.append((entry, part))
+
+
+def write_parts(chart: Chart) -> None:
+    """The changed parts in place of what each held. A point's dPt or dLbl keeps the unique id the file gave it; those
+    added share a new end (tests/fixtures/loaded_chart_label_edits.json)."""
+    import uuid
+
+    state = chart.state
+    # One new end for everything the save adds, as Excel's save gives them.
+    tail = '-' + str(uuid.uuid4()).upper().split('-', 1)[1]
+    if state.plot_pending:
+        # The plot area holds every series, so it is written whole and the parts with it.
+        _write_plot(chart, tail)
+        state.parts_pending, state.plot_pending = [], False
+        return
+    for entry, part in state.parts_pending:
+        start, end = _series_span(chart, entry)
+        series = state.original[start:end]
+        at, to = _part_span(series, part)
+        kept = {(hit.group(1), hit.group(2)): unique.group(0) for hit in _IDENTIFIED.finditer(series[at:to])
+                if (unique := _UNIQUE.search(hit.group(0))) is not None}
+
+        def identified(hit: re.Match[str]) -> str:
+            element = hit.group(0)
+            unique = _UNIQUE.search(element)
+            if unique is None:
+                return element
+            old = kept.get((hit.group(1), hit.group(2)))
+            if old is not None and _without_tails(old) == _without_tails(unique.group(0)):
+                return element[:unique.start()] + old + element[unique.end():]
+            return element[:unique.start()] + unique.group(1) + unique.group(2) + tail + unique.group(4) + element[unique.end():]
+
+        made = _IDENTIFIED.sub(identified, _part_now(chart, entry, part))
+        state.original = state.original[:start] + series[:at] + made + series[to:] + state.original[end:]
+    state.parts_pending = []
+
+
+_PLOT = re.compile(r'<c:plotArea>.*?</c:plotArea>', re.DOTALL)
+_SER = re.compile(r'<c:ser><c:idx val="(\d+)"/>.*?</c:ser>', re.DOTALL)
+#: The edits measured that change a loaded chart's plot area as a whole: its series, their data and its chart type
+#: (tests/fixtures/loaded_chart_structure_edits.json).
+PLOT_EDITS = frozenset({
+    'SeriesCollection.NewSeries', 'Series.Delete', 'Chart.SetSourceData', 'Chart.PlotBy', 'Series.Values', 'Series.XValues',
+    'Series.Formula', 'Chart.ChartType', 'Series.ChartType'})
+
+
+def _plot_now(chart: Chart) -> str:
+    """The plot area as the model writes it."""
+    from pyopenvba.apps.excel._charts_file import markup
+
+    if chart.sheet.chart_sheet is not None:
+        raise VBAUnsupportedError('Changing the series of an imported chart sheet is not implemented')
+    found = _PLOT.search(markup(chart.sheet, chart.shape.shape_id))
+    if found is None:
+        raise VBAUnsupportedError('Writing the plot area of this imported chart is not implemented')
+    return found.group(0)
+
+
+def admit_plot(chart: Chart, member: str) -> None:
+    """Whether a change to the chart's series or type can be made in its part: by a member measured, and only where the
+    model writes its plot area as the file holds it, so that writing it again changes only what the edit did. Excel
+    changes nothing outside it for these (tests/fixtures/loaded_chart_structure_edits.json)."""
+    admit(chart)
+    if member not in PLOT_EDITS:
+        raise VBAUnsupportedError(f'Changing {member or "this"} on an imported chart is not implemented')
+    state = chart.state
+    if state.plot_pending:
+        return
+    if state.style_part:
+        raise VBAUnsupportedError('Changing the series of an imported chart with a style is not implemented')
+    found = _PLOT.search(state.original)
+    if found is None or _without_tails(found.group(0)) != _without_tails(_plot_now(chart)):
+        raise VBAUnsupportedError('Changing the series of this imported chart is not implemented')
+    state.plot_pending = True
+
+
+def _ids(plot: str) -> dict[tuple[str, ...], str]:
+    """The unique ids a plot area holds, by the series' idx, the element and its idx, and the id's number."""
+    found: dict[tuple[str, ...], str] = {}
+    for series in _SER.finditer(plot):
+        body = series.group(0)
+        for element in _IDENTIFIED.finditer(body):
+            if (unique := _UNIQUE.search(element.group(0))) is not None:
+                found[(series.group(1), element.group(1), element.group(2), unique.group(2))] = unique.group(0)
+        own = list(_UNIQUE.finditer(_IDENTIFIED.sub('', body)))
+        if own:
+            found[(series.group(1), own[-1].group(2))] = own[-1].group(0)
+    return found
+
+
+def _write_plot(chart: Chart, tail: str) -> None:
+    """The plot area as the model writes it, in place of what the file held. A series, point or label the file had keeps
+    its unique id; what the edit adds takes the save's new end, as Excel's does."""
+    state = chart.state
+    found = _PLOT.search(state.original)
+    assert found is not None
+    kept = _ids(found.group(0))
+
+    def fresh(unique: re.Match[str], key: tuple[str, ...]) -> str:
+        return kept.get(key) or unique.group(1) + unique.group(2) + tail + unique.group(4)
+
+    def series(hit: re.Match[str]) -> str:
+        identity = hit.group(1)
+
+        def element(inner: re.Match[str]) -> str:
+            text = inner.group(0)
+            unique = _UNIQUE.search(text)
+            if unique is None:
+                return text
+            key = (identity, inner.group(1), inner.group(2), unique.group(2))
+            return text[:unique.start()] + fresh(unique, key) + text[unique.end():]
+
+        body = _IDENTIFIED.sub(element, hit.group(0))
+        # The series' own id is the one after its points and labels.
+        last = _UNIQUE.search(body, body.rfind('<c16:uniqueId')) if '<c16:uniqueId' in body else None
+        if last is None or '</c:dPt>' in body[last.start():] or '</c:dLbl>' in body[last.start():]:
+            return body
+        return body[:last.start()] + fresh(last, (identity, last.group(2))) + body[last.end():]
+
+    made = _SER.sub(series, _plot_now(chart))
+    state.original = state.original[:found.start()] + made + state.original[found.end():]

@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._opc_xml import opc_part
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._values import to_bool
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -34,6 +33,14 @@ def read(book: Workbook, raw: bytes) -> None:
         raise VBAUnsupportedError('Invalid workbook date-system flag')
     book.epoch_1904 = flag in ('1', 'true')
     book.workbook_pr = dict(properties[0]) if properties else {}
+    # ChartDataPointTrack is x15:workbookPr's chartTrackingRefBase in the part's extLst: Excel writes it "1" for a new book and leaves it
+    # out once the setting is False, which then reads False (tests/fixtures/workbook_reads.json).
+    tracked = [one.get('chartTrackingRefBase') for one in root.iter('{http://schemas.microsoft.com/office/spreadsheetml/2010/11/main}workbookPr')]
+    book.chart_data_point_track = bool(tracked) and tracked[0] in ('1', 'true')
+    # CompatibilityVersion is the extLst's xlwcv:version setVersion, which Excel writes 2; a book a tool wrote has none and reads 1
+    # (tests/fixtures/workbook_reads.json).
+    versions = [one.get('setVersion') or '' for one in root.iter('{http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion}version')]
+    book.session_properties['CompatibilityVersion'] = int(versions[0]) if versions and versions[0].isdigit() else 1
 
 
 #: workbookPr's attributes in the order the schema, and Excel, writes them.
@@ -123,7 +130,11 @@ def _write_flags(book: Workbook, raw: bytes) -> bytes:
 
 def set_mode(book: Workbook, value: object) -> None:
     """Keep stored serials and invalidate calculations on a calendar change."""
-    wanted = to_bool(value)
+    from pyopenvba.apps.excel._workbook_settings import file_flag
+
+    wanted = file_flag('Date1904', value)
+    if wanted is None:
+        return
     if wanted == book.epoch_1904:
         return
     if book.application.udf_callers or book.calculation_in_progress:

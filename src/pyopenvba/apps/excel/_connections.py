@@ -268,7 +268,12 @@ class TextFileConnection(WorkbookConnection):
     def _type(self) -> int:
         if self.link.left_behind:
             raise error(*_AUTOMATION)
-        return 4
+        # A database's table has an OLE DB or ODBC connection (tests/fixtures/query_refresh_loaded.json).
+        return 4 if self.entry.get('type') == '6' else super()._type()
+
+    def _database(self) -> None:
+        if self.entry.get('type') != '6':
+            raise VBAUnsupportedError("The OLEDBConnection and ODBCConnection of a database's query table are not implemented")
 
     @member(default=True)
     def Name(self) -> object:
@@ -305,11 +310,18 @@ class TextFileConnection(WorkbookConnection):
 
     @member
     def OLEDBConnection(self) -> object:
+        self._database()
+        return self._other()
+
+    @member
+    def ODBCConnection(self) -> object:
+        self._database()
         return self._other()
 
     @member
     def TextConnection(self) -> object:
         self._type()
+        self._database()
         return TextConnection(self)
 
     @method

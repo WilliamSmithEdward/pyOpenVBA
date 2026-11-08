@@ -1,0 +1,444 @@
+{
+ "cases": [
+  {
+   "name": "xfd१",
+   "label": "U+0966 xfd1",
+   "what": "XFD1, an address",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "xfd१०४८५७६",
+   "label": "U+0966 xfd1048576",
+   "what": "XFD1048576",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "xfd१०४८५७७",
+   "label": "U+0966 xfd1048577",
+   "what": "past the last row",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "ab१२",
+   "label": "U+0966 ab12",
+   "what": "AB12",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r१",
+   "label": "U+0966 r1",
+   "what": "R1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "c२",
+   "label": "U+0966 c2",
+   "what": "C2",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r१c१",
+   "label": "U+0966 r1c1",
+   "what": "R1C1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "rc३",
+   "label": "U+0966 rc3",
+   "what": "RC3",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r१.",
+   "label": "U+0966 r1.",
+   "what": "R1., a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "q१",
+   "label": "U+0966 q1",
+   "what": "Q1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "a१_",
+   "label": "U+0966 a1_",
+   "what": "A1_, a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd๑",
+   "label": "U+0E50 xfd1",
+   "what": "XFD1, an address",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "xfd๑๐๔๘๕๗๖",
+   "label": "U+0E50 xfd1048576",
+   "what": "XFD1048576",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "xfd๑๐๔๘๕๗๗",
+   "label": "U+0E50 xfd1048577",
+   "what": "past the last row",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "ab๑๒",
+   "label": "U+0E50 ab12",
+   "what": "AB12",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r๑",
+   "label": "U+0E50 r1",
+   "what": "R1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "c๒",
+   "label": "U+0E50 c2",
+   "what": "C2",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r๑c๑",
+   "label": "U+0E50 r1c1",
+   "what": "R1C1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "rc๓",
+   "label": "U+0E50 rc3",
+   "what": "RC3",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r๑.",
+   "label": "U+0E50 r1.",
+   "what": "R1., a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "q๑",
+   "label": "U+0E50 q1",
+   "what": "Q1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "a๑_",
+   "label": "U+0E50 a1_",
+   "what": "A1_, a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd᠑",
+   "label": "U+1810 xfd1",
+   "what": "XFD1, an address",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "xfd᠑᠐᠔᠘᠕᠗᠖",
+   "label": "U+1810 xfd1048576",
+   "what": "XFD1048576",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "xfd᠑᠐᠔᠘᠕᠗᠗",
+   "label": "U+1810 xfd1048577",
+   "what": "past the last row",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "ab᠑᠒",
+   "label": "U+1810 ab12",
+   "what": "AB12",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r᠑",
+   "label": "U+1810 r1",
+   "what": "R1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "c᠒",
+   "label": "U+1810 c2",
+   "what": "C2",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r᠑c᠑",
+   "label": "U+1810 r1c1",
+   "what": "R1C1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "rc᠓",
+   "label": "U+1810 rc3",
+   "what": "RC3",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "r᠑.",
+   "label": "U+1810 r1.",
+   "what": "R1., a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "q᠑",
+   "label": "U+1810 q1",
+   "what": "Q1",
+   "excel": 1004,
+   "model": 0,
+   "rule": 1004
+  },
+  {
+   "name": "a᠑_",
+   "label": "U+1810 a1_",
+   "what": "A1_, a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd１",
+   "label": "U+FF10 xfd1",
+   "what": "XFD1, an address",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd１０４８５７６",
+   "label": "U+FF10 xfd1048576",
+   "what": "XFD1048576",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd１０４８５７７",
+   "label": "U+FF10 xfd1048577",
+   "what": "past the last row",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "ab１２",
+   "label": "U+FF10 ab12",
+   "what": "AB12",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "r１",
+   "label": "U+FF10 r1",
+   "what": "R1",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "c２",
+   "label": "U+FF10 c2",
+   "what": "C2",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "r１c１",
+   "label": "U+FF10 r1c1",
+   "what": "R1C1",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "rc３",
+   "label": "U+FF10 rc3",
+   "what": "RC3",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "r１.",
+   "label": "U+FF10 r1.",
+   "what": "R1., a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "q１",
+   "label": "U+FF10 q1",
+   "what": "Q1",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "a１_",
+   "label": "U+FF10 a1_",
+   "what": "A1_, a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd߁",
+   "label": "U+07C0 xfd1",
+   "what": "XFD1, an address",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd߁߀߄߈߅߇߆",
+   "label": "U+07C0 xfd1048576",
+   "what": "XFD1048576",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "xfd߁߀߄߈߅߇߇",
+   "label": "U+07C0 xfd1048577",
+   "what": "past the last row",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "ab߁߂",
+   "label": "U+07C0 ab12",
+   "what": "AB12",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "r߁",
+   "label": "U+07C0 r1",
+   "what": "R1",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "c߂",
+   "label": "U+07C0 c2",
+   "what": "C2",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "r߁c߁",
+   "label": "U+07C0 r1c1",
+   "what": "R1C1",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "rc߃",
+   "label": "U+07C0 rc3",
+   "what": "RC3",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "r߁.",
+   "label": "U+07C0 r1.",
+   "what": "R1., a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "q߁",
+   "label": "U+07C0 q1",
+   "what": "Q1",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  },
+  {
+   "name": "a߁_",
+   "label": "U+07C0 a1_",
+   "what": "A1_, a name",
+   "excel": 0,
+   "model": 0,
+   "rule": 0
+  }
+ ]
+}

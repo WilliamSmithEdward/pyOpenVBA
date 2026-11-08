@@ -48,7 +48,7 @@ from pyopenvba.interpreter._runtime import Slot
 from pyopenvba.interpreter._values import to_bool
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Workbook, Worksheet
+    from pyopenvba.apps.excel._model import Application, Range, Workbook, Worksheet
     from pyopenvba.apps.excel._pivots import PivotTable
 
 
@@ -159,8 +159,8 @@ def before_print(book: Workbook) -> bool:
     return not to_bool(cancel.get())
 
 
-def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
-    """One event, in the sheet's module and then in its workbook's."""
+def _both(sheet: Worksheet, event: str, args: list[object], *, application: bool = True) -> None:
+    """One event, in the sheet's module and then in its workbook's, then the application's unless it has none to raise."""
     if not _on(sheet.book):
         return
     _sinks(sheet.book, sheet, event, args)
@@ -170,7 +170,7 @@ def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
     combined = [sheet, *args]
     _sinks(sheet.book, sheet.book, f"Sheet{event}", combined)
     _handle(sheet.book, f"Workbook_Sheet{event}", combined)
-    if _on(sheet.book):
+    if application and _on(sheet.book):
         _sinks(sheet.book, sheet.book.application, f"Sheet{event}", combined)
 
 
@@ -194,8 +194,20 @@ def followed(sheet: Worksheet, link: VBAObject) -> None:
     _both(sheet, "FollowHyperlink", [link])
 
 
-def pivot_updated(table: PivotTable) -> None:
+def pivot_updated(table: PivotTable, *, refreshed: bool = False) -> None:
+    """PivotTableUpdate, with PivotTableChangeSync before it on a refresh and after it on any other edit."""
+    if refreshed:
+        pivot_synced(table)
     _both(table.sheet, "PivotTableUpdate", [table])
+    if not refreshed:
+        pivot_synced(table)
+
+
+def pivot_synced(table: PivotTable) -> None:
+    """PivotTableChangeSync, in the sheet's module and its workbook's, never the application's: Excel raises it on every edit of a
+    pivot table, before PivotTableUpdate on a refresh and after it otherwise, and alone when a value written into the table is refused
+    with 1004 (tests/fixtures/workbook_macro_events.json)."""
+    _both(table.sheet, "PivotTableChangeSync", [table], application=False)
 
 
 def pivot_refresh_calculated(sheet: Worksheet) -> None:
@@ -218,9 +230,19 @@ def selected(sheet: Worksheet, target: Range) -> None:
     _both(sheet, "SelectionChange", [target])
 
 
+def after_calculate(application: Application) -> None:
+    """Application.AfterCalculate, once a calculation is over: after Application.Calculate, CalculateFull and
+    CalculateFullRebuild, Range.Calculate and the calculation an edit brings in automatic calculation, formulas or none,
+    and never after Worksheet.Calculate (tests/fixtures/after_calculate.json)."""
+    interpreter = application.interpreter
+    if application.enable_events and interpreter is not None:
+        interpreter.raise_event(application, "AfterCalculate", [])
+
+
 def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = None,
-                 already_calculated: set[Worksheet] | None = None) -> None:
-    """Work out what an edit left to work out, and raise Calculate for each sheet it worked out formulas on.
+                 already_calculated: set[Worksheet] | None = None, announce: bool = True) -> None:
+    """Work out what an edit left to work out, and raise Calculate for each sheet it worked out formulas on, then
+    AfterCalculate unless ``announce`` is False.
 
     The model works a formula out when something reads it; Excel works
     them out after each edit, which only shows through this event, so the
@@ -229,6 +251,14 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
     calculator = book.calculator
     if not calculator.automatic:
         return
+    _recalculated(book, settled, already_calculated)
+    if announce:
+        after_calculate(book.application)
+
+
+def _recalculated(book: Workbook, settled: set[tuple[str, int, int]] | None,
+                  already_calculated: set[Worksheet] | None) -> None:
+    calculator = book.calculator
     if book.application.full_calculation:
         # Every workbook held to full calculation: each edit works every formula out again (see _calculation_state).
         from pyopenvba.apps.excel._calculation_state import worked_in_full
@@ -273,9 +303,10 @@ def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
             _both(sheet, "Calculate", [])
 
 
-def after_edit(target: Range, *, calculate_first: bool = True) -> None:
-    """An edit's Change and the Calculate it brings, in the order Excel raises them. What a dynamic-array formula
-    spills is in place after the edit, as Excel spills it, events or none."""
+def after_edit(target: Range, *, calculate_first: bool = True, announced_last: bool = False) -> None:
+    """An edit's Change and the Calculate it brings, in the order Excel raises them, AfterCalculate after Change where
+    ``announced_last`` says so, as ClearContents raises it (tests/fixtures/after_calculate.json). What a dynamic-array
+    formula spills is in place after the edit, as Excel spills it, events or none."""
     from pyopenvba.apps.excel._hidden_names import edited
 
     book = target.sheet.book
@@ -288,8 +319,10 @@ def after_edit(target: Range, *, calculate_first: bool = True) -> None:
         recalculated(book, settled=settled, already_calculated=calculated)
         return
     if calculate_first:
-        recalculated(book, settled=settled, already_calculated=calculated)
+        recalculated(book, settled=settled, already_calculated=calculated, announce=not announced_last)
         changed(target)
+        if announced_last and book.calculator.automatic:
+            after_calculate(book.application)
     else:
         changed(target)
         recalculated(book, settled=settled, already_calculated=calculated)

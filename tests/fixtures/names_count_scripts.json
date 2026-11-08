@@ -1,0 +1,41 @@
+{
+ "book_names": [
+  "Ab",
+  "名前",
+  "なまえ",
+  "이름",
+  "اسم",
+  "ชื่อ",
+  "カード"
+ ],
+ "sheet_names": [
+  "ローカル",
+  "Zed"
+ ],
+ "cases": [
+  {
+   "typed": false,
+   "reopen": false,
+   "model": "b0 b0 b0 b0 b0 b1004 b0 s0 s0 | 8 Long E0 | 2 Long E0",
+   "excel": "b0 b0 b0 b0 b0 b0 b0 s0 s0 | 9 Long E0 | 2 Long E0"
+  },
+  {
+   "typed": false,
+   "reopen": true,
+   "model": "b0 b0 b0 b0 b0 b1004 b0 s0 s0 | 8 Long E0 | 2 Long E0",
+   "excel": "b0 b0 b0 b0 b0 b0 b0 s0 s0 | 9 Long E0 | 2 Long E0"
+  },
+  {
+   "typed": true,
+   "reopen": false,
+   "model": "b0 b0 b0 b0 b0 b1004 b0 s0 s0 | 8 Long E0 | 2 Long E0",
+   "excel": "b0 b0 b0 b0 b0 b0 b0 s0 s0 | 9 Long E0 | 2 Long E0"
+  },
+  {
+   "typed": true,
+   "reopen": true,
+   "model": "b0 b0 b0 b0 b0 b1004 b0 s0 s0 | 8 Long E0 | 2 Long E0",
+   "excel": "b0 b0 b0 b0 b0 b0 b0 s0 s0 | 9 Long E0 | 2 Long E0"
+  }
+ ]
+}

@@ -98,6 +98,10 @@ def _read(markup: str) -> FillLine | None:
         return None
     look.fill_rgb, look.fill_mods = _resolved(look.fill_rgb, look.fill_mods)
     look.line_rgb, look.line_mods = _resolved(look.line_rgb, look.line_mods)
+    # A line hidden as Excel saves it, a noFill line beside an a14:hiddenLine, reads as one shown; it is not read
+    # (tests/test_excel_loaded_chart_save_reopen.py).
+    if look.line_hidden:
+        return None
     return look if _plain(look) else None
 
 

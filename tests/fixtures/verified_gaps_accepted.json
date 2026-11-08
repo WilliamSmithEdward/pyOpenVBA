@@ -1,4 +1,6 @@
 {
   "formatting more than 1,048,576 cells at once, short of whole rows or columns, is not implemented": "One format over more than a full column's cells, short of whole rows or columns. Whole rows and columns go another way. The gap is reported and nothing is changed.",
-  "editing a filtered sheet whose rows are hidden by default is not implemented": "A sheet whose rows are hidden by default and which also has a filter. A macro has no plain way to make one, though a loaded file can carry it. The macro gets the report and no wrong answer."
+  "editing a filtered sheet whose rows are hidden by default is not implemented": "A sheet whose rows are hidden by default and which also has a filter. A macro has no plain way to make one, though a loaded file can carry it. The macro gets the report and no wrong answer.",
+  "writing to or formatting more than 1,048,576 cells at once is not implemented": "One write or format over more than a full column's cells at once. The gap is reported and nothing is changed, so the macro gets no wrong answer.",
+  "a formula the model cannot spell is not implemented": "No formula a macro writes reaches this guard: the parser refuses each shape that would, as error 1004, and a formula naming another workbook makes its link. tests/test_excel_spell_guard.py writes those shapes through Formula, Formula2, FormulaLocal, Value and Value2 to show it. The guard stays for what a sync of the formula code from pyOfficeEditor may bring back. If that test fails, this entry is to be reconsidered."
 }

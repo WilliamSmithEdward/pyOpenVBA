@@ -15,9 +15,9 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, VBAObject, member
+from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method
 from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, to_bool,
-                                           to_date, to_text)
+                                           to_date, to_integer, to_text)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application
@@ -115,6 +115,47 @@ class RecentFiles(HeldNowhere):
     def Maximum(self) -> object:
         """As the measuring machine's Excel has it; setting it would change a user's options."""
         return VBAInt(50, 'Long')
+
+
+class LanguageSettings(Created):
+    """The languages Office runs in, those of an English (United States) install, a new object each read
+    (tests/fixtures/application_language_vbe.json)."""
+
+    vba_type_name = 'LanguageSettings'
+    vba_library = 'office'
+    #: msoLanguageIDInstall, msoLanguageIDUI, msoLanguageIDHelp, msoLanguageIDExeMode and msoLanguageIDUIPrevious.
+    KINDS = range(1, 6)
+    ENGLISH = 1033
+
+    def __init__(self, application: Application) -> None:
+        self.application = application
+
+    def vba_no_member(self, name: str) -> Exception:
+        # The member inventory leaves dispatch interfaces out; every member the type library gives it is here.
+        return error(438, f'LanguageSettings has no member named {name}')
+
+    @method
+    def LanguageID(self, Id: object = MISSING) -> object:
+        if Id is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        if int(to_integer(Id, 'Long')) not in self.KINDS:
+            raise error(5)
+        return VBAInt(self.ENGLISH, 'Long')
+
+    @method
+    def LanguagePreferredForEditing(self, lid: object = MISSING) -> object:
+        """True for the one editing language, and for 0, as Excel answers it."""
+        if lid is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        return int(to_integer(lid, 'Long')) in (0, self.ENGLISH)
+
+    @member
+    def Application(self) -> object:
+        return self.application
+
+    @member
+    def Parent(self) -> object:
+        return self.application
 
 
 class ProfileObject(Created):

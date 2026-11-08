@@ -294,7 +294,7 @@ def text_properties(look: TextLook | None, body: str = "<a:bodyPr/>") -> str:
 
 
 #: Data labels write their text properties with this body (tests/fixtures/chart_fonts.json).
-_LABEL_BODY = ('<a:bodyPr wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
+LABEL_BODY = ('<a:bodyPr wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
                "<a:spAutoFit/></a:bodyPr>")
 #: DataLabels.Position and how the file spells it (tests/fixtures/data_labels_object.json).
 LABEL_POSITIONS = {3: "inEnd", -4108: "ctr", 4: "inBase", 2: "outEnd", 0: "t", 1: "b", -4131: "l", -4152: "r",
@@ -347,13 +347,24 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points:
     # Only a pie or doughnut says it in the element; the others say it in their extension alone.
     plain = shown if kind in ("pie", "doughnut") else 0
     leaders = "" if alone else f'<c:showLeaderLines val="{plain}"/>'
-    text = text_properties(look.font, _LABEL_BODY)
+    text = text_properties(look.font, LABEL_BODY)
     fill = "<a:noFill/>" if look.fill_rgb is None else f'<a:solidFill><a:srgbClr val="{look.fill_rgb}"/></a:solidFill>'
     outline = ("<a:ln><a:noFill/></a:ln>" if look.line_width is None else
                f'<a:ln w="{look.line_width}"><a:solidFill><a:schemeClr val="tx1"/></a:solidFill></a:ln>')
     return (f'<c:dLbls>{points}{number}<c:spPr>{fill}{outline}<a:effectLst/></c:spPr>{text}{place}'
             f'{flags}'
             f'{separator}{leaders}<c:extLst>{tail}</c:extLst></c:dLbls>')
+
+
+def labels_markup(kind: ChartKind, on: bool, leader_lines: bool, look: LabelLook, points: str) -> str:
+    """A series' dLbls, with ``points`` its points' dLbl elements: none for labels showing nothing
+    (tests/fixtures/data_labels_object.json), and labels on some points alone with the series' own all off
+    (tests/fixtures/series_points.json)."""
+    if on and look.shown():
+        return _series_labels(kind, leader_lines, look, points)
+    if points:
+        return _series_labels(kind, leader_lines, LabelLook(value=False), points, alone=True)
+    return ""
 
 
 #: Stands for the chart part's own end of a unique id in a point's markup, which only the writer knows.
@@ -392,14 +403,9 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         element = "xVal" if kind == "scatter" else "cat"
         categories = _reference(element, data.categories, cache, numbers=data.numeric_categories)
     categories = data.trendlines + data.error_bars + categories
-    if data.labels and data.label_look.shown():
-        # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json);
-        # labels showing nothing write none (tests/fixtures/data_labels_object.json).
-        categories = _series_labels(kind, data.leader_lines, data.label_look, data.point_labels) + categories
-    elif data.point_labels:
-        # Labels on some points alone, the series' own all off (tests/fixtures/series_points.json).
-        categories = _series_labels(kind, data.leader_lines, LabelLook(value=False), data.point_labels,
-                                    alone=True) + categories
+    # A series' data labels come just before its trendlines, error bars and categories, on every kind
+    # (tests/fixtures/chart_data_labels.json).
+    categories = labels_markup(kind, data.labels, data.leader_lines, data.label_look, data.point_labels) + categories
     # A series' points set apart come before its labels (tests/fixtures/series_points.json).
     categories = data.points + categories
     values = _reference(
@@ -582,7 +588,7 @@ def _axis_ids() -> tuple[int, int]:
 
 def plain_label_text(xml: str) -> str:
     """Data labels' text once the chart area has a font: their body is the plain one (tests/fixtures/chart_font_gaps.json)."""
-    return xml.replace(_LABEL_BODY, "<a:bodyPr/>")
+    return xml.replace(LABEL_BODY, "<a:bodyPr/>")
 
 
 __all__ = ["CHART_KINDS", "CT_CHART", "ChartKind", "SeriesData", "chart_frame", "chart_part"]

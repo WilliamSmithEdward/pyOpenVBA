@@ -1116,7 +1116,18 @@ def _drop_gone_tables(book: Workbook, package: OpcFile) -> None:
         xml = re.sub(r"<tableParts\b.*?</tableParts>|<tableParts\b[^>]*/>", lambda _: element, xml, count=1, flags=re.DOTALL)
         package.write(sheet.part_name, xml.encode("utf-8"))
         for part in gone.values():
+            # A table over a database takes its query table's part with it (tests/fixtures/list_query_add_saved.json).
+            owned = [_resolved(target) for kind, target in _sheet_relationships(package, part).values() if kind == "queryTable"]
             _drop_sheet_part(package, sheet, part)
+            rels = posixpath.join(posixpath.dirname(part), "_rels", posixpath.basename(part) + ".rels")
+            if owned and package.has(rels):
+                package.remove(rels)
+            for one in owned:
+                _remove_unreferenced_part(package, one)
+            # With its last relationship gone the sheet has no relationships part, as Excel writes none.
+            sheet_rels = posixpath.join(posixpath.dirname(sheet.part_name), "_rels", posixpath.basename(sheet.part_name) + ".rels")
+            if owned and package.has(sheet_rels) and "<Relationship " not in package.read(sheet_rels).decode("utf-8"):
+                package.remove(sheet_rels)
 
 
 def _drop_gone_pivot_tables(book: Workbook, package: OpcFile) -> None:
@@ -1149,7 +1160,9 @@ def _write_tables(book: Workbook, package: OpcFile) -> None:
         for table in sheet.tables:
             if table.part and not table.changed and not sort_changed(table):
                 continue
-            if table.part and table.xml:
+            # A table ListObjects.Add made over a database is written whole: a refresh changes its columns and their ids.
+            made = table.query is not None and table.query.made
+            if table.part and table.xml and not made:
                 table.xml = patched_xml(table)
                 package.write(table.part, table.xml.encode("utf-8"))
                 table.changed = False
@@ -1276,6 +1289,34 @@ def _write_pictures(package: OpcFile, sheet: Worksheet, drawing: str) -> None:
         shape.image_relationship = related[shape.image]
 
 
+def _sync_control_flags(package: OpcFile, sheet: Worksheet, xml: str, vml: str, item: ShapeState, info: object) -> tuple[str, str]:
+    """A loaded control's Enabled, PrintObject, LockedText, DropDownLines and Display3DShading where they now differ from what its file holds, written where Excel
+    writes each (tests/fixtures/loaded_control_edits.json); a control nobody changed is left as its file has it."""
+    from dataclasses import replace
+
+    from pyopenvba.shapes._xlsx import read_control_settings, with_control_flags, with_control_settings, with_vml_flags, with_vml_text_frame
+
+    control = item.control
+    if control is None:
+        return xml, vml
+    held = replace(control)
+    read_control_settings(vml, replace(item, control=held), held)
+    file_lock = getattr(info, "lock_text", control.lock_text)
+    file_three_d = getattr(info, "three_d", control.three_d)
+    in_part = file_lock != control.lock_text or file_three_d != control.three_d
+    if (held.disabled, held.print_object, held.drop_lines) != (control.disabled, control.print_object, control.drop_lines) or in_part or control.button_flags:
+        xml = with_control_flags(xml, item)
+        vml = with_vml_flags(vml, item)
+    vml = with_vml_text_frame(vml, item)
+    part = _part_for(package, sheet.part_name, getattr(info, "relationship", ""))
+    if part and package.has(part):
+        properties = package.read(part).decode("utf-8")
+        changed = with_control_settings(properties, control)
+        if changed != properties and (in_part or held.drop_lines != control.drop_lines):
+            package.write(part, changed.encode("utf-8"))
+    return xml, vml
+
+
 def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState]) -> None:
     """Follow control edits and deletions into the sheet, VML and part relationships."""
     from pyopenvba.shapes._xlsx import (
@@ -1311,6 +1352,7 @@ def _sync_controls(package: OpcFile, sheet: Worksheet, before: list[ShapeState])
             xml = with_control_shape(xml, item, sheet.drawing_grid())
         xml = with_control_state(xml, item)
         vml = with_vml_control(vml, item, old, sheet.drawing_grid())
+        xml, vml = _sync_control_flags(package, sheet, xml, vml, item, info)
         if any(getattr(item.control, key) != getattr(info, key) for key in (
             "linked_cell", "list_range", "value", "selection_mode", "items", "selected_indices",
             "minimum", "maximum", "increment", "page_change", "drop_width", "first_button",
@@ -1935,10 +1977,11 @@ def _fresh_package(suffix: str) -> OpcFile:
     from pyopenvba._templates import EMPTY_XLSM_BYTES
 
     package = OpcFile.parse(EMPTY_XLSM_BYTES)
-    if suffix in (".xlsx", ".xltx", ""):
-        _make_macro_free(package)
-    if suffix in (".xltx", ".xltm"):
-        _write_main_type(package, 54 if suffix == ".xltx" else 53)
+    # A macro-enabled book Excel saves with no code holds no VBA project, nor code names (tests/fixtures/workbook_reads/settings.xlsm,
+    # tests/fixtures/workbook_reads_heldout/round1_excel.json): the project is put in at the save only when there is code for it.
+    _make_macro_free(package)
+    if suffix in (".xlsm", ".xltx", ".xltm"):
+        _write_main_type(package, {".xlsm": 52, ".xltx": 54, ".xltm": 53}[suffix])
     return package
 
 

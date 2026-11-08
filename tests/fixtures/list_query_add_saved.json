@@ -1,0 +1,188 @@
+{
+ "books": {
+  "save": [
+   "save",
+   "",
+   "SELECT * FROM T WHERE Id <= 4 ORDER BY Id"
+  ],
+  "save_unrefreshed": [
+   "save_unrefreshed",
+   "",
+   "SELECT * FROM T WHERE Id <= 4 ORDER BY Id"
+  ],
+  "ids_three": [
+   "ids",
+   "6",
+   "SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 4 ORDER BY Id"
+  ]
+ },
+ "cases": {
+  "save": [
+   "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False",
+   "table Table_ExternalData_1 $B$2:$C$5 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\\data\\rows.accdb CommandText=String:SELECT * FROM T WHERE Id <= 3 ORDER BY Id CommandType=Long:4 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$5 destination=$B$2 connection=Connection",
+   "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "four E0 listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$6/False",
+   "table Table_ExternalData_1 $B$2:$C$6 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data\\rows.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=1;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT * FROM T WHERE Id <= 4 ORDER BY Id CommandType=Long:4 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$6 destination=$B$2 connection=Connection",
+   "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "save_unrefreshed": [
+   "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$B$3/False",
+   "table Table_ExternalData_1 $B$2:$B$3 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\\data\\rows.accdb CommandText=E7 CommandType=Long:4 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$B$3 destination=$B$2 connection=Connection",
+   "|Empty:|Empty:|Empty:|Empty:|String:ExternalData_1: Getting Data ...|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "four E0 listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$6/False",
+   "table Table_ExternalData_1 $B$2:$C$6 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data\\rows.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=1;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT * FROM T WHERE Id <= 4 ORDER BY Id CommandType=Long:4 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$6 destination=$B$2 connection=Connection",
+   "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Double:4|String:n4|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ],
+  "ids_three": [
+   "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$D$4/False",
+   "table Table_ExternalData_1 $B$2:$D$4 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;Data Source=C:\\data\\rows.accdb CommandText=String:SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 2 ORDER BY Id CommandType=Long:4 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$D$4 destination=$B$2 connection=Connection",
+   "|Empty:|Empty:|Empty:|Empty:|String:Name|String:Id|String:D|Empty:|String:n1|Double:1|Double:2|Empty:|String:n2|Double:2|Double:4|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+   "four E0 listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$D$6/False",
+   "table Table_ExternalData_1 $B$2:$D$6 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data\\rows.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=1;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT Id, Name, Id * 2 AS D FROM T WHERE Id <= 4 ORDER BY Id CommandType=Long:4 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$D$6 destination=$B$2 connection=Connection",
+   "|Empty:|Empty:|Empty:|Empty:|String:Name|String:Id|String:D|Empty:|String:n1|Double:1|Double:2|Empty:|String:n2|Double:2|Double:4|Empty:|String:n3|Double:3|Double:6|Empty:|String:n4|Double:4|Double:8|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:"
+  ]
+ },
+ "dropped": {
+  "access_table_delete": {
+   "rows": [
+    "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False",
+    "table Table_ExternalData_1 $B$2:$C$5 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data\\rows.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=1;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT * FROM T WHERE Id <= 3 ORDER BY Id CommandType=Long:2 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$5 destination=$B$2 connection=Connection",
+    "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "delete E0 listobjects=0 querytables=0 connections=0",
+    "|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "saved E0"
+   ],
+   "saved": {
+    "parts": [
+     "[Content_Types].xml",
+     "_rels/.rels",
+     "docProps/app.xml",
+     "docProps/core.xml",
+     "xl/_rels/workbook.xml.rels",
+     "xl/sharedStrings.xml",
+     "xl/styles.xml",
+     "xl/theme/theme1.xml",
+     "xl/workbook.xml",
+     "xl/worksheets/sheet1.xml"
+    ],
+    "names": "",
+    "types": [
+     "/docProps/app.xml",
+     "/docProps/core.xml",
+     "/xl/sharedStrings.xml",
+     "/xl/styles.xml",
+     "/xl/theme/theme1.xml",
+     "/xl/workbook.xml",
+     "/xl/worksheets/sheet1.xml"
+    ],
+    "tableParts": []
+   }
+  },
+  "access_table_unlist": {
+   "rows": [
+    "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False",
+    "table Table_ExternalData_1 $B$2:$C$5 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data\\rows.accdb;Mode=Share Deny None;Extended Properties=\"\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=6;Jet OLEDB:Database Locking Mode=1;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT * FROM T WHERE Id <= 3 ORDER BY Id CommandType=Long:2 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$5 destination=$B$2 connection=Connection",
+    "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "unlist E0 listobjects=0 querytables=0 connections=0",
+    "|Empty:|Empty:|Empty:|Empty:|String:Id!b|String:Name!b|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "saved E0"
+   ],
+   "saved": {
+    "parts": [
+     "[Content_Types].xml",
+     "_rels/.rels",
+     "docProps/app.xml",
+     "docProps/core.xml",
+     "xl/_rels/workbook.xml.rels",
+     "xl/sharedStrings.xml",
+     "xl/styles.xml",
+     "xl/theme/theme1.xml",
+     "xl/workbook.xml",
+     "xl/worksheets/sheet1.xml"
+    ],
+    "names": "",
+    "types": [
+     "/docProps/app.xml",
+     "/docProps/core.xml",
+     "/xl/sharedStrings.xml",
+     "/xl/styles.xml",
+     "/xl/theme/theme1.xml",
+     "/xl/workbook.xml",
+     "/xl/worksheets/sheet1.xml"
+    ],
+    "tableParts": []
+   }
+  },
+  "csv_table_delete": {
+   "rows": [
+    "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False",
+    "table Table_ExternalData_1 $B$2:$C$5 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data;Mode=Share Deny None;Extended Properties=\"text;HDR=Yes;FMT=Delimited\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=96;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT * FROM [rows.csv] WHERE Id <= 3 ORDER BY Id CommandType=Long:2 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$5 destination=$B$2 connection=Connection",
+    "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "delete E0 listobjects=0 querytables=0 connections=0",
+    "|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "saved E0"
+   ],
+   "saved": {
+    "parts": [
+     "[Content_Types].xml",
+     "_rels/.rels",
+     "docProps/app.xml",
+     "docProps/core.xml",
+     "xl/_rels/workbook.xml.rels",
+     "xl/sharedStrings.xml",
+     "xl/styles.xml",
+     "xl/theme/theme1.xml",
+     "xl/workbook.xml",
+     "xl/worksheets/sheet1.xml"
+    ],
+    "names": "",
+    "types": [
+     "/docProps/app.xml",
+     "/docProps/core.xml",
+     "/xl/sharedStrings.xml",
+     "/xl/styles.xml",
+     "/xl/theme/theme1.xml",
+     "/xl/workbook.xml",
+     "/xl/worksheets/sheet1.xml"
+    ],
+    "tableParts": []
+   }
+  },
+  "csv_table_unlist": {
+   "rows": [
+    "opened listobjects=1 querytables=0 connections=1 [Connection/1] Sheet1!ExternalData_1==Sheet1!$B$2:$C$5/False",
+    "table Table_ExternalData_1 $B$2:$C$5 SourceType=Long:3 ShowHeaders=Boolean:True ShowAutoFilter=Boolean:True TableStyle=String:TableStyleMedium2 DisplayName=String:Table_ExternalData_1 Name=E1004 Connection=String:OLEDB;Provider=Microsoft.ACE.OLEDB.16.0;User ID=Admin;Data Source=C:\\data;Mode=Share Deny None;Extended Properties=\"text;HDR=Yes;FMT=Delimited\";Jet OLEDB:System database=\"\";Jet OLEDB:Registry Path=\"\";Jet OLEDB:Engine Type=96;Jet OLEDB:Database Locking Mode=0;Jet OLEDB:Global Partial Bulk Ops=2;Jet OLEDB:Global Bulk Transactions=1;Jet OLEDB:New Database Password=\"\";Jet OLEDB:Create System Database=False;Jet OLEDB:Encrypt Database=False;Jet OLEDB:Don't Copy Locale on Compact=False;Jet OLEDB:Compact Without Replica Repair=False;Jet OLEDB:SFP=False;Jet OLEDB:Support Complex Data=False;Jet OLEDB:Bypass UserInfo Validation=False;Jet OLEDB:Limited DB Caching=False;Jet OLEDB:Bypass ChoiceField Validation=False CommandText=String:SELECT * FROM [rows.csv] WHERE Id <= 3 ORDER BY Id CommandType=Long:2 QueryType=Long:5 BackgroundQuery=Boolean:False RefreshStyle=Long:1 FieldNames=E1004 RowNumbers=Boolean:False FillAdjacentFormulas=Boolean:False PreserveFormatting=Boolean:True AdjustColumnWidth=Boolean:True SavePassword=Boolean:False SaveData=Boolean:True EnableRefresh=Boolean:True RefreshOnFileOpen=Boolean:False EnableEditing=Boolean:True MaintainConnection=Boolean:True PreserveColumnInfo=Boolean:True RefreshPeriod=Long:0 Refreshing=Boolean:False result=$B$2:$C$5 destination=$B$2 connection=Connection",
+    "|Empty:|Empty:|Empty:|Empty:|String:Id|String:Name|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "unlist E0 listobjects=0 querytables=0 connections=0",
+    "|Empty:|Empty:|Empty:|Empty:|String:Id!b|String:Name!b|Empty:|Empty:|Double:1|String:n1|Empty:|Empty:|Double:2|String:n2|Empty:|Empty:|Double:3|String:n3|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|String:below|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:|Empty:",
+    "saved E0"
+   ],
+   "saved": {
+    "parts": [
+     "[Content_Types].xml",
+     "_rels/.rels",
+     "docProps/app.xml",
+     "docProps/core.xml",
+     "xl/_rels/workbook.xml.rels",
+     "xl/sharedStrings.xml",
+     "xl/styles.xml",
+     "xl/theme/theme1.xml",
+     "xl/workbook.xml",
+     "xl/worksheets/sheet1.xml"
+    ],
+    "names": "",
+    "types": [
+     "/docProps/app.xml",
+     "/docProps/core.xml",
+     "/xl/sharedStrings.xml",
+     "/xl/styles.xml",
+     "/xl/theme/theme1.xml",
+     "/xl/workbook.xml",
+     "/xl/worksheets/sheet1.xml"
+    ],
+    "tableParts": []
+   }
+  }
+ },
+ "measured_at": "2026-11-07T15:42:44.843294+00:00"
+}

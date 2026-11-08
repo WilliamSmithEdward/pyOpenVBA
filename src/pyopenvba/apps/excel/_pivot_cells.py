@@ -481,3 +481,21 @@ def pivot_item(target: _model.Range) -> pivots.PivotItem:
     if item is None:
         raise _unable('PivotItem', 'Range')
     return item
+
+
+def refuse_value_write(target: _model.Range) -> None:
+    """A value written into a pivot table's values: Excel raises the table's PivotTableChangeSync and refuses it with 1004, writing
+    nothing (tests/fixtures/workbook_macro_events.json pivot_value_edit). Only cells wholly inside one table's DataBodyRange are
+    measured; a write elsewhere in a table goes on as before."""
+    from pyopenvba.apps.excel import _events
+
+    for table in target.sheet.pivot_tables:
+        try:
+            body = table.vba_get('DataBodyRange')
+        except VBARuntimeError:
+            continue
+        if isinstance(body, _model.Range) and all(
+                any(whole.top <= area.top and area.bottom <= whole.bottom and whole.left <= area.left and area.right <= whole.right
+                    for whole in body.areas) for area in target.areas):
+            _events.pivot_synced(table)
+            raise error(1004, "Application-defined or object-defined error")

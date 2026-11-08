@@ -14,7 +14,7 @@ Measured in live Excel (scripts/measure_remove_duplicates.py):
   however it shows. Formulas match by what they give.
 - Text compares as Windows compares words ignoring case, so æ matches ae
   and ß ss while é is no e: by its word-sort key (_sort.text_key). Text
-  beyond Latin, Greek and Cyrillic reports itself unsupported.
+  beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and Hangul reports itself unsupported.
 - Header is xlNo when left out; xlGuess takes the first row for a header
   as Sort's xlGuess does. A single cell works on its current region.
 - Columns counts from the range's first column. Left out, or 0, nothing
@@ -163,5 +163,6 @@ def _key(sheet: Worksheet, row: int, column: int) -> tuple[object, ...]:
     try:
         return ("text", text_key(str(value), False))
     except VBAUnsupportedError:
-        raise VBAUnsupportedError("RemoveDuplicates on text beyond Latin, Greek and Cyrillic, their marks and "
-                                  "punctuation, or that begins with a combining mark, is not implemented") from None
+        raise VBAUnsupportedError("RemoveDuplicates on text beyond Latin, Greek, Cyrillic, Hebrew, Arabic, Thai and "
+                                  "Hangul, their marks and punctuation, or that begins with a combining mark, is not "
+                                  "implemented") from None

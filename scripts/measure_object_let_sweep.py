@@ -189,6 +189,10 @@ def measure() -> None:
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
         excel.run_vba('Function Hello() As String\n    Hello = "x"\nEnd Function\n', 'Hello', (), timeout=60)
+        settings = sorted({case[2] for case in every if case[0] == 'Application'})
+        reading = ('Function Settings() As String\n    On Error Resume Next\n'
+                   + ''.join(f'    Settings = Settings & "|{one}=" & CStr(Application.{one})\n' for one in settings) + 'End Function\n')
+        before = excel.run_vba(reading, 'Settings', (), timeout=60).value
         for name in PATHS:
             chosen: list[Any] = [case for case in every if case[0] == name]
             for typed in (True, False):
@@ -196,10 +200,14 @@ def measure() -> None:
                 assert result.ok, (name, typed, result.error, [one.message for one in result.dialogs])
                 answers['typed' if typed else 'late'] += str(result.value).split(SEPARATOR)
             print(name, len(chosen), 'cases', flush=True)
+        after = excel.run_vba(reading, 'Settings', (), timeout=60).value
     order = {name: index for index, name in enumerate(PATHS)}
     assert [case[0] for case in every] == sorted((case[0] for case in every), key=order.__getitem__)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
     OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
+    # Excel keeps many of these for the user: any one not put back is to be restored by hand before anything else. StatusBar, which
+    # lasts the session only, reads "FALSE" once False is given back to it.
+    assert str(before).replace('statusbar=False', 'statusbar=FALSE') == after, (before, after)
     for binding in answers:
         verdicts = [_verdict(p, a) for p, a in zip(record['rule'][binding], answers[binding])]
         misses = sum(a != b and b != 'refused' for a, b in zip(answers[binding], record['model'][binding]))

@@ -6,8 +6,10 @@ Cells put in or taken away inside a table go as table rows or columns, and cells
 where it lies wholly in their band; a shift that would cut a table is error 1004, as in src's _table_shifts. In a
 filtered table, ListRows.Add inside it, ListRow.Delete and a Delete up are 1004.
 
-Where the model refuses, it is for one of two reasons: a Delete of every column of a table by its cells, and a
-Delete with no Shift in a filtered table, where Excel asks first with DisplayAlerts on.
+Where the model refuses, it is for a reason named in REFUSALS, none of them measured: a Delete of every column of a
+table by its cells; a Delete with no Shift in a filtered table, where Excel asks first with DisplayAlerts on; cells
+moved across a table with no Shift, or put in across its columns and past its rows; one edit across several tables;
+and, as before, whole columns through a table and a table's header row taken by whole rows.
 """
 from __future__ import annotations
 
@@ -24,7 +26,9 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 ROUNDS = tuple(stem for stem in ('table_shifts_a', 'table_shifts_b', 'table_shifts_c', 'table_shifts1',
                                   'table_shifts2', 'table_shifts3')
                if (FIXTURES / f'{stem}.json').exists())
-REFUSALS = ("deleting all of a table's columns by deleting cells", 'where Excel asks first')
+REFUSALS = ("deleting all of a table's columns by deleting cells", 'where Excel asks first',
+            'across a table with no Shift', 'across several tables', 'across a table and beyond its rows',
+            'inserting or deleting columns through a table', "deleting a table's header row")
 
 
 def _cases() -> list[tuple[str, list[Any], str, str]]:

@@ -76,7 +76,7 @@ def _points_step(entry: SeriesState, turned: str, sheet: str, change: Change) ->
     if before is None or after is None or not entry.points:
         return None
     prefix, top, left, bottom, right = before
-    _, new_top, new_left, new_bottom, _ = after
+    _, new_top, new_left, new_bottom, new_right = after
     down = bottom > top
     places: dict[int, int] = {}
     for index in entry.points:
@@ -84,8 +84,11 @@ def _points_step(entry: SeriesState, turned: str, sheet: str, change: Change) ->
         if row > bottom or column > right:
             continue
         cell = _single(change(f'={prefix}${column_letter(column)}${row}', sheet)[1:])
-        if cell is not None:
+        # A point whose cell moves out of the series' cells loses its look and label (chart_shift_losses1.json).
+        if cell is not None and new_top <= cell[1] <= new_bottom and new_left <= cell[2] <= new_right:
             places[index] = cell[1] - new_top if down or new_bottom > new_top else cell[2] - new_left
+    if all(places.get(index) == index for index in entry.points):
+        return None
 
     def step() -> None:
         kept = {}
@@ -181,6 +184,12 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
         if not text:
             continue
         turned = turned_text(text)
+        if turned == text and field == 'value_reference' and not state.original:
+            # Its cells can move inside it, or out of it, with the reference as it was.
+            moving = _points_step(holder, turned, sheet.name, change)  # pyright: ignore[reportArgumentType]
+            if moving is not None:
+                steps.append(moving)
+                steps.append(changed)
         if turned == text or (state.original and '#REF!' in turned):
             # A chart from a file goes on reading a reference whose cells went as it was; its part says #REF!.
             continue

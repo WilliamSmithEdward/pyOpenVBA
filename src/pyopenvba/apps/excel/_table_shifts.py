@@ -93,7 +93,9 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
             auto and whole.left <= area.left and area.right <= whole.right and area.bottom <= whole.bottom)
         if data_top <= area.top <= whole.bottom and spans:
             return lambda: _rows_in(table, area.top, area.rows)
-        raise error(1004, MOVES_A_TABLE)
+        # Cells put in from the header row up, short of the table's width, fail as the method does
+        # (tests/fixtures/table_shifts1.json).
+        raise error(1004, refusal if area.top <= whole.top else MOVES_A_TABLE)
     if auto:
         raise VBAUnsupportedError('cells put in or taken away across a table with no Shift are not implemented')
     if delete:

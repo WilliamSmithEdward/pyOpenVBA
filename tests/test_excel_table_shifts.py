@@ -26,7 +26,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 ROUNDS = tuple(stem for stem in ('table_shifts_a', 'table_shifts_b', 'table_shifts_c', 'table_shifts1',
                                   'table_shifts2', 'table_shifts3', 'table_shifts4', 'table_shifts5',
-                                  'table_shifts6', 'table_shifts7', 'table_shifts8', 'table_shifts9')
+                                  'table_shifts6', 'table_shifts7', 'table_shifts10', 'table_shifts11')
                if (FIXTURES / f'{stem}.json').exists())
 REFUSALS = ("deleting all of a table's columns by deleting cells", 'where Excel asks first',
             'across a table with no Shift', 'across several tables', 'across a table and beyond its rows',

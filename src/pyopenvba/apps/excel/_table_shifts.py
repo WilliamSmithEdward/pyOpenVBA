@@ -76,6 +76,8 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
     if delete and _inside(whole, area):
         return None
     if vertical and delete:
+        if _header_cut(table, area):
+            raise error(1004, refusal)
         if area.left < whole.left or whole.right < area.right:
             # Past the table's columns: from left of them into them, short of its right edge, it fails as the method
             # does; otherwise it would move the table, header row or not (tests/fixtures/table_shifts5.json, _7).
@@ -119,8 +121,9 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
 
 
 def _header_cut(table: Table, area: Area) -> bool:
-    """Whether cells put in take in a table's header row and end before its last row, which fails as the method
-    does; any other insert that would cut the table would move it (tests/fixtures/table_shifts1.json, _4, _5)."""
+    """Whether cells put in or taken away take in a table's header row and end before its last row, which fails as
+    the method does; any other edit that would cut the table would move it (tests/fixtures/table_shifts1.json, _4,
+    _5, _6)."""
     whole = table.area
     return bool(table.headers) and area.top <= whole.top <= area.bottom < whole.bottom
 

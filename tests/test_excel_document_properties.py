@@ -35,10 +35,6 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / "document_properties.json").read
 CASES: dict[str, dict[str, Any]] = {case["name"]: case for case in RECORD["cases"]}
 #: The cases Excel's Build made, in its order: each one's Make function.
 MADE = [name for name in CASES if name != "no_docprops"]
-#: The cases the model does not make, and why.
-UNSUPPORTED = {
-    "chart_sheet": "a chart sheet, which the model does not make",
-}
 #: The user the model writes as the author, and the moment its clock is held at.
 USER = "Ann Author"
 NOW = dt.datetime(2026, 10, 25, 4, 21, 32)
@@ -126,8 +122,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, tuple[
         patch.setattr(properties, "zone_rule", recorded_rule)
         now = properties.to_utc(NOW)
         for index, name in enumerate(MADE):
-            if name not in UNSUPPORTED:
-                found.update(_run(name, ONE, "One", index, str(folder)))
+            found.update(_run(name, ONE, "One", index, str(folder)))
         shutil.copy(FIXTURES / "no_docprops.xlsx", folder / "no_docprops.xlsx")
         found.update(_run("no_docprops", portable(RECORD["opened"]), "Opened", str(folder)))
     return found, folder, now
@@ -145,7 +140,7 @@ def _run(name: str, code: str, macro: str, *args: object) -> dict[str, tuple[str
         return {name: (f"failed: {exc!r}", "", None)}
 
 
-@pytest.mark.parametrize("name", [name for name in CASES if name not in UNSUPPORTED])
+@pytest.mark.parametrize("name", list(CASES))
 def test_a_workbooks_properties_read_as_excels(replayed: tuple[dict[str, Any], Path, int], name: str) -> None:
     """Every property's name, type, value and link, and the errors the steps raise, as the macro reads them before
     the save, once the file is opened again and once it is saved and opened a second time."""
@@ -157,7 +152,7 @@ def test_a_workbooks_properties_read_as_excels(replayed: tuple[dict[str, Any], P
 
 
 #: The files Excel saved that the model saves too: all but the one without docProps, which the measurement made.
-FILES = [name for name in RECORD["files"] if name != "no_docprops" and name not in UNSUPPORTED]
+FILES = [name for name in RECORD["files"] if name != "no_docprops"]
 
 
 def excels_parts(name: str) -> dict[str, str]:
@@ -247,15 +242,6 @@ def test_half_a_surrogate_pair_reports_itself(tmp_path: Path) -> None:
     with pytest.raises(VBAUnsupportedError):
         _saved_by('Public Sub Go(path As String)\nActiveWorkbook.BuiltinDocumentProperties("Title").Value = "a" & '
                   "ChrW(&HD83D)\nActiveWorkbook.SaveAs path, 51\nEnd Sub\n", tmp_path / "half.xlsx")
-
-
-@pytest.mark.parametrize("name", sorted(UNSUPPORTED))
-def test_what_the_model_does_not_do_reports_itself(tmp_path: Path, name: str) -> None:
-    """A chart sheet among them, which Excel lists under a heading of its own, Charts, after the worksheets."""
-    app = ExcelApplication(sandbox=False)
-    app.add_module(ONE, name="Cases")
-    with pytest.raises(VBAUnsupportedError):
-        app.run("One", MADE.index(name), str(tmp_path))
 
 
 @pytest.mark.parametrize(("local", "utc"), [

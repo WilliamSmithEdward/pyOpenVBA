@@ -111,9 +111,6 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
     sheet.book.application.parameters_ready = True
-    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
-
-    refuse_sparklines(sheet, "Inserting or deleting rows or columns on")
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
     if not laid:
@@ -158,6 +155,12 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     listed = _advanced_filter.edited(sheet, names)
     chart_references = _chart_references.plan(sheet.book, lambda text, owner: rewrite(
         text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
+    from pyopenvba.apps.excel import _sparklines
+
+    sparklines = _sparklines.shifted(
+        sheet, CellShift(rows, (1, MAX_COLUMNS) if rows else (1, MAX_ROWS), start, count, delete),
+        lambda text, owner: rewrite(text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete),
+        below=below)
     # All validation/conversion precedes mutation.
     from pyopenvba.apps.excel._shape_anchors import anchors, lines_edited
 
@@ -212,6 +215,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
 
     filter_edited(sheet, rows=rows, start=start, count=count, delete=delete)
     listed()
+    sparklines()
     _spills.restore(sheet, caches)
     sheet.shape_changed()
 
@@ -267,9 +271,6 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     is a table the shift may run through, a row or a column of it going in or out, whose block the caller keeps
     up to date. Inserted cells take the formats of those before them, or with ``below`` those after them."""
     sheet = target.sheet
-    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
-
-    refuse_sparklines(sheet, "Shifting cells on")
     shift = CellShift.of(area, delete=delete, vertical=vertical)
     band, start, count = shift.band, shift.start, shift.count
     limit = MAX_ROWS if vertical else MAX_COLUMNS
@@ -322,6 +323,10 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     listed = _advanced_filter.edited(sheet, names)
     chart_references = _chart_references.plan(sheet.book, lambda text, owner: rewrite_shift(
         text, owner, sheet.name, shift))
+    from pyopenvba.apps.excel import _sparklines
+
+    sparklines = _sparklines.shifted(sheet, shift, lambda text, owner: rewrite_shift(text, owner, sheet.name, shift),
+                                     below=below)
     from pyopenvba.apps.excel._autofilter import filter_shifted
 
     follow = filter_shifted(sheet, shift)
@@ -365,6 +370,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
         lines_edited(sheet, carried, rows=vertical, start=start, count=count, delete=delete)
     follow()
     listed()
+    sparklines()
     _spills.restore(sheet, caches)
     sheet.shape_changed()
 

@@ -23,14 +23,15 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_label_edits.json').read_text(encoding='utf-8'))
 _SERIES_EDITS = ('nothing', 'labels on', 'labels off', 'labels on then off', 'labels on twice', 'show category', 'show series name',
                  'show value off', 'position', 'number format', 'separator')
-#: The cases the model answers, by book. The rest are refused: a chart with a style, labels the model does not write as the file
-#: holds them (a turned or shadowed label), a point's label on a series whose labels have a look (Excel
-#: gives it their place and the value alone), and the series' labels changing with a point's label of its own.
+#: The cases the model answers, by book. The rest are refused: labels the model does not write as the file holds them (a turned or
+#: shadowed label, or labels with a font), a point's label on a series whose labels have a look (Excel gives it their place and the
+#: value alone), a point's label on a chart with a trendline, whose numbering is not known, and the series' labels changing with a
+#: point's label of its own.
 BUILT: dict[str, tuple[str, ...]] = {
     'loaded_chart_plain.xlsx': (*_SERIES_EDITS, 'labels on second', 'point label on', 'point label off', 'point label text',
                                 'point label text second', 'two point labels', 'point labels on both', 'point text second point',
                                 'point show category', 'point position'),
-    'loaded_chart_dressed.xlsx': ('nothing',),
+    'loaded_chart_dressed.xlsx': ('nothing', 'labels on second'),
     'loaded_chart_labelled.xlsx': (*_SERIES_EDITS, 'point label text second', 'point text second point'),
 }
 _UNIQUE = re.compile(r'(uniqueId val="\{[0-9A-F]{8})(-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})')

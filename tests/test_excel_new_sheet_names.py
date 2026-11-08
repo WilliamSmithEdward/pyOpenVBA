@@ -10,7 +10,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/new_sheet_names.json').read_text(encoding='utf-8'))
 #: The probe's own wording of each step, kept out of a script that imports the harness.
@@ -40,21 +39,12 @@ def _statement(step: str) -> str:
     return f'Application.DisplayAlerts = False: wb.Worksheets("{words[1]}").Delete'
 
 
-#: A new chart sheet is not built, and reports itself.
-REFUSED = [case for case in RECORD['cases'] if 'chart' in case[0]]
-KEPT = [case for case in RECORD['cases'] if 'chart' not in case[0]]
+CASES = RECORD['cases']
 
 
-@pytest.mark.parametrize(('steps', 'answer'), KEPT, ids=[' / '.join(case[0]) for case in KEPT])
+@pytest.mark.parametrize(('steps', 'answer'), CASES, ids=[' / '.join(case[0]) for case in CASES])
 def test_each_sheet_as_excel_named_it(tmp_path: Path, steps: list[str], answer: str) -> None:
     assert _named(tmp_path, steps) == answer
-
-
-@pytest.mark.parametrize(('steps', 'answer'), REFUSED, ids=[' / '.join(case[0]) for case in REFUSED])
-def test_a_chart_sheet_says_so(tmp_path: Path, steps: list[str], answer: str) -> None:
-    assert answer.startswith('ok Chart1')
-    with pytest.raises(VBAUnsupportedError):
-        _named(tmp_path, steps)
 
 
 def _named(folder: Path, steps: list[str]) -> object:

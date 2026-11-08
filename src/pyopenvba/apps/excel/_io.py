@@ -1779,7 +1779,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         # joined them (_conditional_joins), so a sheet keeps its bytes only where they are those.
         conditional_changes = not sheet.dirty and _plain_conditional(sheet)
         breaks_changes = sheet.page_breaks is not None and sheet.page_breaks.changed
-        sparkline_changes = sheet.sparklines is not None and sheet.sparklines.changed
+        from pyopenvba.apps.excel._sparklines import rewritten as sparklines_rewritten
+
+        sparkline_changes = sparklines_rewritten(sheet)
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes
                                        or outline_changes or sort_changes or conditional_changes
                                        or sheet.tab_changed or breaks_changes or sheet.transitions_changed

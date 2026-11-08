@@ -782,11 +782,19 @@ def source_format(sheet: Worksheet, formula: str) -> str:
 
     return to_text(Range(owner, [Area(area.top, area.left, area.top, area.left)]).NumberFormat())
 
+def _two_sided(formula: str) -> bool:
+    """Whether a reference takes more than one row and more than one column."""
+    try:
+        return any(area.top < area.bottom and area.left < area.right for area in parse_reference(formula))
+    except ValueError:
+        return False
+
+
 def refresh(sheet: Worksheet, package: OpcFile) -> None:
     """Refresh only changed reference caches; leave every other chart byte alone, but for the references a chart read
     from a file has had rewritten as its cells moved."""
     for shape_id, chart in sheet.chart_states.items():
-        if chart.parts_pending or chart.plot_pending:
+        if chart.parts_pending or chart.plot_pending or chart.whole_pending:
             from pyopenvba.apps.excel._chart_loaded import write_parts
 
             write_parts(sheet.chart_sheet or Chart(sheet, next(item for item in sheet.shapes_ if item.shape_id == shape_id)))
@@ -807,6 +815,9 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
                 return raw
             numeric = cached.group(1) == 'numCache'
             if lost(unescape(formula.group(1))):
+                return raw
+            if not numeric and _two_sided(unescape(formula.group(1))):
+                # Labels of two levels written as one, a level being blank right across, keep the one level's texts.
                 return raw
             try:
                 source = referenced_values(sheet, unescape(formula.group(1)), visible=chart.visible_only)
@@ -1036,6 +1047,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         parts = series_parts(sheet, chart, item)
         categories = series.categories()
         levels = category_levels(sheet, item) or []
+        if sum(any(level) for level in levels) == 1:
+            # Labels of two levels, one of them blank right across, are written as the other alone (tests/fixtures/charts_add.json).
+            categories, levels = list[object](next(level for level in levels if any(level))), []
         numeric = numeric_categories(categories, levels)
         name_points = [text for row in shown_cells(sheet, item.name_reference) for text in row] if (
             item.name_reference and len(referenced_values(sheet, item.name_reference)) > 1) else []

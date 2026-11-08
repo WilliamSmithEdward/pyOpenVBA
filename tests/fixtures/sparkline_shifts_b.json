@@ -1,0 +1,909 @@
+{
+"measured_at": "2026-11-08T00:22:50.293693+00:00",
+"source": "Private Function Groups(ws As Object) As String\n    Dim out As String, g As Object, i As Long, s As String\n    On Error Resume Next\n    out = ws.Name & \"[\" & ws.Cells.SparklineGroups.Count & \"]\"\n    For Each g In ws.Cells.SparklineGroups\n        s = \"-\": s = g.Type\n        out = out & \" {\" & s\n        s = \"-\": s = g.Location.Address(False, False)\n        out = out & \" at=\" & s\n        s = \"-\": s = g.SourceData\n        out = out & \" src=\" & s\n        s = \"-\": s = g.DateRange\n        out = out & \" dates=\" & s\n        For i = 1 To g.Count\n            s = \"-\": s = g.Item(i).Location.Address(False, False)\n            out = out & \" \" & s\n            s = \"-\": s = g.Item(i).SourceData\n            out = out & \"=\" & s\n        Next\n        out = out & \"}\"\n        Err.Clear\n    Next\n    Groups = out\nEnd Function\n\nPrivate Function Dump(wb As Object) As String\n    Dump = Groups(wb.Worksheets(1)) & \" | \" & Groups(wb.Worksheets(2)) & \" | A1=\" & wb.Worksheets(1).Range(\"A1\").Formula & _\n        \" F1=\" & wb.Worksheets(1).Range(\"F1\").Formula\nEnd Function\n\nPublic Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Workbook, ws As Object, wt As Worksheet, other As Object, out As String, path As String\n    Dim r As Long, c As Long, g As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"S\"\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Name = \"T\"\n    For r = 1 To 8\n        For c = 1 To 4\n            ws.Cells(r, c).Value = r * 10 + c\n            other.Cells(r, c).Value = r * 10 + c\n        Next\n    Next\n    For c = 1 To 4\n        ws.Cells(12, c).Value = DateSerial(2026, c, 1)\n    Next\n    Select Case kind\n        Case \"rows\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"A1:D4\"\n        Case \"cols\"\n            ws.Range(\"A10:D10\").SparklineGroups.Add xlSparkColumn, \"A1:D8\"\n        Case \"dates\"\n            Set g = ws.Range(\"F1:F4\").SparklineGroups.Add(xlSparkLine, \"A1:D4\")\n            g.DateRange = \"A12:D12\"\n        Case \"other\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"T!A1:D4\"\n        Case \"two\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"A1:D4\"\n            ws.Range(\"A10:D10\").SparklineGroups.Add xlSparkColumn, \"A1:D8\"\n        Case \"abs\"\n            ws.Range(\"F6\").SparklineGroups.Add xlSparkLine, \"$A$6:$D$6\"\n    End Select\n    ws.Activate\n    Dim target As String, how As String, parts() As String, sheet As Object\n    parts = Split(edit, \" \")\n    target = parts(1)\n    how = parts(2)\n    Set sheet = ws\n    If Left(target, 2) = \"T!\" Then\n        Set sheet = other\n        target = Mid(target, 3)\n    End If\n    Set wt = sheet\n    On Error Resume Next\n    Err.Clear\n    If how = \"auto\" And typed Then\n        If parts(0) = \"insert\" Then wt.Range(target).Insert Else wt.Range(target).Delete\n    ElseIf how = \"auto\" Then\n        If parts(0) = \"insert\" Then sheet.Range(target).Insert Else sheet.Range(target).Delete\n    ElseIf typed Then\n        If parts(0) = \"insert\" Then\n            wt.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            wt.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    Else\n        If parts(0) = \"insert\" Then\n            sheet.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            sheet.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    End If\n    out = \"err=\" & Err.Number & \":\" & Err.Description & \" \" & Dump(wb)\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_sparkline_shift.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    out = out & \" save=\" & Err.Number\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    out = out & \" ~ \" & Dump(wb)\n    wb.Close False\n    Kill path\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"other",
+"insert 2:2 auto",
+true
+],
+[
+"other",
+"insert 2:2 auto",
+false
+],
+[
+"other",
+"delete 2:2 auto",
+true
+],
+[
+"other",
+"delete 2:2 auto",
+false
+],
+[
+"other",
+"insert B:B auto",
+true
+],
+[
+"other",
+"insert B:B auto",
+false
+],
+[
+"other",
+"delete B:B auto",
+true
+],
+[
+"other",
+"delete B:B auto",
+false
+],
+[
+"other",
+"delete 1:4 auto",
+true
+],
+[
+"other",
+"delete 1:4 auto",
+false
+],
+[
+"other",
+"delete F:F auto",
+true
+],
+[
+"other",
+"delete F:F auto",
+false
+],
+[
+"other",
+"insert F2 down",
+true
+],
+[
+"other",
+"insert F2 down",
+false
+],
+[
+"other",
+"delete F2 up",
+true
+],
+[
+"other",
+"delete F2 up",
+false
+],
+[
+"other",
+"insert B2 right",
+true
+],
+[
+"other",
+"insert B2 right",
+false
+],
+[
+"other",
+"delete B2:B4 left",
+true
+],
+[
+"other",
+"delete B2:B4 left",
+false
+],
+[
+"other",
+"delete A1:D1 up",
+true
+],
+[
+"other",
+"delete A1:D1 up",
+false
+],
+[
+"other",
+"insert A1:D8 right",
+true
+],
+[
+"other",
+"insert A1:D8 right",
+false
+],
+[
+"other",
+"delete A:D auto",
+true
+],
+[
+"other",
+"delete A:D auto",
+false
+],
+[
+"other",
+"insert 1:1 auto",
+true
+],
+[
+"other",
+"insert 1:1 auto",
+false
+],
+[
+"other",
+"delete F1:F4 left",
+true
+],
+[
+"other",
+"delete F1:F4 left",
+false
+],
+[
+"other",
+"insert E1:E4 right",
+true
+],
+[
+"other",
+"insert E1:E4 right",
+false
+],
+[
+"other",
+"delete 9:20 auto",
+true
+],
+[
+"other",
+"delete 9:20 auto",
+false
+],
+[
+"other",
+"insert A2:D2 down",
+true
+],
+[
+"other",
+"insert A2:D2 down",
+false
+],
+[
+"other",
+"delete 12:12 auto",
+true
+],
+[
+"other",
+"delete 12:12 auto",
+false
+],
+[
+"other",
+"delete A10 up",
+true
+],
+[
+"other",
+"delete A10 up",
+false
+],
+[
+"other",
+"delete A10:D10 up",
+true
+],
+[
+"other",
+"delete A10:D10 up",
+false
+],
+[
+"other",
+"insert A10 right",
+true
+],
+[
+"other",
+"insert A10 right",
+false
+],
+[
+"other",
+"delete 1:8 auto",
+true
+],
+[
+"other",
+"delete 1:8 auto",
+false
+],
+[
+"other",
+"insert T!2:2 auto",
+true
+],
+[
+"other",
+"insert T!2:2 auto",
+false
+],
+[
+"other",
+"delete T!2:2 auto",
+true
+],
+[
+"other",
+"delete T!2:2 auto",
+false
+],
+[
+"other",
+"delete T!B:B auto",
+true
+],
+[
+"other",
+"delete T!B:B auto",
+false
+],
+[
+"other",
+"insert T!A2:D2 down",
+true
+],
+[
+"other",
+"insert T!A2:D2 down",
+false
+],
+[
+"other",
+"delete T!A:D auto",
+true
+],
+[
+"other",
+"delete T!A:D auto",
+false
+],
+[
+"other",
+"delete T!1:4 auto",
+true
+],
+[
+"other",
+"delete T!1:4 auto",
+false
+],
+[
+"two",
+"insert 2:2 auto",
+true
+],
+[
+"two",
+"insert 2:2 auto",
+false
+],
+[
+"two",
+"delete 2:2 auto",
+true
+],
+[
+"two",
+"delete 2:2 auto",
+false
+],
+[
+"two",
+"insert B:B auto",
+true
+],
+[
+"two",
+"insert B:B auto",
+false
+],
+[
+"two",
+"delete B:B auto",
+true
+],
+[
+"two",
+"delete B:B auto",
+false
+],
+[
+"two",
+"delete 1:4 auto",
+true
+],
+[
+"two",
+"delete 1:4 auto",
+false
+],
+[
+"two",
+"delete F:F auto",
+true
+],
+[
+"two",
+"delete F:F auto",
+false
+],
+[
+"two",
+"insert F2 down",
+true
+],
+[
+"two",
+"insert F2 down",
+false
+],
+[
+"two",
+"delete F2 up",
+true
+],
+[
+"two",
+"delete F2 up",
+false
+],
+[
+"two",
+"insert B2 right",
+true
+],
+[
+"two",
+"insert B2 right",
+false
+],
+[
+"two",
+"delete B2:B4 left",
+true
+],
+[
+"two",
+"delete B2:B4 left",
+false
+],
+[
+"two",
+"delete A1:D1 up",
+true
+],
+[
+"two",
+"delete A1:D1 up",
+false
+],
+[
+"two",
+"insert A1:D8 right",
+true
+],
+[
+"two",
+"insert A1:D8 right",
+false
+],
+[
+"two",
+"delete A:D auto",
+true
+],
+[
+"two",
+"delete A:D auto",
+false
+],
+[
+"two",
+"insert 1:1 auto",
+true
+],
+[
+"two",
+"insert 1:1 auto",
+false
+],
+[
+"two",
+"delete F1:F4 left",
+true
+],
+[
+"two",
+"delete F1:F4 left",
+false
+],
+[
+"two",
+"insert E1:E4 right",
+true
+],
+[
+"two",
+"insert E1:E4 right",
+false
+],
+[
+"two",
+"delete 9:20 auto",
+true
+],
+[
+"two",
+"delete 9:20 auto",
+false
+],
+[
+"two",
+"insert A2:D2 down",
+true
+],
+[
+"two",
+"insert A2:D2 down",
+false
+],
+[
+"two",
+"delete 12:12 auto",
+true
+],
+[
+"two",
+"delete 12:12 auto",
+false
+],
+[
+"two",
+"delete A10 up",
+true
+],
+[
+"two",
+"delete A10 up",
+false
+],
+[
+"two",
+"delete A10:D10 up",
+true
+],
+[
+"two",
+"delete A10:D10 up",
+false
+],
+[
+"two",
+"insert A10 right",
+true
+],
+[
+"two",
+"insert A10 right",
+false
+],
+[
+"two",
+"delete 1:8 auto",
+true
+],
+[
+"two",
+"delete 1:8 auto",
+false
+],
+[
+"abs",
+"insert 2:2 auto",
+true
+],
+[
+"abs",
+"insert 2:2 auto",
+false
+],
+[
+"abs",
+"delete 2:2 auto",
+true
+],
+[
+"abs",
+"delete 2:2 auto",
+false
+],
+[
+"abs",
+"insert B:B auto",
+true
+],
+[
+"abs",
+"insert B:B auto",
+false
+],
+[
+"abs",
+"delete B:B auto",
+true
+],
+[
+"abs",
+"delete B:B auto",
+false
+],
+[
+"abs",
+"delete 1:4 auto",
+true
+],
+[
+"abs",
+"delete 1:4 auto",
+false
+],
+[
+"abs",
+"delete F:F auto",
+true
+],
+[
+"abs",
+"delete F:F auto",
+false
+],
+[
+"abs",
+"insert F2 down",
+true
+],
+[
+"abs",
+"insert F2 down",
+false
+],
+[
+"abs",
+"delete F2 up",
+true
+],
+[
+"abs",
+"delete F2 up",
+false
+],
+[
+"abs",
+"insert B2 right",
+true
+],
+[
+"abs",
+"insert B2 right",
+false
+],
+[
+"abs",
+"delete B2:B4 left",
+true
+],
+[
+"abs",
+"delete B2:B4 left",
+false
+],
+[
+"abs",
+"delete A1:D1 up",
+true
+],
+[
+"abs",
+"delete A1:D1 up",
+false
+],
+[
+"abs",
+"insert A1:D8 right",
+true
+],
+[
+"abs",
+"insert A1:D8 right",
+false
+],
+[
+"abs",
+"delete A:D auto",
+true
+],
+[
+"abs",
+"delete A:D auto",
+false
+],
+[
+"abs",
+"insert 1:1 auto",
+true
+],
+[
+"abs",
+"insert 1:1 auto",
+false
+],
+[
+"abs",
+"delete F1:F4 left",
+true
+],
+[
+"abs",
+"delete F1:F4 left",
+false
+],
+[
+"abs",
+"insert E1:E4 right",
+true
+],
+[
+"abs",
+"insert E1:E4 right",
+false
+],
+[
+"abs",
+"delete 9:20 auto",
+true
+],
+[
+"abs",
+"delete 9:20 auto",
+false
+],
+[
+"abs",
+"insert A2:D2 down",
+true
+],
+[
+"abs",
+"insert A2:D2 down",
+false
+],
+[
+"abs",
+"delete 12:12 auto",
+true
+],
+[
+"abs",
+"delete 12:12 auto",
+false
+],
+[
+"abs",
+"delete A10 up",
+true
+],
+[
+"abs",
+"delete A10 up",
+false
+],
+[
+"abs",
+"delete A10:D10 up",
+true
+],
+[
+"abs",
+"delete A10:D10 up",
+false
+],
+[
+"abs",
+"insert A10 right",
+true
+],
+[
+"abs",
+"insert A10 right",
+false
+],
+[
+"abs",
+"delete 1:8 auto",
+true
+],
+[
+"abs",
+"delete 1:8 auto",
+false
+]
+],
+"answers": [
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=E1:E4 src=T!A1:D4 dates=- E1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=E1:E4 src=T!A1:D4 dates=- E1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=E1:E4 src=T!A1:D4 dates=- E1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=E1:E4 src=T!A1:D4 dates=- E1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=51 F1= save=0 ~ S[0] | T[0] | A1=51 F1=",
+"err=0: S[0] | T[0] | A1=51 F1= save=0 ~ S[0] | T[0] | A1=51 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=T!A1:D1,T!A2:D2,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3 src=T!A1:D1,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,G2,F3,F4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 G2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,G2,F3,F4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 G2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,G2,F3,F4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 G2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,G2,F3,F4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 G2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,E2,E3,E4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,E2,E3,E4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,E2,E3,E4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,E2,E3,E4 src=T!A1:D1,T!A2:D2,T!A3:D3,T!A4:D4 dates=- F1=T!A1:D1 E2=T!A2:D2 E3=T!A3:D3 E4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=21 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=21 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=21 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=21 F1=",
+"err=0: S[1] {1 at=J1:J4 src=T!A1:D4 dates=- J1=T!A1:D1 J2=T!A2:D2 J3=T!A3:D3 J4=T!A4:D4} | T[0] | A1= F1=12 save=0 ~ S[1] {1 at=J1:J4 src=T!A1:D4 dates=- J1=T!A1:D1 J2=T!A2:D2 J3=T!A3:D3 J4=T!A4:D4} | T[0] | A1= F1=12",
+"err=0: S[1] {1 at=J1:J4 src=T!A1:D4 dates=- J1=T!A1:D1 J2=T!A2:D2 J3=T!A3:D3 J4=T!A4:D4} | T[0] | A1= F1=12 save=0 ~ S[1] {1 at=J1:J4 src=T!A1:D4 dates=- J1=T!A1:D1 J2=T!A2:D2 J3=T!A3:D3 J4=T!A4:D4} | T[0] | A1= F1=12",
+"err=0: S[1] {1 at=B1:B4 src=T!A1:D4 dates=- B1=T!A1:D1 B2=T!A2:D2 B3=T!A3:D3 B4=T!A4:D4} | T[0] | A1= F1= save=0 ~ S[1] {1 at=B1:B4 src=T!A1:D4 dates=- B1=T!A1:D1 B2=T!A2:D2 B3=T!A3:D3 B4=T!A4:D4} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=B1:B4 src=T!A1:D4 dates=- B1=T!A1:D1 B2=T!A2:D2 B3=T!A3:D3 B4=T!A4:D4} | T[0] | A1= F1= save=0 ~ S[1] {1 at=B1:B4 src=T!A1:D4 dates=- B1=T!A1:D1 B2=T!A2:D2 B3=T!A3:D3 B4=T!A4:D4} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F2:F5 src=T!A1:D4 dates=- F2=T!A1:D1 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1= F1= save=0 ~ S[1] {1 at=F2:F5 src=T!A1:D4 dates=- F2=T!A1:D1 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F2:F5 src=T!A1:D4 dates=- F2=T!A1:D1 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1= F1= save=0 ~ S[1] {1 at=F2:F5 src=T!A1:D4 dates=- F2=T!A1:D1 F3=T!A2:D2 F4=T!A3:D3 F5=T!A4:D4} | T[0] | A1= F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=G1:G4 src=T!A1:D4 dates=- G1=T!A1:D1 G2=T!A2:D2 G3=T!A3:D3 G4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:D4 dates=- F1=T!A1:D1 F2=T!A2:D2 F3=T!A3:D3 F4=T!A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1= F1= save=0 ~ S[0] | T[0] | A1= F1=",
+"err=0: S[0] | T[0] | A1= F1= save=0 ~ S[0] | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,#REF!,T!A2:D2,T!A3:D3 dates=- F1=T!A1:D1 F2= F3=T!A2:D2 F4=T!A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,#REF!,T!A2:D2,T!A3:D3 dates=- F1=T!A1:D1 F2= F3=T!A2:D2 F4=T!A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,#REF!,T!A2:D2,T!A3:D3 dates=- F1=T!A1:D1 F2= F3=T!A2:D2 F4=T!A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,#REF!,T!A2:D2,T!A3:D3 dates=- F1=T!A1:D1 F2= F3=T!A2:D2 F4=T!A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:C4 dates=- F1=T!A1:C1 F2=T!A2:C2 F3=T!A3:C3 F4=T!A4:C4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:C4 dates=- F1=T!A1:C1 F2=T!A2:C2 F3=T!A3:C3 F4=T!A4:C4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=T!A1:C4 dates=- F1=T!A1:C1 F2=T!A2:C2 F3=T!A3:C3 F4=T!A4:C4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=T!A1:C4 dates=- F1=T!A1:C1 F2=T!A2:C2 F3=T!A3:C3 F4=T!A4:C4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=T!A1:D1,T!A3:D3,T!A4:D4,T!A5:D5 dates=- F1=T!A1:D1 F2=T!A3:D3 F3=T!A4:D4 F4=T!A5:D5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4 src=#REF!,#REF!,#REF!,#REF! dates=- F1= F2= F3= F4=} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:E10 src=A1:E8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8 E10=E1:E8} {1 at=G1:G4 src=A1:E4 dates=- G1=A1:E1 G2=A2:E2 G3=A3:E3 G4=A4:E4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=G1:G4 src=A1:E4 dates=- G1=A1:E1 G2=A2:E2 G3=A3:E3 G4=A4:E4} {2 at=A10:E10 src=A1:E8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8 E10=E1:E8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:E10 src=A1:E8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8 E10=E1:E8} {1 at=G1:G4 src=A1:E4 dates=- G1=A1:E1 G2=A2:E2 G3=A3:E3 G4=A4:E4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=G1:G4 src=A1:E4 dates=- G1=A1:E1 G2=A2:E2 G3=A3:E3 G4=A4:E4} {2 at=A10:E10 src=A1:E8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8 E10=E1:E8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} {1 at=E1:E4 src=A1:C4 dates=- E1=A1:C1 E2=A2:C2 E3=A3:C3 E4=A4:C4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=E1:E4 src=A1:C4 dates=- E1=A1:C1 E2=A2:C2 E3=A3:C3 E4=A4:C4} {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} {1 at=E1:E4 src=A1:C4 dates=- E1=A1:C1 E2=A2:C2 E3=A3:C3 E4=A4:C4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=E1:E4 src=A1:C4 dates=- E1=A1:C1 E2=A2:C2 E3=A3:C3 E4=A4:C4} {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A6:D6 src=A1:D4 dates=- A6=A1:A4 B6=B1:B4 C6=C1:C4 D6=D1:D4} | T[0] | A1=51 F1= save=0 ~ S[1] {2 at=A6:D6 src=A1:D4 dates=- A6=A1:A4 B6=B1:B4 C6=C1:C4 D6=D1:D4} | T[0] | A1=51 F1=",
+"err=0: S[1] {2 at=A6:D6 src=A1:D4 dates=- A6=A1:A4 B6=B1:B4 C6=C1:C4 D6=D1:D4} | T[0] | A1=51 F1= save=0 ~ S[1] {2 at=A6:D6 src=A1:D4 dates=- A6=A1:A4 B6=B1:B4 C6=C1:C4 D6=D1:D4} | T[0] | A1=51 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A2:D2 F4=A3:D3 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A2:D2 F4=A3:D3 F5=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A2:D2 F4=A3:D3 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A2:D2 F4=A3:D3 F5=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,F2,F3 src=A1:D1,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,F2,F3 src=A1:D1,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,F2,F3 src=A1:D1,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,F2,F3 src=A1:D1,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,G2,F3,F4 src=A1:D1,A2:E2,A3:D3,A4:D4 dates=- F1=A1:D1 G2=A2:E2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,G2,F3,F4 src=A1:D1,A2:E2,A3:D3,A4:D4 dates=- F1=A1:D1 G2=A2:E2 F3=A3:D3 F4=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,G2,F3,F4 src=A1:D1,A2:E2,A3:D3,A4:D4 dates=- F1=A1:D1 G2=A2:E2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,G2,F3,F4 src=A1:D1,A2:E2,A3:D3,A4:D4 dates=- F1=A1:D1 G2=A2:E2 F3=A3:D3 F4=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,E2,E3,E4 src=A1:D1,A2:C2,A3:C3,A4:C4 dates=- F1=A1:D1 E2=A2:C2 E3=A3:C3 E4=A4:C4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,E2,E3,E4 src=A1:D1,A2:C2,A3:C3,A4:C4 dates=- F1=A1:D1 E2=A2:C2 E3=A3:C3 E4=A4:C4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1,E2,E3,E4 src=A1:D1,A2:C2,A3:C3,A4:C4 dates=- F1=A1:D1 E2=A2:C2 E3=A3:C3 E4=A4:C4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,E2,E3,E4 src=A1:D1,A2:C2,A3:C3,A4:C4 dates=- F1=A1:D1 E2=A2:C2 E3=A3:C3 E4=A4:C4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} {1 at=F1,F2,F3,F4 src=#REF!,A1:D1,A2:D2,A3:D3 dates=- F1= F2=A1:D1 F3=A2:D2 F4=A3:D3} | T[0] | A1=21 F1= save=0 ~ S[2] {1 at=F1,F2,F3,F4 src=#REF!,A1:D1,A2:D2,A3:D3 dates=- F1= F2=A1:D1 F3=A2:D2 F4=A3:D3} {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} | T[0] | A1=21 F1=",
+"err=0: S[2] {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} {1 at=F1,F2,F3,F4 src=#REF!,A1:D1,A2:D2,A3:D3 dates=- F1= F2=A1:D1 F3=A2:D2 F4=A3:D3} | T[0] | A1=21 F1= save=0 ~ S[2] {1 at=F1,F2,F3,F4 src=#REF!,A1:D1,A2:D2,A3:D3 dates=- F1= F2=A1:D1 F3=A2:D2 F4=A3:D3} {2 at=A9:D9 src=A1:D7 dates=- A9=A1:A7 B9=B1:B7 C9=C1:C7 D9=D1:D7} | T[0] | A1=21 F1=",
+"err=0: S[2] {2 at=A10:D10 src=E1:H8 dates=- A10=E1:E8 B10=F1:F8 C10=G1:G8 D10=H1:H8} {1 at=J1:J4 src=E1:H4 dates=- J1=E1:H1 J2=E2:H2 J3=E3:H3 J4=E4:H4} | T[0] | A1= F1=12 save=0 ~ S[2] {1 at=J1:J4 src=E1:H4 dates=- J1=E1:H1 J2=E2:H2 J3=E3:H3 J4=E4:H4} {2 at=A10:D10 src=E1:H8 dates=- A10=E1:E8 B10=F1:F8 C10=G1:G8 D10=H1:H8} | T[0] | A1= F1=12",
+"err=0: S[2] {2 at=A10:D10 src=E1:H8 dates=- A10=E1:E8 B10=F1:F8 C10=G1:G8 D10=H1:H8} {1 at=J1:J4 src=E1:H4 dates=- J1=E1:H1 J2=E2:H2 J3=E3:H3 J4=E4:H4} | T[0] | A1= F1=12 save=0 ~ S[2] {1 at=J1:J4 src=E1:H4 dates=- J1=E1:H1 J2=E2:H2 J3=E3:H3 J4=E4:H4} {2 at=A10:D10 src=E1:H8 dates=- A10=E1:E8 B10=F1:F8 C10=G1:G8 D10=H1:H8} | T[0] | A1= F1=12",
+"err=0: S[1] {1 at=B1,B2,B3,B4 src=#REF!,#REF!,#REF!,#REF! dates=- B1= B2= B3= B4=} | T[0] | A1= F1= save=0 ~ S[1] {1 at=B1,B2,B3,B4 src=#REF!,#REF!,#REF!,#REF! dates=- B1= B2= B3= B4=} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=B1,B2,B3,B4 src=#REF!,#REF!,#REF!,#REF! dates=- B1= B2= B3= B4=} | T[0] | A1= F1= save=0 ~ S[1] {1 at=B1,B2,B3,B4 src=#REF!,#REF!,#REF!,#REF! dates=- B1= B2= B3= B4=} | T[0] | A1= F1=",
+"err=0: S[2] {2 at=A11:D11 src=A2:D9 dates=- A11=A2:A9 B11=B2:B9 C11=C2:C9 D11=D2:D9} {1 at=F2:F5 src=A2:D5 dates=- F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1= F1= save=0 ~ S[2] {1 at=F2:F5 src=A2:D5 dates=- F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} {2 at=A11:D11 src=A2:D9 dates=- A11=A2:A9 B11=B2:B9 C11=C2:C9 D11=D2:D9} | T[0] | A1= F1=",
+"err=0: S[2] {2 at=A11:D11 src=A2:D9 dates=- A11=A2:A9 B11=B2:B9 C11=C2:C9 D11=D2:D9} {1 at=F2:F5 src=A2:D5 dates=- F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1= F1= save=0 ~ S[2] {1 at=F2:F5 src=A2:D5 dates=- F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} {2 at=A11:D11 src=A2:D9 dates=- A11=A2:A9 B11=B2:B9 C11=C2:C9 D11=D2:D9} | T[0] | A1= F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=G1:G4 src=A1:D4 dates=- G1=A1:D1 G2=A2:D2 G3=A3:D3 G4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=G1:G4 src=A1:D4 dates=- G1=A1:D1 G2=A2:D2 G3=A3:D3 G4=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=G1:G4 src=A1:D4 dates=- G1=A1:D1 G2=A2:D2 G3=A3:D3 G4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=G1:G4 src=A1:D4 dates=- G1=A1:D1 G2=A2:D2 G3=A3:D3 G4=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} {1 at=F1,F2,F3,F4 src=A1:D1,A3:D3,A4:D4,A5:D5 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4 F4=A5:D5} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,F2,F3,F4 src=A1:D1,A3:D3,A4:D4,A5:D5 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4 F4=A5:D5} {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} {1 at=F1,F2,F3,F4 src=A1:D1,A3:D3,A4:D4,A5:D5 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4 F4=A5:D5} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1,F2,F3,F4 src=A1:D1,A3:D3,A4:D4,A5:D5 dates=- F1=A1:D1 F2=A3:D3 F3=A4:D4 F4=A5:D5} {2 at=A11:D11 src=A1:D9 dates=- A11=A1:A9 B11=B1:B9 C11=C1:C9 D11=D1:D9} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=B10:D10 src=B1:D8 dates=- B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} {2 at=B10:D10 src=B1:D8 dates=- B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=B10:D10 src=B1:D8 dates=- B10=B1:B8 C10=C1:C8 D10=D1:D8} {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} {2 at=B10:D10 src=B1:D8 dates=- B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=B10:E10 src=A1:D8 dates=- B10=A1:A8 C10=B1:B8 D10=C1:C8 E10=D1:D8} {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} {2 at=B10:E10 src=A1:D8 dates=- B10=A1:A8 C10=B1:B8 D10=C1:C8 E10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[2] {2 at=B10:E10 src=A1:D8 dates=- B10=A1:A8 C10=B1:B8 D10=C1:C8 E10=D1:D8} {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[2] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} {2 at=B10:E10 src=A1:D8 dates=- B10=A1:A8 C10=B1:B8 D10=C1:C8 E10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A2,B2,C2,D2 src=#REF!,#REF!,#REF!,#REF! dates=- A2= B2= C2= D2=} | T[0] | A1= F1= save=0 ~ S[1] {2 at=A2,B2,C2,D2 src=#REF!,#REF!,#REF!,#REF! dates=- A2= B2= C2= D2=} | T[0] | A1= F1=",
+"err=0: S[1] {2 at=A2,B2,C2,D2 src=#REF!,#REF!,#REF!,#REF! dates=- A2= B2= C2= D2=} | T[0] | A1= F1= save=0 ~ S[1] {2 at=A2,B2,C2,D2 src=#REF!,#REF!,#REF!,#REF! dates=- A2= B2= C2= D2=} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F5 src=$A$5:$D$5 dates=- F5=$A$5:$D$5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F5 src=$A$5:$D$5 dates=- F5=$A$5:$D$5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F5 src=$A$5:$D$5 dates=- F5=$A$5:$D$5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F5 src=$A$5:$D$5 dates=- F5=$A$5:$D$5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=G6 src=$A$6:$E$6 dates=- G6=$A$6:$E$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=G6 src=$A$6:$E$6 dates=- G6=$A$6:$E$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=G6 src=$A$6:$E$6 dates=- G6=$A$6:$E$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=G6 src=$A$6:$E$6 dates=- G6=$A$6:$E$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=E6 src=$A$6:$C$6 dates=- E6=$A$6:$C$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=E6 src=$A$6:$C$6 dates=- E6=$A$6:$C$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=E6 src=$A$6:$C$6 dates=- E6=$A$6:$C$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=E6 src=$A$6:$C$6 dates=- E6=$A$6:$C$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F2 src=$A$2:$D$2 dates=- F2=$A$2:$D$2} | T[0] | A1=51 F1= save=0 ~ S[1] {1 at=F2 src=$A$2:$D$2 dates=- F2=$A$2:$D$2} | T[0] | A1=51 F1=",
+"err=0: S[1] {1 at=F2 src=$A$2:$D$2 dates=- F2=$A$2:$D$2} | T[0] | A1=51 F1= save=0 ~ S[1] {1 at=F2 src=$A$2:$D$2 dates=- F2=$A$2:$D$2} | T[0] | A1=51 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F7 src=$A$6:$D$6 dates=- F7=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F7 src=$A$6:$D$6 dates=- F7=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F7 src=$A$6:$D$6 dates=- F7=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F7 src=$A$6:$D$6 dates=- F7=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F5 src=$A$6:$D$6 dates=- F5=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F5 src=$A$6:$D$6 dates=- F5=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F5 src=$A$6:$D$6 dates=- F5=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F5 src=$A$6:$D$6 dates=- F5=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$5:$D$5 dates=- F6=$A$5:$D$5} | T[0] | A1=21 F1= save=0 ~ S[1] {1 at=F6 src=$A$5:$D$5 dates=- F6=$A$5:$D$5} | T[0] | A1=21 F1=",
+"err=0: S[1] {1 at=F6 src=$A$5:$D$5 dates=- F6=$A$5:$D$5} | T[0] | A1=21 F1= save=0 ~ S[1] {1 at=F6 src=$A$5:$D$5 dates=- F6=$A$5:$D$5} | T[0] | A1=21 F1=",
+"err=0: S[1] {1 at=J6 src=$E$6:$H$6 dates=- J6=$E$6:$H$6} | T[0] | A1= F1=12 save=0 ~ S[1] {1 at=J6 src=$E$6:$H$6 dates=- J6=$E$6:$H$6} | T[0] | A1= F1=12",
+"err=0: S[1] {1 at=J6 src=$E$6:$H$6 dates=- J6=$E$6:$H$6} | T[0] | A1= F1=12 save=0 ~ S[1] {1 at=J6 src=$E$6:$H$6 dates=- J6=$E$6:$H$6} | T[0] | A1= F1=12",
+"err=0: S[1] {1 at=B6 src=#REF! dates=- B6=} | T[0] | A1= F1= save=0 ~ S[1] {1 at=B6 src=#REF! dates=- B6=} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=B6 src=#REF! dates=- B6=} | T[0] | A1= F1= save=0 ~ S[1] {1 at=B6 src=#REF! dates=- B6=} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1= F1= save=0 ~ S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1= F1= save=0 ~ S[1] {1 at=F7 src=$A$7:$D$7 dates=- F7=$A$7:$D$7} | T[0] | A1= F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$7:$D$7 dates=- F6=$A$7:$D$7} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$7:$D$7 dates=- F6=$A$7:$D$7} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$7:$D$7 dates=- F6=$A$7:$D$7} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$7:$D$7 dates=- F6=$A$7:$D$7} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F6 src=$A$6:$D$6 dates=- F6=$A$6:$D$6} | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1= F1= save=0 ~ S[0] | T[0] | A1= F1=",
+"err=0: S[0] | T[0] | A1= F1= save=0 ~ S[0] | T[0] | A1= F1="
+],
+"crashes": []
+}

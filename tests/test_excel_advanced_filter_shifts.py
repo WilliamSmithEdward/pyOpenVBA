@@ -8,7 +8,8 @@ follows its _FilterDatabase name. Criteria or Unique that hide no row leave the 
 
 The later looks, on sheets with no filter too, are which way a Delete or Insert with no Shift goes (_d to _h): by the
 range's shape, unless nothing lies right of a tall range deleted, or below a wide one; an Insert counts the range's own
-cells as below it.
+cells as below it. Where nothing lies either way, which these looks never met, see
+tests/test_excel_sparkline_directions.py.
 
 Where the model refuses, it is for one of two reasons: a Delete with no Shift on a filtered sheet with DisplayAlerts on,
 where Excel asked first in some runs and not others, and an AdvancedFilter whose criteria header names no column of the

@@ -102,7 +102,7 @@ def test_a_hidden_chart_sheet_activated_saves_as_excel_saves_it(name: str, tmp_p
 
 
 @pytest.mark.parametrize("action", ['wb.Worksheets(1).Delete', 'wb.Sheets("C").Move', 'wb.Worksheets(1).Move', 'wb.Sheets("C").Copy',
-                                    'wb.Charts.Add', 'wb.Sheets(Array(1, 2)).Select'])
+                                    'wb.Sheets(Array(1, 2)).Select'])
 def test_changing_the_tabs_reports_itself(action: str) -> None:
     source = f"Sub Go(ByVal file As String)\n    Dim wb As Workbook\n    Set wb = Workbooks.Open(file)\n    {action}\nEnd Sub\n"
     with pytest.raises(VBAUnsupportedError):

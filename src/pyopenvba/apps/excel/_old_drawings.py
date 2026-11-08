@@ -645,7 +645,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

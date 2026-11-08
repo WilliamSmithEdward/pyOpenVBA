@@ -29,8 +29,6 @@ Step = Callable[[], None]
 NO_ID = -2
 #: A reference where a chart part spells one.
 _PART_REFERENCE = re.compile(r'<((?:\w+:)?f|c15:sqref)>(.*?)</\1>', re.DOTALL)
-#: What a chart part numbers by its place among the series' cells.
-_NUMBERED = re.compile(r'<(?:\w+:)?(?:dPt|dLbl)>')
 
 
 def renamed(formula: str, old: str, new: str) -> str:
@@ -137,12 +135,6 @@ def _categories_gone(sheet: Worksheet, entry: SeriesState) -> Step:
     def step() -> None:
         entry.lost_numbers = numbers
     return step
-
-
-def _extent(reference: str) -> tuple[int, int] | None:
-    """How many rows and columns a reference to one area covers."""
-    area = _single(reference)
-    return None if area is None else (area[3] - area[1], area[4] - area[2])
 
 
 def _part_step(state: ChartState, turned_text: Callable[[str], str]) -> Step | None:

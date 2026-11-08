@@ -79,7 +79,9 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
         if table.headers and area.top <= whole.top:
             raise error(1004, refusal)
         if not (area.bottom <= whole.bottom and whole.left <= area.left and area.right <= whole.right):
-            raise error(1004, MOVES_A_TABLE)
+            # From left of the table's columns into them, short of its right edge, it fails as the method does;
+            # otherwise it would move the table (tests/fixtures/table_shifts5.json).
+            raise error(1004, refusal if area.left < whole.left and area.right < whole.right else MOVES_A_TABLE)
         if _filtered(table):
             hidden = all(sheet.dims.row_hidden(row) for row in range(area.top, area.bottom + 1))
             raise error(1004, 'No cells were found.' if hidden else FILTERED)
@@ -93,9 +95,7 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
             auto and whole.left <= area.left and area.right <= whole.right and area.bottom <= whole.bottom)
         if data_top <= area.top <= whole.bottom and spans:
             return lambda: _rows_in(table, area.top, area.rows)
-        # Cells put in from the header row up, short of the table's width, fail as the method does
-        # (tests/fixtures/table_shifts1.json).
-        raise error(1004, refusal if area.top <= whole.top else MOVES_A_TABLE)
+        raise error(1004, refusal if _header_cut(table, area) else MOVES_A_TABLE)
     if auto:
         raise VBAUnsupportedError('cells put in or taken away across a table with no Shift are not implemented')
     if delete:
@@ -113,7 +113,14 @@ def carried(sheet: Worksheet, area: Area, *, delete: bool, vertical: bool, auto:
         return lambda: _columns_in(table, area.left, area.columns)
     if area.top < whole.top or whole.bottom < area.bottom:
         raise VBAUnsupportedError('putting cells in across a table and beyond its rows is not implemented')
-    raise error(1004, MOVES_A_TABLE)
+    raise error(1004, refusal if _header_cut(table, area) else MOVES_A_TABLE)
+
+
+def _header_cut(table: Table, area: Area) -> bool:
+    """Whether cells put in take in a table's header row and end before its last row, which fails as the method
+    does; any other insert that would cut the table would move it (tests/fixtures/table_shifts1.json, _4, _5)."""
+    whole = table.area
+    return bool(table.headers) and area.top <= whole.top <= area.bottom < whole.bottom
 
 
 def _rows_gone(table: Table, top: int, count: int) -> None:

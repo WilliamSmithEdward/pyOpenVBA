@@ -1625,6 +1625,9 @@ class ChartArea(Created):
         self.chart.admit_read()
         ChartObject(self.chart.sheet, self.chart.shape).made_active('area')
         self.chart.sheet.book.application.copied_chart = None
+        from pyopenvba.apps.excel._clipboard import CHART_AREA_FORMATS, hold_formats
+
+        hold_formats(self.chart.sheet.book.application, CHART_AREA_FORMATS)
         return EMPTY
 
     @method

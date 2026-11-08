@@ -69,6 +69,10 @@ def special_cells(target: Range, kind_value: object, which: object) -> Range:
             row -= 1
         while column > 1 and sheet.dims.column_hidden(column):
             column -= 1
+        # In a merged range, the whole of it (tests/fixtures/used_range.json).
+        merged = next((area for area in sheet.merged_areas if area.contains(row, column)), None)
+        if merged is not None:
+            return Range(sheet, [Area(merged.top, merged.left, merged.bottom, merged.right, sheet.name)])
         return Range(sheet, [Area(row, column, row, column, sheet.name)])
     if kind == VISIBLE:
         return Range(sheet, _visible(target))

@@ -308,6 +308,14 @@ class SheetDimensions:
         #: Columns hidden while they kept a width of their own. Excel's used
         #: block takes them in and keeps them, whatever the column does next.
         self.kept_columns: set[int] = set()
+        #: Rows an opened file's borders or fonts drew taller with no row record in the file: Excel's used block leaves
+        #: them out (see _io.load_workbook).
+        self.opened_shapes: set[int] = set()
+        #: Every row an opened file lists a row element for, whatever it says.
+        self.listed_rows: set[int] = set()
+        #: Whether the sheet came from a file, whose column XFD holds the sheet's format for the used block (see
+        #: used_columns).
+        self.opened = False
         #: Rows their fonts make another height than the standard row, or
         #: give another descent: row -> (quarter pixels, descent in twips).
         self._grown: dict[int, tuple[int, int]] = {}
@@ -400,6 +408,7 @@ class SheetDimensions:
             record.height = self.default_quarters()
         record.hidden = attrs.get("hidden") in ("1", "true")
         record.extra = {key: value for key, value in attrs.items() if key not in _ROW_OWN}
+        self.listed_rows.add(row)
         # When every row is hidden by default, a row the file lists is one it shows.
         if not record.empty() or self.zero_height:
             self.rows[row] = record
@@ -1299,8 +1308,20 @@ class SheetDimensions:
         found = set(self.kept_columns)
         found.update(column for column, record in self.columns.items()
                      if record.hidden and record.custom and record.width)
-        found.update(self.formatted_columns())
+        found.update(self.formatted_columns() if self.opened else self._apart_from_most())
         return sorted(found)
+
+    def _apart_from_most(self) -> list[int]:
+        """Columns apart from the sheet's format, for a sheet made in the session. With no format on column XFD the
+        formatted columns count. XFD's format is the sheet's while column XFC shares it, as Columns("B:XFD") leaves
+        column A alone to count; a column XFD formatted apart from XFC counts like any other, against XFC's format
+        (tests/fixtures/used_range.json, tests/fixtures/clear_rows_formats.json, tests/fixtures/row_formats.json)."""
+        last = self.column_style(MAX_COLUMNS)
+        if last is None:
+            return [column for column, record in self.columns.items() if record.style is not None]
+        before = self.column_style(MAX_COLUMNS - 1)
+        sheet_format = last if before == last else before
+        return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format]
 
     def formatted_columns(self) -> list[int]:
         """Columns whose format is not the sheet's own, which the last column's is.

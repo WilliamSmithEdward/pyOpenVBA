@@ -1,0 +1,1455 @@
+{
+ "reads": [
+  "f.Visible",
+  "f.Type",
+  "f.ForeColor.RGB",
+  "f.BackColor.RGB",
+  "f.Transparency",
+  "f.Pattern",
+  "f.GradientStyle",
+  "f.GradientVariant",
+  "f.GradientColorType",
+  "f.GradientAngle",
+  "f.RotateWithObject",
+  "f.GradientStops.Count",
+  "f.TextureAlignment",
+  "f.TextureHorizontalScale",
+  "f.TextureVerticalScale",
+  "f.TextureOffsetX",
+  "f.TextureOffsetY",
+  "f.TextureTile",
+  "f.TextureName",
+  "f.TextureType",
+  "f.PresetTexture",
+  "f.PictureEffects.Count",
+  "TypeName(f.PictureEffects)"
+ ],
+ "cases": [
+  [
+   "oval",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   false
+  ],
+  [
+   "oval",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   false
+  ],
+  [
+   "oval",
+   "f.Transparency = 0.9",
+   false
+  ],
+  [
+   "oval",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureVerticalScale = 3",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureOffsetY = -2",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "oval",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   false
+  ],
+  [
+   "oval",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"nowhere.gif\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"gone.bmp\")",
+   false
+  ],
+  [
+   "oval",
+   "v = f.PresetTexture",
+   false
+  ],
+  [
+   "oval",
+   "v = f.TextureName",
+   false
+  ],
+  [
+   "round",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   false
+  ],
+  [
+   "round",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   false
+  ],
+  [
+   "round",
+   "f.Transparency = 0.9",
+   false
+  ],
+  [
+   "round",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   false
+  ],
+  [
+   "round",
+   "f.TextureVerticalScale = 3",
+   false
+  ],
+  [
+   "round",
+   "f.TextureOffsetY = -2",
+   false
+  ],
+  [
+   "round",
+   "f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "round",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   false
+  ],
+  [
+   "round",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"nowhere.gif\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"gone.bmp\")",
+   false
+  ],
+  [
+   "round",
+   "v = f.PresetTexture",
+   false
+  ],
+  [
+   "round",
+   "v = f.TextureName",
+   false
+  ],
+  [
+   "text",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   false
+  ],
+  [
+   "text",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   false
+  ],
+  [
+   "text",
+   "f.Transparency = 0.9",
+   false
+  ],
+  [
+   "text",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   false
+  ],
+  [
+   "text",
+   "f.TextureVerticalScale = 3",
+   false
+  ],
+  [
+   "text",
+   "f.TextureOffsetY = -2",
+   false
+  ],
+  [
+   "text",
+   "f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "text",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   false
+  ],
+  [
+   "text",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"nowhere.gif\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"gone.bmp\")",
+   false
+  ],
+  [
+   "text",
+   "v = f.PresetTexture",
+   false
+  ],
+  [
+   "text",
+   "v = f.TextureName",
+   false
+  ],
+  [
+   "line",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   false
+  ],
+  [
+   "line",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   false
+  ],
+  [
+   "line",
+   "f.Transparency = 0.9",
+   false
+  ],
+  [
+   "line",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   false
+  ],
+  [
+   "line",
+   "f.TextureVerticalScale = 3",
+   false
+  ],
+  [
+   "line",
+   "f.TextureOffsetY = -2",
+   false
+  ],
+  [
+   "line",
+   "f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "line",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   false
+  ],
+  [
+   "line",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"nowhere.gif\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"gone.bmp\")",
+   false
+  ],
+  [
+   "line",
+   "v = f.PresetTexture",
+   false
+  ],
+  [
+   "line",
+   "v = f.TextureName",
+   false
+  ],
+  [
+   "oval",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   true
+  ],
+  [
+   "oval",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   true
+  ],
+  [
+   "oval",
+   "f.Transparency = 0.9",
+   true
+  ],
+  [
+   "oval",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureVerticalScale = 3",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureOffsetY = -2",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "oval",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   true
+  ],
+  [
+   "oval",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"nowhere.gif\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"gone.bmp\")",
+   true
+  ],
+  [
+   "oval",
+   "v = f.PresetTexture",
+   true
+  ],
+  [
+   "oval",
+   "v = f.TextureName",
+   true
+  ],
+  [
+   "round",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   true
+  ],
+  [
+   "round",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   true
+  ],
+  [
+   "round",
+   "f.Transparency = 0.9",
+   true
+  ],
+  [
+   "round",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   true
+  ],
+  [
+   "round",
+   "f.TextureVerticalScale = 3",
+   true
+  ],
+  [
+   "round",
+   "f.TextureOffsetY = -2",
+   true
+  ],
+  [
+   "round",
+   "f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "round",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   true
+  ],
+  [
+   "round",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"nowhere.gif\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"gone.bmp\")",
+   true
+  ],
+  [
+   "round",
+   "v = f.PresetTexture",
+   true
+  ],
+  [
+   "round",
+   "v = f.TextureName",
+   true
+  ],
+  [
+   "text",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   true
+  ],
+  [
+   "text",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   true
+  ],
+  [
+   "text",
+   "f.Transparency = 0.9",
+   true
+  ],
+  [
+   "text",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   true
+  ],
+  [
+   "text",
+   "f.TextureVerticalScale = 3",
+   true
+  ],
+  [
+   "text",
+   "f.TextureOffsetY = -2",
+   true
+  ],
+  [
+   "text",
+   "f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "text",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   true
+  ],
+  [
+   "text",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"nowhere.gif\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"gone.bmp\")",
+   true
+  ],
+  [
+   "text",
+   "v = f.PresetTexture",
+   true
+  ],
+  [
+   "text",
+   "v = f.TextureName",
+   true
+  ],
+  [
+   "line",
+   "f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)",
+   true
+  ],
+  [
+   "line",
+   "f.Patterned msoPatternSmallCheckerBoard",
+   true
+  ],
+  [
+   "line",
+   "f.Transparency = 0.9",
+   true
+  ],
+  [
+   "line",
+   "f.Visible = msoFalse: f.Transparency = 0.5",
+   true
+  ],
+  [
+   "line",
+   "f.TextureVerticalScale = 3",
+   true
+  ],
+  [
+   "line",
+   "f.TextureOffsetY = -2",
+   true
+  ],
+  [
+   "line",
+   "f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "line",
+   "f.Patterned 12: f.TextureAlignment = msoTextureTop",
+   true
+  ],
+  [
+   "line",
+   "f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"nowhere.gif\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"gone.bmp\")",
+   true
+  ],
+  [
+   "line",
+   "v = f.PresetTexture",
+   true
+  ],
+  [
+   "line",
+   "v = f.TextureName",
+   true
+  ]
+ ],
+ "model": [
+  [
+   "e0|Long:-1|Long:1|Long:6488570|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:6488570|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FA0163\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:17|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:17|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"smCheck\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.9|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.9|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"10000\"/></a:schemeClr></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.5|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.5|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:12|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:12|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct90\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:3057486|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:3057486|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent6\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:6488570|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:6488570|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FA0163\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:17|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:17|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"smCheck\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.9|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.9|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"10000\"/></a:schemeClr></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.5|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.5|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:12|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:12|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct90\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:3057486|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:3057486|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent6\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:17|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:17|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"smCheck\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.9|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.9|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"10000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.5|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.5|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:12|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:12|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct90\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:3057486|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:3057486|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent6\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:6488570|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:6488570|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FA0163\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:17|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:17|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"smCheck\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.9|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.9|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"10000\"/></a:schemeClr></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.5|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.5|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:12|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:12|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct90\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:3057486|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:3057486|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent6\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:6488570|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:6488570|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FA0163\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:17|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:17|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"smCheck\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.9|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.9|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"10000\"/></a:schemeClr></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.5|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.5|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:12|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:12|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct90\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:3057486|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:3057486|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent6\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:17|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:17|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"smCheck\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.9|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.9|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"10000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.5|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.5|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:12|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:12|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"pct90\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:-1|Long:1|Long:3057486|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:3057486|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent6\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024894|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e70|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ]
+ ]
+}

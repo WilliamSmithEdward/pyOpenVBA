@@ -50,11 +50,11 @@ ROUNDS: dict[int, list[str]] = {
 ROUNDS[3] = ['f.Solid: f.ForeColor.RGB = RGB(250, 1, 99)', 'f.Patterned msoPatternSmallCheckerBoard', 'f.Transparency = 0.9',
              'f.Visible = msoFalse: f.Transparency = 0.5', 'f.TextureVerticalScale = 3', 'f.TextureOffsetY = -2', 'f.TextureTile = msoFalse',
              'f.Patterned 12: f.TextureAlignment = msoTextureTop', 'f.ForeColor.ObjectThemeColor = msoThemeColorAccent6: f.TextureOffsetX = 1',
-             'f.UserPicture At("nowhere.gif")', 'f.UserTextured At("gone.bmp")', 'f.PresetTexture', 'f.TextureName']
+             'f.UserPicture At("nowhere.gif")', 'f.UserTextured At("gone.bmp")', 'v = f.PresetTexture', 'v = f.TextureName']
 ROUNDS[4] = ['f.Solid: f.Transparency = 0.1', 'f.Patterned msoPatternHorizontalBrick', 'f.BackColor.RGB = RGB(9, 99, 199)',
              'f.Visible = msoFalse: f.Visible = msoTrue: f.TextureTile = msoTrue', 'f.TextureHorizontalScale = 1',
              'f.TextureAlignment = msoTextureBottomLeft', 'f.Patterned 40: f.TextureOffsetY = 0', 'f.UserTextured At("absent.png")',
-             'f.UserPicture At("void.jpg")', 'f.ForeColor.Brightness = -0.25', 'f.TextureType']
+             'f.UserPicture At("void.jpg")', 'f.ForeColor.Brightness = -0.25', 'v = f.TextureType']
 #: What round 2 adds to READS: whether PictureEffects itself answers, which round 1's PictureEffects.Count could not tell.
 READS_2 = ['TypeName(f.PictureEffects)']
 

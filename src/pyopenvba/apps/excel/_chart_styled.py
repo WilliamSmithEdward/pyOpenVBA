@@ -228,12 +228,30 @@ def _painted(spelled: str, colour: str) -> str:
     return spelled.replace('<a:schemeClr val="phClr">', colour[:-2] + '>')
 
 
+_EXTENSIONS = re.compile(r'<a:extLst>.*?</a:extLst>', re.S)
+_LINE_FILL = re.compile(r'<a:(?:noFill/>|solidFill\b.*?</a:solidFill>|gradFill\b.*?</a:gradFill>|pattFill\b.*?</a:pattFill>)', re.S)
+
+
+def _set_line(mine: str, line: str) -> str:
+    """A line with what was set of it, and the style line's fill where nothing set one: a width alone keeps the style's
+    no line (tests/fixtures/loaded_chart_styled_edits.json)."""
+    if not mine or _LINE_FILL.search(mine) or (found := _LINE_FILL.search(line)) is None:
+        return mine
+    if mine.endswith('/>'):
+        return f'{mine[:-2]}>{found.group(0)}</a:ln>'
+    opening = mine.index('>') + 1
+    return mine[:opening] + found.group(0) + mine[opening:]
+
+
 def _point_box(style: int, index: int, own: str = '') -> str:
     fill, line, after = _shape(_entries(style)['dataPoint'])
-    mine_fill, mine_line, _ = _own_shape(own)
+    # What was set keeps its extensions, a hidden fill's or line's, at the end (tests/fixtures/loaded_chart_styled_edits.json).
+    extensions = ''.join(_EXTENSIONS.findall(own))
+    mine_fill, mine_line, _ = _own_shape(_EXTENSIONS.sub('', own))
     colour = _accent(index)
     return _painted(
-        f'<c:spPr>{mine_fill or fill or _NO_FILL}{mine_line or line or _NO_LINE}{after or _NO_EFFECTS}</c:spPr>',
+        f'<c:spPr>{mine_fill or fill or _NO_FILL}{_set_line(mine_line, line or _NO_LINE) or line or _NO_LINE}{after or _NO_EFFECTS}'
+        f'{extensions}</c:spPr>',
         colour,
     )
 
@@ -504,7 +522,8 @@ def _dressed_axes(xml: str, state: ChartState) -> str:
             count=1,
             flags=re.S,
         )
-        own = re.search(r'<c:spPr>(?:(?!<c:spPr>).)*?</c:spPr>(?=(?:<c:txPr>.*?</c:txPr>)?<c:crossAx)', axis, re.S)
+        # The axis's own box, just before its text: not its title's, followed by the title's text and then the axis's.
+        own = re.search(r'<c:spPr>(?:(?!<c:spPr>).)*?</c:spPr>(?=(?:<c:txPr>(?:(?!<c:txPr>).)*?</c:txPr>)?<c:crossAx)', axis, re.S)
         mine = own.group(0) if own else ''
         if mine:
             axis = axis.replace(mine, '', 1)
@@ -622,6 +641,19 @@ def _font_entry(key: str) -> str:
     return {'title': 'title', 'legend': 'legend', 'area': 'chartArea'}.get(
         key, 'axisTitle' if key.startswith('title') else 'dataLabel'
     )
+
+
+def style_font(style: int, key: str) -> TextLook | None:
+    """The font the style writes out for the element's text, as a file's reader reads it: a loaded font equal to it is the
+    style's, not one of the element's own (tests/fixtures/loaded_chart_styled_edits.json)."""
+    import xml.etree.ElementTree as ET
+
+    from pyopenvba.apps.excel._chart_fonts import read_look
+
+    spaces = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
+    written = (f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p><a:pPr>'
+               f'{_paragraph_font(style, _font_entry(key), None)}</a:pPr></a:p></c:txPr></c:x>')
+    return read_look(ET.fromstring(written), spaces)
 
 
 def font_read(style: int, key: str, theme: tuple[str, ...]) -> tuple[float, bool, str]:

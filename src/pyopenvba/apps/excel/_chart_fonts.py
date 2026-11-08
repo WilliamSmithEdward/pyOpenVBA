@@ -122,9 +122,14 @@ class ChartFont(Created):
                 return getattr(found, field)
         return None
 
-    def change(self) -> TextLook:
+    def change(self, member: str = "") -> TextLook:
         self.look()
-        self.chart.changed()
+        try:
+            self.chart.changed()
+        except VBAUnsupportedError:
+            # On a loaded chart with a style, as a new chart of its style takes it, where that was measured.
+            if not (self.chart.state.original and member and self.chart.whole_changed(member)):
+                raise
         look = self.stored()
         if look is None:
             look = TextLook()
@@ -136,7 +141,7 @@ class ChartFont(Created):
 
     def put(self, **fields: object) -> None:
         """A setting set; on the chart area, everything set of every element goes."""
-        look = self.change()
+        look = self.change(f"{self.key}.Font.{','.join(sorted(fields))}" if self.labels is None else "")
         for name, value in fields.items():
             setattr(look, name, value)
         if self.key != "area":

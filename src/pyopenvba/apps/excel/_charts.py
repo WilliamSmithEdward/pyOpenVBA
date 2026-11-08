@@ -239,6 +239,11 @@ class ChartState:
     parts_pending: list[tuple[SeriesState, str]] = field(default_factory=lambda: [])
     #: Whether a loaded chart's plot area changed as a whole, written into original at save (see _chart_loaded).
     plot_pending: bool = False
+    #: The idx of each series of a loaded chart deleted since its plot area was last written: a new series that takes the idx
+    #: takes a new unique id too (tests/fixtures/loaded_chart_styled_edits.json).
+    plot_dropped: set[int] = field(default_factory=lambda: set[int]())
+    #: Whether a loaded chart with a style is written whole at save, as a new chart of its style (see _chart_loaded.admit_whole).
+    whole_pending: bool = False
     dirty: bool = True
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
@@ -2043,6 +2048,17 @@ class Chart(ElementProperties, HeldPart):
         self.state.dirty = True
         self.sheet.drawing_changed()
 
+    def whole_changed(self, member: str) -> bool:
+        """Whether a loaded chart takes this member's edit, refused in place, as a new chart of its style does, its part
+        written whole at save (see _chart_loaded.admit_whole)."""
+        from pyopenvba.apps.excel._chart_loaded import admit_whole
+
+        if not admit_whole(self, member):
+            return False
+        self.state.dirty = True
+        self.sheet.drawing_changed()
+        return True
+
     def plot_admitted(self, member: str) -> None:
         """Whether this member may change the chart's series or type, before anything changes. A loaded chart takes it
         where its plot area is written as the file holds it, and writes the plot area whole at save (see _chart_loaded)."""
@@ -2611,12 +2627,21 @@ class Chart(ElementProperties, HeldPart):
             return VBAInt(74, 'Long')
         return VBAInt(shown_type(self.state), 'Long')
 
+    def _own_fonts(self) -> list[str]:
+        """The elements whose text has a font set. A loaded chart with a style spells out the style's font on each element,
+        which Excel reads as the element's own, and turns as a new chart of the style (tests/fixtures/loaded_chart_styled_edits.json)."""
+        from pyopenvba.apps.excel._chart_styled import style_font
+
+        state = self.state
+        styled = bool(state.original and state.style_part)
+        return [key for key, look in state.element_fonts.items() if not (styled and look == style_font(state.chart_style, key))]
+
     @setter('ChartType')
     def _chart_type(self, value: object) -> None:
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
-        if self.state.element_looks or self.state.element_fonts or any(
+        if self.state.element_looks or self._own_fonts() or any(
                 one.format_look is not None or one.points or one.label_look.font is not None
                 for one in self.state.series):
             raise VBAUnsupportedError('Changing the type of a chart with a look of its own is not implemented')
@@ -2639,9 +2664,9 @@ class Chart(ElementProperties, HeldPart):
             self.state.style_labels = [*self.state.style_labels[:4], '']
             for entry in self.state.series:
                 entry.label_look.position = None
-        if (self.state.chart_style > 48 and wanted not in STACKED and self.state.chart_type not in STACKED
-                and {CHART_TYPES[wanted], CHART_TYPES.get(self.state.chart_type)} == {'column', 'bar'}):
-            # A style's overlap does not survive its bars turning (tests/fixtures/add_chart2.json).
+        if self.state.chart_style > 48 and wanted not in STACKED and CHART_TYPES[wanted] in ('column', 'bar'):
+            # A style's overlap does not survive a turn to unstacked bars, from bars, the same type, a line or an area alike
+            # (tests/fixtures/add_chart2.json, tests/fixtures/loaded_chart_styled_edits.json).
             self.state.overlap = 0
         self.state.chart_type = wanted
         if self.sheet.active_chart is self.shape:
@@ -3112,7 +3137,16 @@ class ChartTitle(ElementProperties, TitleMembers):
         if self.chart.state.original:
             from pyopenvba.apps.excel._chart_loaded import type_title
 
-            type_title(self.chart, to_text(value))
+            wanted = to_text(value)
+            try:
+                type_title(self.chart, wanted)
+                return
+            except VBAUnsupportedError:
+                # A title on one line takes it as a new chart of its style does; one of several lines was not measured so.
+                if '\r' in wanted or '\n' in wanted or not self.chart.whole_changed('ChartTitle.Text'):
+                    raise
+            self.chart.state.title, self.chart.state.title_typed = wanted, True
+            self.chart.state.title_look.formula = ''
             return
         self.chart.admit_change()
         wanted = to_text(value)
@@ -4630,6 +4664,8 @@ class Series(PictureMembers, Created):
         self.position()
         self.chart.plot_changed('Series.Delete')
         state = self.chart.state
+        if state.original:
+            state.plot_dropped.add(self.entry.series_id)
         state.series[:] = [entry for entry in state.series if entry is not self.entry]
         state.full_series = [entry for entry in state.full_series if entry is not self.entry]
         if len(state.full_series) == len(state.series):

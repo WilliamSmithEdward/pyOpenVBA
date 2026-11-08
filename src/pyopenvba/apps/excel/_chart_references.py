@@ -4,8 +4,10 @@
 The movers work out what every reference becomes before anything moves, and carry it out afterwards. A point's look
 and label stay with its cell, and moved to another place they lose their unique ids. A series' values becoming #REF!
 take its points' looks and labels with them (tests/fixtures/chart_lost_cells.json). A chart read from a file keeps its
-part, with only the references in it rewritten (tests/fixtures/loaded_chart_references.json); its points are numbered
-inside that part, so cells moving between them are refused, and so is taking its cells away."""
+part, with only the references in it rewritten (tests/fixtures/loaded_chart_references.json). Its points keep the
+numbers the part gives them, as Excel keeps them, and a reference whose cells all go reads #REF! in the part with its
+cached points kept, while the series still reads it as it was (tests/fixtures/chart_shift_losses.json). An error bar
+whose cells go reads #REF! too, in a chart made in the session as in one from a file."""
 from __future__ import annotations
 
 import re
@@ -14,7 +16,6 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import column_letter, parse_reference, quote_sheet
 from pyopenvba._xml import escape_text, unescape
-from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 
 if TYPE_CHECKING:
@@ -127,16 +128,14 @@ def _extent(reference: str) -> tuple[int, int] | None:
 
 
 def _part_step(state: ChartState, turned_text: Callable[[str], str]) -> Step | None:
-    """The references in the part of a chart read from a file going with their cells."""
-    numbered = _NUMBERED.search(state.original) is not None
-
+    """The references in the part of a chart read from a file going with their cells. The points the part numbers
+    keep their numbers, and the cached points of a reference turned #REF! stay, as Excel keeps them
+    (tests/fixtures/chart_shift_losses.json)."""
     def follow(match: re.Match[str]) -> str:
         text = unescape(match.group(2))
         turned = turned_text(text)
         if turned == text:
             return match.group(0)
-        if numbered and (_extent(text) is None or _extent(text) != _extent(turned)):
-            raise VBAUnsupportedError('Moving cells between the points of a chart from a file is not implemented')
         return f'<{match.group(1)}>{escape_text(turned)}</{match.group(1)}>'
 
     rewritten = _PART_REFERENCE.sub(follow, state.original)
@@ -169,10 +168,7 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
             sheet.drawing_changed()
 
     def turned_text(text: str) -> str:
-        turned = change(f'={text}', sheet.name)[1:]
-        if turned != text and '#REF!' in turned and state.original:
-            raise VBAUnsupportedError('Taking away the cells a chart from a file reads is not implemented')
-        return turned
+        return change(f'={text}', sheet.name)[1:]
 
     def setting(holder: object, field: str, value: str) -> Step:
         def step() -> None:
@@ -185,7 +181,8 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
         if not text:
             continue
         turned = turned_text(text)
-        if turned == text:
+        if turned == text or (state.original and '#REF!' in turned):
+            # A chart from a file goes on reading a reference whose cells went as it was; its part says #REF!.
             continue
         if field == 'category_reference' and '#REF!' in turned:
             steps.append(_categories_gone(sheet, holder))  # pyright: ignore[reportArgumentType]
@@ -202,9 +199,7 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
                 reference, values = getattr(bar, field)
                 if reference:
                     turned = turned_text(reference)
-                    if '#REF!' in turned:
-                        raise VBAUnsupportedError('Taking away the cells an error bar reads is not implemented')
-                    if turned != reference:
+                    if turned != reference and not (state.original and '#REF!' in turned):
                         steps.append(setting(bar, field, (turned, values)))  # pyright: ignore[reportArgumentType]
     if state.original:
         following = _part_step(state, turned_text)

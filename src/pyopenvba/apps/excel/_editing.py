@@ -110,6 +110,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     sheet, area = target.sheet, target.first
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
+    sheet.book.application.parameters_ready = True
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
     refuse_sparklines(sheet, "Inserting or deleting rows or columns on")
@@ -280,6 +281,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     _arrays.shift_admitted(sheet, area, region, delete=delete)
     _data_tables.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
+    sheet.book.application.parameters_ready = True
     caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():

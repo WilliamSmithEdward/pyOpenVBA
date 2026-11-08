@@ -296,6 +296,7 @@ def cut(target: Range, destination: object) -> object:
     conditional_copy_admitted(target.sheet, [target.first], destination.sheet,
                               [landing_of(block_of([target.first]), destination)])
     move(target, target.first, destination)
+    target.sheet.book.application.parameters_ready = True
     return True
 
 
@@ -352,6 +353,7 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
     whole(destination.sheet, [landing_of(clip.block, destination)], "Pasting")
     if clip.cut:
         move(clip.source, clip.area, destination)
+        clip.source.sheet.book.application.parameters_ready = True
         return True
     unmeasured(destination, "Worksheet.Paste")
     return paste_block(clip.source.sheet, clip.block, destination)

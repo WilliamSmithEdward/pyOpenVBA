@@ -1,6 +1,7 @@
 """Held-out rounds over the PARTIAL rows of Name and Names whose code reaches no reported gap: a name's Name and NameLocal,
 Index, Visible, Comment, Category and CategoryLocal, MacroType, Delete and ValidWorkbookParameter, and Names.Count. Each is
-read, set and read back where it sets.
+read, set and read back where it sets. Names beyond ASCII are spelled with ChrW: a literal reaches Excel's module in its
+ANSI code page, as ?.
 
 The book is the table rounds' (scripts/measure_table_pivot_rounds.py): a new book with one to three workbook names and
 perhaps a sheet's own, the same saved and reopened, or the names Excel saved in tests/fixtures/object_roundtrip.xlsx.
@@ -27,7 +28,7 @@ MEMBERS = {
         f'o.Name = "Zeta_1": {READ}', f'o.Name = "aaa_first": {READ}', f'o.Name = UCase(o.Name): {READ}',
         f'o.Name = "1bad": {READ}', f'o.Name = "A1": {READ}', f'o.Name = "R1C1": {READ}', f'o.Name = "has space": {READ}',
         f'o.Name = wbL.Names(wbL.Names.Count).Name: {READ}', f'o.Name = "": {READ}', f'o.Name = 12: {READ}',
-        f'o.Name = "_under.dot": {READ}', f'o.Name = "Имя_" & ChrW(1488): {READ}', f'o.Name = String(255, "n"): {READ}',
+        f'o.Name = "_under.dot": {READ}', f'o.Name = ChrW(1048) & ChrW(1084) & ChrW(1103) & "_" & ChrW(1488): {READ}', f'o.Name = String(255, "n"): {READ}',
         f'o.Name = String(256, "n"): {READ}', f'o.NameLocal = "Local_set": {READ}', f'o.NameLocal = "bad name": {READ}',
         'wbL.Names.Add "Aaa", "=1": x = Key(o.Index, book) & " " & wbL.Names("Aaa").Index',
         'wbL.Names.Add "zzz", "=2": x = Key(o.Index, book) & " " & wbL.Names("zzz").Index',
@@ -49,7 +50,7 @@ MEMBERS = {
     ],
     'Names': [
         'x = Key(o.Count, book)', 'o.Add "Fresh", "=Main!$C$1": x = Key(o.Count, book)', 'o.Add "Fresh", "=3": o.Add "Fresh", "=4": x = Key(o.Count, book)',
-        'o(1).Delete: x = Key(o.Count, book)', 'o.Add "שם", "=5": o.Add "ชื่อ", "=6": x = Key(o.Count, book)',
+        'o(1).Delete: x = Key(o.Count, book)', 'o.Add ChrW(1513) & ChrW(1501), "=5": o.Add ChrW(3594) & ChrW(3639) & ChrW(3656) & ChrW(3629), "=6": x = Key(o.Count, book)',
         'wsL.Names.Add "Own", "=7": x = Key(o.Count, book) & " " & wsL.Names.Count', 'o(1).Visible = False: x = Key(o.Count, book)',
     ],
 }

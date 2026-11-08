@@ -1,0 +1,751 @@
+{
+ "cases": [
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"ABC\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"abc\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Abc\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Abd\"",
+   "late": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0",
+   "typed": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0",
+   "model_late": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0",
+   "model_typed": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"LOC\"",
+   "late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"Lod\"",
+   "late": " || 0 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0",
+   "typed": " || 0 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0",
+   "model_late": " || 0 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0",
+   "model_typed": " || 0 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\"): wb.Names.Add \"Xyz\", \"=4\": Set n = wb.Names(\"Xyz\")",
+   "call": "n.Name = \"ABC\"",
+   "late": " || 0 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0",
+   "typed": " || 0 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0",
+   "model_late": " || 0 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0",
+   "model_typed": " || 0 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"Data!Loc\"",
+   "late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"Data!Other\"",
+   "late": " || 0 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "typed": " || 0 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"Sheet1!Other\"",
+   "late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Data!Abc\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Data!New\"",
+   "late": " || 0 | Data!New | Data!New | Workbook | 1 | Data!New | 0 E0",
+   "typed": " || 0 | Data!New | Data!New | Workbook | 1 | Data!New | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Nosheet!New\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"A!B!C\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"!New\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"New!\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Sheet1!New\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\"): ws.Activate",
+   "call": "n.Name = \"Sheet1!New\"",
+   "late": " || 0 | Sheet1!New | Sheet1!New | Workbook | 1 | Sheet1!New | 0 E0",
+   "typed": " || 0 | Sheet1!New | Sheet1!New | Workbook | 1 | Sheet1!New | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\"): ws.Activate",
+   "call": "n.Name = \"Data!New\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\"): ws.Activate",
+   "call": "n.Name = \"Data!Other\"",
+   "late": " || 0 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "typed": " || 0 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\"): ws.Activate",
+   "call": "n.Name = \"Sheet1!Other\"",
+   "late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws.Names.Add(\"Mine\", \"=3\")",
+   "call": "n.Name = \"Sheet1!Other\"",
+   "late": " || 0 | Sheet1!Sheet1!Other | Sheet1!Sheet1!Other | Worksheet | 1 | Sheet1!Sheet1!Other | 0 E0",
+   "typed": " || 0 | Sheet1!Sheet1!Other | Sheet1!Sheet1!Other | Worksheet | 1 | Sheet1!Sheet1!Other | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws.Names.Add(\"Mine\", \"=3\")",
+   "call": "n.Name = \"Data!Other\"",
+   "late": " || 0 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0",
+   "typed": " || 0 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0",
+   "model_late": " || 0 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0",
+   "model_typed": " || 0 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"Data!Other\": s = TypeName(ws2.Names(\"Data!Other\")) & \"/\" & TypeName(wb.Names(\"Data!Data!Other\")) & \"/\" & ws2.Evaluate(\"Data!Other\")",
+   "late": " || 1004 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "typed": " || 1004 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Data!New\": s = TypeName(wb.Names(\"Data!New\")) & \"/\" & wb.Names(\"Data!New\").Parent.Worksheets.Count & \"/\" & ws.Evaluate(\"Data!New\")",
+   "late": " || 1004 | Data!New | Data!New | Workbook | 1 | Data!New | 0 E0",
+   "typed": " || 1004 | Data!New | Data!New | Workbook | 1 | Data!New | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"data!Other\"",
+   "late": " || 0 | Data!data!Other | Data!data!Other | Worksheet | 1 | Data!data!Other | 1 E0",
+   "typed": " || 0 | Data!data!Other | Data!data!Other | Worksheet | 1 | Data!data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.Name = \"'Data'!Other\"",
+   "late": " || 0 | Data!'Data'!Other | Data!'Data'!Other | Worksheet | 1 | Data!'Data'!Other | 1 E0",
+   "typed": " || 0 | Data!'Data'!Other | Data!'Data'!Other | Worksheet | 1 | Data!'Data'!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.Name = \"Data!1bad\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"ABC\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"abc\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Abc\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Abd\"",
+   "late": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0",
+   "typed": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0",
+   "model_late": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0",
+   "model_typed": " || 0 | Abd | Abd | Workbook | 1 | Abd | 0 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"LOC\"",
+   "late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"Lod\"",
+   "late": " || 1004 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0",
+   "typed": " || 1004 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0",
+   "model_late": " || 1004 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0",
+   "model_typed": " || 1004 | Data!Lod | Data!Lod | Worksheet | 1 | Data!Lod | 1 E0"
+  },
+  {
+   "group": "case",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\"): wb.Names.Add \"Xyz\", \"=4\": Set n = wb.Names(\"Xyz\")",
+   "call": "n.NameLocal = \"ABC\"",
+   "late": " || 1004 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0",
+   "typed": " || 1004 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0",
+   "model_late": " || 1004 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0",
+   "model_typed": " || 1004 | Xyz | Xyz | Workbook | 2 | Abc | Xyz | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"Data!Loc\"",
+   "late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 0 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"Data!Other\"",
+   "late": " || 1004 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "typed": " || 1004 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"Sheet1!Other\"",
+   "late": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Data!Abc\"",
+   "late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 0 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Data!New\"",
+   "late": " || 1004 | Data!New | Data!New | Workbook | 1 | Data!New | 0 E0",
+   "typed": " || 1004 | Data!New | Data!New | Workbook | 1 | Data!New | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Nosheet!New\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"A!B!C\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"!New\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"New!\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Sheet1!New\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\"): ws.Activate",
+   "call": "n.NameLocal = \"Sheet1!New\"",
+   "late": " || 1004 | Sheet1!New | Sheet1!New | Workbook | 1 | Sheet1!New | 0 E0",
+   "typed": " || 1004 | Sheet1!New | Sheet1!New | Workbook | 1 | Sheet1!New | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\"): ws.Activate",
+   "call": "n.NameLocal = \"Data!New\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\"): ws.Activate",
+   "call": "n.NameLocal = \"Data!Other\"",
+   "late": " || 1004 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "typed": " || 1004 | Data!Data!Other | Data!Data!Other | Worksheet | 1 | Data!Data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\"): ws.Activate",
+   "call": "n.NameLocal = \"Sheet1!Other\"",
+   "late": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "typed": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_late": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0",
+   "model_typed": " || 1004 | Data!Loc | Data!Loc | Worksheet | 1 | Data!Loc | 1 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws.Names.Add(\"Mine\", \"=3\")",
+   "call": "n.NameLocal = \"Sheet1!Other\"",
+   "late": " || 1004 | Sheet1!Sheet1!Other | Sheet1!Sheet1!Other | Worksheet | 1 | Sheet1!Sheet1!Other | 0 E0",
+   "typed": " || 1004 | Sheet1!Sheet1!Other | Sheet1!Sheet1!Other | Worksheet | 1 | Sheet1!Sheet1!Other | 0 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws.Names.Add(\"Mine\", \"=3\")",
+   "call": "n.NameLocal = \"Data!Other\"",
+   "late": " || 1004 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0",
+   "typed": " || 1004 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0",
+   "model_late": " || 1004 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0",
+   "model_typed": " || 1004 | Sheet1!Mine | Sheet1!Mine | Worksheet | 1 | Sheet1!Mine | 0 E0"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"data!Other\"",
+   "late": " || 1004 | Data!data!Other | Data!data!Other | Worksheet | 1 | Data!data!Other | 1 E0",
+   "typed": " || 1004 | Data!data!Other | Data!data!Other | Worksheet | 1 | Data!data!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = ws2.Names.Add(\"Loc\", \"=2\")",
+   "call": "n.NameLocal = \"'Data'!Other\"",
+   "late": " || 1004 | Data!'Data'!Other | Data!'Data'!Other | Worksheet | 1 | Data!'Data'!Other | 1 E0",
+   "typed": " || 1004 | Data!'Data'!Other | Data!'Data'!Other | Worksheet | 1 | Data!'Data'!Other | 1 E0",
+   "model_late": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented",
+   "model_typed": "model VBAUnsupportedError: a name renamed to a text holding ! is not implemented"
+  },
+  {
+   "group": "bang",
+   "make": "Set n = wb.Names.Add(\"Abc\", \"=1\")",
+   "call": "n.NameLocal = \"Data!1bad\"",
+   "late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_late": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0",
+   "model_typed": " || 1004 | Abc | Abc | Workbook | 1 | Abc | 0 E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n",
+   "call": "names saved",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n",
+   "call": "names reopened",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n",
+   "call": "data saved",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n",
+   "call": "data reopened",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B3\")).CreatePivotTable ws2.Range(\"A3\"), \"PT\"\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n",
+   "call": "pivot saved",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B3\")).CreatePivotTable ws2.Range(\"A3\"), \"PT\"\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n",
+   "call": "pivot reopened",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B3\")).CreatePivotTable ws2.Range(\"A3\"), \"PT\"\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Columns(1).Insert\n",
+   "call": "pivot reopened, column inserted",
+   "late": "Pa==Sheet1!$B$1:True Pb==Sheet1!$B$2:True Pc==Sheet1!$E$5:True E0",
+   "typed": "Pa==Sheet1!$B$1:True Pb==Sheet1!$B$2:True Pc==Sheet1!$E$5:True E0",
+   "model_late": "Pa==Sheet1!$B$1:True Pb==Sheet1!$B$2:True Pc==Sheet1!$E$5:True E0",
+   "model_typed": "Pa==Sheet1!$B$1:True Pb==Sheet1!$B$2:True Pc==Sheet1!$E$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B3\")).CreatePivotTable ws2.Range(\"A3\"), \"PT\"\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Range(\"H9\").Value = 1\n",
+   "call": "pivot reopened, a cell set",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    ws.Range(\"A1:B3\").Value = Array(\"k\", \"v\"): ws.Range(\"A2:B2\").Value = Array(\"a\", 1): ws.Range(\"A3:B3\").Value = Array(\"b\", 2)\n    ws.ListObjects.Add xlSrcRange, ws.Range(\"F1:G3\"), , xlYes\n    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n",
+   "call": "table reopened",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Rows(1).Insert\n",
+   "call": "reopened, rows inserted",
+   "late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Columns(\"Z\").Insert\n",
+   "call": "reopened, column Z inserted",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws2.Columns(1).Insert\n",
+   "call": "reopened, other sheet column inserted",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Rows(9).Delete\n",
+   "call": "reopened, row 9 deleted",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    wb.Save\n",
+   "call": "reopened, saved again",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    wb.Names.Add \"Pd\", \"=Sheet1!$C$3\"\n",
+   "call": "reopened, name added",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False Pd==Sheet1!$C$3:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False Pd==Sheet1!$C$3:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True Pd==Sheet1!$C$3:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True Pd==Sheet1!$C$3:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    wb.Names(\"Pa\").RefersTo = \"=Sheet1!$A$1\"\n",
+   "call": "reopened, RefersTo set",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Range(\"A1\").Value = 5\n",
+   "call": "reopened, A1 set",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Range(\"C3\").Insert xlShiftDown\n",
+   "call": "reopened, cells shifted down",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Range(\"F3:F4\").Delete xlShiftToLeft\n",
+   "call": "reopened, cells shifted left",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    wb.Worksheets.Add\n",
+   "call": "reopened, sheet added",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws2.Delete\n",
+   "call": "reopened, sheet deleted",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\v\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Set wb = Workbooks.Open(wb.FullName): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Range(\"H1\").Value = 1: ws.Range(\"H1\").Cut ws.Range(\"J1\")\n",
+   "call": "reopened, cells cut",
+   "late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    ws.Rows(1).Insert\n",
+   "call": "new, rows inserted",
+   "late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    ws.Rows(1).Insert\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n",
+   "call": "new, rows inserted then saved",
+   "late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Workbooks.Open(path & \"\\t.xlsx\").Close False\n",
+   "call": "saved, another book opened",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    Workbooks.Add.Close False\n",
+   "call": "saved, another book added",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0",
+   "model_typed": "Pa==Sheet1!$A$1:True Pb==Sheet1!$A$2:True Pc==Sheet1!$D$5:True E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    i = 0: s = wb.FullName: wb.Close False: Set wb = Workbooks.Open(s): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n",
+   "call": "saved, closed and opened",
+   "late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_late": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0",
+   "model_typed": "Pa==Sheet1!$A$1:False Pb==Sheet1!$A$2:False Pc==Sheet1!$D$5:False E0"
+  },
+  {
+   "group": "valid",
+   "make": "    wb.Names.Add \"Pa\", \"=Sheet1!$A$1\": wb.Names.Add \"Pb\", \"=Sheet1!$A$2\": wb.Names.Add \"Pc\", \"=Sheet1!$D$5\"\n    wb.SaveAs path & \"\\s\" & Format(Now, \"hhnnss\") & (Int(Timer * 1000) Mod 1000) & \".xlsx\", xlOpenXMLWorkbook\n    s = wb.FullName: wb.Close False: Set wb = Workbooks.Open(s): Set ws = wb.Worksheets(1): Set ws2 = wb.Worksheets(2)\n    ws.Rows(1).Insert\n",
+   "call": "saved, closed, opened, rows inserted",
+   "late": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "typed": "Pa==Sheet1!$A$2:True Pb==Sheet1!$A$3:True Pc==Sheet1!$D$6:True E0",
+   "model_late": "Pa==Sheet1!$A$2:False Pb==Sheet1!$A$3:False Pc==Sheet1!$D$6:False E0",
+   "model_typed": "Pa==Sheet1!$A$2:False Pb==Sheet1!$A$3:False Pc==Sheet1!$D$6:False E0"
+  },
+  {
+   "group": "round",
+   "make": "",
+   "call": "round 55101 reopened book",
+   "late": "Nm_0_1:False Nm_1_1:False E0",
+   "typed": "Nm_0_1:False Nm_1_1:False E0",
+   "model_late": "Nm_0_1:False Nm_1_1:False E0",
+   "model_typed": "Nm_0_1:False Nm_1_1:False E0"
+  }
+ ]
+}

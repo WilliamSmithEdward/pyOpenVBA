@@ -320,7 +320,8 @@ def chart_wizard(chart: Chart, source: object, gallery: object, shape: object, p
         chart.vba_set('HasLegend', has_legend)
     if title is not MISSING:
         chart.vba_set('HasTitle', True)
-        _object(chart.vba_get('ChartTitle')).vba_set('Text', title)
+        # Its text as Formula sets it: empty text leaves the title with none (tests/fixtures/chart_layouts.json).
+        _object(chart.vba_get('ChartTitle')).set_text(title)
     for kind, text in ((_CATEGORY, category_title), (_VALUE, value_title)):
         if text is not MISSING:
             found = _axis(chart, kind)

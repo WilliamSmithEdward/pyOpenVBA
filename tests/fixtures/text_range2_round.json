@@ -1,0 +1,1757 @@
+{
+ "cases": [
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Count"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Characters(3, 5).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Characters(3, 5).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Characters(3, 5).Length"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Words(2).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Paragraphs(1).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Paragraphs(1).Length"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Sentences(1).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Runs(1).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Runs(1).Font.Bold"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Paragraphs.Item(1).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.LanguageID"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.ParagraphFormat.Alignment"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Characters(2, 3).Font.Bold"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Characters.Count"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "read",
+   "tr.Words(1).Length"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.InsertAfter(\"X\").Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.InsertBefore(\"Y\").Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.Characters(1, 3).Delete"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Paragraphs(1).InsertAfter(\"Z\").Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.TrimText.Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"e\").Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"E\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"e\", After:=5).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zzz\").Length"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"t\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"e\", \"EE\").Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"e\", \"EE\", MatchCase:=msoTrue).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"zzz\", \"q\") Is Nothing"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Text"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 945, msoTrue).Start"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.LtrRun"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.RtlRun"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"alpha beta. Gamma delta!\" & vbCr & \"second line here?\"",
+   [
+    7,
+    4
+   ],
+   "do",
+   "tr.Select"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Count"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Characters(3, 5).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Characters(3, 5).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Characters(3, 5).Length"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Words(2).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Paragraphs(1).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Paragraphs(1).Length"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Sentences(1).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Runs(1).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Runs(1).Font.Bold"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Paragraphs.Item(1).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.LanguageID"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.ParagraphFormat.Alignment"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Characters(2, 3).Font.Bold"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Characters.Count"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "read",
+   "tr.Words(1).Length"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.InsertAfter(\"X\").Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.InsertBefore(\"Y\").Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.Characters(1, 3).Delete"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Paragraphs(1).InsertAfter(\"Z\").Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.TrimText.Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Find(\"e\").Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Find(\"E\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Find(\"e\", After:=5).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Length"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Find(\"t\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Replace(\"e\", \"EE\").Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Replace(\"e\", \"EE\", MatchCase:=msoTrue).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.Replace(\"zzz\", \"q\") Is Nothing"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Text"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 945, msoTrue).Start"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.LtrRun"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.RtlRun"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"  padded text  \"",
+   null,
+   "do",
+   "tr.Select"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Count"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Characters(3, 5).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Characters(3, 5).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Characters(3, 5).Length"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(2).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Paragraphs(1).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Paragraphs(1).Length"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Sentences(1).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Runs(1).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Runs(1).Font.Bold"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Paragraphs.Item(1).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.LanguageID"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.ParagraphFormat.Alignment"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Characters(2, 3).Font.Bold"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Characters.Count"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(1).Length"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertAfter(\"X\").Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertBefore(\"Y\").Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Characters(1, 3).Delete"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Paragraphs(1).InsertAfter(\"Z\").Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.TrimText.Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"e\").Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"E\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"e\", After:=5).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"zzz\").Length"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"t\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"e\", \"EE\").Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"e\", \"EE\", MatchCase:=msoTrue).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"zzz\", \"q\") Is Nothing"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Text"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 945, msoTrue).Start"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.LtrRun"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.RtlRun"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"one\" & vbCr & \"two\" & vbCr & \"three\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Select"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Count"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Characters(3, 5).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Characters(3, 5).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Characters(3, 5).Length"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Words(2).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Paragraphs(1).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Paragraphs(1).Length"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Sentences(1).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Runs(1).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Runs(1).Font.Bold"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Paragraphs.Item(1).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.LanguageID"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.ParagraphFormat.Alignment"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Characters(2, 3).Font.Bold"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Characters.Count"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "read",
+   "tr.Words(1).Length"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.InsertAfter(\"X\").Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.InsertBefore(\"Y\").Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.Characters(1, 3).Delete"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Paragraphs(1).InsertAfter(\"Z\").Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.TrimText.Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Find(\"e\").Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Find(\"E\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Find(\"e\", After:=5).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Find(\"zzz\").Length"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Find(\"t\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Replace(\"e\", \"EE\").Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Replace(\"e\", \"EE\", MatchCase:=msoTrue).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.Replace(\"zzz\", \"q\") Is Nothing"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 65).Text"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 945, msoTrue).Start"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.LtrRun"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.RtlRun"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"Mixed CASE words, here\"",
+   null,
+   "do",
+   "tr.Select"
+  ]
+ ],
+ "model": [
+  "Long:1",
+  "String:pha b",
+  "Long:3",
+  "Long:5",
+  "Long:10",
+  "String:beta",
+  "Long:7",
+  "String:alpha beta. Gamma delta!<LF>",
+  "Long:25",
+  "Long:3",
+  "String:alpha beta. ",
+  "String:alpha ",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:42",
+  "Long:6",
+  "e0=String:X|String:alpha beta. Gamma delta!<LF>second line here?X|Long:43|Long:3|Long:2",
+  "e0=Long:1|String:Yalpha beta. Gamma delta!<LF>second line here?|Long:43|Long:3|Long:2",
+  "e0=Empty:|String:ha beta. Gamma delta!<LF>second line here?|Long:39|Long:3|Long:2",
+  "e0=Long:26|String:alpha beta. Gamma delta!<LF>Zsecond line here?|Long:43|Long:3|Long:2",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "Long:1",
+  "String:padde",
+  "Long:3",
+  "Long:5",
+  "refused",
+  "refused",
+  "refused",
+  "String:  padded text  ",
+  "Long:15",
+  "Long:1",
+  "String:  padded text  ",
+  "String:  padded text  ",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:15",
+  "refused",
+  "e0=String:X|String:  padded text  X|Long:16|Long:1|Long:1",
+  "e0=Long:1|String:Y  padded text  |Long:16|Long:1|Long:1",
+  "e0=Empty:|String:added text  |Long:12|Long:1|Long:1",
+  "e0=Long:16|String:  padded text  Z|Long:16|Long:1|Long:1",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "Long:1",
+  "String:e<LF>two",
+  "Long:3",
+  "Long:5",
+  "Long:3",
+  "String:two",
+  "Long:5",
+  "String:one<LF>",
+  "Long:4",
+  "Long:3",
+  "String:one<LF>",
+  "String:one<LF>",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:13",
+  "Long:3",
+  "e0=String:X|String:one<LF>two<LF>threeX|Long:14|Long:3|Long:3",
+  "e0=Long:1|String:Yone<LF>two<LF>three|Long:14|Long:3|Long:3",
+  "e0=Empty:|String:<LF>two<LF>three|Long:10|Long:3|Long:3",
+  "e0=Long:5|String:one<LF>Ztwo<LF>three|Long:14|Long:3|Long:3",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "Long:1",
+  "String:xed C",
+  "Long:3",
+  "Long:5",
+  "Long:5",
+  "String:CASE ",
+  "Long:7",
+  "String:Mixed CASE words, here",
+  "Long:22",
+  "Long:1",
+  "String:Mixed CASE words, here",
+  "String:Mixed CASE words, here",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:22",
+  "Long:6",
+  "e0=String:X|String:Mixed CASE words, hereX|Long:23|Long:1|Long:1",
+  "e0=Long:1|String:YMixed CASE words, here|Long:23|Long:1|Long:1",
+  "e0=Empty:|String:ed CASE words, here|Long:19|Long:1|Long:1",
+  "e0=Long:23|String:Mixed CASE words, hereZ|Long:23|Long:1|Long:1",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused",
+  "refused"
+ ],
+ "measured_at": "2026-11-08T01:17:27.612652+00:00",
+ "excel": [
+  "Long:1",
+  "String:pha b",
+  "Long:3",
+  "Long:5",
+  "Long:10",
+  "String:beta",
+  "Long:7",
+  "String:alpha beta. Gamma delta!<LF>",
+  "Long:25",
+  "Long:3",
+  "String:alpha beta. ",
+  "String:alpha ",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:42",
+  "Long:6",
+  "e0=String:X|String:alpha beta. Gamma delta!<LF>second line here?X|Long:43|Long:3|Long:2",
+  "e0=Long:1|String:Yalpha beta. Gamma delta!<LF>second line here?|Long:43|Long:3|Long:2",
+  "e0=Empty:|String:ha beta. Gamma delta!<LF>second line here?|Long:39|Long:3|Long:2",
+  "e0=Long:26|String:alpha beta. Gamma delta!<LF>Zsecond line here?|Long:43|Long:3|Long:2",
+  "e0=Empty:|String:Alpha beta. Gamma delta!<LF>Second line here?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:alpha beta. gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:ALPHA BETA. GAMMA DELTA!<LF>SECOND LINE HERE?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:Alpha Beta. Gamma Delta!<LF>Second Line Here?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:ALPHA BETA. gAMMA DELTA!<LF>SECOND LINE HERE?|Long:42|Long:3|Long:2",
+  "e0=String:alpha beta. Gamma delta!<LF>second line here?|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:1|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:alpha beta. Gamma delta!.<LF>second line here?.|Long:44|Long:3|Long:2",
+  "e0=Empty:|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:8|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:1|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:8|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:0|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:1|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:8|String:alpha bEEta. Gamma delta!<LF>second line here?|Long:43|Long:3|Long:2",
+  "e0=String:EE|String:alpha bEEta. Gamma delta!<LF>second line here?|Long:43|Long:3|Long:2",
+  "e0=Boolean:True|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=String:A|String:A|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03b1|Long:1|Long:1|Long:1",
+  "e0=Empty:|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Long:0|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "e0=Empty:|String:alpha beta. Gamma delta!<LF>second line here?|Long:42|Long:3|Long:2",
+  "Long:1",
+  "String:padde",
+  "Long:3",
+  "Long:5",
+  "Long:3",
+  "String:padded ",
+  "Long:3",
+  "String:  padded text  ",
+  "Long:15",
+  "Long:1",
+  "String:  padded text  ",
+  "String:  padded text  ",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:15",
+  "Long:2",
+  "e0=String:X|String:  padded text  X|Long:16|Long:1|Long:1",
+  "e0=Long:1|String:Y  padded text  |Long:16|Long:1|Long:1",
+  "e0=Empty:|String:added text  |Long:12|Long:1|Long:1",
+  "e0=Long:16|String:  padded text  Z|Long:16|Long:1|Long:1",
+  "e0=Empty:|String:  Padded text  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  PADDED TEXT  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  Padded Text  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  PADDED TEXT  |Long:15|Long:1|Long:1",
+  "e0=String:  padded text|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:1|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  padded text  .|Long:16|Long:1|Long:1",
+  "e0=Empty:|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:7|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:1|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:7|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:0|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:1|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:7|String:  paddEEd text  |Long:16|Long:1|Long:1",
+  "e0=String:EE|String:  paddEEd text  |Long:16|Long:1|Long:1",
+  "e0=Boolean:True|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=String:A|String:A|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03b1|Long:1|Long:1|Long:1",
+  "e0=Empty:|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Long:0|String:  padded text  |Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  padded text  |Long:15|Long:1|Long:1",
+  "Long:1",
+  "String:e<LF>two",
+  "Long:3",
+  "Long:5",
+  "Long:3",
+  "String:two",
+  "Long:5",
+  "String:one<LF>",
+  "Long:4",
+  "Long:3",
+  "String:one<LF>",
+  "String:one<LF>",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:13",
+  "Long:3",
+  "e0=String:X|String:one<LF>two<LF>threeX|Long:14|Long:3|Long:3",
+  "e0=Long:1|String:Yone<LF>two<LF>three|Long:14|Long:3|Long:3",
+  "e0=Empty:|String:<LF>two<LF>three|Long:10|Long:3|Long:3",
+  "e0=Long:5|String:one<LF>Ztwo<LF>three|Long:14|Long:3|Long:3",
+  "e0=Empty:|String:One<LF>Two<LF>Three|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:ONE<LF>TWO<LF>THREE|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:One<LF>Two<LF>Three|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:ONE<LF>TWO<LF>THREE|Long:13|Long:3|Long:3",
+  "e0=String:one<LF>two<LF>three|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:1|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:one.<LF>two.<LF>three.|Long:16|Long:3|Long:3",
+  "e0=Empty:|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:3|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:1|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:12|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:0|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:1|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:3|String:onEE<LF>two<LF>three|Long:14|Long:3|Long:3",
+  "e0=String:EE|String:onEE<LF>two<LF>three|Long:14|Long:3|Long:3",
+  "e0=Boolean:True|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=String:A|String:A|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03b1|Long:1|Long:1|Long:1",
+  "e0=Empty:|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Long:0|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:one<LF>two<LF>three|Long:13|Long:3|Long:3",
+  "Long:1",
+  "String:xed C",
+  "Long:3",
+  "Long:5",
+  "Long:5",
+  "String:CASE ",
+  "Long:7",
+  "String:Mixed CASE words, here",
+  "Long:22",
+  "Long:1",
+  "String:Mixed CASE words, here",
+  "String:Mixed CASE words, here",
+  "Long:0",
+  "Long:1",
+  "Long:1033",
+  "Long:1",
+  "Long:0",
+  "Long:22",
+  "Long:6",
+  "e0=String:X|String:Mixed CASE words, hereX|Long:23|Long:1|Long:1",
+  "e0=Long:1|String:YMixed CASE words, here|Long:23|Long:1|Long:1",
+  "e0=Empty:|String:ed CASE words, here|Long:19|Long:1|Long:1",
+  "e0=Long:23|String:Mixed CASE words, hereZ|Long:23|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:mixed case words, here|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:MIXED CASE WORDS, HERE|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE Words, Here|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:mIXED case WORDS, HERE|Long:22|Long:1|Long:1",
+  "e0=String:Mixed CASE words, here|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:1|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE words, here.|Long:23|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:4|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:10|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:10|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:0|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:1|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:4|String:MixEEd CASE words, here|Long:23|Long:1|Long:1",
+  "e0=String:EE|String:MixEEd CASE words, here|Long:23|Long:1|Long:1",
+  "e0=Boolean:True|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=String:A|String:A|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03b1|Long:1|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Long:0|String:Mixed CASE words, here|Long:22|Long:1|Long:1",
+  "e0=Empty:|String:Mixed CASE words, here|Long:22|Long:1|Long:1"
+ ]
+}

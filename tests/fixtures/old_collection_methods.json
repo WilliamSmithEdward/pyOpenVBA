@@ -1,0 +1,1354 @@
+{
+"measured_at": "2026-11-07T22:32:45.469825+00:00",
+"driver": "Private Function Show(ByVal v As Variant) As String\n    If IsObject(v) Then\n        Show = \"obj \" & TypeName(v)\n    ElseIf IsArray(v) Then\n        Show = \"array\"\n    ElseIf IsNull(v) Then\n        Show = \"null\"\n    ElseIf IsError(v) Then\n        Show = \"error \" & CStr(v)\n    Else\n        Show = TypeName(v) & \" \" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function State(ws As Object) As String\n    Dim sh As Object, s As String, i As Long, t As String\n    For Each sh In ws.Shapes\n        s = s & \",\" & sh.Name\n    Next\n    s = Mid(s, 2)\n    On Error Resume Next\n    For i = 1 To ws.DropDowns.Count\n        Err.Clear\n        t = Join(ws.DropDowns(i).List, \",\")\n        If Err.Number Then t = \"E\" & Err.Number\n        s = s & \"|dd\" & i & \" \" & ws.DropDowns(i).ListCount & \":\" & t\n    Next\n    For i = 1 To ws.ListBoxes.Count\n        Err.Clear\n        t = Join(ws.ListBoxes(i).List, \",\")\n        If Err.Number Then t = \"E\" & Err.Number\n        s = s & \"|lb\" & i & \" \" & ws.ListBoxes(i).ListCount & \":\" & t\n    Next\n    State = s\nEnd Function\n\nPublic Function Row(ByVal path As String, ByVal saved As String) As String\n    Dim wb As Workbook, o As {declared}, e As Long, s As String, v As Variant\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set o = wb.Worksheets(1).{c}\n    v = Empty\n    On Error Resume Next\n    {call}\n    e = Err.Number\n    Err.Clear\n    s = \"E\" & e & \"|\" & Show(v)\n    If Err.Number Then s = \"E\" & e & \"|unshown\"\n    On Error GoTo 0\n    s = s & \"|\" & State(wb.Worksheets(1))\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    s = s & \"|reopened \" & State(wb.Worksheets(1))\n    wb.Close False\n    Row = s\nEnd Function\n",
+"calls": {
+"AddItem": [
+"AddItem",
+"o.AddItem \"z\""
+],
+"AddItem at 1": [
+"AddItem",
+"o.AddItem \"z\", 1"
+],
+"RemoveItem": [
+"RemoveItem",
+"o.RemoveItem 1"
+],
+"RemoveItem two": [
+"RemoveItem",
+"o.RemoveItem 1, 2"
+],
+"RemoveAllItems": [
+"RemoveAllItems",
+"o.RemoveAllItems"
+],
+"BringToFront": [
+"BringToFront",
+"o.BringToFront"
+],
+"SendToBack": [
+"SendToBack",
+"o.SendToBack"
+],
+"Duplicate": [
+"Duplicate",
+"Set v = o.Duplicate"
+],
+"List": [
+"List",
+"v = o.List(1)"
+],
+"Selected": [
+"Selected",
+"v = o.Selected(1)"
+],
+"LinkCombo": [
+"LinkCombo",
+"o.LinkCombo True"
+]
+},
+"cases": [
+{
+"collection": "Arcs",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 1,Arc 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 1,Arc 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 1,Arc 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 1,Arc 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Arc 8,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Arc 8,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Arc 8,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Arc 8,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj Arcs|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Arc 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Arc 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj Arcs|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Arc 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Arc 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Arcs",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 1,Button 6|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 1,Button 6|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 1,Button 6|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 1,Button 6|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Button 1,Button 6,Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Button 1,Button 6,Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Button 1,Button 6,Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Button 1,Button 6,Arc 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj Buttons|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 11,Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 11,Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj Buttons|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 11,Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Button 11,Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Buttons",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 2,Check Box 7|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 2,Check Box 7|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 2,Check Box 7|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 2,Check Box 7|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Check Box 2,Check Box 7,Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Check Box 2,Check Box 7,Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Check Box 2,Check Box 7,Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Check Box 2,Check Box 7,Arc 1,Button 1,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj CheckBoxes|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 11,Check Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 11,Check Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj CheckBoxes|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 11,Check Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Check Box 11,Check Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "CheckBoxes",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 3,Drop Down 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 3,Drop Down 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 3,Drop Down 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 3,Drop Down 8|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Drop Down 3,Drop Down 8,Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Drop Down 3,Drop Down 8,Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Drop Down 3,Drop Down 8,Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Drop Down 3,Drop Down 8,Arc 1,Button 1,Check Box 2,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj DropDowns|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 11,Drop Down 12|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 11,Drop Down 12|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj DropDowns|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 11,Drop Down 12|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Drop Down 11,Drop Down 12|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DropDowns",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 2,Straight Connector 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 2,Straight Connector 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 2,Straight Connector 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 2,Straight Connector 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Straight Connector 2,Straight Connector 9,Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Straight Connector 2,Straight Connector 9,Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Straight Connector 2,Straight Connector 9,Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Straight Connector 2,Straight Connector 9,Arc 1,Button 1,Check Box 2,Drop Down 3,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj Lines|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 6,Straight Connector 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 6,Straight Connector 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj Lines|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 6,Straight Connector 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Straight Connector 6,Straight Connector 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Lines",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "ListBoxes",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "ListBoxes",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "ListBoxes",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "ListBoxes",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 0:E13|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 0:E13|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 0:E13|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 0:E13|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 4,List Box 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 4,List Box 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 4,List Box 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 4,List Box 9|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |List Box 4,List Box 9,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened List Box 4,List Box 9,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |List Box 4,List Box 9,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened List Box 4,List Box 9,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj ListBoxes|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 11,List Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 11,List Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj ListBoxes|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 11,List Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,List Box 11,List Box 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "ListBoxes",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 5,Option Button 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 5,Option Button 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 5,Option Button 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 5,Option Button 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Option Button 5,Option Button 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Option Button 5,Option Button 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Option Button 5,Option Button 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Option Button 5,Option Button 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj OptionButtons|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 11,Option Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 11,Option Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj OptionButtons|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 11,Option Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Option Button 11,Option Button 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "OptionButtons",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14,Oval 3,Oval 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14,Oval 3,Oval 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14,Oval 3,Oval 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14,Oval 3,Oval 10|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Oval 3,Oval 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Oval 3,Oval 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Oval 3,Oval 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Oval 3,Oval 10,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj Ovals|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Oval 6,Oval 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Oval 6,Oval 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj Ovals|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Oval 6,Oval 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Oval 6,Oval 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Ovals",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 7,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 7,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 7,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 7,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Picture 7,Picture 14,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Picture 7,Picture 14,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Picture 7,Picture 14,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Picture 7,Picture 14,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj Pictures|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Picture 6,Picture 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Picture 6,Picture 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj Pictures|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Picture 6,Picture 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Picture 6,Picture 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Pictures",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14,Rectangle 4,Rectangle 11|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14,Rectangle 4,Rectangle 11|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14,Rectangle 4,Rectangle 11|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14,Rectangle 4,Rectangle 11|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Rectangle 4,Rectangle 11,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Rectangle 4,Rectangle 11,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Rectangle 4,Rectangle 11,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Rectangle 4,Rectangle 11,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj Rectangles|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Rectangle 6,Rectangle 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Rectangle 6,Rectangle 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj Rectangles|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Rectangle 6,Rectangle 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Rectangle 6,Rectangle 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "Rectangles",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14,TextBox 5,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14,TextBox 5,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14,TextBox 5,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14,TextBox 5,TextBox 12|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |TextBox 5,TextBox 12,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened TextBox 5,TextBox 12,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |TextBox 5,TextBox 12,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened TextBox 5,TextBox 12,Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj TextBoxes|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,TextBox 6,TextBox 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,TextBox 6,TextBox 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj TextBoxes|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,TextBox 6,TextBox 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,TextBox 6,TextBox 13|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "TextBoxes",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E438|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "DrawingObjects",
+"call": "AddItem",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "DrawingObjects",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "DrawingObjects",
+"call": "AddItem at 1",
+"member": "AddItem",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 1:z|dd2 1:z|lb1 1:z|lb2 1:z"
+},
+{
+"collection": "DrawingObjects",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "RemoveItem",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "RemoveItem two",
+"member": "RemoveItem",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 0:E13|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 0:E13|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "RemoveAllItems",
+"member": "RemoveAllItems",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 0:E13|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 0:E13|dd2 0:E13|lb1 0:E13|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "BringToFront",
+"member": "BringToFront",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Typed",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "SendToBack",
+"member": "SendToBack",
+"binding": "Late",
+"excel": "E0|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Typed",
+"excel": "E0|obj DrawingObjects|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Button 11,Check Box 12,Drop Down 13,Straight Connector 13,List Box 14,Option Button 15,Oval 15,Rectangle 16,TextBox 17,Picture 18,Arc 19,Button 16,Check Box 17,Drop Down 18,Straight Connector 20,List Box 19,Option Button 20,Oval 21,Rectangle 22,TextBox 23,Picture 24|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Button 11,Check Box 12,Drop Down 13,Straight Connector 13,List Box 14,Option Button 15,Oval 15,Rectangle 16,TextBox 17,Picture 18,Arc 19,Button 16,Check Box 17,Drop Down 18,Straight Connector 20,List Box 19,Option Button 20,Oval 21,Rectangle 22,TextBox 23,Picture 24|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "Duplicate",
+"member": "Duplicate",
+"binding": "Late",
+"excel": "E0|obj DrawingObjects|Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Button 11,Check Box 12,Drop Down 13,Straight Connector 13,List Box 14,Option Button 15,Oval 15,Rectangle 16,TextBox 17,Picture 18,Arc 19,Button 16,Check Box 17,Drop Down 18,Straight Connector 20,List Box 19,Option Button 20,Oval 21,Rectangle 22,TextBox 23,Picture 24|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14,Arc 6,Button 11,Check Box 12,Drop Down 13,Straight Connector 13,List Box 14,Option Button 15,Oval 15,Rectangle 16,TextBox 17,Picture 18,Arc 19,Button 16,Check Box 17,Drop Down 18,Straight Connector 20,List Box 19,Option Button 20,Oval 21,Rectangle 22,TextBox 23,Picture 24|dd1 3:one,two,three|dd2 0:E13|dd3 3:one,two,three|dd4 0:E13|lb1 3:one,two,three|lb2 0:E13|lb3 3:one,two,three|lb4 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "List",
+"member": "List",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "List",
+"member": "List",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "Selected",
+"member": "Selected",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "Selected",
+"member": "Selected",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Typed",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+},
+{
+"collection": "DrawingObjects",
+"call": "LinkCombo",
+"member": "LinkCombo",
+"binding": "Late",
+"excel": "E1004|Empty |Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13|reopened Arc 1,Button 1,Check Box 2,Drop Down 3,Straight Connector 2,List Box 4,Option Button 5,Oval 3,Rectangle 4,TextBox 5,Picture 7,Arc 8,Button 6,Check Box 7,Drop Down 8,Straight Connector 9,List Box 9,Option Button 10,Oval 10,Rectangle 11,TextBox 12,Picture 14|dd1 3:one,two,three|dd2 0:E13|lb1 3:one,two,three|lb2 0:E13"
+}
+]
+}

@@ -25,6 +25,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 - `Selection` with a shape selected is the shape's drawing object, `Rectangle`, `Oval`, `Line` or `TextBox`, or
   `DrawingObjects` for several, with `Name`, `Left`, `Top`, `ShapeRange` and `Count`. `ShapeRange.Select` selects them.
+- The old drawing and control collections (`Buttons`, `DropDowns`, `Rectangles`, `DrawingObjects` and the rest) answer
+  for their items as Excel does. Most reads over them are 1004, even where the items agree. A property set on one
+  reaches every item. `BringToFront` and `SendToBack` move the items together. `AddItem`, `RemoveItem` and
+  `RemoveAllItems` reach every list. Each button role (`DefaultButton`, `CancelButton`, `HelpButton`) is held by
+  one button on a sheet at a time. A form control loaded from a file takes its settings and saves them where Excel
+  writes each. Measured typed and late, through a save and a reopen. `Duplicate` on a collection of shapes read from
+  a file, form controls or lines says it is not implemented.
 - `Range.Insert` with something on the clipboard is Insert Copied Cells or Insert Cut Cells:
   `Rows(3).Copy: Rows(6).Insert` duplicates the row and `Rows(3).Cut: Rows(6).Insert` moves it. Measured in live Excel
   over about 240 shapes of copy, cut and target (`tests/fixtures/range_audit.json`). Filling whole columns with a copy

@@ -715,6 +715,14 @@ measured for it, is refused openly, with `VBAUnsupportedError`. The name's own r
 `Name.RefersTo` and its kin, take a Range's address rather than its
 value, so they refuse any object until they are measured.
 
+Every settable member of Range, Font, Interior, Worksheet and Workbook,
+and the Application settings the settings probes put back, has been
+given an Interior and Nothing, bound late, and an Interior typed
+(`scripts/measure_object_let_sweep.py`, 318 cases). Each answers as
+Excel did. Most refuse them with an error of their own. Two take them:
+`Workbook.DefaultTableStyle` and `DefaultPivotTableStyle` receive the
+object itself and fall back to no style, so they read "None".
+
 ## What is implemented
 
 **The language.** The declarations, `If` in both

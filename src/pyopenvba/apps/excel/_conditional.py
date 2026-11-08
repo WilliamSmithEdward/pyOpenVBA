@@ -887,6 +887,8 @@ class PointRule(RuleObject):
 class _ConditionalRule(RuleObject):
     """A rule that formats the cells it matches with a differential style."""
 
+    vba_type_name = ''
+
     def _dxf(self) -> XmlElement:
         if self.rule.dxf is None:
             identifier = self.rule.root.get('dxfId')

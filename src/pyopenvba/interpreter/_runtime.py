@@ -1904,7 +1904,10 @@ class Interpreter:
             value = target.given(value)
         if statement.kind == "let" and isinstance(statement.target, A.Member) and (isinstance(value, VBAObject) or value is NOTHING):
             value = _object_let_value(target, value)
-        if statement.kind == "let" and isinstance(value, VBAObject):
+        received = isinstance(value, _Received)
+        if received:
+            value = value.held
+        if statement.kind == "let" and isinstance(value, VBAObject) and not received:
             # Some objects, and some properties, take an object itself by Let; anything else hands over the
             # object's default member.
             if not ((value.vba_let_as_object or target.takes_objects) and isinstance(statement.target, A.Member)):
@@ -3353,13 +3356,22 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
 _TAKES_REFERENCES = frozenset({'refersto', 'referstolocal', 'referstor1c1', 'referstor1c1local'})
 
 
+@dataclass(frozen=True, slots=True)
+class _Received:
+    """An object given by Let that the member receives itself, not its default member's value."""
+
+    held: object
+
+
 def _object_let_value(target: Assignable, value: object) -> object:
     """An object given by Let to a member, before the member sees it. Excel hands the object itself to a member bound late, and to one typed
     whose declared type is a Variant or an object; only a typed member of a value type gets the object's default value from VBA. A member
     given the object answers by its own rule, which goes by the member, not its type: Workbook.Date1904 refuses a Font with 1004 and
     Workbook.CheckCompatibility with 13, though both are Booleans. So an object with a value, a one-cell Range or a Name, gives that value,
     as every measured member takes it, and one with none, Nothing, or a Range of several cells is refused openly where the member gets the
-    object (tests/fixtures/late_object_lets.json, tests/fixtures/late_object_lets_2.json)."""
+    object (tests/fixtures/late_object_lets.json, tests/fixtures/late_object_lets_2.json). The member sweep (tests/fixtures/object_let_sweep.json)
+    measured each settable member of Range, Font, Interior, Worksheet and Workbook, and Application's settings; a member measured to take an
+    object with no value receives it as _Received."""
     owner = target.owner
     found = (find_class(target.library, owner.vba_type_name)
              if target.library is not None and isinstance(owner, VBAObject) and not isinstance(owner, UserClassInstance) else None)
@@ -3405,6 +3417,9 @@ def _object_let_value(target: Assignable, value: object) -> object:
             if given is None:
                 kind = 'novalue'
     if kind in measured:
+        if measured[kind] == -1:
+            # Measured to take an object with no value: the member receives the object itself, as Workbook.DefaultTableStyle takes Nothing.
+            return _Received(value)
         if not measured[kind]:
             # Measured to take the object's value, as VBA reads it.
             assert isinstance(value, VBAObject)

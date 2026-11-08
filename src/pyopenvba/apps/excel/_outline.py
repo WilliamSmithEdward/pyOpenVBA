@@ -358,6 +358,12 @@ def set_level(target: Range, value: object) -> None:
 
 def read_detail(target: Range) -> bool:
     _admit_axes(target.sheet)
+    sheet, area = target.sheet, target.first
+    whole = (area.left == 1 and area.right == MAX_COLUMNS) or (area.top == 1 and area.bottom == MAX_ROWS) or target.lines in ('rows', 'columns')
+    if (len(target.areas) == 1 and not whole and not any(_depth(one) for one in sheet.dims.rows.values())
+            and not any(_depth(one) for one in sheet.dims.columns.values())):
+        # A block of cells on a sheet with no outline is no summary row or column (tests/fixtures/object_let_sweep.json).
+        raise error(1004)
     rows, first, last = axis(target)
     if first != last:
         raise unsupported('with multiple summary rows or columns')

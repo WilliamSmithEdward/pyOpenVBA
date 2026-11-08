@@ -16,13 +16,18 @@ Measured in live Excel (scripts/measure_sparklines.py, tests/fixtures/sparklines
   save writes each group with its attributes in the schema's order, the colours, and each sparkline's source with
   its sheet's name and its cell.
 
-The model moves no sparkline: a row or column put in or taken away, a copy, a cut, a sort or a fill on a sheet a
-sparkline sits on or reads, and that sheet copied, renamed or deleted, each report themselves unsupported.
+Inserts and deletes of cells, rows and columns move sparklines as ``shifted`` has it
+(scripts/measure_sparkline_shifts.py, tests/fixtures/sparkline_shifts*.json). A group whose sparklines no longer
+run along a line reading the rows or columns of a block reads its Location and SourceData cell by cell.
+
+Otherwise the model moves no sparkline: a copy, a cut, a sort or a fill on a sheet a sparkline sits on or reads,
+and that sheet copied, renamed or deleted, each report themselves unsupported.
 """
 from __future__ import annotations
 
 import re
 import uuid
+from itertools import pairwise
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -37,7 +42,10 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAInt, error, 
                                            to_text)
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from pyopenvba.apps.excel._charts_file import XmlElement
+    from pyopenvba.apps.excel._editing import CellShift
     from pyopenvba.apps.excel._styles import Color
     from pyopenvba.apps.excel._model import Workbook, Worksheet
 
@@ -70,19 +78,27 @@ class Source:
     sheet: str | None
     first: tuple[str, str]
     last: tuple[str, str]
+    #: Its cells deleted: a sparkline's SourceData reads "", its group's "#REF!", and a file writes no formula.
+    broken: bool = False
 
     def area(self) -> Area:
         from pyopenvba._a1 import parse_area
 
+        if self.broken:
+            raise VBAUnsupportedError('a sparkline whose source was deleted is not implemented here')
         return parse_area(f'{"".join(self.first)}:{"".join(self.last)}'.replace('$', ''))
 
     def text(self, own: str) -> str:
         """As SourceData reads it, the sheet named where it is not the group's own."""
+        if self.broken:
+            return ''
         reference = f'{"".join(self.first)}:{"".join(self.last)}'
         return reference if self.sheet is None or self.sheet == own else f'{_quoted(self.sheet)}!{reference}'
 
     def formula(self, own: str) -> str:
-        """As a file keeps it, always with its sheet's name."""
+        """As a file keeps it, always with its sheet's name; "" once its cells are deleted."""
+        if self.broken:
+            return ''
         reference = f'{"".join(self.first)}:{"".join(self.last)}'
         return f'{_quoted(self.sheet or own)}!{reference}'
 
@@ -156,9 +172,11 @@ def _loaded(sheet: Worksheet) -> list[Group]:
                     continue
                 for line in child:
                     formula, where = line.find(xm + 'f'), line.find(xm + 'sqref')
-                    if formula is None or where is None or not (formula.text or '') or ' ' in (where.text or ''):
-                        raise VBAUnsupportedError('a sparkline with no source or several cells is not implemented')
-                    source = _source(formula.text or '', sheet.name)
+                    if where is None or ' ' in (where.text or '') or (formula is not None and not formula.text):
+                        raise VBAUnsupportedError('a sparkline with an empty source or several cells is not implemented')
+                    # One whose source was deleted keeps no formula (tests/fixtures/sparkline_shifts_c.json).
+                    source = (Source(None, ('', ''), ('', ''), broken=True) if formula is None
+                              else _source(formula.text or '', sheet.name))
                     if source is None:
                         raise VBAUnsupportedError('a sparkline whose source is no range is not implemented')
                     from pyopenvba._a1 import parse_area
@@ -166,8 +184,9 @@ def _loaded(sheet: Worksheet) -> list[Group]:
                     cell = parse_area(where.text or '')
                     group.sparklines.append(Sparkline(source, (cell.top, cell.left)))
             groups.append(group)
-    # A file holds the newest group first; the model keeps them oldest first.
-    return groups[::-1]
+    # Loaded groups read last in the file first (tests/fixtures/sparkline_shifts_b.json two): the model keeps them
+    # in the file's order, so a save writes them the other way round, as Excel does.
+    return groups
 
 
 def _prefixed(key: str) -> str:
@@ -227,6 +246,128 @@ def refuse(sheet: Worksheet, what: str) -> None:
     """The model moves no sparkline (see the module's notes)."""
     if touches(sheet):
         raise VBAUnsupportedError(f'{what} a sheet a sparkline sits on or reads is not implemented')
+
+
+def _regular(lines: list[Sparkline]) -> bool:
+    """Whether a group reads as one location and one source: its cells run one by one along a row or a column, in
+    its order, and its sources, on one sheet, are the rows or the columns of a block one by one in the same order
+    (tests/fixtures/sparkline_shifts_c.json: F1, F2, G3, F4 reading A1:D4 by rows reads as lists)."""
+    if len(lines) == 1:
+        return not lines[0].source.broken
+    if any(line.source.broken for line in lines) or len({line.source.sheet for line in lines}) != 1:
+        return False
+    cells = [line.at for line in lines]
+    steps = {(second[0] - first[0], second[1] - first[1]) for first, second in pairwise(cells)}
+    if steps not in ({(1, 0)}, {(0, 1)}):
+        return False
+    areas = [line.source.area() for line in lines]
+    by_rows = all(area.rows == 1 and (area.left, area.right) == (areas[0].left, areas[0].right) for area in areas)
+    by_columns = all(area.columns == 1 and (area.top, area.bottom) == (areas[0].top, areas[0].bottom)
+                     for area in areas)
+    return ((by_rows and all(second.top == first.top + 1 for first, second in pairwise(areas)))
+            or (by_columns and all(second.left == first.left + 1 for first, second in pairwise(areas))))
+
+
+def shifted(sheet: Worksheet, shift: CellShift, rewrite: Callable[[str, str], str], *, below: bool = False
+            ) -> Callable[[], None]:
+    """Cells, rows or columns of ``sheet`` deleted or inserted, as ``shift`` has it, ``rewrite`` taking a formula
+    and the sheet it is on to the formula that follows them. Checks first and returns what carries it out
+    (tests/fixtures/sparkline_shifts*.json):
+
+    - a sparkline on ``sheet`` moves with its cell and goes with it, a group left with none going too;
+    - sources and date ranges follow as formulas' references do, $ or not, one whose cells all go reading #REF!;
+    - each cell put in takes the sparkline of the cell before it -- above for cells going down, to the left for
+      cells going right -- with that one's source moved as far, $ and all, coming after it in its group.
+    """
+    found: list[tuple[Worksheet, State, list[tuple[Group, list[Sparkline], tuple[str | None, str] | None]]]] = []
+    for owner in sheet.book.sheets_:
+        own = state(owner)
+        if not own.groups:
+            continue
+        groups: list[tuple[Group, list[Sparkline], tuple[str | None, str] | None]] = []
+        for group in own.groups:
+            lines: list[Sparkline] = []
+            for line in group.sparklines:
+                at = line.at
+                if owner is sheet:
+                    moved = _moved_cell(at, shift)
+                    if moved is None:
+                        continue
+                    at = moved
+                kept = Sparkline(_followed(line.source, owner.name, rewrite), at)
+                lines.append(kept)
+                if owner is sheet and not shift.delete:
+                    lines.extend(_copies(line, kept, shift, below))
+            dates = group.dates
+            if dates is not None:
+                text = rewrite('=' + _quoted(dates[0] or owner.name) + '!' + dates[1], owner.name)[1:]
+                dates = None if '#REF!' in text else _dates(text, owner.name)
+            groups.append((group, lines, dates))
+        found.append((owner, own, groups))
+
+    def carry_out() -> None:
+        for owner, own, groups in found:
+            if all(lines == group.sparklines and dates == group.dates for group, lines, dates in groups):
+                continue
+            for group, lines, dates in groups:
+                group.sparklines, group.dates = lines, dates
+            own.groups = [group for group, lines, _dates in groups if lines]
+            own.changed = True
+            owner.book.saved = False
+
+    return carry_out
+
+
+def _moved_cell(at: tuple[int, int], shift: CellShift) -> tuple[int, int] | None:
+    from pyopenvba.apps.excel._editing import shifted_box
+
+    box = shifted_box((at[0], at[1], at[0], at[1]), shift)
+    return None if box is None else (box[0], box[1])
+
+
+def _followed(source: Source, own: str, rewrite: Callable[[str, str], str]) -> Source:
+    if source.broken:
+        return source
+    text = rewrite('=' + source.formula(own), own)[1:]
+    if '#REF!' in text:
+        return Source(None, ('', ''), ('', ''), broken=True)
+    followed = _source(text, own)
+    if followed is None:
+        raise VBAUnsupportedError('a sparkline source that an edit turns into no range is not implemented')
+    return followed
+
+
+def _copies(line: Sparkline, kept: Sparkline, shift: CellShift, below: bool) -> list[Sparkline]:
+    """The sparklines the cells put in after ``line``'s cell take from it, ``kept`` being where it went."""
+    row, column = line.at
+    along, across = (row, column) if shift.vertical else (column, row)
+    if not shift.band[0] <= across <= shift.band[1]:
+        return []
+    if along != (shift.start + shift.count if below else shift.start - 1):
+        return []
+    if below or kept.source.broken:
+        raise VBAUnsupportedError('cells put in beside a sparkline taking it from below, or one whose source was '
+                                  'deleted, are not implemented')
+    made: list[Sparkline] = []
+    for step in range(1, shift.count + 1):
+        at = (row + step, column) if shift.vertical else (row, column + step)
+        made.append(Sparkline(_offset(kept.source, step if shift.vertical else 0, 0 if shift.vertical else step), at))
+    return made
+
+
+def _offset(source: Source, rows: int, columns: int) -> Source:
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
+
+    def moved(corner: tuple[str, str]) -> tuple[str, str]:
+        letters, digits = corner
+        column = column_number(letters.lstrip('$')) + columns
+        row = int(digits.lstrip('$')) + rows
+        if not (1 <= column <= MAX_COLUMNS and 1 <= row <= MAX_ROWS):
+            raise VBAUnsupportedError('a sparkline copied past the edge of the sheet is not implemented')
+        return (('$' if letters.startswith('$') else '') + column_letter(column),
+                ('$' if digits.startswith('$') else '') + str(row))
+
+    return Source(source.sheet, moved(source.first), moved(source.last))
 
 
 def cleared(target: Range) -> None:
@@ -491,9 +632,13 @@ class SparklineGroup(ExcelObject):
     @member
     def Location(self) -> object:
         cells = [line.at for line in self.group.sparklines]
+        areas = [Area(row, column, row, column, self.sheet.name) for row, column in cells]
+        if not _regular(self.group.sparklines):
+            # Its cells one by one, in the group's order (tests/fixtures/sparkline_shifts_c.json).
+            return Range(self.sheet, areas)
         from pyopenvba.apps.excel._model import coalesced
 
-        return Range(self.sheet, coalesced([Area(row, column, row, column, self.sheet.name) for row, column in cells]))
+        return Range(self.sheet, coalesced(areas))
 
     @setter('Location')
     def _set_location(self, value: object) -> None:
@@ -501,21 +646,16 @@ class SparklineGroup(ExcelObject):
 
     @member
     def SourceData(self) -> object:
+        """The block its sparklines' sources make, from the first one's first corner to the last one's last; where
+        they make none, as _regular has it, each source in turn, "#REF!" for one deleted
+        (tests/fixtures/sparkline_shifts_c.json)."""
         sources = [line.source for line in self.group.sparklines]
-        sheets = {source.sheet for source in sources}
-        if len(sheets) != 1 or any('$' in ''.join(source.first + source.last) for source in sources[1:]):
-            raise VBAUnsupportedError('the source of a group whose sparklines read apart is not implemented')
+        own = self.sheet.name
         if len(sources) == 1:
-            return sources[0].text(self.sheet.name)
-        areas = [source.area() for source in sources]
-        top, bottom = min(area.top for area in areas), max(area.bottom for area in areas)
-        left, right = min(area.left for area in areas), max(area.right for area in areas)
-        if sum(area.rows * area.columns for area in areas) != (bottom - top + 1) * (right - left + 1):
-            raise VBAUnsupportedError('the source of a group whose sparklines read apart is not implemented')
-        from pyopenvba._a1 import column_letter
-
-        block = Source(sources[0].sheet, (column_letter(left), str(top)), (column_letter(right), str(bottom)))
-        return block.text(self.sheet.name)
+            return '#REF!' if sources[0].broken else sources[0].text(own)
+        if not _regular(self.group.sparklines):
+            return ','.join('#REF!' if source.broken else source.text(own) for source in sources)
+        return Source(sources[0].sheet, sources[0].first, sources[-1].last).text(own)
 
     @setter('SourceData')
     def _set_source_data(self, value: object) -> None:
@@ -524,8 +664,11 @@ class SparklineGroup(ExcelObject):
     @member
     def DateRange(self) -> object:
         """The date range as given, the group's own sheet left out; none is error 1004
-        (tests/fixtures/sparkline_dates.json)."""
+        (tests/fixtures/sparkline_dates.json). One whose cells were deleted reads "": the group keeps its date
+        axis and the file no range (tests/fixtures/sparkline_shifts_c.json)."""
         if self.group.dates is None:
+            if self.group.attributes.get('dateAxis') == '1':
+                return ''
             raise error(1004)
         sheet, reference = self.group.dates
         return reference if sheet is None else f'{_quoted(sheet)}!{reference}'
@@ -1049,10 +1192,26 @@ class SparkVerticalAxis(ExcelObject):
         self._set_value('manualMax', value)
 
 
+def rewritten(sheet: Worksheet) -> bool:
+    """Whether a save writes the sheet's groups: where a macro changed them, or where it holds several, which
+    Excel writes the other way round from a reopened sheet, changed or not (tests/fixtures/sparkline_shifts_e.json)."""
+    if sheet.sparklines is None:
+        package = sheet.book.package
+        if package is None or not sheet.part_name or not package.has(sheet.part_name) \
+                or URI.encode() not in package.read(sheet.part_name):
+            return False
+        state(sheet)
+    assert sheet.sparklines is not None
+    return sheet.sparklines.changed or len(sheet.sparklines.groups) > 1
+
+
 def written(sheet: Worksheet, xml: str) -> str:
-    """The sheet's part with its sparkline groups as Excel writes them, where a macro changed them."""
-    if sheet.sparklines is None or not sheet.sparklines.changed:
+    """The sheet's part with its sparkline groups as Excel writes them, where a macro changed them, or where it
+    holds several: Excel writes a reopened sheet's groups the other way round, changed or not
+    (tests/fixtures/sparkline_shifts_e.json)."""
+    if not rewritten(sheet):
         return xml
+    assert sheet.sparklines is not None
     groups = sheet.sparklines.groups
     markup = ''
     if groups:
@@ -1089,7 +1248,8 @@ def _group_markup(sheet: Worksheet, group: Group) -> str:
     dates = ''
     if group.dates is not None:
         dates = f'<xm:f>{escape_text(_quoted(group.dates[0] or sheet.name) + "!" + group.dates[1])}</xm:f>'
-    lines = ''.join(f'<x14:sparkline><xm:f>{escape_text(line.source.formula(sheet.name))}</xm:f>'
+    lines = ''.join('<x14:sparkline>' + (f'<xm:f>{escape_text(line.source.formula(sheet.name))}</xm:f>'
+                                         if not line.source.broken else '') +
                     f'<xm:sqref>{_cell_name(line.at)}</xm:sqref></x14:sparkline>' for line in group.sparklines)
     return f'<x14:sparklineGroup{attributes}>{"".join(group.children)}{dates}<x14:sparklines>{lines}</x14:sparklines>' \
            '</x14:sparklineGroup>'

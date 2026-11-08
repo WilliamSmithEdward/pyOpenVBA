@@ -21,11 +21,14 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_look_edits.json').read_text(encoding='utf-8'))
 _ALL = tuple(label for label, _ in RECORD['edits'])
-#: The cases the model answers, by book. The rest are refused: a chart with a style, where Excel gives what it adds the style's look; a
-#: series whose look the model does not write as the file holds it; and a point's look on a series with a look, which Excel copies in.
+#: The cases the model answers, by book. The rest are refused: a series whose look the model does not write as the file holds it; a
+#: point's look on a series with a look, which Excel copies in; a point on a chart with a trendline, whose numbering is not known; and
+#: the Interior of a series on a chart with a style.
 BUILT: dict[str, tuple[str, ...]] = {
     'loaded_chart_plain.xlsx': _ALL,
-    'loaded_chart_dressed.xlsx': ('nothing',),
+    'loaded_chart_dressed.xlsx': ('nothing', 'fill colour', 'fill colour second', 'fill colour twice', 'fill hidden',
+                                  'fill colour transparency', 'fill solid', 'line colour', 'line weight', 'line colour weight',
+                                  'line dash', 'fill and line'),
     'loaded_chart_labelled.xlsx': _ALL,
     'loaded_chart_themed.xlsx': ('nothing',),
 }

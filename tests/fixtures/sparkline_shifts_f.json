@@ -1,0 +1,2291 @@
+{
+"measured_at": "2026-11-08T00:44:58.351882+00:00",
+"source": "Private Function Groups(ws As Object) As String\n    Dim out As String, g As Object, i As Long, s As String\n    On Error Resume Next\n    out = ws.Name & \"[\" & ws.Cells.SparklineGroups.Count & \"]\"\n    For Each g In ws.Cells.SparklineGroups\n        s = \"-\": s = g.Type\n        out = out & \" {\" & s\n        s = \"-\": s = g.Location.Address(False, False)\n        out = out & \" at=\" & s\n        s = \"-\": s = g.SourceData\n        out = out & \" src=\" & s\n        s = \"-\": s = g.DateRange\n        out = out & \" dates=\" & s\n        For i = 1 To g.Count\n            s = \"-\": s = g.Item(i).Location.Address(False, False)\n            out = out & \" \" & s\n            s = \"-\": s = g.Item(i).SourceData\n            out = out & \"=\" & s\n        Next\n        out = out & \"}\"\n        Err.Clear\n    Next\n    Groups = out\nEnd Function\n\nPrivate Function Dump(wb As Object) As String\n    Dump = Groups(wb.Worksheets(1)) & \" | \" & Groups(wb.Worksheets(2)) & \" | A1=\" & wb.Worksheets(1).Range(\"A1\").Formula & _\n        \" F1=\" & wb.Worksheets(1).Range(\"F1\").Formula\nEnd Function\n\nPublic Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Workbook, ws As Object, wt As Worksheet, other As Object, out As String, path As String\n    Dim r As Long, c As Long, g As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"S\"\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Name = \"T\"\n    For r = 1 To 8\n        For c = 1 To 4\n            ws.Cells(r, c).Value = r * 10 + c\n            other.Cells(r, c).Value = r * 10 + c\n        Next\n    Next\n    For c = 1 To 4\n        ws.Cells(12, c).Value = DateSerial(2026, c, 1)\n    Next\n    ' \"rows+reload\": the layout saved and opened again before the edit.\n    Dim reload As Boolean, first As String\n    reload = Right(kind, 7) = \"+reload\"\n    If reload Then kind = Left(kind, Len(kind) - 7)\n    Select Case kind\n        Case \"rows\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"A1:D4\"\n        Case \"cols\"\n            ws.Range(\"A10:D10\").SparklineGroups.Add xlSparkColumn, \"A1:D8\"\n        Case \"dates\"\n            Set g = ws.Range(\"F1:F4\").SparklineGroups.Add(xlSparkLine, \"A1:D4\")\n            g.DateRange = \"A12:D12\"\n        Case \"other\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"T!A1:D4\"\n        Case \"two\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"A1:D4\"\n            ws.Range(\"A10:D10\").SparklineGroups.Add xlSparkColumn, \"A1:D8\"\n        Case \"abs\"\n            ws.Range(\"F6\").SparklineGroups.Add xlSparkLine, \"$A$6:$D$6\"\n        Case \"under\"\n            ws.Range(\"A10:D10\").SparklineGroups.Add xlSparkColumn, \"A1:D8\"\n            ws.Range(\"F1:F4\").SparklineGroups.Add xlSparkLine, \"A1:D4\"\n        Case \"gapped\"\n            Set g = ws.Range(\"F1:F4\").SparklineGroups.Add(xlSparkLine, \"A1:D4\")\n            g.Item(2).SourceData = \"A6:D6\"\n    End Select\n    If reload Then\n        first = Environ(\"TEMP\") & \"\\pyovba_sparkline_shift_first.xlsx\"\n        On Error Resume Next\n        Kill first\n        On Error GoTo 0\n        Application.DisplayAlerts = False\n        wb.SaveAs first, 51\n        Application.DisplayAlerts = True\n        wb.Close False\n        Set wb = Workbooks.Open(first)\n        Set ws = wb.Worksheets(1)\n        Set other = wb.Worksheets(2)\n    End If\n    ws.Activate\n    Dim target As String, how As String, parts() As String, sheet As Object\n    parts = Split(edit, \" \")\n    target = parts(1)\n    how = parts(2)\n    Set sheet = ws\n    If Left(target, 2) = \"T!\" Then\n        Set sheet = other\n        target = Mid(target, 3)\n    End If\n    Set wt = sheet\n    On Error Resume Next\n    Err.Clear\n    If parts(0) = \"none\" Then\n    ElseIf how = \"auto\" And typed Then\n        If parts(0) = \"insert\" Then wt.Range(target).Insert Else wt.Range(target).Delete\n    ElseIf how = \"auto\" Then\n        If parts(0) = \"insert\" Then sheet.Range(target).Insert Else sheet.Range(target).Delete\n    ElseIf typed Then\n        If parts(0) = \"insert\" Then\n            wt.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            wt.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    Else\n        If parts(0) = \"insert\" Then\n            sheet.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            sheet.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    End If\n    out = \"err=\" & Err.Number & \":\" & Err.Description & \" \" & Dump(wb)\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_sparkline_shift.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    out = out & \" save=\" & Err.Number\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    out = out & \" ~ \" & Dump(wb)\n    wb.Close False\n    If reload Then Kill first\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"rows",
+"insert C9:C10 auto",
+true
+],
+[
+"rows",
+"insert C9:C10 auto",
+false
+],
+[
+"rows",
+"insert C10:C11 auto",
+true
+],
+[
+"rows",
+"insert C10:C11 auto",
+false
+],
+[
+"rows",
+"insert C8:C9 auto",
+true
+],
+[
+"rows",
+"insert C8:C9 auto",
+false
+],
+[
+"rows",
+"insert C11:C12 auto",
+true
+],
+[
+"rows",
+"insert C11:C12 auto",
+false
+],
+[
+"rows",
+"insert A10:A11 auto",
+true
+],
+[
+"rows",
+"insert A10:A11 auto",
+false
+],
+[
+"rows",
+"insert E9:E10 auto",
+true
+],
+[
+"rows",
+"insert E9:E10 auto",
+false
+],
+[
+"rows",
+"insert F2:F3 auto",
+true
+],
+[
+"rows",
+"insert F2:F3 auto",
+false
+],
+[
+"rows",
+"insert F3:F5 auto",
+true
+],
+[
+"rows",
+"insert F3:F5 auto",
+false
+],
+[
+"rows",
+"insert F4:F5 auto",
+true
+],
+[
+"rows",
+"insert F4:F5 auto",
+false
+],
+[
+"rows",
+"insert F5:F6 auto",
+true
+],
+[
+"rows",
+"insert F5:F6 auto",
+false
+],
+[
+"rows",
+"insert G2:G3 auto",
+true
+],
+[
+"rows",
+"insert G2:G3 auto",
+false
+],
+[
+"rows",
+"insert E4:F4 auto",
+true
+],
+[
+"rows",
+"insert E4:F4 auto",
+false
+],
+[
+"rows",
+"insert E5:F5 auto",
+true
+],
+[
+"rows",
+"insert E5:F5 auto",
+false
+],
+[
+"rows",
+"insert F4:G4 auto",
+true
+],
+[
+"rows",
+"insert F4:G4 auto",
+false
+],
+[
+"rows",
+"insert G4:H4 auto",
+true
+],
+[
+"rows",
+"insert G4:H4 auto",
+false
+],
+[
+"rows",
+"insert E1:F1 auto",
+true
+],
+[
+"rows",
+"insert E1:F1 auto",
+false
+],
+[
+"rows",
+"insert A10:B10 auto",
+true
+],
+[
+"rows",
+"insert A10:B10 auto",
+false
+],
+[
+"rows",
+"insert A11:B11 auto",
+true
+],
+[
+"rows",
+"insert A11:B11 auto",
+false
+],
+[
+"rows",
+"insert A9:B9 auto",
+true
+],
+[
+"rows",
+"insert A9:B9 auto",
+false
+],
+[
+"rows",
+"insert C10 auto",
+true
+],
+[
+"rows",
+"insert C10 auto",
+false
+],
+[
+"rows",
+"insert F4 auto",
+true
+],
+[
+"rows",
+"insert F4 auto",
+false
+],
+[
+"rows",
+"insert B10:C10 auto",
+true
+],
+[
+"rows",
+"insert B10:C10 auto",
+false
+],
+[
+"rows",
+"insert F1:F4 auto",
+true
+],
+[
+"rows",
+"insert F1:F4 auto",
+false
+],
+[
+"rows",
+"insert A10:D10 auto",
+true
+],
+[
+"rows",
+"insert A10:D10 auto",
+false
+],
+[
+"rows",
+"delete C9:C10 auto",
+true
+],
+[
+"rows",
+"delete C9:C10 auto",
+false
+],
+[
+"rows",
+"delete D9:D10 auto",
+true
+],
+[
+"rows",
+"delete D9:D10 auto",
+false
+],
+[
+"rows",
+"delete E9:E10 auto",
+true
+],
+[
+"rows",
+"delete E9:E10 auto",
+false
+],
+[
+"rows",
+"delete F2:F3 auto",
+true
+],
+[
+"rows",
+"delete F2:F3 auto",
+false
+],
+[
+"rows",
+"delete F4:F5 auto",
+true
+],
+[
+"rows",
+"delete F4:F5 auto",
+false
+],
+[
+"rows",
+"delete G2:G3 auto",
+true
+],
+[
+"rows",
+"delete G2:G3 auto",
+false
+],
+[
+"rows",
+"delete E4:F4 auto",
+true
+],
+[
+"rows",
+"delete E4:F4 auto",
+false
+],
+[
+"rows",
+"delete A11:B11 auto",
+true
+],
+[
+"rows",
+"delete A11:B11 auto",
+false
+],
+[
+"rows",
+"delete A9:B9 auto",
+true
+],
+[
+"rows",
+"delete A9:B9 auto",
+false
+],
+[
+"rows",
+"delete G1:H1 auto",
+true
+],
+[
+"rows",
+"delete G1:H1 auto",
+false
+],
+[
+"rows",
+"delete C10 auto",
+true
+],
+[
+"rows",
+"delete C10 auto",
+false
+],
+[
+"rows",
+"delete F4 auto",
+true
+],
+[
+"rows",
+"delete F4 auto",
+false
+],
+[
+"rows",
+"delete A10:B10 auto",
+true
+],
+[
+"rows",
+"delete A10:B10 auto",
+false
+],
+[
+"rows",
+"delete F3:F4 auto",
+true
+],
+[
+"rows",
+"delete F3:F4 auto",
+false
+],
+[
+"cols",
+"insert C9:C10 auto",
+true
+],
+[
+"cols",
+"insert C9:C10 auto",
+false
+],
+[
+"cols",
+"insert C10:C11 auto",
+true
+],
+[
+"cols",
+"insert C10:C11 auto",
+false
+],
+[
+"cols",
+"insert C8:C9 auto",
+true
+],
+[
+"cols",
+"insert C8:C9 auto",
+false
+],
+[
+"cols",
+"insert C11:C12 auto",
+true
+],
+[
+"cols",
+"insert C11:C12 auto",
+false
+],
+[
+"cols",
+"insert A10:A11 auto",
+true
+],
+[
+"cols",
+"insert A10:A11 auto",
+false
+],
+[
+"cols",
+"insert E9:E10 auto",
+true
+],
+[
+"cols",
+"insert E9:E10 auto",
+false
+],
+[
+"cols",
+"insert F2:F3 auto",
+true
+],
+[
+"cols",
+"insert F2:F3 auto",
+false
+],
+[
+"cols",
+"insert F3:F5 auto",
+true
+],
+[
+"cols",
+"insert F3:F5 auto",
+false
+],
+[
+"cols",
+"insert F4:F5 auto",
+true
+],
+[
+"cols",
+"insert F4:F5 auto",
+false
+],
+[
+"cols",
+"insert F5:F6 auto",
+true
+],
+[
+"cols",
+"insert F5:F6 auto",
+false
+],
+[
+"cols",
+"insert G2:G3 auto",
+true
+],
+[
+"cols",
+"insert G2:G3 auto",
+false
+],
+[
+"cols",
+"insert E4:F4 auto",
+true
+],
+[
+"cols",
+"insert E4:F4 auto",
+false
+],
+[
+"cols",
+"insert E5:F5 auto",
+true
+],
+[
+"cols",
+"insert E5:F5 auto",
+false
+],
+[
+"cols",
+"insert F4:G4 auto",
+true
+],
+[
+"cols",
+"insert F4:G4 auto",
+false
+],
+[
+"cols",
+"insert G4:H4 auto",
+true
+],
+[
+"cols",
+"insert G4:H4 auto",
+false
+],
+[
+"cols",
+"insert E1:F1 auto",
+true
+],
+[
+"cols",
+"insert E1:F1 auto",
+false
+],
+[
+"cols",
+"insert A10:B10 auto",
+true
+],
+[
+"cols",
+"insert A10:B10 auto",
+false
+],
+[
+"cols",
+"insert A11:B11 auto",
+true
+],
+[
+"cols",
+"insert A11:B11 auto",
+false
+],
+[
+"cols",
+"insert A9:B9 auto",
+true
+],
+[
+"cols",
+"insert A9:B9 auto",
+false
+],
+[
+"cols",
+"insert C10 auto",
+true
+],
+[
+"cols",
+"insert C10 auto",
+false
+],
+[
+"cols",
+"insert F4 auto",
+true
+],
+[
+"cols",
+"insert F4 auto",
+false
+],
+[
+"cols",
+"insert B10:C10 auto",
+true
+],
+[
+"cols",
+"insert B10:C10 auto",
+false
+],
+[
+"cols",
+"insert F1:F4 auto",
+true
+],
+[
+"cols",
+"insert F1:F4 auto",
+false
+],
+[
+"cols",
+"insert A10:D10 auto",
+true
+],
+[
+"cols",
+"insert A10:D10 auto",
+false
+],
+[
+"cols",
+"delete C9:C10 auto",
+true
+],
+[
+"cols",
+"delete C9:C10 auto",
+false
+],
+[
+"cols",
+"delete D9:D10 auto",
+true
+],
+[
+"cols",
+"delete D9:D10 auto",
+false
+],
+[
+"cols",
+"delete E9:E10 auto",
+true
+],
+[
+"cols",
+"delete E9:E10 auto",
+false
+],
+[
+"cols",
+"delete F2:F3 auto",
+true
+],
+[
+"cols",
+"delete F2:F3 auto",
+false
+],
+[
+"cols",
+"delete F4:F5 auto",
+true
+],
+[
+"cols",
+"delete F4:F5 auto",
+false
+],
+[
+"cols",
+"delete G2:G3 auto",
+true
+],
+[
+"cols",
+"delete G2:G3 auto",
+false
+],
+[
+"cols",
+"delete E4:F4 auto",
+true
+],
+[
+"cols",
+"delete E4:F4 auto",
+false
+],
+[
+"cols",
+"delete A11:B11 auto",
+true
+],
+[
+"cols",
+"delete A11:B11 auto",
+false
+],
+[
+"cols",
+"delete A9:B9 auto",
+true
+],
+[
+"cols",
+"delete A9:B9 auto",
+false
+],
+[
+"cols",
+"delete G1:H1 auto",
+true
+],
+[
+"cols",
+"delete G1:H1 auto",
+false
+],
+[
+"cols",
+"delete C10 auto",
+true
+],
+[
+"cols",
+"delete C10 auto",
+false
+],
+[
+"cols",
+"delete F4 auto",
+true
+],
+[
+"cols",
+"delete F4 auto",
+false
+],
+[
+"cols",
+"delete A10:B10 auto",
+true
+],
+[
+"cols",
+"delete A10:B10 auto",
+false
+],
+[
+"cols",
+"delete F3:F4 auto",
+true
+],
+[
+"cols",
+"delete F3:F4 auto",
+false
+],
+[
+"plain",
+"insert C9:C10 auto",
+true
+],
+[
+"plain",
+"insert C9:C10 auto",
+false
+],
+[
+"plain",
+"insert C10:C11 auto",
+true
+],
+[
+"plain",
+"insert C10:C11 auto",
+false
+],
+[
+"plain",
+"insert C8:C9 auto",
+true
+],
+[
+"plain",
+"insert C8:C9 auto",
+false
+],
+[
+"plain",
+"insert C11:C12 auto",
+true
+],
+[
+"plain",
+"insert C11:C12 auto",
+false
+],
+[
+"plain",
+"insert A10:A11 auto",
+true
+],
+[
+"plain",
+"insert A10:A11 auto",
+false
+],
+[
+"plain",
+"insert E9:E10 auto",
+true
+],
+[
+"plain",
+"insert E9:E10 auto",
+false
+],
+[
+"plain",
+"insert F2:F3 auto",
+true
+],
+[
+"plain",
+"insert F2:F3 auto",
+false
+],
+[
+"plain",
+"insert F3:F5 auto",
+true
+],
+[
+"plain",
+"insert F3:F5 auto",
+false
+],
+[
+"plain",
+"insert F4:F5 auto",
+true
+],
+[
+"plain",
+"insert F4:F5 auto",
+false
+],
+[
+"plain",
+"insert F5:F6 auto",
+true
+],
+[
+"plain",
+"insert F5:F6 auto",
+false
+],
+[
+"plain",
+"insert G2:G3 auto",
+true
+],
+[
+"plain",
+"insert G2:G3 auto",
+false
+],
+[
+"plain",
+"insert E4:F4 auto",
+true
+],
+[
+"plain",
+"insert E4:F4 auto",
+false
+],
+[
+"plain",
+"insert E5:F5 auto",
+true
+],
+[
+"plain",
+"insert E5:F5 auto",
+false
+],
+[
+"plain",
+"insert F4:G4 auto",
+true
+],
+[
+"plain",
+"insert F4:G4 auto",
+false
+],
+[
+"plain",
+"insert G4:H4 auto",
+true
+],
+[
+"plain",
+"insert G4:H4 auto",
+false
+],
+[
+"plain",
+"insert E1:F1 auto",
+true
+],
+[
+"plain",
+"insert E1:F1 auto",
+false
+],
+[
+"plain",
+"insert A10:B10 auto",
+true
+],
+[
+"plain",
+"insert A10:B10 auto",
+false
+],
+[
+"plain",
+"insert A11:B11 auto",
+true
+],
+[
+"plain",
+"insert A11:B11 auto",
+false
+],
+[
+"plain",
+"insert A9:B9 auto",
+true
+],
+[
+"plain",
+"insert A9:B9 auto",
+false
+],
+[
+"plain",
+"insert C10 auto",
+true
+],
+[
+"plain",
+"insert C10 auto",
+false
+],
+[
+"plain",
+"insert F4 auto",
+true
+],
+[
+"plain",
+"insert F4 auto",
+false
+],
+[
+"plain",
+"insert B10:C10 auto",
+true
+],
+[
+"plain",
+"insert B10:C10 auto",
+false
+],
+[
+"plain",
+"insert F1:F4 auto",
+true
+],
+[
+"plain",
+"insert F1:F4 auto",
+false
+],
+[
+"plain",
+"insert A10:D10 auto",
+true
+],
+[
+"plain",
+"insert A10:D10 auto",
+false
+],
+[
+"plain",
+"delete C9:C10 auto",
+true
+],
+[
+"plain",
+"delete C9:C10 auto",
+false
+],
+[
+"plain",
+"delete D9:D10 auto",
+true
+],
+[
+"plain",
+"delete D9:D10 auto",
+false
+],
+[
+"plain",
+"delete E9:E10 auto",
+true
+],
+[
+"plain",
+"delete E9:E10 auto",
+false
+],
+[
+"plain",
+"delete F2:F3 auto",
+true
+],
+[
+"plain",
+"delete F2:F3 auto",
+false
+],
+[
+"plain",
+"delete F4:F5 auto",
+true
+],
+[
+"plain",
+"delete F4:F5 auto",
+false
+],
+[
+"plain",
+"delete G2:G3 auto",
+true
+],
+[
+"plain",
+"delete G2:G3 auto",
+false
+],
+[
+"plain",
+"delete E4:F4 auto",
+true
+],
+[
+"plain",
+"delete E4:F4 auto",
+false
+],
+[
+"plain",
+"delete A11:B11 auto",
+true
+],
+[
+"plain",
+"delete A11:B11 auto",
+false
+],
+[
+"plain",
+"delete A9:B9 auto",
+true
+],
+[
+"plain",
+"delete A9:B9 auto",
+false
+],
+[
+"plain",
+"delete G1:H1 auto",
+true
+],
+[
+"plain",
+"delete G1:H1 auto",
+false
+],
+[
+"plain",
+"delete C10 auto",
+true
+],
+[
+"plain",
+"delete C10 auto",
+false
+],
+[
+"plain",
+"delete F4 auto",
+true
+],
+[
+"plain",
+"delete F4 auto",
+false
+],
+[
+"plain",
+"delete A10:B10 auto",
+true
+],
+[
+"plain",
+"delete A10:B10 auto",
+false
+],
+[
+"plain",
+"delete F3:F4 auto",
+true
+],
+[
+"plain",
+"delete F3:F4 auto",
+false
+]
+],
+"answers": [
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A2:D2 F5=A3:D3 F6=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A2:D2 F5=A3:D3 F6=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A2:D2 F5=A3:D3 F6=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A2:D2,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A2:D2 F5=A3:D3 F6=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5,F6,F7 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A3:D3 F7=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5,F6,F7 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A3:D3 F7=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5,F6,F7 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A3:D3 F7=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5,F6,F7 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A3:D3,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A3:D3 F7=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5,F6 src=A1:D1,A2:D2,A3:D3,A4:D4,A5:D5,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F6 src=A1:D6 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A6:D6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F6 src=A1:D6 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A6:D6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F6 src=A1:D6 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A6:D6} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F6 src=A1:D6 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5 F6=A6:D6} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F5 src=A1:D5 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A5:D5} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F2:F5 src=A1:D4 dates=- F2=A1:D1 F3=A2:D2 F4=A3:D3 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F2:F5 src=A1:D4 dates=- F2=A1:D1 F3=A2:D2 F4=A3:D3 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F2:F5 src=A1:D4 dates=- F2=A1:D1 F3=A2:D2 F4=A3:D3 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F2:F5 src=A1:D4 dates=- F2=A1:D1 F3=A2:D2 F4=A3:D3 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F2,F3,F4,F5 src=A1:D1,A2:D2,A3:D3,A4:D4,A4:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4 F5=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F5:F8 src=A1:D4 dates=- F5=A1:D1 F6=A2:D2 F7=A3:D3 F8=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F5:F8 src=A1:D4 dates=- F5=A1:D1 F6=A2:D2 F7=A3:D3 F8=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F5:F8 src=A1:D4 dates=- F5=A1:D1 F6=A2:D2 F7=A3:D3 F8=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F5:F8 src=A1:D4 dates=- F5=A1:D1 F6=A2:D2 F7=A3:D3 F8=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F4 src=A1:D1,A4:D4 dates=- F1=A1:D1 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F4 src=A1:D1,A4:D4 dates=- F1=A1:D1 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1,F4 src=A1:D1,A4:D4 dates=- F1=A1:D1 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1,F4 src=A1:D1,A4:D4 dates=- F1=A1:D1 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F3 src=A1:D3 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F4 src=A1:D4 dates=- F1=A1:D1 F2=A2:D2 F3=A3:D3 F4=A4:D4} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F2 src=A1:D2 dates=- F1=A1:D1 F2=A2:D2} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F2 src=A1:D2 dates=- F1=A1:D1 F2=A2:D2} | T[0] | A1=11 F1=",
+"err=0: S[1] {1 at=F1:F2 src=A1:D2 dates=- F1=A1:D1 F2=A2:D2} | T[0] | A1=11 F1= save=0 ~ S[1] {1 at=F1:F2 src=A1:D2 dates=- F1=A1:D1 F2=A2:D2} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,C12,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C12=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A12,B10,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A12=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A12,B10,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A12=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A12,B10,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A12=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A12,B10,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A12=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,A11,B10,B11,C10,D10 src=A1:A8,A2:A9,B1:B8,B2:B9,C1:C8,D1:D8 dates=- A10=A1:A8 A11=A2:A9 B10=B1:B8 B11=B2:B9 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,A11,B10,B11,C10,D10 src=A1:A8,A2:A9,B1:B8,B2:B9,C1:C8,D1:D8 dates=- A10=A1:A8 A11=A2:A9 B10=B1:B8 B11=B2:B9 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,A11,B10,B11,C10,D10 src=A1:A8,A2:A9,B1:B8,B2:B9,C1:C8,D1:D8 dates=- A10=A1:A8 A11=A2:A9 B10=B1:B8 B11=B2:B9 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,A11,B10,B11,C10,D10 src=A1:A8,A2:A9,B1:B8,B2:B9,C1:C8,D1:D8 dates=- A10=A1:A8 A11=A2:A9 B10=B1:B8 B11=B2:B9 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A11,B11,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A11=A1:A8 B11=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B11,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B11=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B11,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B11=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B11,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B11=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B11,C11,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A10=A1:A8 B11=B1:B8 C11=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A11:D11 src=A1:D8 dates=- A11=A1:A8 B11=B1:B8 C11=C1:C8 D11=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A11:D11 src=A1:D8 dates=- A11=A1:A8 B11=B1:B8 C11=C1:C8 D11=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A11:D11 src=A1:D8 dates=- A11=A1:A8 B11=B1:B8 C11=C1:C8 D11=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A11:D11 src=A1:D8 dates=- A11=A1:A8 B11=B1:B8 C11=C1:C8 D11=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:C10 src=A1:C8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A9,B9,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A9=A1:A8 B9=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A9,B9,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A9=A1:A8 B9=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A9,B9,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A9=A1:A8 B9=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A9,B9,C10,D10 src=A1:A8,B1:B8,C1:C8,D1:D8 dates=- A9=A1:A8 B9=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10,B10,D10 src=A1:A8,B1:B8,D1:D8 dates=- A10=A1:A8 B10=B1:B8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=C10:D10 src=C1:D8 dates=- C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=C10:D10 src=C1:D8 dates=- C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=C10:D10 src=C1:D8 dates=- C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=C10:D10 src=C1:D8 dates=- C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1= save=0 ~ S[1] {2 at=A10:D10 src=A1:D8 dates=- A10=A1:A8 B10=B1:B8 C10=C1:C8 D10=D1:D8} | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1=",
+"err=0: S[0] | T[0] | A1=11 F1= save=0 ~ S[0] | T[0] | A1=11 F1="
+],
+"files": [
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{22734098-5429-4C4F-A02B-11AE3EBE6B55}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{42EE4206-B0FD-406D-BBFD-2652D529DAE0}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B4FF5413-E511-4BCB-B7D7-C42AE5DEF61C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{8E1416F9-FBA9-4BAA-B6AC-6331829C3D1B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{D7A8DF4F-F9CA-4C48-A755-91404A728C12}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{3DC0EA5E-1BAE-4181-95F4-1B66107B99FF}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{424D4B4C-9A94-4AA1-B910-6340CAA15E56}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{3AF9164D-ABB1-4632-ADB0-AC0DDB99175E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{77813075-2632-4B6C-8897-2B24523D48CA}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{2BE85185-D9E6-4D33-A799-D3A4B208578C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{0A1114A1-5E07-4832-AE16-008CC7F0746D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{BB0693CB-9213-446F-B9D4-9EEF4123D333}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{64091C20-21E1-4F30-B5C7-FA83AFC10396}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{D82C1503-939C-47CC-B2FD-37DE7A0286B8}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{0CB028E2-AB28-4BEA-B6F3-31B751288E3C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F7</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B9696D72-D154-43F2-8F32-CF2F25864CFD}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F7</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{02C14AC0-257C-4F4D-B5BF-DE195599B937}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{2604F89A-3C22-4345-8F90-FF838F3A9898}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{0889575D-6EF8-4616-8DB5-528BA3BD4014}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A6:D6</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{25FFAFA5-057E-456C-B43C-248A6BA9C44B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A6:D6</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{66AF8DF8-2DF1-4FAA-AD5E-A40871C6771E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{831D80F0-40FD-4CEC-A511-2EC3C452E29A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{D6F65E72-42DC-4188-A66D-6AB54CBFCB76}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{FBD785B8-0D7B-4260-90FD-97C3A40113D8}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{C23E667E-A92F-4824-9A88-4F0D68205576}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{AB349368-E4E3-40AC-B742-1CEBD71B5311}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A5:D5</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{36BB2916-ED54-4437-BFBF-850DE86B259A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{599B4DFF-7C69-4981-AD2E-E7204C8FF781}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{F415E3F7-EB37-4F09-97D9-4A7E6D4391DB}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{AE8EC0CD-F9C8-4901-81FC-D9612F51D01A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{84D2E02B-6C7A-4E7F-A286-43C65289A8FD}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B54D2B11-45A8-40E9-A82F-E08BD0D4542B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{8E61059E-3EF3-4B6F-844A-B1A22EA7CB85}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{14D398DE-EFD0-43F8-8505-D39FACD127B5}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{6D5251A3-9DF8-4373-804E-7418539A78F2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{941542EA-7237-4EF0-BF1F-28DFB29CE48D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{883DE83A-539F-4F95-95B2-8A37209C5361}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{BC78BC34-CDB3-47E5-B92B-1540E984912F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B856D4B7-D353-4DF4-B492-EC84CC3D2702}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{CA1E5760-6AD4-4EE7-AD7D-08E4D2CB0294}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{F6E13936-4907-4AC1-A887-DE2E9FA5314F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{5247CB5B-2870-42D0-B6F1-E7ABD052D58B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{59C294EF-D362-4259-BEB7-7B55A5BD0304}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{1D038761-A649-46BC-991B-63C75330FA63}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{4315DCEC-67CE-438F-84EA-2A1FBDB8A735}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F7</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F8</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{C34B4B0B-A14F-43B7-B32F-BB27A092CFF9}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F5</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F6</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F7</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F8</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{BE8688C1-EEFC-4E79-AB87-255046BB9153}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{851EBD5C-42BA-470B-9888-2EDF3620643A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{1DBA4252-3C38-429A-95BB-AB2A0183F39D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{123EC8B6-A000-42DC-9739-735FDEC9AFC2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{744CB4DA-3B5F-4B78-94CA-2F4757272FF2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{1803542D-E935-4E49-AA51-3475B72E3DF0}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{3934ADB1-810A-430C-B4CB-67CD1B8A14B3}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{4CCFC239-1D04-44CC-85AA-A557B213D12C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{FA63E3C1-B100-4005-997C-BD8CBAB7D3AC}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{16D690BC-9CB6-46AC-840D-B86AC0F6A034}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{E7CD40D5-EB17-48F1-AA79-3491D2D2C3DD}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{64834270-D624-4110-9002-77003FC96D81}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{D93FCD08-2382-403B-ACA2-344D789AF196}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{F11AB84D-953C-4981-9771-2E97283DF92E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{26273B40-51DB-4D2A-BD2B-422FC49E64C1}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{12A3E406-BC16-4D7F-B130-513592798547}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{35F80BED-93C0-4D48-8CC4-8E0817C1F69E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B783971D-E35E-4FDB-85D7-8C1CC0CA6E06}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{D39CE9BF-C2D5-4A12-B739-AD76E230A896}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{95681FEE-A5C0-4CB4-83B4-061E1DC3A643}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{C5D4C760-1087-4009-B518-B4838780076E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{F8EC5E09-5A41-42AE-9B95-3D930227712F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{89523A75-C603-4452-8957-AB262996DC51}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{3B21BFE8-B9F4-4116-8069-7D3EA63DD0C0}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{FEC446E8-ACBA-454A-8013-D3B37E755619}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{2243174B-72DE-4C2A-80A7-792F13D03FDD}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{29FF4341-7614-46DD-9D6B-5BDB07F95084}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{DD16B48E-DB03-4BFC-8724-708E6405A1DF}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A3:D3</xm:f><xm:sqref>F3</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A4:D4</xm:f><xm:sqref>F4</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{CE1EBC25-C68B-498F-8B23-A356350E4865}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{964A9756-0EDF-4FD4-B671-F8F1C81BE354}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:D1</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:D2</xm:f><xm:sqref>F2</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{1DB3BE02-5959-470D-BC85-590EF23F4521}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C12</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{8E7EE454-A221-45CC-A462-806435338B0B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C12</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{E6153C3F-1BBE-4DCE-9006-3AF5AF45193C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C12</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{8B883BC5-CF3B-4567-9906-D559B14AEE9D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C12</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{BBA7E48B-8C45-4EB4-9FF9-0FB7E7DE201F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{C977B729-BAA7-4E05-884A-B822B020B2CA}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{92EED1EA-1601-4869-8CF2-006B83E344FB}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{AD62B91D-D368-4015-AAAE-40FDA82B26BE}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{B3921FBE-00C2-4A28-9DEB-6231FCA44B1A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A12</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{43450552-A642-4493-837A-FDC21238A269}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A12</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{D4F843D7-3AFB-42DC-B0E9-1973288DD049}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{682D0B0E-549A-479E-AB96-D59F3CF49EED}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{EE97F414-8220-47B9-93A2-34E3449FC0B1}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{5702EA75-D7CB-424F-A20D-729F309E248A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{30FCE48B-CE2F-4214-AD7E-CDCA562569F2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{3DC66ECA-C0D4-4BF2-9780-EC44E64E9C5B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{BDA022CB-6BCA-441C-9586-DEABAB6399DC}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{5E5AC076-313F-4C54-9470-B2520493555B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{8767AFB8-0EA8-4422-9E89-36188ED3D9AE}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{8B5A8237-9266-4D15-8B5A-413DC12CCC0E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{F8D484F7-4313-48F4-8553-3C19ECDFE308}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{B6C7CC27-8CF6-4FE0-B7E0-089C36A7FF97}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{4D96315E-D654-49A5-8AD2-6B48B8968605}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{C51CF831-799B-4F54-8430-AFFA5CF75CAB}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{9DFDD622-B294-435A-9A4B-0B42BDE91BA9}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{53A59178-BBF8-4218-8983-57D8BD3A1B3E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{71AC0928-E5FD-47C6-9CD3-CB6AD7DA6EF9}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{60F7793C-0AF1-4788-A745-EB6E612D868B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{6B904B59-135B-49F3-83C3-F1E6D984C6F4}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{6F81C80E-1BF8-49B8-AADB-E2F5F5696791}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{1A84A43F-EC50-473F-83C1-50425537200D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{77F537DA-F8F0-4C1B-AA15-3449029B01BA}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{197C927C-89A4-4BA4-A825-179EB9165868}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{DF441FC0-0728-4450-9B34-C43083E19ED7}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{2B07B47C-F240-466C-A0C7-ADCEBBCA50D5}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:A9</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B2:B9</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{2FDE2882-48CD-4F20-B060-C0DC5BE1BB3F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!A2:A9</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B2:B9</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{F8A36B3D-4E1F-41F0-B466-0F7744BD6D44}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{57637278-F38F-45ED-92B0-95DE1A2D1CC7}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{7611DD2D-0E1C-4BE9-B8FF-3C6CE37D81D0}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{F287CD8C-EA92-4F3A-885A-38AF209E9F45}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{63DFF20C-6445-4D79-AA1A-C3B14A9AA9BC}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{8B01ED78-13DD-4089-8A6D-958632EF58E4}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{EB1DF238-0FDC-4CDB-856A-11FF5D5B130F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{AA7C896A-079E-4800-9950-20881C1C991B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{64807A9E-525D-4C3C-9ECA-2A36BC2D9DE1}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{0B13EA6E-637A-4E59-9BB6-3617E877EB7F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{BB8848A8-F0C7-40D8-AB11-D9251AC1D32D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D11</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{9948FCF0-BA1F-4B6C-959D-EE32E31978A2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C11</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D11</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{8B6FB838-1EA4-414E-BE8F-A3A4C162F02D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{758FACB6-CFDE-4550-98BC-0B69452B275C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{46AF6CBF-69D5-4FC0-B398-31D0CB40FD4A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{C692BC7B-EC57-4269-9761-3FE9DF596E5F}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{2CF88C1D-6241-40A2-82DE-C2530ECD69A1}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{58A7DED1-74B6-4325-A7FA-69044008971E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{AD8985B0-BF08-4480-B8A8-2CD2E6DE15FB}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{F4BDCAFC-EE1D-4BEC-A834-F47B45E0A250}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{78BC4910-FBFA-4E0D-87F0-86B131DFC3DB}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{BB76B1EC-6648-4D89-A52E-C93E7062DD0A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{C8A2C61F-3168-4F43-99D2-7C700084547D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{03539963-74EC-44D1-88E2-66C5FE4C7F64}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{5C465E51-2415-407F-A0E1-915063D688E7}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{D1FF1DE0-D6B6-46D0-8A4D-4221B430DC21}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{C87431E4-22A5-43DC-81AD-C344B1DAEBD2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{581926B3-48B9-4B37-8551-29098B4D3E8E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{2E229BA3-0253-43C9-A9D5-8134134DE5A2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A9</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B9</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{69BCD6E7-941F-4B26-83C1-4D07A1E61513}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A9</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B9</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{0091B159-937E-451B-B661-F6ACE6F53453}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{37A960FD-4354-48E2-B3A5-1323D6C9D462}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{FB925E93-A641-40B6-87E1-E128BF2EDE96}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{3D5FB32F-ABCE-4957-8557-8D9CE9792D75}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{525BB24B-E19D-459F-965A-6745D32CF5FB}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{110A6AB3-6A6B-450E-A6F1-FD3C15164EE4}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{CE829B3F-BAB2-458E-B04E-3CADC6A1BDDF}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{07404A11-F1AF-42BA-B228-FF7799E89A03}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{ABB44397-B4EF-4553-BAB2-F8D10F3B35D8}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"<x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{A466DF33-865B-4E3F-8E50-51C883D82C2D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>S!A1:A8</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!B1:B8</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!C1:C8</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>S!D1:D8</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups>",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+],
+[
+"",
+""
+]
+],
+"crashes": []
+}

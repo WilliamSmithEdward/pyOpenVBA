@@ -138,6 +138,15 @@ def read_looks(state: ChartState, package: OpcFile, part: str) -> None:
         if style is None:
             return
         state.chart_style = style
+        from pyopenvba.apps.excel._chart_xml import TextLook
+
+        if state.element_fonts.get('area') == TextLook():
+            # A chart with a style writes its area's text with nothing set, as a new one does: it is not a font of its own,
+            # which would give its labels the plain text body (tests/fixtures/loaded_chart_styled_edits.json).
+            del state.element_fonts['area']
+        if state.shadow is False:
+            # The style writes the area's effects out empty, as a new chart of the style holds no shadow set.
+            state.shadow = None
 
     def box(name: str) -> str:
         return _painted(_box(style, name), _accent(0)) if style is not None else ''
@@ -148,6 +157,9 @@ def read_looks(state: ChartState, package: OpcFile, part: str) -> None:
         for index, (entry, markup) in enumerate(zip(state.series, found)):
             expected = _point_box(style, index) if style is not None else ''
             own = _own(_SERIES_PARTS.sub('', markup), expected)
+            if '<a14:hiddenLine' in _SERIES_PARTS.sub('', markup):
+                # A line hidden as Excel saves it is not read, as _read says, on a chart with a style too.
+                continue
             if own == '':
                 entry.look_read = True
             elif (look := _read(own)) is not None:

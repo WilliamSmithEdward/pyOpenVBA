@@ -1,9 +1,10 @@
-"""A chart sheet read from a file: a tab of its own holding one chart, which a macro reaches through Sheets and Charts and
-Worksheets passes over (tests/fixtures/chart_sheets/chart_sheets.json). The chart is the file's, read as an embedded
-chart's is; the part stays as it came, so a save keeps everything the model does not read. Tabs are added, moved, copied,
+"""A chart sheet: a tab of its own holding one chart, which a macro reaches through Sheets and Charts and Worksheets passes
+over (tests/fixtures/chart_sheets/chart_sheets.json). One read from a file keeps the file's chart, read as an embedded
+chart's is; the part stays as it came, so a save keeps everything the model does not read. Charts.Add, Sheets.Add with Type
+xlChart and Chart.Location make new ones (tests/fixtures/charts_add.json, chart_location.json). Tabs are added, moved,
 hidden and deleted among chart sheets as tests/fixtures/chart_sheets/tabs.json has them, and what a chart sheet's chart
-reads follows its cells and its sheet's name as an embedded chart's does; a new chart sheet and a copy of one are not made
-yet, and a worksheet a chart sheet's chart reads is not deleted."""
+reads follows its cells and its sheet's name as an embedded chart's does; a copy of a chart sheet is not made yet, and a
+worksheet a chart sheet's chart reads is not deleted."""
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -12,12 +13,13 @@ import re
 import uuid
 from typing import TYPE_CHECKING, Union
 
-from pyopenvba.apps.excel._charts import CHART_TYPES, SERIES_KINDS, Chart, shown_type
+from pyopenvba.apps.excel._charts import CHART_TYPES, SERIES_KINDS, Chart, KeptSource, shown_type
 from pyopenvba._a1 import split_sheet
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._charts_file import REL_CHART, remove_style_parts, read_chart, rels_part, xml_tree
 from pyopenvba.apps.excel._names import same_sheet_name
 from pyopenvba.apps.excel._creator import ItemDefault
+from pyopenvba.apps.excel._empty_collections import EmptyCollection
 from pyopenvba.apps.excel._model import ExcelObject, Worksheet
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.powerquery._sheets import drop_content_type
@@ -123,6 +125,8 @@ class ChartSheet(Chart):
         #: What _io's save asks of a tab.
         self.page_print_names_owned: set[str] = set()
         carrier.chart_sheet = self
+        #: Whether it has been activated in the session, which a chart read from a file needs to be plotted again (see _covered).
+        self.activated, self.uncovered = False, False
 
     @classmethod
     def created(cls, book: Workbook, name: str, state: ChartState, shape: Shape, place: int) -> ChartSheet:
@@ -140,7 +144,7 @@ class ChartSheet(Chart):
         Chart.__init__(sheet, carrier, shape)
         sheet.book, sheet.name, sheet.part_name, sheet.sheet_id, sheet.visible = book, name, "", numbered, -1
         sheet.xml, sheet.code_name = _NEW_SHEET.replace("@uid@", _new_id()), ""
-        sheet.page_print_names_owned = set()
+        sheet.page_print_names_owned, sheet.activated, sheet.uncovered = set(), False, False
         carrier.chart_sheet = sheet
         if not book.chart_sheets:
             book.file_tabs = list(book.sheets_)
@@ -170,7 +174,19 @@ class ChartSheet(Chart):
         part = f"xl/drawings/drawing{drawing}.xml"
         package.write(part, _NEW_DRAWING.encode("utf-8"))
         add_content_type(package, part, _CT_DRAWING)
+        # So do charts: the numbers the charts of those worksheets will take are kept free for them (tests/fixtures/charts_add.json).
+        charts = sum(not state.part for tab in before if isinstance(tab, Worksheet) for state in tab.chart_states.values())
+        kept: list[str] = []
+        chart = 1
+        while charts:
+            if not package.has(f"xl/charts/chart{chart}.xml"):
+                kept.append(f"xl/charts/chart{chart}.xml")
+                package.write(kept[-1], b"")
+                charts -= 1
+            chart += 1
         write_charts(self.sheet, package, part)
+        for name in kept:
+            package.remove(name)
         identifier = re.search(r'Id="([^"]+)"', package.read(rels_part(part)).decode("utf-8"))
         assert identifier is not None
         drawing_xml = _NEW_DRAWING.format(name=escape(self.shape.name), chart=identifier.group(1))
@@ -285,7 +301,18 @@ class ChartSheet(Chart):
 
     @method
     def Activate(self) -> object:
+        """The chart sheet made active, which earns its chart the automatic title it has (tests/fixtures/charts_add.json)."""
         self.admit_read()
+        if self.book.active_chart_sheet is not self:
+            self.state.holds_automatic_title(self.sheet)
+        if self.state.original and self.book.active_chart_sheet is not self:
+            # Each time it is activated, a chart read from a file is given what its series take then (see _covered); one whose
+            # series the model cannot put together reports itself when Charts.Add would plot it.
+            try:
+                self.state.source, self.uncovered = _covered(self), False
+            except VBAUnsupportedError:
+                self.state.source, self.uncovered = None, True
+        self.activated = True
         self.book.active_chart_sheet = self
         self.book.view.first_sheet = min(self.book.view.first_sheet, self.book.tabs().index(self))
         self.book.selected_sheets = []
@@ -530,4 +557,93 @@ class ChartSheets(VBACollection, ItemDefault, ExcelObject):
     @method
     def Add(self, Before: object = MISSING, After: object = MISSING, Count: object = MISSING,  # noqa: N803 - native named arguments
             Type: object = MISSING) -> object:
-        raise VBAUnsupportedError("Charts.Add is not implemented")
+        return add_chart_sheets(self.book, Before, After, Count, Type)
+
+
+class EmptyCharts(EmptyCollection):
+    """Workbook.Charts where the workbook has no chart sheet yet: empty, and Add makes one."""
+
+    @method
+    def Add(self, Before: object = MISSING, After: object = MISSING, Count: object = MISSING,  # noqa: N803 - native named arguments
+            Type: object = MISSING) -> object:
+        return add_chart_sheets(self.book, Before, After, Count, Type)
+
+
+def _covered(chart: ChartSheet) -> KeptSource:
+    """What a chart sheet read from a file is given to plot again each time it is activated in the session, the file
+    keeping no source range: the cells its series take then, at that address, in the orientation it plots them
+    (tests/fixtures/charts_add_loaded.json)."""
+    from pyopenvba._a1 import Area, parse_reference
+    from pyopenvba.apps.excel._model import Range
+
+    sheets: set[str] = set()
+    areas: list[Area] = []
+    for entry in chart.state.series:
+        for reference in (entry.name_reference, entry.category_reference, entry.value_reference):
+            if not reference:
+                continue
+            name, cells = split_sheet(reference.lstrip("="))
+            try:
+                areas += parse_reference(cells)
+            except ValueError:
+                raise VBAUnsupportedError("Charts.Add beside an imported chart with an unread reference is not implemented") from None
+            sheets.add(name.casefold())
+    sheet = next((one for one in chart.book.sheets_ if sheets == {one.name.casefold()}), None)
+    if sheet is None:
+        raise VBAUnsupportedError("Charts.Add beside an imported chart plotting no cells, or several sheets', is not implemented")
+    # The cells, with the corner their labels leave, as the columns of the range they were plotted from.
+    cells = {(row, column) for area in areas for row in range(area.top, area.bottom + 1) for column in range(area.left, area.right + 1)}
+    cells.add((min(area.top for area in areas), min(area.left for area in areas)))
+    strips: list[Area] = []
+    for column in sorted({column for _, column in cells}):
+        rows = sorted(row for row, at in cells if at == column)
+        if rows[-1] - rows[0] + 1 != len(rows):
+            raise VBAUnsupportedError("Charts.Add beside an imported chart whose series leave gaps is not implemented")
+        if strips and strips[-1].right == column - 1 and (strips[-1].top, strips[-1].bottom) == (rows[0], rows[-1]):
+            strips[-1] = Area(rows[0], strips[-1].left, rows[-1], column)
+        else:
+            strips.append(Area(rows[0], column, rows[-1], column))
+    return KeptSource(Range(sheet, strips), chart.state.plot_by)
+
+
+def add_chart_sheets(book: Workbook, before: object, after: object, count: object, kind: object = MISSING) -> ChartSheet:
+    """Charts.Add, and Sheets.Add with Type xlChart: ``count`` new chart sheets, each made active and placed before the one
+    made before it. The first goes before Before, after After, or before the active tab, and an After naming the last tab
+    puts it before that tab (tests/fixtures/chart_sheets/tabs.json). Each plots, as SetSourceData plots it, the range the
+    active chart was last given, whatever became of its series since, or with no chart active what the active worksheet
+    has selected, a single cell's region (tests/fixtures/charts_add.json)."""
+    from pyopenvba.apps.excel._charts import ChartState, active_chart, picked_up
+    from pyopenvba.apps.excel._model import sheets_to_add
+    from pyopenvba.apps.excel._protection import ADDING, refuse_structure
+
+    # Charts.Add takes no Type, whatever it says, and places a tab only by a sheet (tests/fixtures/charts_add.json).
+    if kind is not MISSING or any(anchor is not MISSING and not isinstance(anchor, (Worksheet, ChartSheet)) for anchor in (before, after)):
+        raise error(1004, "Add method of Sheets class failed")
+    refuse_structure(book, ADDING)
+    number = sheets_to_add(count)
+    place = tab_position(book, before, after)
+    if before is MISSING and after is not MISSING and place == len(book.tabs()):
+        place -= 1
+    beside = book.tabs()[place]
+    chart = beside if isinstance(beside, ChartSheet) else active_chart(beside)
+    plot_by: object = MISSING
+    if isinstance(chart, Chart):
+        kept = chart.state.source
+        if chart.state.original and kept is None:
+            if not isinstance(chart, ChartSheet):
+                raise VBAUnsupportedError("Charts.Add beside an imported embedded chart is not implemented")
+            if chart.uncovered:
+                raise VBAUnsupportedError("Charts.Add beside an imported chart whose series take several sheets or leave gaps is not implemented")
+            # Not activated in the session, it gives nothing to plot (tests/fixtures/charts_add_loaded.json).
+        source, plot_by = (kept.range(), kept.plot_by) if kept is not None else (None, MISSING)
+    else:
+        assert isinstance(beside, Worksheet)
+        source = picked_up(beside)
+    made: ChartSheet | None = None
+    for _ in range(number):
+        name = new_name(book, MISSING)
+        made = ChartSheet.created(book, name, ChartState(), Shape(name="Chart 1", kind="chart"), place)
+        if source is not None:
+            made.SetSourceData(source, plot_by)
+    assert made is not None
+    return made

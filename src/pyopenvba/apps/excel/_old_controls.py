@@ -758,6 +758,27 @@ class OldControls(VBACollection, Created):
             raise error(*_NOT_THERE)
         raise VBAUnsupportedError(f'Grouping {self.vba_type_name} is not implemented')
 
+    @method
+    def BringToFront(self) -> object:
+        """Every item to the front, one at a time in order, so they keep their order among themselves on top of the rest
+        (tests/fixtures/old_collection_methods.json)."""
+        for shape in list(self._shapes()):
+            ShapeObject(self.sheet, shape).vba_call('ZOrder', [VBAInt(0, 'Long')])
+        return True
+
+    @method
+    def SendToBack(self) -> object:
+        """Every item to the back, keeping their order among themselves beneath the rest (tests/fixtures/old_collection_methods.json)."""
+        for shape in reversed(self._shapes()):
+            ShapeObject(self.sheet, shape).vba_call('ZOrder', [VBAInt(1, 'Long')])
+        return True
+
+    @method
+    def Duplicate(self) -> object:
+        """A copy of every item, answered as a collection of the same kind holding the copies (tests/fixtures/old_collection_methods.json)."""
+        copies = [getattr(ShapeObject(self.sheet, shape).vba_call('Duplicate', []), 'shape') for shape in list(self._shapes())]
+        return type(self)(self.sheet, copies)
+
     def read_part(self, part: str, name: str) -> object:
         """A member read through what ``part`` gives."""
         if part == 'Interior' and name.lower() in ('colorindex', 'pattern'):
@@ -850,7 +871,34 @@ class OptionButtons(OldControls):
     several = {'visible': True, 'groupbox': NOTHING}
 
 
-class DropDowns(OldControls):
+class ListedControls(OldControls):
+    """A collection whose items include lists. Its list methods reach every item that holds one (tests/fixtures/old_collection_methods.json)."""
+
+    vba_type_name = ''
+
+    def _lists(self) -> list[_Listed]:
+        return [one for one in self.vba_items() if isinstance(one, _Listed)]
+
+    @method
+    def AddItem(self, Text: object = MISSING, Index: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        for one in self._lists():
+            one.vba_call('AddItem', [Text] if Index is MISSING else [Text, Index])
+        return True
+
+    @method
+    def RemoveItem(self, Index: object = MISSING, Count: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        for one in self._lists():
+            one.vba_call('RemoveItem', [Index] if Count is MISSING else [Index, Count])
+        return True
+
+    @method
+    def RemoveAllItems(self) -> object:
+        for one in self._lists():
+            one.vba_call('RemoveAllItems', [])
+        return True
+
+
+class DropDowns(ListedControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
     spread_reads = frozenset({'Caption', 'Characters', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
@@ -858,7 +906,7 @@ class DropDowns(OldControls):
     parts = frozenset({'Characters'})
 
 
-class ListBoxes(OldControls):
+class ListBoxes(ListedControls):
     vba_type_name = 'ListBoxes'
     kind = 'List'
     spread_reads = frozenset({'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})

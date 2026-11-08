@@ -15,9 +15,8 @@ HERE = Path(__file__).parent / "fixtures/chart_sheets"
 MEASURED: dict[str, Any] = json.loads((HERE / "tabs.json").read_text(encoding="utf-8"))
 ROWS: list[dict[str, str]] = MEASURED["rows"]
 SAVED: list[dict[str, str]] = MEASURED["saved"]
-#: What the model reports rather than does yet: a new chart sheet, a copy of one, a group holding one.
-REPORTED = {"add_type_chart", "charts_add", "charts_before_1", "charts_before_2", "charts_after_1", "charts_after_2", "charts_after_last", "charts_two",
-            "activated_chart_charts_add", "copy_chart_last", "copy_chart_first", "group_select"}
+#: What the model reports rather than does yet: a copy of a chart sheet, a group holding one.
+REPORTED = {"copy_chart_last", "copy_chart_first", "group_select"}
 
 
 def _answer(row: dict[str, str]) -> str:

@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
 from pyopenvba.apps.excel._held import HeldPart
-from pyopenvba.apps.excel._old_controls import OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
+from pyopenvba.apps.excel._old_controls import ListedControls, OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.apps.excel._styles import Color
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _image_points  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -642,7 +642,7 @@ class Pictures(_Drawings):
         return drawing_of(self.sheet, shape)
 
 
-class DrawingObjects(_Drawings):
+class DrawingObjects(_Drawings, ListedControls):
     parts = frozenset()
     several = {}
     spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
@@ -683,6 +683,20 @@ class DrawingObjects(_Drawings):
         for shape in list(self._shapes()):
             ShapeObject(self.sheet, shape).vba_call('Delete', [])
         return EMPTY
+
+    # Its items' list members, called on all of a sheet's drawings, are 1004 as nearly every member read over them is
+    # (tests/fixtures/old_collection_methods.json).
+    @method
+    def List(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        raise error(1004, 'Unable to get the List property')
+
+    @method
+    def Selected(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        raise error(1004, 'Unable to get the Selected property')
+
+    @method
+    def LinkCombo(self, Link: object = MISSING) -> object:  # noqa: N803 - native named argument
+        raise error(1004, 'Unable to get the LinkCombo property')
 
 
 __all__ = ['Arc', 'Arcs', 'DrawingObjects', 'Line', 'Lines', 'Oval', 'Ovals', 'Picture', 'Pictures', 'Rectangle', 'Rectangles', 'TextBox', 'TextBoxes', 'drawing_of']

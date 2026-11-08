@@ -17,8 +17,6 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/new_windo
 CASES: list[dict[str, Any]] = RECORD['cases']
 #: The model refuses to hide a workbook's window, as it has no such state to save.
 HIDING = ('hidden_copied', 'hidden_other')
-#: The model adds no chart sheet to a new workbook: these go on one from a file, below.
-NEW_CHART_SHEET = ('chart_sheet_shown', 'chart_sheet_own', 'chart_sheet_deleted')
 
 
 def masked(answer: str) -> str:
@@ -34,10 +32,6 @@ def test_each_row_as_excel_answered(case: dict[str, Any], tmp_path: Path) -> Non
     app.add_module(RECORD['source'], name='Probe')
     if case['name'] in HIDING:
         with pytest.raises(VBAUnsupportedError, match='hiding'):
-            app.run('Probe.InModel', case['name'], case['binding'], str(tmp_path))
-        return
-    if case['name'] in NEW_CHART_SHEET:
-        with pytest.raises(VBAUnsupportedError, match='Sheets.Add'):
             app.run('Probe.InModel', case['name'], case['binding'], str(tmp_path))
         return
     got = str(app.run('Probe.InModel', case['name'], case['binding'], str(tmp_path))).replace(home, '<HOME>')

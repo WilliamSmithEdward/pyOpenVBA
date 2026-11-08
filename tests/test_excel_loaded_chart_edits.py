@@ -40,8 +40,8 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
          'title caption', 'title text then gone', 'title text read after back', 'title formula',
          'axis title', 'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
-#: Built, but not for a chart with a style: new gridlines and labels take the style's look, which is not read.
-NEEDS_NO_STYLE = ('series labels', 'point label', 'series fill', 'chart type', 'new series', 'delete series',
+#: Built, but not for the dressed book: its plot area, labels, axis titles and gridlines are not written as the file holds them.
+NEEDS_NO_STYLE = ('series labels', 'point label', 'chart type', 'new series', 'delete series',
                   'source data', 'category gridlines', 'minor gridlines', 'minor gridlines off', 'axis title',
                   'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'

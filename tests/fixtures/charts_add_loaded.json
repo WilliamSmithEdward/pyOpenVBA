@@ -1,0 +1,144 @@
+{
+ "measured_at": "2026-11-08T01:38:32.370149+00:00",
+ "source": "Private Function Seen(t As Object) As String\n    Dim s As String, i As Long\n    On Error Resume Next\n    s = t.Name & \" \" & t.Index & \" \" & t.ChartType & \" \" & t.HasLegend & \" \" & t.HasTitle & \" \" & t.SeriesCollection.Count\n    For i = 1 To t.SeriesCollection.Count\n        s = s & \" \" & t.SeriesCollection(i).Formula\n    Next\n    If Err.Number Then s = s & \" E\" & Err.Number\n    Seen = s\nEnd Function\n\nPrivate Function Tabs(wb As Workbook) As String\n    Dim o As Object, s As String\n    For Each o In wb.Sheets\n        s = s & \"[\" & o.Name & \":\" & TypeName(o) & \"]\"\n    Next\n    Tabs = s & \" \" & wb.ActiveSheet.Name\nEnd Function\n\nPublic Function Probe(ByVal path As String, ByVal plotted As String, ByVal selected As String, ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, t As Object, u As Object, r As Variant, c As Object\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"One\"\n    ws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\n    ws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\n    ws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\n    ws.Range(\"E10\").Select\n    Set c = wb.Charts.Add\n    c.Name = \"Mine\"\n    Select Case plotted\n    Case \"0\"\n        c.SetSourceData ws.Range(\"A1:A3,C1:C3\")\n    Case \"1\"\n        c.SetSourceData ws.Range(\"A1:B3\")\n    Case \"2\"\n        c.SetSourceData ws.Range(\"A1:B3\"), xlColumns\n    Case \"3\"\n        c.SetSourceData ws.Range(\"A1:C3\"), xlColumns\n    Case \"4\"\n        c.SetSourceData ws.Range(\"A1:C3\"), xlRows\n    Case \"5\"\n        c.SetSourceData ws.Range(\"B1:C3\")\n    End Select\n    ws.Activate\n    ws.Range(selected).Select\n    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    Set ws = wb.Worksheets(\"One\")\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 1\n        Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 2\n        wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add: r = Seen(t)\n    Case 3\n        Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 4\n        Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 5\n        Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 6\n        Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\"), Count:=2): r = Seen(t) & \" / \" & Seen(wb.Charts(2))\n    Case 7\n        Set t = wb.Charts.Add(After:=wb.Worksheets(\"One\")): r = Seen(t)\n    Case 8\n        wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 9\n        wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 10\n        wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 11\n        wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 12\n        wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 13\n        wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add(Count:=2): r = Seen(t) & \" / \" & Seen(wb.Charts(2))\n    Case 14\n        wb.Charts(\"Mine\").Activate: wb.Charts(\"Mine\").SeriesCollection(1).Delete: Set t = wb.Charts.Add: r = Seen(t)\n    Case 15\n        wb.Charts(\"Mine\").Activate: ws.Activate: ws.Rows(1).Insert: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 16\n        wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add: r = Seen(t)\n    Case 17\n        wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(After:=ws): r = Seen(t)\n    Case 18\n        wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): Set u = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(u)\n    Case 19\n        ws.Rows(1).Insert: wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 20\n        wb.Charts(\"Mine\").Activate: ws.Activate: ws.Columns(1).Insert: wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    Case 21\n        wb.Charts(\"Mine\").Activate: ws.Activate: ws.Rows(1).Insert: wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add: r = Seen(t)\n    Case 22\n        wb.Charts(\"Mine\").Activate: ws.Activate: ws.Columns(1).Insert: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)\n    End Select\n    Probe = \"ok |\" & r & \"|\" & Tabs(wb)\n    GoTo Done\nFailed:\n    Probe = \"Err \" & Err.Number & \"|\" & Tabs(wb)\n    Resume Done\nDone:\n    wb.Close False\n    Application.DisplayAlerts = True\nEnd Function\n",
+ "cases": [
+  [
+   "ws.Range(\"A1:B3\")",
+   "A1",
+   "Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 0|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "E10",
+   "Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 0|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "A1",
+   "wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add: r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$B$1,One!$A$2:$A$3,One!$B$2:$B$3,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlColumns",
+   "E10",
+   "Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 0|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlRows",
+   "E10",
+   "Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 0|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:A3,C1:C3\")",
+   "E10",
+   "Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 0|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"B1:C3\")",
+   "E10",
+   "Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\"), Count:=2): r = Seen(t) & \" / \" & Seen(wb.Charts(2))",
+   "ok |Chart2 1 51 True False 0 / Chart1 2 51 True False 0|[Chart2:Chart][Chart1:Chart][Mine:Chart][One:Worksheet] Chart2"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "E10",
+   "Set t = wb.Charts.Add(After:=wb.Worksheets(\"One\")): r = Seen(t)",
+   "ok |Chart1 2 51 True False 0|[Mine:Chart][Chart1:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlColumns",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 2 =SERIES(One!$B$1,One!$A$2:$A$3,One!$B$2:$B$3,1) =SERIES(One!$C$1,One!$A$2:$A$3,One!$C$2:$C$3,2)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlRows",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 2 =SERIES(One!$A$2,One!$B$1:$C$1,One!$B$2:$C$2,1) =SERIES(One!$A$3,One!$B$1:$C$1,One!$B$3:$C$3,2)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:A3,C1:C3\")",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$C$1,One!$A$2:$A$3,One!$C$2:$C$3,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"B1:C3\")",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 2 =SERIES(,One!$B$1:$C$1,One!$B$2:$C$2,1) =SERIES(,One!$B$1:$C$1,One!$B$3:$C$3,2)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "A1",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$B$1,One!$A$2:$A$3,One!$B$2:$B$3,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add(Count:=2): r = Seen(t) & \" / \" & Seen(wb.Charts(2))",
+   "ok |Chart2 1 51 True False 1 =SERIES(One!$B$1,One!$A$2:$A$3,One!$B$2:$B$3,1) / Chart1 2 51 True False 1 =SERIES(One!$B$1,One!$A$2:$A$3,One!$B$2:$B$3,1)|[Chart2:Chart][Chart1:Chart][Mine:Chart][One:Worksheet] Chart2"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlRows",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: wb.Charts(\"Mine\").SeriesCollection(1).Delete: Set t = wb.Charts.Add: r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$A$3,One!$B$1:$C$1,One!$B$3:$C$3,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlColumns",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: ws.Rows(1).Insert: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 2 =SERIES(One!$B$1:$B$2,One!$A$3,One!$B$3,1) =SERIES(One!$C$1:$C$2,One!$A$3,One!$C$3,2)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"B1:C3\")",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add: r = Seen(t)",
+   "ok |Chart1 1 51 True False 2 =SERIES(,One!$B$1:$C$1,One!$B$2:$C$2,1) =SERIES(,One!$B$1:$C$1,One!$B$3:$C$3,2)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(After:=ws): r = Seen(t)",
+   "ok |Chart1 2 51 True False 0|[Mine:Chart][Chart1:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlRows",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): Set u = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(u)",
+   "ok |Chart2 2 51 True False 2 =SERIES(One!$A$2,One!$B$1:$C$1,One!$B$2:$C$2,1) =SERIES(One!$A$3,One!$B$1:$C$1,One!$B$3:$C$3,2)|[Chart1:Chart][Chart2:Chart][Mine:Chart][One:Worksheet] Chart2"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "E10",
+   "ws.Rows(1).Insert: wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$B$2,One!$A$3:$A$4,One!$B$3:$B$4,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\")",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: ws.Columns(1).Insert: wb.Charts(\"Mine\").Activate: ws.Activate: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$C$1,One!$B$2:$B$3,One!$C$2:$C$3,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:C3\"), xlRows",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: ws.Rows(1).Insert: wb.Charts(\"Mine\").Activate: Set t = wb.Charts.Add: r = Seen(t)",
+   "ok |Chart1 1 51 True False 2 =SERIES(One!$A$3,One!$B$2:$C$2,One!$B$3:$C$3,1) =SERIES(One!$A$4,One!$B$2:$C$2,One!$B$4:$C$4,2)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ],
+  [
+   "ws.Range(\"A1:B3\"), xlColumns",
+   "E10",
+   "wb.Charts(\"Mine\").Activate: ws.Activate: ws.Columns(1).Insert: Set t = wb.Charts.Add(Before:=wb.Charts(\"Mine\")): r = Seen(t)",
+   "ok |Chart1 1 51 True False 1 =SERIES(One!$B$1,One!$A$2:$A$3,One!$B$2:$B$3,1)|[Chart1:Chart][Mine:Chart][One:Worksheet] Chart1"
+  ]
+ ]
+}

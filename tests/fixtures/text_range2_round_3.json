@@ -1,0 +1,1225 @@
+{
+ "cases": [
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Characters(3, 5).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Characters(1, 3).ChangeCase msoCaseLower"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(1, 4).TrimText.Length"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"a\").Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"A\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"e\", After:=3).Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"cat\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(5, 3).Find(\"t\").Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"q\").Length"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"a\", \"@\").Start"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"the\", \"THE\", MatchCase:=msoTrue) Is Nothing"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(2, 6).Replace(\"e\", \"3\").Text"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 169).Text"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Calibri\", 8364, msoTrue).Text"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(1, 1).InsertSymbol(\"Arial\", 66).Font.Name"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"The cat sat. on the mat\" & vbCr & \"a-b c'd\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.Characters(3, 5).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.Characters(1, 3).ChangeCase msoCaseLower"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 4).TrimText.Length"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Find(\"a\").Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Find(\"A\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Find(\"e\", After:=3).Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Find(\"cat\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Characters(5, 3).Find(\"t\").Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Find(\"q\").Length"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Replace(\"a\", \"@\").Start"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Replace(\"the\", \"THE\", MatchCase:=msoTrue) Is Nothing"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 6).Replace(\"e\", \"3\").Text"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 169).Text"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Calibri\", 8364, msoTrue).Text"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 1).InsertSymbol(\"Arial\", 66).Font.Name"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"  hi\" & vbCr & \"there.\"",
+   null,
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Characters(3, 5).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Characters(1, 3).ChangeCase msoCaseLower"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(1, 4).TrimText.Length"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"a\").Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"A\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"e\", After:=3).Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"cat\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(5, 3).Find(\"t\").Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"q\").Length"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"a\", \"@\").Start"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"the\", \"THE\", MatchCase:=msoTrue) Is Nothing"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(2, 6).Replace(\"e\", \"3\").Text"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 169).Text"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Calibri\", 8364, msoTrue).Text"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.Characters(1, 1).InsertSymbol(\"Arial\", 66).Font.Name"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"ABC def GHI\"",
+   [
+    5,
+    3
+   ],
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseLower"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.Characters(3, 5).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.Characters(1, 3).ChangeCase msoCaseLower"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.TrimText.Text"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 4).TrimText.Length"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Find(\"a\").Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Find(\"A\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Find(\"e\", After:=3).Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Find(\"cat\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Characters(5, 3).Find(\"t\").Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Find(\"q\").Length"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Replace(\"a\", \"@\").Start"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Replace(\"the\", \"THE\", MatchCase:=msoTrue) Is Nothing"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 6).Replace(\"e\", \"3\").Text"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 169).Text"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Calibri\", 8364, msoTrue).Text"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 1).InsertSymbol(\"Arial\", 66).Font.Name"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"q? r! s.\"",
+   null,
+   "do",
+   "tr.RtlRun: v = tr.ParagraphFormat.TextDirection"
+  ]
+ ],
+ "model": [
+  "Long:9",
+  "String:The ",
+  "Long:5",
+  "Long:3",
+  "String:a-b c'd",
+  "Long:3",
+  "e0=Empty:|String:The cat sat. On the mat<LF>A-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:the cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:THE CAT SAT. ON THE MAT<LF>A-B C'D|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:The Cat Sat. On The Mat<LF>A-b C'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:tHE CAT SAT. ON THE MAT<LF>A-B C'D|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:ThE Cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:the cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:The cat sat. on the mat<LF>a-b c'd|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:3|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:The cat sat. on the mat.<LF>a-b c'd.|Long:33|Long:3|Long:2",
+  "e0=Empty:|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:6|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:1|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:19|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:5|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:7|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:0|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:6|String:The c@t sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Boolean:False|String:The cat sat. on THE mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:3|String:Th3 cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:Bhe cat sat. on the mat<LF>a-b c'd|Long:31|Long:4|Long:2",
+  "e0=Long:0|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:Rectangle|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:-2|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "Long:4",
+  "String:  ",
+  "Long:3",
+  "Long:2",
+  "String:there.",
+  "Long:1",
+  "e0=Empty:|String:  Hi<LF>There.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  HI<LF>THERE.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  Hi<LF>There.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  HI<LF>THERE.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  Hi<LF>There.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=String:  hi<LF>there.|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:4|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  hi.<LF>there.|Long:12|Long:1|Long:2",
+  "e0=Empty:|String:  hi<LF>there|Long:10|Long:1|Long:2",
+  "e0=Long:1|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:1|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:8|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:1|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:6|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:0|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e91=e91|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Boolean:False|String:  hi<LF>THEre.|Long:11|Long:1|Long:2",
+  "e91=e91|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:B hi<LF>there.|Long:11|Long:2|Long:2",
+  "e0=Long:0|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=String:Rectangle|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:-2|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "Long:3",
+  "String:ABC ",
+  "Long:5",
+  "Long:1",
+  "e-2147024809",
+  "Long:3",
+  "e0=Empty:|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:abc def ghi|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC DEF GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC Def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:abc DEF ghi|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC Def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:abc def GHI|Long:11|Long:3|Long:1",
+  "e0=String:ABC def GHI|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:3|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC def GHI.|Long:12|Long:3|Long:1",
+  "e0=Empty:|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:6|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:5|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:0|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:@BC def GHI|Long:11|Long:3|Long:1",
+  "e0=Boolean:True|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=String:3|String:ABC d3f GHI|Long:11|Long:3|Long:1",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:BBC def GHI|Long:11|Long:4|Long:1",
+  "e0=Long:0|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=String:Rectangle|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:-2|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "Long:6",
+  "String:q",
+  "Long:2",
+  "Long:3",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=String:q? r! s.|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:4|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:5|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e91=e91|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Boolean:True|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e91=e91|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:B? r! s.|Long:8|Long:2|Long:1",
+  "e0=Long:0|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=String:Rectangle|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:-2|String:q? r! s.|Long:8|Long:1|Long:1"
+ ],
+ "measured_at": "2026-11-08T01:34:25.315693+00:00",
+ "excel": [
+  "Long:9",
+  "String:The ",
+  "Long:5",
+  "Long:3",
+  "String:a-b c'd",
+  "Long:3",
+  "e0=Empty:|String:The cat sat. On the mat<LF>A-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:the cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:THE CAT SAT. ON THE MAT<LF>A-B C'D|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:The Cat Sat. On The Mat<LF>A-b C'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:tHE CAT SAT. ON THE MAT<LF>A-B C'D|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:ThE Cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:the cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:The cat sat. on the mat<LF>a-b c'd|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:3|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Empty:|String:The cat sat. on the mat.<LF>a-b c'd.|Long:33|Long:3|Long:2",
+  "e0=Empty:|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:6|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:1|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:19|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:5|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:7|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:0|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:6|String:The c@t sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Boolean:False|String:The cat sat. on THE mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:3|String:Th3 cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:Bhe cat sat. on the mat<LF>a-b c'd|Long:31|Long:4|Long:2",
+  "e0=Long:0|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=String:Rectangle|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "e0=Long:-2|String:The cat sat. on the mat<LF>a-b c'd|Long:31|Long:3|Long:2",
+  "Long:4",
+  "String:  ",
+  "Long:3",
+  "Long:2",
+  "String:there.",
+  "Long:1",
+  "e0=Empty:|String:  Hi<LF>There.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  HI<LF>THERE.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  Hi<LF>There.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  HI<LF>THERE.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  Hi<LF>There.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=String:  hi<LF>there.|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:4|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Empty:|String:  hi.<LF>there.|Long:12|Long:1|Long:2",
+  "e0=Empty:|String:  hi<LF>there|Long:10|Long:1|Long:2",
+  "e0=Long:1|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:1|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:8|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:1|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:6|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:0|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e91=e91|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Boolean:False|String:  hi<LF>THEre.|Long:11|Long:1|Long:2",
+  "e91=e91|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:B hi<LF>there.|Long:11|Long:2|Long:2",
+  "e0=Long:0|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=String:Rectangle|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "e0=Long:-2|String:  hi<LF>there.|Long:11|Long:1|Long:2",
+  "Long:3",
+  "String:ABC ",
+  "Long:5",
+  "Long:1",
+  "e-2147024809",
+  "Long:3",
+  "e0=Empty:|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:abc def ghi|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC DEF GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC Def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:abc DEF ghi|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC Def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:abc def GHI|Long:11|Long:3|Long:1",
+  "e0=String:ABC def GHI|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:3|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Empty:|String:ABC def GHI.|Long:12|Long:3|Long:1",
+  "e0=Empty:|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:6|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:5|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:0|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:1|String:@BC def GHI|Long:11|Long:3|Long:1",
+  "e0=Boolean:True|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=String:3|String:ABC d3f GHI|Long:11|Long:3|Long:1",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:BBC def GHI|Long:11|Long:4|Long:1",
+  "e0=Long:0|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=String:Rectangle|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "e0=Long:-2|String:ABC def GHI|Long:11|Long:3|Long:1",
+  "Long:6",
+  "String:q",
+  "Long:2",
+  "Long:3",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:Q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? R! S.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=String:q? r! s.|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:4|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:q? r! s|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:4|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:5|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:1|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e91=e91|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Boolean:True|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e91=e91|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=String:\u00a9|String:\u00a9|Long:1|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=String:Arial|String:B? r! s.|Long:8|Long:2|Long:1",
+  "e0=Long:0|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=String:Rectangle|String:q? r! s.|Long:8|Long:1|Long:1",
+  "e0=Long:-2|String:q? r! s.|Long:8|Long:1|Long:1"
+ ]
+}

@@ -422,11 +422,6 @@ class FillFormat(_Format):
         self.look()
         return VBAInt(-2, "Long")
 
-    @method
-    def PresetTextured(self, PresetTexture: object = MISSING) -> object:
-        # Excel's preset textures are its own pictures, written into the file: the model carries no copy of them.
-        raise VBAUnsupportedError("FillFormat.PresetTextured is not implemented: Excel's texture pictures are not part of pyOpenVBA")
-
     def _picture_file(self, member: str, path: object) -> None:
         """A picture a macro names is a file read, which the sandbox refuses like any other. Past it, a file that is not there is
         error -2147024894, and then a line, which has no fill, -2147024809 (tests/fixtures/fill_format_round_2.json, which also measured what
@@ -470,7 +465,10 @@ class FillFormat(_Format):
         self.style()
         if not 0 <= wanted <= 1:
             raise error(*_INVALID)
-        if self.shape.kind == "line" or self.look().line_hidden or self.look().fill_bare:
+        if self.shape.kind == "line":
+            # A line has no fill to see through (tests/fixtures/fill_format_round_3.json).
+            raise error(*_INVALID)
+        if self.look().line_hidden or self.look().fill_bare:
             raise _unmeasured("The fill transparency of a line, under a hidden line, or of a fill hidden bare,")
         # Setting it shows a hidden fill.
         look = self.change()
@@ -484,6 +482,9 @@ class FillFormat(_Format):
     def Solid(self) -> object:
         self.style()
         before = self.look()
+        if self.shape.kind == "line":
+            # A line has no fill to make solid (tests/fixtures/fill_format_round_1.json).
+            raise error(*_INVALID)
         if self.shape.kind != "shape" or before.fill_hidden or before.line_hidden or before.fill_bare:
             raise _unmeasured("Solid on this kind of shape, or with the fill or line hidden,")
         if before.fill_gradient is not None and any(stop.alpha is not None for stop in before.fill_gradient.stops):

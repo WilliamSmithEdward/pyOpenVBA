@@ -43,7 +43,7 @@ GAPS = {"order_expr": _WRAPPED}
 #: Where the model's file keeps the rules otherwise than Excel's.
 FILE_GAPS = {**GAPS, "cell_other_insert": _NAMING, "cell_other_delete": _NAMING}
 #: Where the model reads Excel's file otherwise than Excel.
-READ_GAPS = {**GAPS, "cell_other_insert": _NAMING, "cell_other_delete": _NAMING}
+READ_GAPS = GAPS
 
 
 def _priorities(answers: str) -> list[int]:

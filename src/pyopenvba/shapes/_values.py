@@ -172,6 +172,14 @@ class ControlInfo:
     disabled: bool = False
     print_object: bool | None = None
     lock_text: bool = True
+    #: Display3DShading, which a part keeps as noThreeD="1" while it is off; a new control has it off (tests/fixtures/loaded_control_edits.json).
+    three_d: bool = False
+    #: A button's flags set this session, which its VML gets as JustLastX, Default, Cancel, Dismiss and Help. Excel reads none of them back from a
+    #: file, and AddIndent not even in the session (tests/fixtures/loaded_control_edits.json, button_flags.json).
+    button_flags: frozenset[str] = frozenset()
+    #: A loaded button's HorizontalAlignment, VerticalAlignment or Orientation set this session, and its value: one, from the layout
+    #: measured (tests/fixtures/button_text.json).
+    text_frame: tuple[str, int] | None = None
 
 
 @dataclass(frozen=True)

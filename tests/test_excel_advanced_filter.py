@@ -157,7 +157,6 @@ def test_advanced_filter_flag_preserves_qualified_unknown_xml(prefix: str, exist
 
 
 @pytest.mark.parametrize('operation', [
-    'Rows(2).Insert', 'Rows(2).Delete', 'Range("A2").Delete Shift:=xlShiftUp',
     'Range("A1:B3").Cut Destination:=Range("J1")', 'ActiveSheet.Copy', 'Range("A1:B3").AutoFilter',
 ])
 def test_unimplemented_advanced_filter_state_migration_is_atomic(operation: str) -> None:

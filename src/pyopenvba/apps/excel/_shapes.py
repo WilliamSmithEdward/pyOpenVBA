@@ -4700,8 +4700,7 @@ class ControlFormat(_Drawn):
         from pyopenvba.apps.excel._protection import guard_drawing
 
         control = self._settings(*kinds)
-        if self.shape.source:
-            raise VBAUnsupportedError("Changing this setting of a control loaded from a file is not implemented")
+        # A control loaded from a file is patched where Excel writes each setting (see _io._sync_control_flags).
         guard_drawing(self.sheet, "ControlFormat")
         self.sheet.drawing_changed()
         return control

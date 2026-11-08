@@ -1,0 +1,297 @@
+{
+"measured_at": "2026-11-07T21:41:14.821625+00:00",
+"source": "Private Function Named(ws As Object, ByVal name As String) As String\n    On Error Resume Next\n    Named = \"-\"\n    Named = ws.Names(name).RefersTo\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, i As Long, c As Object\n    On Error Resume Next\n    out = \"fm=\" & ws.FilterMode & \" auto=\" & ws.AutoFilterMode & \" hidden=\"\n    For i = 1 To 20\n        If ws.Rows(i).Hidden Then out = out & i & \",\"\n    Next\n    out = out & \" db=\" & Named(ws, \"_FilterDatabase\") & \" crit=\" & Named(ws, \"Criteria\") & \" ext=\" & Named(ws, \"Extract\")\n    out = out & \" cells=\"\n    For Each c In ws.Range(\"A1:D14\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" g=\"\n    For Each c In ws.Range(\"G1:H4\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" j=\"\n    For Each c In ws.Range(\"J1:L8\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" e=\"\n    For i = 1 To 20\n        out = out & ws.Cells(i, 5).Formula & \",\"\n    Next\n    out = out & \" z=\"\n    For i = 1 To 20\n        out = out & ws.Cells(i, 26).Formula & \",\"\n    Next\n    Dump = out\nEnd Function\n\nPublic Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Object, ws As Object, wt As Worksheet, i As Long, out As String, path As String\n    Set wb = Workbooks.Add\n    Set ws = wb.Worksheets(1)\n    Set wt = ws\n    ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Num\", \"Cat\")\n    For i = 2 To 12\n        ws.Cells(i, 1).Value = \"n\" & (i - 1)\n        ws.Cells(i, 2).Value = i - 1\n        ws.Cells(i, 3).Value = Mid(\"xyz\", ((i - 2) Mod 3) + 1, 1)\n    Next\n    For i = 1 To 20\n        ws.Cells(i, 5).Value = \"e\" & i\n        ws.Cells(i, 26).Value = \"z\" & i\n    Next\n    Select Case kind\n        Case \"greater\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">5\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\")\n        Case \"or\"\n            ws.Range(\"G1:G3\").Value = Application.Transpose(Array(\"Cat\", \"x\", \"z\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G3\")\n        Case \"two\"\n            ws.Range(\"G1:H1\").Value = Array(\"Num\", \"Cat\")\n            ws.Range(\"G2:H2\").Value = Array(\">3\", \"y\")\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:H2\")\n        Case \"all\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">0\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\")\n        Case \"copy\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">5\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterCopy, ws.Range(\"G1:G2\"), ws.Range(\"J1\")\n        Case \"nomatch\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">100\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\")\n        Case \"far\": ws.Range(\"AC1\").Value = \"far\"\n        Case \"low\": ws.Range(\"AC30\").Value = \"low\"\n        Case \"near\": ws.Range(\"AA14\").Value = \"near\"\n        Case \"distinct\": ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, , , True\n        Case \"repeats\": ws.Range(\"C1:C12\").AdvancedFilter xlFilterInPlace, , , True\n        Case \"allrepeats\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">0\"))\n            ws.Range(\"C1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\"), , True\n    End Select\n    If edit = \"none\" Then\n        Go = Dump(ws)\n        wb.Close False\n        Exit Function\n    End If\n    On Error Resume Next\n    Err.Clear\n    Dim target As String, how As String, parts() As String\n    parts = Split(edit, \" \")\n    target = parts(1)\n    how = parts(2)\n    If parts(0) = \"showall\" Then\n        If typed Then wt.ShowAllData Else ws.ShowAllData\n    ElseIf how = \"auto\" And typed Then\n        If parts(0) = \"insert\" Then wt.Range(target).Insert Else wt.Range(target).Delete\n    ElseIf how = \"auto\" Then\n        If parts(0) = \"insert\" Then ws.Range(target).Insert Else ws.Range(target).Delete\n    ElseIf typed Then\n        If parts(0) = \"insert\" Then\n            wt.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            wt.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    Else\n        If parts(0) = \"insert\" Then\n            ws.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            ws.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    End If\n    out = \"err=\" & Err.Number & \":\" & Err.Description\n    If UBound(parts) = 3 Then\n        ' \"... show\": ShowAllData after the edit.\n        Err.Clear\n        If typed Then wt.ShowAllData Else ws.ShowAllData\n        out = out & \" show=\" & Err.Number & \":\" & Err.Description\n    End If\n    out = out & \" \" & Dump(ws)\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_advanced_filter_shift.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    out = out & \" save=\" & Err.Number\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    out = out & \" ~ \" & Dump(wb.Worksheets(1))\n    wb.Close False\n    Kill path\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"plain",
+"delete Z12:Z16 auto",
+true
+],
+[
+"plain",
+"delete Z12:Z16 auto",
+false
+],
+[
+"plain",
+"delete Z2:Z3 auto",
+true
+],
+[
+"plain",
+"delete Z2:Z3 auto",
+false
+],
+[
+"plain",
+"delete F20:Y20 auto",
+true
+],
+[
+"plain",
+"delete F20:Y20 auto",
+false
+],
+[
+"plain",
+"delete Z12:AA16 auto",
+true
+],
+[
+"plain",
+"delete Z12:AA16 auto",
+false
+],
+[
+"plain",
+"delete Y12:Y16 auto",
+true
+],
+[
+"plain",
+"delete Y12:Y16 auto",
+false
+],
+[
+"plain",
+"delete F19:Y19 auto",
+true
+],
+[
+"plain",
+"delete F19:Y19 auto",
+false
+],
+[
+"far",
+"delete Z12:Z16 auto",
+true
+],
+[
+"far",
+"delete Z12:Z16 auto",
+false
+],
+[
+"far",
+"delete Z2:Z3 auto",
+true
+],
+[
+"far",
+"delete Z2:Z3 auto",
+false
+],
+[
+"far",
+"delete F20:Y20 auto",
+true
+],
+[
+"far",
+"delete F20:Y20 auto",
+false
+],
+[
+"far",
+"delete Z12:AA16 auto",
+true
+],
+[
+"far",
+"delete Z12:AA16 auto",
+false
+],
+[
+"far",
+"delete Y12:Y16 auto",
+true
+],
+[
+"far",
+"delete Y12:Y16 auto",
+false
+],
+[
+"far",
+"delete F19:Y19 auto",
+true
+],
+[
+"far",
+"delete F19:Y19 auto",
+false
+],
+[
+"low",
+"delete Z12:Z16 auto",
+true
+],
+[
+"low",
+"delete Z12:Z16 auto",
+false
+],
+[
+"low",
+"delete Z2:Z3 auto",
+true
+],
+[
+"low",
+"delete Z2:Z3 auto",
+false
+],
+[
+"low",
+"delete F20:Y20 auto",
+true
+],
+[
+"low",
+"delete F20:Y20 auto",
+false
+],
+[
+"low",
+"delete Z12:AA16 auto",
+true
+],
+[
+"low",
+"delete Z12:AA16 auto",
+false
+],
+[
+"low",
+"delete Y12:Y16 auto",
+true
+],
+[
+"low",
+"delete Y12:Y16 auto",
+false
+],
+[
+"low",
+"delete F19:Y19 auto",
+true
+],
+[
+"low",
+"delete F19:Y19 auto",
+false
+],
+[
+"near",
+"delete Z12:Z16 auto",
+true
+],
+[
+"near",
+"delete Z12:Z16 auto",
+false
+],
+[
+"near",
+"delete Z2:Z3 auto",
+true
+],
+[
+"near",
+"delete Z2:Z3 auto",
+false
+],
+[
+"near",
+"delete F20:Y20 auto",
+true
+],
+[
+"near",
+"delete F20:Y20 auto",
+false
+],
+[
+"near",
+"delete Z12:AA16 auto",
+true
+],
+[
+"near",
+"delete Z12:AA16 auto",
+false
+],
+[
+"near",
+"delete Y12:Y16 auto",
+true
+],
+[
+"near",
+"delete Y12:Y16 auto",
+false
+],
+[
+"near",
+"delete F19:Y19 auto",
+true
+],
+[
+"near",
+"delete F19:Y19 auto",
+false
+]
+],
+"answers": [
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,near,,,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,",
+"err=0: fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20, save=0 ~ fm=False auto=False hidden= db=- crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,,z20,"
+],
+"crashes": []
+}

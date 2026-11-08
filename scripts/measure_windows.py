@@ -11,18 +11,23 @@ are read out of the package. Excel is shown and each window is 700 by
 added, activated and closed, with the screen updating and without, and
 the order Windows lists their windows in is read.
 
-    python scripts/measure_windows.py
+    python scripts/measure_windows.py [book ...]
 
 writes tests/fixtures/windows/ -- one .xlsx per workbook and
-windows.json -- which tests/test_excel_windows.py replays.
+windows.json -- which tests/test_excel_windows.py replays. Books named
+on the command line are measured alone and replace their own records.
+For the books on later sheets (LATER), each sheet's window is read once
+more after the save, each sheet activated in turn.
 """
 
 from __future__ import annotations
 
 import json
 import re
+import sys
 import zipfile
 from pathlib import Path
+from typing import Any
 
 from pyvbaharness import ExcelSession, HarnessConfig
 
@@ -188,7 +193,73 @@ BOOKS: list[tuple[str, str]] = [
                                              "ActiveWindow.ScrollRow = 10\nws.Rows(5).Insert"),
     ("frozen_row_deleted_at_split", 'ws.Range("B3").Select\nActiveWindow.FreezePanes = True\nws.Rows(3).Delete'),
     ("frozen_rows_deleted_all", 'ws.Range("B3").Select\nActiveWindow.FreezePanes = True\nws.Rows("1:2").Delete'),
+    # Views on sheets after the first: each sheet's window is read again after the save (LATER).
+    ("later_frozen", 'wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range("C4").Select\nActiveWindow.FreezePanes = True\n'
+                     "ws.Activate"),
+    ("later_frozen_scrolled", "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 10\nActiveWindow.ScrollColumn = 3\n"
+                              'wb.Worksheets(2).Range("D12").Select\nActiveWindow.FreezePanes = True\n'
+                              "ActiveWindow.ScrollRow = 30\nActiveWindow.ScrollColumn = 8\nws.Activate"),
+    ("later_scrolled", "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 20\nActiveWindow.ScrollColumn = 5\nws.Activate"),
+    ("later_recorded", "wb.Worksheets.Add After:=ws\nWith ActiveWindow\n.SplitColumn = 0\n.SplitRow = 1\nEnd With\n"
+                       "ActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 30\n"
+                       "wb.Worksheets.Add After:=wb.Worksheets(2)\nWith ActiveWindow\n.SplitColumn = 1\n.SplitRow = 0\n"
+                       "End With\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollColumn = 6\nws.Activate"),
+    ("later_frozen_active", 'wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range("B2").Select\n'
+                            "ActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10"),
+    ("later_displays", "wb.Worksheets.Add After:=ws\nActiveWindow.DisplayHeadings = False\nActiveWindow.DisplayZeros = False\n"
+                       "ActiveWindow.DisplayFormulas = True\nActiveWindow.Zoom = 85\n"
+                       "wb.Worksheets.Add After:=wb.Worksheets(2)\nActiveWindow.View = xlPageLayoutView\n"
+                       "ActiveWindow.Zoom = 80\nwb.Worksheets.Add After:=wb.Worksheets(3)\n"
+                       "ActiveWindow.View = xlPageBreakPreview\nws.Activate"),
+    ("later_right_to_left", "wb.Worksheets.Add After:=ws\nActiveSheet.DisplayRightToLeft = True\n"
+                            'wb.Worksheets(2).Range("C3").Select\nActiveWindow.FreezePanes = True\nws.Activate'),
+    ("later_frozen_rows_inserted", 'wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range("B3").Select\n'
+                                   "ActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\nws.Activate\n"
+                                   'wb.Worksheets(2).Rows(1).Insert\nwb.Worksheets(2).Columns("A").Delete'),
+    ("later_scrolled_rows_deleted", "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 10\n"
+                                    'ActiveWindow.ScrollColumn = 4\nwb.Worksheets(2).Range("E12").Select\nws.Activate\n'
+                                    'wb.Worksheets(2).Rows("2:3").Delete\nwb.Worksheets(2).Columns("B").Insert'),
+    ("later_copied", 'wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range("C4").Select\nActiveWindow.FreezePanes = True\n'
+                     "ActiveWindow.ScrollRow = 20\nActiveWindow.Zoom = 120\nws.Activate\n"
+                     "wb.Worksheets(2).Copy After:=wb.Worksheets(2)\nws.Activate"),
+    ("later_moved", 'wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range("B2").Select\nActiveWindow.FreezePanes = True\n'
+                    "wb.Worksheets.Add After:=wb.Worksheets(2)\nActiveWindow.ScrollRow = 15\n"
+                    "wb.Worksheets(3).Move Before:=ws\nws.Activate"),
+    ("later_unfrozen_back", 'wb.Worksheets.Add After:=ws\nwb.Worksheets(2).Range("B2").Select\n'
+                            "ActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 12\nws.Activate\n"
+                            "wb.Worksheets(2).Activate\nActiveWindow.FreezePanes = False\nws.Activate"),
+    ("later_scrolled_back", "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 20\nActiveWindow.ScrollColumn = 3\n"
+                            "ws.Activate\nActiveWindow.ScrollRow = 5\nwb.Worksheets(2).Activate"),
+    ("later_frozen_back", "wb.Worksheets.Add After:=ws\nActiveWindow.ScrollRow = 10\n"
+                          'wb.Worksheets(2).Range("D12").Select\nActiveWindow.FreezePanes = True\n'
+                          "ActiveWindow.ScrollRow = 25\nws.Activate\nActiveWindow.ScrollRow = 5\n"
+                          "wb.Worksheets(2).Activate"),
+    ("later_goto", 'wb.Worksheets.Add After:=ws\nws.Activate\nApplication.Goto wb.Worksheets(2).Range("Z100"), True'),
+    ("later_zoom_frozen", 'wb.Worksheets.Add After:=ws\nActiveWindow.Zoom = 150\nwb.Worksheets(2).Range("D5").Select\n'
+                          "ActiveWindow.FreezePanes = True\nws.Activate"),
+    # A frozen and scrolled sheet with rows and columns inserted and deleted, the sheet active and not.
+    *[(f"{prefix}shift_frozen_{name}", ("wb.Worksheets.Add After:=ws\n" if prefix else "")
+       + f'{sheet}.Range("B3").Select\nActiveWindow.FreezePanes = True\nActiveWindow.ScrollRow = 10\n'
+       f"ActiveWindow.ScrollColumn = 5\n{'ws.Activate' if prefix else ''}\n{sheet}.{edit}")
+      for prefix, sheet in (("", "ws"), ("later_", "wb.Worksheets(2)"))
+      for name, edit in (("row_inserted_frozen", "Rows(1).Insert"), ("column_deleted_frozen", 'Columns("A").Delete'),
+                         ("row_inserted_below", "Rows(20).Insert"), ("row_inserted_between", "Rows(5).Insert"),
+                         ("row_deleted_frozen", "Rows(1).Delete"), ("column_inserted_frozen", 'Columns("A").Insert'),
+                         ("rows_deleted_between", 'Rows("4:6").Delete'))],
 ]
+
+#: Books whose every sheet's window is read once more after the save, each sheet activated in turn.
+LATER = tuple(name for name, _ in BOOKS if name.startswith("later_"))
+LATER_READ = """
+Private Function EachSheet(wb As Object) As String
+    Dim i As Long, out As String
+    For i = 1 To wb.Worksheets.Count
+        wb.Worksheets(i).Activate
+        out = out & "~;~" & Seen(ActiveWindow)
+    Next
+    EachSheet = out
+End Function
+"""
 
 #: Which window Windows(1), (2), ... is as books are added, activated and closed: b1, b2 and b3 are three books
 #: this adds, "other" a window that was open before.
@@ -234,22 +305,26 @@ End Function
 """
 
 
-def module() -> str:
+def module(books: list[tuple[str, str]], order: bool) -> str:
     # Panes are laid out only in a window Excel shows: hidden, FreezePanes saves a pane with no split in it.
     lines = ["Public Function Probe() As String", "Dim out As String, was As Boolean", "was = Application.Visible",
              "Application.DisplayAlerts = False", "Application.Visible = True"]
-    lines += [f'out = out & B{index}("{FOLDER / (name + ".xlsx")}")' for index, (name, _) in enumerate(BOOKS)]
-    lines += ['out = out & "order~:~" & Order(False) & "~|~order_updating~:~" & Order(True)',
-              "Application.Visible = was", "Probe = out", "End Function"]
-    for index, (name, making) in enumerate(BOOKS):
+    lines += [f'out = out & B{index}("{FOLDER / (name + ".xlsx")}")' for index, (name, _) in enumerate(books)]
+    if order:
+        lines += ['out = out & "order~:~" & Order(False) & "~|~order_updating~:~" & Order(True)']
+    lines += ["Application.Visible = was", "Probe = out", "End Function"]
+    for index, (name, making) in enumerate(books):
         lines += [f"Private Function B{index}(path As String) As String",
                   "Dim wb As Object, ws As Object, other As Object, out As String, failed As Long",
                   "Set wb = Workbooks.Add(xlWBATWorksheet)", "Set ws = wb.Worksheets(1)", "wb.Activate",
                   "ActiveWindow.WindowState = xlNormal", "ActiveWindow.Width = 700", "ActiveWindow.Height = 500",
                   "On Error Resume Next", making, "failed = Err.Number", "On Error GoTo 0",
-                  f'out = "{name}~:~" & failed & "|" & Seen(ActiveWindow) & "~|~"',
-                  "wb.SaveAs Filename:=path, FileFormat:=51", "wb.Close False", f"B{index} = out", "End Function"]
-    return ORDER_NAMES + READER + ORDER + "\n".join(lines) + "\n"
+                  f'out = "{name}~:~" & failed & "|" & Seen(ActiveWindow)',
+                  "wb.SaveAs Filename:=path, FileFormat:=51"]
+        if name in LATER:
+            lines += ["out = out & EachSheet(wb)"]
+        lines += ['out = out & "~|~"', "wb.Close False", f"B{index} = out", "End Function"]
+    return ORDER_NAMES + READER + LATER_READ + ORDER + "\n".join(lines) + "\n"
 
 
 def views(path: Path) -> dict[str, str]:
@@ -267,26 +342,49 @@ def views(path: Path) -> dict[str, str]:
 
 
 def main() -> None:
+    """Every book, or only those named on the command line, which replace their own records in windows.json."""
+    only = set(sys.argv[1:])
+    unknown = only - {name for name, _ in BOOKS}
+    assert not unknown, f"no such books: {sorted(unknown)}"
+    books = [(name, making) for name, making in BOOKS if not only or name in only]
     FOLDER.mkdir(parents=True, exist_ok=True)
+    # SplitVertical and SplitHorizontal are in points of the display's pixels. The standard height, 15 at 96 DPI, is read
+    # at both ends and kept with each book; a run whose display changed is thrown away.
+    height = "Public Function Height() As Double\nHeight = ActiveSheet.StandardHeight\nEnd Function\n"
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
-        result = excel.run_vba(module(), "Probe", timeout=600.0)
+        standard = excel.run_vba(height, "Height").value
+        result = excel.run_vba(module(books, order=not only), "Probe", timeout=600.0)
         assert result.ok, f"{result.outcome}: {result.message} {result.error}"
-    for name, _ in BOOKS:
+        assert excel.run_vba(height, "Height").value == standard, "the display changed during the run"
+    for name, _ in books:
         strip_save_path(FOLDER / f"{name}.xlsx")
     answers = dict(part.split("~:~", 1) for part in str(result.value).split("~|~") if "~:~" in part)
-    record = {"reader": READER, "reads": READS, "books": [{"name": name, "making": making, "seen": answers[name],
-                                           "views": views(FOLDER / f"{name}.xlsx")} for name, making in BOOKS],
-              "order_probe": ORDER_NAMES + ORDER,
-              "order": {"screen_updating_off": answers["order"].split("~;~"),
-                        "screen_updating_on": answers["order_updating"].split("~;~")}}
+    measured: dict[str, dict[str, Any]] = {}
+    for name, making in books:
+        seen, *sheets = answers[name].split("~;~")
+        measured[name] = {"name": name, "making": making, "seen": seen, "views": views(FOLDER / f"{name}.xlsx")}
+        if standard != 15:
+            measured[name]["standard_height"] = standard
+        if sheets:
+            measured[name]["sheets"] = sheets
+    kept: dict[str, Any] = json.loads((FOLDER / "windows.json").read_text(encoding="utf-8")) if only else {}
+    before = {book["name"]: book for book in kept.get("books", [])}
+    order = ({"screen_updating_off": answers["order"].split("~;~"), "screen_updating_on": answers["order_updating"].split("~;~")}
+             if not only else kept["order"])
+    record = {"reader": READER, "later_reader": LATER_READ, "reads": READS,
+              "books": [measured.get(name) or before[name] for name, _ in BOOKS if name in measured or name in before],
+              "order_probe": ORDER_NAMES + ORDER, "order": order}
     (FOLDER / "windows.json").write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
-    for book in record["books"]:
-        print(f"--- {book['name']}: {book['seen']}")
+    for name, book in measured.items():
+        print(f"--- {name}: {book['seen']}")
+        for seen in book.get("sheets", []):
+            print(f"    sheet: {seen}")
         for part, xml in book["views"].items():
             print(f"    {part}: {xml}")
-    for updating, seen in record["order"].items():
-        print(f"--- order, {updating}:", *seen, sep="\n    ")
+    if not only:
+        for updating, seen in order.items():
+            print(f"--- order, {updating}:", *seen, sep="\n    ")
 
 
 if __name__ == "__main__":

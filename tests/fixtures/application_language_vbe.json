@@ -1,0 +1,265 @@
+{
+ "rows": {
+  "opened": {
+   "late": "3:Book3"
+  },
+  "TypeName(a.LanguageSettings)": {
+   "typed": "String:LanguageSettings",
+   "late": "String:LanguageSettings"
+  },
+  "a.LanguageSettings Is a.LanguageSettings": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.LanguageSettings.Parent Is a": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.LanguageSettings.Application Is a": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.LanguageSettings.Creator": {
+   "typed": "Long:1480803660",
+   "late": "Long:1480803660"
+  },
+  "a.LanguageSettings.LanguageID(-1)": {
+   "typed": "E5",
+   "late": "E5"
+  },
+  "a.LanguageSettings.LanguageID(0)": {
+   "typed": "E5",
+   "late": "E5"
+  },
+  "a.LanguageSettings.LanguageID(1)": {
+   "typed": "Long:1033",
+   "late": "Long:1033"
+  },
+  "a.LanguageSettings.LanguageID(2)": {
+   "typed": "Long:1033",
+   "late": "Long:1033"
+  },
+  "a.LanguageSettings.LanguageID(3)": {
+   "typed": "Long:1033",
+   "late": "Long:1033"
+  },
+  "a.LanguageSettings.LanguageID(4)": {
+   "typed": "Long:1033",
+   "late": "Long:1033"
+  },
+  "a.LanguageSettings.LanguageID(5)": {
+   "typed": "Long:1033",
+   "late": "Long:1033"
+  },
+  "a.LanguageSettings.LanguageID(6)": {
+   "typed": "E5",
+   "late": "E5"
+  },
+  "a.LanguageSettings.LanguageID(7)": {
+   "typed": "E5",
+   "late": "E5"
+  },
+  "a.LanguageSettings.LanguageID(\"2\")": {
+   "typed": "Long:1033",
+   "late": "Long:1033"
+  },
+  "a.LanguageSettings.LanguageID()": {
+   "late": "E450"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing(1033)": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing(1031)": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing(1041)": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing(0)": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing(-1)": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing(2057)": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.LanguageSettings.LanguagePreferredForEditing()": {
+   "late": "E450"
+  },
+  "a.LanguageSettings.LanguageID": {
+   "late": "E450"
+  },
+  "a.LanguageSettings.Count": {
+   "late": "E438"
+  },
+  "TypeName(a.VBE)": {
+   "typed": "String:VBE",
+   "late": "String:VBE"
+  },
+  "a.VBE Is a.VBE": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.Version": {
+   "typed": "String:7.01",
+   "late": "String:7.01"
+  },
+  "TypeName(a.VBE.VBProjects)": {
+   "typed": "String:VBProjects",
+   "late": "String:VBProjects"
+  },
+  "a.VBE.VBProjects.Count": {
+   "typed": "Long:3",
+   "late": "Long:3"
+  },
+  "a.VBE.VBProjects(1) Is ThisWorkbook.VBProject": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects(a.VBE.VBProjects.Count) Is ActiveWorkbook.VBProject": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects(a.VBE.VBProjects.Count - 1) Is Workbooks(Workbooks.Count - 1).VBProject": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects(0)": {
+   "typed": "E9",
+   "late": "E9"
+  },
+  "a.VBE.VBProjects(99)": {
+   "typed": "E9",
+   "late": "E9"
+  },
+  "a.VBE.VBProjects(\"VBAProject\") Is ThisWorkbook.VBProject": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects(\"Nope\")": {
+   "typed": "E9",
+   "late": "E9"
+  },
+  "a.VBE.VBProjects.Item(1) Is ThisWorkbook.VBProject": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects.Parent Is a.VBE": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects.VBE Is a.VBE": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "TypeName(a.VBE.ActiveVBProject)": {
+   "typed": "String:VBProject",
+   "late": "String:VBProject"
+  },
+  "a.VBE.ActiveVBProject Is ThisWorkbook.VBProject": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.VBE.ActiveVBProject Is ActiveWorkbook.VBProject": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.ActiveVBProject.Name": {
+   "typed": "String:VBAProject",
+   "late": "String:VBAProject"
+  },
+  "ThisWorkbook.VBProject.VBE Is a.VBE": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "ThisWorkbook.VBProject.Collection Is a.VBE.VBProjects": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "TypeName(ThisWorkbook.VBProject.Collection)": {
+   "typed": "String:VBProjects",
+   "late": "String:VBProjects"
+  },
+  "ActiveWorkbook.VBProject.Name": {
+   "typed": "String:VBAProject",
+   "late": "String:VBAProject"
+  },
+  "a.VBE.SelectedVBComponent Is Nothing": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.ActiveCodePane Is Nothing": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "TypeName(a.VBE.MainWindow)": {
+   "typed": "String:Window",
+   "late": "String:Window"
+  },
+  "a.VBE.MainWindow.Visible": {
+   "typed": "Boolean:False",
+   "late": "Boolean:False"
+  },
+  "a.VBE.Windows.Count": {
+   "typed": "Long:10",
+   "late": "Long:10"
+  },
+  "a.VBE.CodePanes.Count": {
+   "typed": "Long:3",
+   "late": "Long:3"
+  },
+  "TypeName(a.VBE.Addins)": {
+   "typed": "String:AddIns",
+   "late": "String:AddIns"
+  },
+  "a.VBE.Addins.Count": {
+   "typed": "Long:1",
+   "late": "Long:1"
+  },
+  "a.VBE.Parent": {
+   "late": "E438"
+  },
+  "a.VBE.Name": {
+   "late": "E438"
+  },
+  "a.VBE.Count": {
+   "late": "E438"
+  },
+  "TypeName(a.VBE.Events)": {
+   "typed": "String:Events",
+   "late": "String:Events"
+  },
+  "TypeName(a.VBE.CommandBars)": {
+   "typed": "String:CommandBars",
+   "late": "String:CommandBars"
+  },
+  "a.VBE.ActiveWindow Is Nothing": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "a.VBE.VBProjects(1).Name": {
+   "typed": "String:VBAProject",
+   "late": "String:VBAProject"
+  },
+  "a.VBE.VBProjects(2).Name": {
+   "typed": "String:VBAProject",
+   "late": "String:VBAProject"
+  },
+  "a.VBE.VBProjects(1).VBComponents.Count > 0": {
+   "typed": "Boolean:True",
+   "late": "Boolean:True"
+  },
+  "Walk(a)": {
+   "typed": "String:VBAProject/True/False;VBAProject/False/False;VBAProject/False/True;",
+   "late": "String:VBAProject/True/False;VBAProject/False/False;VBAProject/False/True;"
+  }
+ },
+ "measured_at": "2026-11-07T20:33:12.990702+00:00"
+}

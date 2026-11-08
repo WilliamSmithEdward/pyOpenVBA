@@ -1275,9 +1275,14 @@ def show_all_data(sheet: Worksheet) -> None:
     """Worksheet.ShowAllData: the AdvancedFilter's rows shown, or the criteria of the filter at the active cell
     taken away -- a table's where it is in a table -- error 1004 where it has none."""
     from pyopenvba.apps.excel._table_filters import clear, context_table, has_criteria
+    from pyopenvba.interpreter._objects import BINDING
 
     if sheet.advanced_filter is not None:
         area = sheet.advanced_filter
+        if area.rows == 1:
+            # Deletes that leave a list filtered in place only its header keep the sheet in filter mode, and there
+            # is nothing to show (tests/fixtures/advanced_filter_shifts_c.json).
+            raise error(1004, "ShowAllData method of Worksheet class failed" if BINDING.late else "No cells were found.")
         for row in range(area.top + 1, area.bottom + 1):
             if sheet.dims.row_hidden(row):
                 sheet.dims.hide_row(row, False)
@@ -1300,10 +1305,13 @@ def show_all_data(sheet: Worksheet) -> None:
 def show_all_own(sheet: Worksheet) -> None:
     """ShowAllData on the sheet's own filter: its criteria taken away and its rows shown; error 1004 with none."""
     from pyopenvba.apps.excel._table_filters import refocus
+    from pyopenvba.interpreter._objects import BINDING
 
     found = sheet.auto_filter
     if found is None or not found.fields:
-        raise error(1004, "ShowAllData method of Worksheet class failed")
+        # Typed, the failure names the interface (tests/fixtures/advanced_filter_shifts_c.json).
+        raise error(1004, "ShowAllData method of Worksheet class failed" if BINDING.late
+                    else "Method 'ShowAllData' of object '_Worksheet' failed")
     found.fields.clear()
     found.show_all(sheet)
     _changed(sheet)

@@ -268,6 +268,81 @@ def _active_printer() -> MemberSpec:
     return MemberSpec(name='ActivePrinter', kind='property', getter=get, setter=put)
 
 
+#: The folder Excel was started from, spelled as the automation server's registration names it, which a bare name in
+#: AltStartupPath goes under (tests/fixtures/application_folders.json).
+EXCEL_FOLDER = 'C:\\Program Files\\Microsoft Office\\Root\\Office16'
+
+
+def _folder_text(value: object) -> str | None:
+    """The text a folder setting takes, or None for a Null Excel ignores bound late; bound early it is 94."""
+    if value is NULL:
+        if BINDING.late:
+            return None
+        raise error(94)
+    return to_text(value)
+
+
+def _default_file_path() -> MemberSpec:
+    """The folder a macro sets, kept only where it is one that is there: a full path as Windows spells it in full, slashes,
+    dots and a trailing space resolved and a trailing backslash kept, and a relative one as typed. Anything else changes
+    nothing, a drive with no folder too; empty text empties it (tests/fixtures/application_folders.json). A check that a
+    folder is there reaches the machine, so the sandbox refuses any set but an empty one."""
+
+    def get(application: Application) -> object:
+        return application.settings.get('DefaultFilePath', PROFILE + '\\Documents')
+
+    def put(application: Application, value: object) -> None:
+        text = _folder_text(value)
+        if text is None:
+            return
+        if text:
+            application.outside('DefaultFilePath')
+            text = _kept_folder(application, text)
+            if text is None:
+                return
+        application.settings['DefaultFilePath'] = text
+
+    return MemberSpec(name='DefaultFilePath', kind='property', getter=get, setter=put)
+
+
+def _kept_folder(application: Application, text: str) -> str | None:
+    """A folder named by text as DefaultFilePath keeps it, or None where none is there."""
+    import os
+
+    if re.fullmatch(r'[A-Za-z]:', text) or not text.strip():
+        return None
+    folder = application.interpreter.files.folder if application.interpreter is not None else os.getcwd()
+    if not os.path.isdir(os.path.join(folder, text)):
+        return None
+    if not os.path.isabs(text):
+        return text
+    kept = os.path.normpath(text.rstrip(' '))
+    return kept + os.sep if re.search(r'[\\/]$', text) and not kept.endswith(os.sep) else kept
+
+
+def _alt_startup_path() -> MemberSpec:
+    """Any text, in capitals and with one trailing backslash taken off: a bare name goes under the folder Excel was started
+    from and a name from the root onto its drive, with no check that the folder is there (tests/fixtures/application_folders.json)."""
+
+    def get(application: Application) -> object:
+        return application.settings.get('AltStartupPath', '')
+
+    def put(application: Application, value: object) -> None:
+        text = _folder_text(value)
+        if text is None:
+            return
+        if text:
+            text = text.upper()
+            if text.startswith('\\') and not text.startswith('\\\\'):
+                text = EXCEL_FOLDER[:2] + text
+            elif not re.match(r'[A-Z]:|\\\\', text):
+                text = EXCEL_FOLDER + '\\' + text
+            text = text.removesuffix('\\')
+        application.settings['AltStartupPath'] = text
+
+    return MemberSpec(name='AltStartupPath', kind='property', getter=get, setter=put)
+
+
 def _sharepoint_version() -> MemberSpec:
     """The SharePoint version a site at a URL runs: 0 for one it cannot reach, -1 for text that is no URL. The model reaches
     no site (tests/fixtures/application_identity.json)."""
@@ -284,7 +359,7 @@ def application_members() -> list[MemberSpec]:
     """Every Application setting this module keeps, as a member."""
     return [*(_switch(name) for name in SWITCHES), *(_numbered_setting(name) for name in STARTS), _note_indicator(),
             _caption(), _print_communication(), *(_read_only(name, value) for name, value in READ_ONLY.items()),
-            _feature_install(), _active_printer(), _sharepoint_version()]
+            _feature_install(), _active_printer(), _sharepoint_version(), _default_file_path(), _alt_startup_path()]
 
 
 def worksheet_members() -> list[MemberSpec]:

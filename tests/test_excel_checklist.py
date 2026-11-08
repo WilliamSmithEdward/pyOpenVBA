@@ -225,20 +225,115 @@ class _Source:
     imported: dict[str, tuple[str, str]]
 
 
-@functools.cache
-def _source_of(function: object) -> _Source:
-    found = _Source([], [], [], {})
+def _tree_of(function: object) -> ast.AST | None:
     try:
         source = inspect.getsource(inspect.unwrap(function))  # type: ignore[arg-type]
     except (OSError, TypeError):
+        return None
+    return ast.parse("class _:\n" + source if source[0].isspace() else source)
+
+
+def _imports_in(tree: ast.AST) -> dict[str, tuple[str, str]]:
+    return {alias.asname or alias.name: (node.module, alias.name) for node in ast.walk(tree)
+            if isinstance(node, ast.ImportFrom) and node.module and _scanned_module(node.module) for alias in node.names}
+
+
+def _dotted(node: ast.expr) -> str:
+    """A name or a module's attribute as the scan names calls, or "" for anything else."""
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+        return f"{node.value.id}.{node.attr}"
+    return ""
+
+
+def _is_refusal_class(found: object) -> bool:
+    return inspect.isclass(found) and issubclass(found, VBAUnsupportedError)
+
+
+def _is_refusal_partial(found: object) -> bool:
+    is_partial = isinstance(found, functools.partial)
+    made: object = getattr(found, "func", None)
+    return is_partial and _is_refusal_class(made)
+
+
+def _message(call: ast.Call, name: str) -> str:
+    """What a refusal says, as the scan reports it: its first argument, or the name it was made by."""
+    if not call.args:
+        return name
+    first = call.args[0]
+    return str(first.value) if isinstance(first, ast.Constant) else ast.unparse(first)
+
+
+def _refusals_made(node: ast.expr | None, function: object, imported: dict[str, tuple[str, str]],
+                   kept: dict[str, list[str]]) -> list[str] | None:
+    """The refusals an expression makes, or None where it makes none: a VBAUnsupportedError (or a subclass) called or
+    named, a name bound to one, a functools.partial of the class, a function that returns or raises one, or a variable
+    of the function that keeps one."""
+    if node is None:
+        return None
+    if isinstance(node, ast.Name) and node.id in kept:
+        return kept[node.id]
+    if isinstance(node, ast.Call):
+        name = _dotted(node.func)
+        found = _called(name, function, imported) if name else None
+        if _is_refusal_class(found) or _is_refusal_partial(found):
+            return [_message(node, name)]
+        if inspect.isfunction(found) and _scanned_module(found.__module__) and _makes_refusal(found):
+            return [_message(node, name)]
+        return None
+    name = _dotted(node)
+    found = _called(name, function, imported) if name else None
+    if isinstance(found, VBAUnsupportedError):
+        return [str(found)]
+    if _is_refusal_class(found):
+        return [name]
+    return None
+
+
+#: Whether each function looked at returns a refusal; False while it is still being looked at, which ends a loop.
+_MAKES_REFUSAL: dict[object, bool] = {}
+
+
+def _makes_refusal(function: object) -> bool:
+    """Whether a function hands back a refusal to raise: it returns one, made in any of the ways _refusals_made sees,
+    through other functions that do as well."""
+    if function in _MAKES_REFUSAL:
+        return _MAKES_REFUSAL[function]
+    _MAKES_REFUSAL[function] = False
+    tree = _tree_of(function)
+    if tree is not None:
+        imported, kept = _imports_in(tree), _kept_refusals(tree, function)
+        _MAKES_REFUSAL[function] = any(isinstance(node, ast.Return) and _refusals_made(node.value, function, imported, kept) is not None
+                                       for node in ast.walk(tree))
+    return _MAKES_REFUSAL[function]
+
+
+def _kept_refusals(tree: ast.AST, function: object) -> dict[str, list[str]]:
+    """The function's variables given a refusal, which a later `raise name` raises."""
+    imported: dict[str, tuple[str, str]] = _imports_in(tree)
+    kept: dict[str, list[str]] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and all(isinstance(target, ast.Name) for target in node.targets):
+            made = _refusals_made(node.value, function, imported, kept)
+            if made is not None:
+                for target in node.targets:
+                    kept[target.id] = made  # type: ignore[attr-defined]
+    return kept
+
+
+@functools.cache
+def _source_of(function: object) -> _Source:
+    found = _Source([], [], [], {})
+    tree = _tree_of(function)
+    if tree is None:
         return found
-    for node in ast.walk(ast.parse("class _:\n" + source if source[0].isspace() else source)):
-        if isinstance(node, ast.Raise) and isinstance(node.exc, ast.Call) and getattr(node.exc.func, "id", "") == "VBAUnsupportedError":
-            first = node.exc.args[0]
-            found.raised.append(str(first.value) if isinstance(first, ast.Constant) else ast.unparse(first))
-        elif isinstance(node, ast.ImportFrom) and node.module and _scanned_module(node.module):
-            found.imported.update({alias.asname or alias.name: (node.module, alias.name) for alias in node.names})
-        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+    found.imported.update(_imports_in(tree))
+    kept = _kept_refusals(tree, function)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Raise):
+            found.raised.extend(_refusals_made(node.exc, function, found.imported, kept) or [])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             found.named.append(node.func.id)
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
             if node.func.value.id == "self":
@@ -267,6 +362,10 @@ def _called(name: str, function: object, imported: dict[str, tuple[str, str]]) -
 
 def _reachable_gaps(cls: type | None, function: object, seen: set[object]) -> list[str]:
     """The gaps `function` raises or reaches: through self.x(...) on `cls`, and through plain functions anywhere in the package.
+
+    A gap is any raise of a VBAUnsupportedError or a subclass, however it is made: named in the raise, by a name bound to
+    the class or to one, by a functools.partial of the class, by a function that returns one (followed through the
+    functions it returns from), or kept in a variable first (see _refusals_made).
 
     A floor, not a count. It cannot see a method of another object, a function passed along as a callback, code the interpreter
     runs, a value turned away with some other error, or which of the gaps a given call can really arrive at."""
@@ -345,6 +444,71 @@ def _call(function: Any) -> None:
     function()
 
 
+class _PlantedRefusal(VBAUnsupportedError):
+    def __init__(self, message: str = "planted with no message") -> None:
+        super().__init__(message)
+
+
+def _planted_factory(what: str) -> VBAUnsupportedError:
+    return VBAUnsupportedError(f"{what} is not implemented")
+
+
+def _planted_factory_of_factory(what: str) -> VBAUnsupportedError:
+    return _planted_factory(what)
+
+
+def _planted_returns_itself(what: str) -> Any:
+    return _planted_returns_itself(what)
+
+
+def _planted_other_error(what: str) -> ValueError:
+    return ValueError(what)
+
+
+_PLANTED_ALIAS = VBAUnsupportedError
+_PLANTED_PARTIAL = functools.partial(VBAUnsupportedError)
+_PLANTED_INSTANCE = VBAUnsupportedError("planted as an instance")
+
+
+class _PlantedForms:
+    """Each way a refusal is raised other than by naming VBAUnsupportedError in the raise."""
+
+    def subclass(self) -> None:
+        raise _PlantedRefusal("planted as a subclass")
+
+    def helper(self) -> None:
+        raise _planted_factory("planted by a helper")
+
+    def helper_of_helper(self) -> None:
+        raise _planted_factory_of_factory("planted by a helper's helper")
+
+    def alias(self) -> None:
+        raise _PLANTED_ALIAS("planted by an alias")
+
+    def partial(self) -> None:
+        raise _PLANTED_PARTIAL("planted by a partial")
+
+    def instance(self) -> None:
+        raise _PLANTED_INSTANCE
+
+    def variable(self) -> None:
+        refusal = VBAUnsupportedError("planted in a variable")
+        raise refusal
+
+    def variable_from_helper(self) -> None:
+        refusal = _planted_factory("planted in a variable by a helper")
+        raise refusal
+
+    def bare_class(self) -> None:
+        raise _PlantedRefusal
+
+    def other_error(self) -> None:
+        raise _planted_other_error("not a refusal")
+
+    def returns_itself(self) -> None:
+        raise _planted_returns_itself("not a refusal")
+
+
 class _PlantedOther:
     def gap(self) -> None:
         raise VBAUnsupportedError("planted on another object")
@@ -400,6 +564,26 @@ def test_the_scan_finds_a_planted_gap_by_every_way_it_follows(method: str, gaps:
     assert set(_reachable_gaps(_Planted, getattr(_Planted, method), set())) == gaps
 
 
+@pytest.mark.parametrize(
+    ("method", "gaps"),
+    [
+        ("subclass", {"planted as a subclass"}),
+        ("helper", {"planted by a helper"}),
+        ("helper_of_helper", {"planted by a helper's helper"}),
+        ("alias", {"planted by an alias"}),
+        ("partial", {"planted by a partial"}),
+        ("instance", {"planted as an instance"}),
+        ("variable", {"planted in a variable"}),
+        ("variable_from_helper", {"planted in a variable by a helper"}),
+        ("bare_class", {"_PlantedRefusal"}),
+        ("other_error", set[str]()),
+        ("returns_itself", set[str]()),
+    ],
+)
+def test_the_scan_finds_a_refusal_raised_in_every_form(method: str, gaps: set[str]) -> None:
+    assert set(_reachable_gaps(_PlantedForms, getattr(_PlantedForms, method), set())) == gaps
+
+
 @pytest.mark.parametrize("method", ["on_another_object", "as_a_callback"])
 def test_the_scan_is_a_floor_and_misses_what_its_docstring_says(method: str) -> None:
     """Should these start to be found, the docstring is out of date. A row may reach a gap this way and stay VERIFIED."""
@@ -412,6 +596,8 @@ def test_the_scan_is_a_floor_and_misses_what_its_docstring_says(method: str) -> 
         ("Border", "Color", "editing a filtered sheet whose rows are hidden by default is not implemented", "a function of another module"),
         ("Range", "Style", "giving a range a Style object of another workbook is not implemented", "the class's own code"),
         ("HPageBreaks", "Count", "Automatic or partial page breaks are not implemented", "a function"),
+        ("ShapeRange", "TextFrame", "TextFrame of a ShapeRange of several shapes", "a helper that makes the refusal"),
+        ("ListObject", "Delete", "with invalid table XML", "a helper of another module that makes the refusal"),
     ],
 )
 def test_the_scan_finds_real_gaps(object_name: str, member: str, gap: str, through: str) -> None:

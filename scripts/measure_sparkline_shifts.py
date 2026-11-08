@@ -207,7 +207,14 @@ def main() -> None:
              '_e': [[kind + '+reload', edit, typed] for kind, edit in (
                  ('two', 'none - -'), ('under', 'none - -'), ('two', 'insert 2:2 auto'), ('rows', 'delete A1:D1 up'),
                  ('dates', 'delete 12:12 auto'), ('gapped', 'insert F3 down'), ('other', 'delete T!2:2 auto'),
-                 ('abs', 'insert G:G auto')) for typed in (True, False)]}
+                 ('abs', 'insert G:G auto')) for typed in (True, False)],
+             '_f': [[kind, f'{verb} {target} auto', typed] for kind in ('rows', 'cols', 'plain') for verb, targets in (
+                 ('insert', ('C9:C10', 'C10:C11', 'C8:C9', 'C11:C12', 'A10:A11', 'E9:E10', 'F2:F3', 'F3:F5', 'F4:F5',
+                             'F5:F6', 'G2:G3', 'E4:F4', 'E5:F5', 'F4:G4', 'G4:H4', 'E1:F1', 'A10:B10', 'A11:B11',
+                             'A9:B9', 'C10', 'F4', 'B10:C10', 'F1:F4', 'A10:D10')),
+                 ('delete', ('C9:C10', 'D9:D10', 'E9:E10', 'F2:F3', 'F4:F5', 'G2:G3', 'E4:F4', 'A11:B11', 'A9:B9',
+                             'G1:H1', 'C10', 'F4', 'A10:B10', 'F3:F4'))) for target in targets
+                    for typed in (True, False)]}
     cases: list[dict[str, Any]] = (json.loads(predicted.read_text('utf-8'))['cases'] if predicted.exists()
                                    else [{'call': one} for one in looks.get(stem[len('sparkline_shifts'):], CASES)])
     answers: list[str] = []

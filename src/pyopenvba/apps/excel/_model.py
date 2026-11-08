@@ -6885,18 +6885,30 @@ class Range(ExcelObject):
         return True
 
     def _pulls_up(self, area: Area, *, inserting: bool = False) -> bool:
-        """Which way a Delete with no Shift pulls cells: a range no taller than it is wide pulls them up, unless nothing
-        lies below it in its columns, and a taller one pulls them left, unless nothing lies to its right in its rows;
-        then the other way (tests/fixtures/advanced_filter_shifts_d.json, _e). A cell with only a format counts
-        (_f). ``inserting`` asks it for an Insert of a range no taller than it is wide, which pushes cells down
-        where something lies in its columns from its top row, its own cells included, and right where nothing does
-        (_g)."""
-        if area.rows <= area.columns:
-            first = area.top if inserting else area.bottom + 1
-            return any(row >= first and area.left <= column <= area.right and not cell.is_blank()
-                       for (row, column), cell in self.sheet.cells_.items())
-        return not any(column > area.right and area.top <= row <= area.bottom and not cell.is_blank()
-                       for (row, column), cell in self.sheet.cells_.items())
+        """Which way a Delete with no Shift pulls cells, or with ``inserting`` an Insert pushes them: up or down, or
+        else across. What decides is whether something lies below the range in its columns and to its right in its
+        rows -- for an Insert from its own top row and left column, its own cells included. A cell with only a
+        format counts (tests/fixtures/advanced_filter_shifts_f.json); one with only a sparkline does not
+        (sparkline_directions.json).
+
+        - A range no taller than it is wide goes up or down where something lies below it; a taller one goes
+          across where something lies to its right (advanced_filter_shifts_d.json, _e, _g).
+        - Otherwise it goes the other way where something lies that way, and where nothing lies either way a Delete
+          pulls cells left and an Insert pushes them down (sparkline_directions.json).
+        """
+        wide = area.rows <= area.columns
+        below_from, right_from = (area.top, area.left) if inserting else (area.bottom + 1, area.right + 1)
+        below = right = False
+        for (row, column), cell in self.sheet.cells_.items():
+            if below and right:
+                break
+            if not below and row >= below_from and area.left <= column <= area.right and not cell.is_blank():
+                below = True
+            if not right and column >= right_from and area.top <= row <= area.bottom and not cell.is_blank():
+                right = True
+        if wide:
+            return below or (inserting and not right)
+        return not right and (inserting or below)
 
     def _delete_lines(self) -> None:
         """Whole rows or columns deleted, the last area first, so that each goes from where it was."""
@@ -7021,7 +7033,7 @@ class Range(ExcelObject):
         if Shift is MISSING:
             # With no Shift a range taller than it is wide pushes cells right, and any other range down where
             # something lies in its columns from its top row, right where nothing does (_pulls_up).
-            down = area.rows <= area.columns and self._pulls_up(area, inserting=True)
+            down = self._pulls_up(area, inserting=True)
         else:
             # By name or by Excel's own number, 3 and 4 taking in whole rows or columns; anything else is 1004
             # (tests/fixtures/range_methods_moves.json).

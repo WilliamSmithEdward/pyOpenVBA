@@ -6865,9 +6865,18 @@ class Range(ExcelObject):
             if which not in (-4162, -4159, 1, 2) and not lines:
                 raise error(1004, refusal)
             up = which in (-4162, 2)
+        tabled = None
+        if len(self.areas) == 1 and not lines:
+            from pyopenvba.apps.excel._table_shifts import carried
+
+            # Cells of a table go as table rows or columns (_table_shifts).
+            tabled = carried(self.sheet, self.first, delete=True, vertical=up, auto=shift is MISSING,
+                             refusal="Delete method of Range class failed")
         # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
         self.sheet.book.application.clipboard = None
-        if filtered:
+        if tabled is not None:
+            tabled()
+        elif filtered:
             self._delete_filtered(up)
         elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
             self._delete_lines()
@@ -7045,6 +7054,14 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
+        from pyopenvba.apps.excel._table_shifts import carried
+
+        # Cells put in a table go in as table rows or columns (_table_shifts).
+        tabled = carried(self.sheet, area, delete=False, vertical=down, auto=Shift is MISSING, refusal=refusal)
+        if tabled is not None:
+            tabled()
+            _events.after_edit(where, calculate_first=False)
+            return True
         from pyopenvba.apps.excel._autofilter import insert_admitted
 
         insert_admitted(self.sheet, area, down=down)

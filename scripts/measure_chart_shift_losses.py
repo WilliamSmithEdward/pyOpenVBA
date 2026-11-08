@@ -194,5 +194,48 @@ def model_answer(call: list[str], folder: Path) -> tuple[str | None, object]:
     return answer, part(saved)
 
 
+def held_out(round_: str) -> list[list[str]]:
+    """Fresh edits for the round, either way: rows and columns through the chart's cells and its error bars' cells,
+    and blocks of cells with each Shift."""
+    import random
+
+    pick = random.Random('chart_shift_losses' + round_)
+    letters = 'ABCDEF'
+    found: list[list[str]] = []
+    while len(found) < 100:
+        way = pick.choice(('session', 'loaded'))
+        verb = pick.choice(('Insert', 'Delete'))
+        shape = pick.choice(('rows', 'columns', 'cells', 'cells'))
+        if shape == 'rows':
+            top = pick.randint(1, 7)
+            edit = f'd.Rows("{top}:{top + pick.randint(0, 2)}").{verb}'
+        elif shape == 'columns':
+            left = pick.randint(0, 4)
+            edit = f'd.Columns("{letters[left]}:{letters[left + pick.randint(0, 1)]}").{verb}'
+        else:
+            top, left = pick.randint(1, 6), pick.randint(0, 4)
+            bottom, right = top + pick.choice((0, 0, 1, 3)), min(5, left + pick.choice((0, 0, 1)))
+            target = f'{letters[left]}{top}:{letters[right]}{bottom}'
+            how = pick.choice(('xlShiftDown', 'xlShiftToRight') if verb == 'Insert' else ('xlShiftUp', 'xlShiftToLeft'))
+            edit = f'd.Range("{target}").{verb} {how}'
+        if [way, edit] not in found:
+            found.append([way, edit])
+    return found
+
+
+def predict(round_: str) -> None:
+    folder = Path(tempfile.mkdtemp())
+    found = []
+    for call in held_out(round_):
+        model, part_found = model_answer(call, folder)
+        found.append({'call': call, 'model': model, 'part': part_found})
+    (FIXTURES / f'chart_shift_losses{round_}_predictions.json').write_text(json.dumps({'cases': found}, indent=0),
+                                                                           encoding='utf-8', newline='\n')
+    print(len(found), 'predicted,', sum(one['model'] is None for one in found), 'refused')
+
+
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 2 and sys.argv[1] == 'predict':
+        predict(sys.argv[2])
+    else:
+        main()

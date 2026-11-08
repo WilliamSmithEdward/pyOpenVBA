@@ -450,6 +450,7 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
     match = _SHEET_DATA.search(xml)
     if match and match.group(2) != "/>":
         _read_cells(sheet, match.group(3) or "", strings, stylesheet, metadata)
+    sheet.dims.drop_redundant_formats()
     stated = re.search(r"<dimension\b[^>]*/>", xml)
     if sheet.dims.tidied or (stated is not None and _with_dimension(stated.group(0), sheet) != stated.group(0)):
         # What Excel let go of on opening the file is gone from it when Excel saves, and the

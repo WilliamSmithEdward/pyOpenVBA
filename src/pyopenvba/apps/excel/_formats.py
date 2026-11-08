@@ -1652,6 +1652,10 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         return [side for index in self._indexes() for side in found[index]]
 
     def _set_all(self, what: str, value: object) -> None:
+        # A colour set over the whole collection, whatever the colour, marks the fill applied as well: an invisible
+        # difference that keeps a cell apart from a row or column format otherwise equal to its own, and that Excel
+        # writes as applyFill (tests/fixtures/used_range.json).
+        colour = what in ("Color", "ColorIndex")
         if what == "ColorIndex" and value is not NULL and _whole(value) in (XL_NONE, -1):
             # Over the whole collection these take the lines away (tests/fixtures/format_properties.json).
             what, value = "LineStyle", XL_NONE
@@ -1659,6 +1663,8 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
             what, value = "ColorIndex", XL_AUTOMATIC
         for index in self._indexes():
             Border(self.target, index, together=True).assign(what, value)
+        if colour:
+            restyle(self.target, lambda style: S.applying(style, "fill"))
 
     @member
     def LineStyle(self) -> object:

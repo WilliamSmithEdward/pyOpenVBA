@@ -198,6 +198,8 @@ def format_columns(sheet: Worksheet, left: int, right: int, change: Change, *, c
     default = sheet.book.stylesheet.default
     styled_rows = [(row, record.style) for row, record in sheet.dims.rows.items() if record.style is not None] if crossings else []
     cells = _cells_by_column(sheet, left, right)
+    if right == MAX_COLUMNS:
+        sheet.dims.last_shared = left < MAX_COLUMNS
     for column in range(left, right + 1):
         mine = cells.get(column, {})
         for row, style in styled_rows:
@@ -215,6 +217,7 @@ def format_sheet(sheet: Worksheet, change: Change) -> None:
     """The whole sheet formatted: every column, every formatted row and every cell."""
     change = shared(change)
     default = sheet.book.stylesheet.default
+    sheet.dims.last_shared = True
     for column in range(1, MAX_COLUMNS + 1):
         _set_column(sheet, column, change(sheet.dims.column_style(column) or default))
     for row, record in list(sheet.dims.rows.items()):

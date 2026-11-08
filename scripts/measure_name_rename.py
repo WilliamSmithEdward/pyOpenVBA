@@ -16,11 +16,9 @@ written to tests/fixtures/name_rename.json.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -141,12 +139,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as held:
         rounds.books(Path(held))
         lock = _lock()
-        while True:
-            try:
-                os.mkdir(lock)
-                break
-            except FileExistsError:
-                time.sleep(10)
+        owner = rounds.take_lock(lock, 'Verification 02')
         try:
             with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
                 excel.new_document()
@@ -155,7 +148,7 @@ def main() -> None:
                         done = excel.run_vba(source(case, typed), 'One', (held,), timeout=60.0, line_numbers=False)
                         case[tag] = str(done.value) if done.ok else f'no answer: {str(done)[:300]}'
         finally:
-            os.rmdir(lock)
+            rounds.release_lock(lock, owner)
         for case in made:
             for tag, typed in (('late', False), ('typed', True)):
                 case[f'model_{tag}'] = model(case, typed, held)

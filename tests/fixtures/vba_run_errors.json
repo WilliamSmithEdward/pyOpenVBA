@@ -92,5 +92,26 @@
   "after 450",
   "trapped 7",
   "after 5"
+ ],
+ "measured_at": "2026-11-08T05:35:12.154908+00:00",
+ "excel": [
+  "after 5",
+  "trapped 5",
+  "dialog 5",
+  "dialog 5",
+  "dialog 5",
+  "no error",
+  "dialog 11",
+  "4",
+  "dialog 6",
+  "after 5",
+  "no error",
+  "dialog 7",
+  "dialog -2147220991",
+  "dialog 9",
+  "trapped 1004",
+  "after 450",
+  "trapped 7",
+  "dialog 5"
  ]
 }

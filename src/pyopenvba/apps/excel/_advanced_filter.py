@@ -8,6 +8,11 @@ an = with no wildcard by Windows' word sort, case aside; > and < in word sort's 
 wildcard pattern one character at a time by each one's key; and a plain criterion, a
 beginning, by as many of the text's first characters as it has. Headers and the records
 xlUnique compares stay within ASCII.
+
+Filtered in place, the sheet is in filter mode only where a row is hidden. It then takes inserts and deletes as one
+under an AutoFilter's criteria does (_visible): inserting cells is 1004, a delete up takes whole rows, a delete left
+the visible cells, whole rows deleted are the visible ones. The list follows its _FilterDatabase name through them
+(scripts/measure_advanced_filter_shifts.py).
 """
 from __future__ import annotations
 
@@ -25,7 +30,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_boo
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from pyopenvba.apps.excel._model import Range, Worksheet
+    from pyopenvba.apps.excel._model import NameEntry, Range, Worksheet
 
 
 def _unsupported(detail: str) -> VBAUnsupportedError:
@@ -474,7 +479,9 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
             hidden = row not in selected
             if sheet.dims.row_hidden(row) != hidden:
                 sheet.dims.hide_row(row, hidden)
-        sheet.advanced_filter = source if any(clauses) or unique else None
+        # The sheet is in filter mode only where a row is hidden: criteria or Unique that keep every row leave it
+        # out, its list name kept all the same (tests/fixtures/advanced_filter_shifts_b.json).
+        sheet.advanced_filter = source if len(rows) < source.rows - 1 else None
         sheet.filter_changed = True
         sheet.advanced_filter_changed = True
     sheet.touched()
@@ -483,6 +490,33 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
 
         visibility_changed(sheet.book)
     return True
+
+
+def edited(sheet: Worksheet, names: list[tuple[NameEntry, str]]) -> Callable[[], None]:
+    """Before an insert or delete on a sheet filtered in place: the filter's list as it will be, which follows its
+    _FilterDatabase name as every other name follows the edit (tests/fixtures/advanced_filter_shifts.json). ``names``
+    pairs each name with what it will refer to. An edit that takes the whole list away reports itself here, before
+    anything changes."""
+    from pyopenvba._a1 import parse_reference, split_sheet
+
+    if sheet.advanced_filter is None:
+        return lambda: None
+    local = (quote_sheet(sheet.name) + '!_FilterDatabase').casefold()
+    text = next((text for entry, text in names if entry.name.casefold() == local), None)
+    if text is None:
+        raise _unsupported('editing a sheet filtered in place whose list name is gone')
+    _owner, reference = split_sheet(text.lstrip('='))
+    try:
+        areas = parse_reference(reference)
+    except ValueError:
+        raise _unsupported('editing a sheet filtered in place so that its whole list goes') from None
+    if len(areas) != 1:
+        raise _unsupported('editing a sheet filtered in place so that its list is cut in two')
+
+    def commit() -> None:
+        sheet.advanced_filter = areas[0]
+
+    return commit
 
 
 def read_state(sheet: Worksheet, xml: bytes) -> None:

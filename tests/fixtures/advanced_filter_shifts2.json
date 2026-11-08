@@ -1,0 +1,1209 @@
+{
+"measured_at": "2026-11-07T21:39:25.207396+00:00",
+"source": "Private Function Named(ws As Object, ByVal name As String) As String\n    On Error Resume Next\n    Named = \"-\"\n    Named = ws.Names(name).RefersTo\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, i As Long, c As Object\n    On Error Resume Next\n    out = \"fm=\" & ws.FilterMode & \" auto=\" & ws.AutoFilterMode & \" hidden=\"\n    For i = 1 To 20\n        If ws.Rows(i).Hidden Then out = out & i & \",\"\n    Next\n    out = out & \" db=\" & Named(ws, \"_FilterDatabase\") & \" crit=\" & Named(ws, \"Criteria\") & \" ext=\" & Named(ws, \"Extract\")\n    out = out & \" cells=\"\n    For Each c In ws.Range(\"A1:D14\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" g=\"\n    For Each c In ws.Range(\"G1:H4\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" j=\"\n    For Each c In ws.Range(\"J1:L8\").Cells\n        out = out & c.Formula & \",\"\n    Next\n    out = out & \" e=\"\n    For i = 1 To 20\n        out = out & ws.Cells(i, 5).Formula & \",\"\n    Next\n    out = out & \" z=\"\n    For i = 1 To 20\n        out = out & ws.Cells(i, 26).Formula & \",\"\n    Next\n    Dump = out\nEnd Function\n\nPublic Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Object, ws As Object, wt As Worksheet, i As Long, out As String, path As String\n    Set wb = Workbooks.Add\n    Set ws = wb.Worksheets(1)\n    Set wt = ws\n    ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Num\", \"Cat\")\n    For i = 2 To 12\n        ws.Cells(i, 1).Value = \"n\" & (i - 1)\n        ws.Cells(i, 2).Value = i - 1\n        ws.Cells(i, 3).Value = Mid(\"xyz\", ((i - 2) Mod 3) + 1, 1)\n    Next\n    For i = 1 To 20\n        ws.Cells(i, 5).Value = \"e\" & i\n        ws.Cells(i, 26).Value = \"z\" & i\n    Next\n    Select Case kind\n        Case \"greater\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">5\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\")\n        Case \"or\"\n            ws.Range(\"G1:G3\").Value = Application.Transpose(Array(\"Cat\", \"x\", \"z\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G3\")\n        Case \"two\"\n            ws.Range(\"G1:H1\").Value = Array(\"Num\", \"Cat\")\n            ws.Range(\"G2:H2\").Value = Array(\">3\", \"y\")\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:H2\")\n        Case \"all\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">0\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\")\n        Case \"copy\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">5\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterCopy, ws.Range(\"G1:G2\"), ws.Range(\"J1\")\n        Case \"nomatch\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">100\"))\n            ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\")\n        Case \"distinct\": ws.Range(\"A1:C12\").AdvancedFilter xlFilterInPlace, , , True\n        Case \"repeats\": ws.Range(\"C1:C12\").AdvancedFilter xlFilterInPlace, , , True\n        Case \"allrepeats\"\n            ws.Range(\"G1:G2\").Value = Application.Transpose(Array(\"Num\", \">0\"))\n            ws.Range(\"C1:C12\").AdvancedFilter xlFilterInPlace, ws.Range(\"G1:G2\"), , True\n    End Select\n    If edit = \"none\" Then\n        Go = Dump(ws)\n        wb.Close False\n        Exit Function\n    End If\n    On Error Resume Next\n    Err.Clear\n    Dim target As String, how As String, parts() As String\n    parts = Split(edit, \" \")\n    target = parts(1)\n    how = parts(2)\n    If parts(0) = \"showall\" Then\n        If typed Then wt.ShowAllData Else ws.ShowAllData\n    ElseIf how = \"auto\" And typed Then\n        If parts(0) = \"insert\" Then wt.Range(target).Insert Else wt.Range(target).Delete\n    ElseIf how = \"auto\" Then\n        If parts(0) = \"insert\" Then ws.Range(target).Insert Else ws.Range(target).Delete\n    ElseIf typed Then\n        If parts(0) = \"insert\" Then\n            wt.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            wt.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    Else\n        If parts(0) = \"insert\" Then\n            ws.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            ws.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    End If\n    out = \"err=\" & Err.Number & \":\" & Err.Description\n    If UBound(parts) = 3 Then\n        ' \"... show\": ShowAllData after the edit.\n        Err.Clear\n        If typed Then wt.ShowAllData Else ws.ShowAllData\n        out = out & \" show=\" & Err.Number & \":\" & Err.Description\n    End If\n    out = out & \" \" & Dump(ws)\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_advanced_filter_shift.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    out = out & \" save=\" & Err.Number\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    out = out & \" ~ \" & Dump(wb.Worksheets(1))\n    wb.Close False\n    Kill path\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"all",
+"delete H11:H13 left",
+true
+],
+[
+"all",
+"delete H11:H13 left",
+false
+],
+[
+"nomatch",
+"delete H7:Z7 auto",
+true
+],
+[
+"nomatch",
+"delete H7:Z7 auto",
+false
+],
+[
+"two",
+"delete A7:A7 left",
+true
+],
+[
+"two",
+"delete A7:A7 left",
+false
+],
+[
+"copy",
+"delete C:D auto",
+true
+],
+[
+"copy",
+"delete C:D auto",
+false
+],
+[
+"two",
+"insert A11:A11 down show",
+true
+],
+[
+"two",
+"insert A11:A11 down show",
+false
+],
+[
+"copy",
+"insert C2:D4 right",
+true
+],
+[
+"copy",
+"insert C2:D4 right",
+false
+],
+[
+"nomatch",
+"delete 11:11 auto",
+true
+],
+[
+"nomatch",
+"delete 11:11 auto",
+false
+],
+[
+"or",
+"delete B18:C18 up",
+true
+],
+[
+"or",
+"delete B18:C18 up",
+false
+],
+[
+"copy",
+"delete G12:H14 auto",
+true
+],
+[
+"copy",
+"delete G12:H14 auto",
+false
+],
+[
+"nomatch",
+"delete A12:B16 up",
+true
+],
+[
+"nomatch",
+"delete A12:B16 up",
+false
+],
+[
+"two",
+"delete C5:C7 up show",
+true
+],
+[
+"two",
+"delete C5:C7 up show",
+false
+],
+[
+"repeats",
+"insert E:E auto",
+true
+],
+[
+"repeats",
+"insert E:E auto",
+false
+],
+[
+"repeats",
+"insert A7:A18 right",
+true
+],
+[
+"repeats",
+"insert A7:A18 right",
+false
+],
+[
+"all",
+"insert F13:G15 down",
+true
+],
+[
+"all",
+"insert F13:G15 down",
+false
+],
+[
+"greater",
+"delete D3:F3 auto show",
+true
+],
+[
+"greater",
+"delete D3:F3 auto show",
+false
+],
+[
+"all",
+"delete C5:E5 auto",
+true
+],
+[
+"all",
+"delete C5:E5 auto",
+false
+],
+[
+"copy",
+"delete 7:7 auto",
+true
+],
+[
+"copy",
+"delete 7:7 auto",
+false
+],
+[
+"nomatch",
+"delete A:A auto show",
+true
+],
+[
+"nomatch",
+"delete A:A auto show",
+false
+],
+[
+"or",
+"delete 5:8 auto",
+true
+],
+[
+"or",
+"delete 5:8 auto",
+false
+],
+[
+"all",
+"delete H18:H20 left",
+true
+],
+[
+"all",
+"delete H18:H20 left",
+false
+],
+[
+"all",
+"insert G3:J7 right show",
+true
+],
+[
+"all",
+"insert G3:J7 right show",
+false
+],
+[
+"all",
+"delete B1:D1 up",
+true
+],
+[
+"all",
+"delete B1:D1 up",
+false
+],
+[
+"nomatch",
+"insert C18:C22 down",
+true
+],
+[
+"nomatch",
+"insert C18:C22 down",
+false
+],
+[
+"copy",
+"delete D3:D3 left show",
+true
+],
+[
+"copy",
+"delete D3:D3 left show",
+false
+],
+[
+"two",
+"delete Z12:Z23 left",
+true
+],
+[
+"two",
+"delete Z12:Z23 left",
+false
+],
+[
+"or",
+"delete 5:6 auto",
+true
+],
+[
+"or",
+"delete 5:6 auto",
+false
+],
+[
+"greater",
+"delete C12:E14 up",
+true
+],
+[
+"greater",
+"delete C12:E14 up",
+false
+],
+[
+"greater",
+"insert J7:Z8 right show",
+true
+],
+[
+"greater",
+"insert J7:Z8 right show",
+false
+],
+[
+"copy",
+"delete J1:Z12 left",
+true
+],
+[
+"copy",
+"delete J1:Z12 left",
+false
+],
+[
+"distinct",
+"insert D2:F4 right",
+true
+],
+[
+"distinct",
+"insert D2:F4 right",
+false
+],
+[
+"repeats",
+"delete H7:J18 up",
+true
+],
+[
+"repeats",
+"delete H7:J18 up",
+false
+],
+[
+"two",
+"delete H12:J23 up",
+true
+],
+[
+"two",
+"delete H12:J23 up",
+false
+],
+[
+"all",
+"delete C2:D4 left",
+true
+],
+[
+"all",
+"delete C2:D4 left",
+false
+],
+[
+"or",
+"delete G18:J20 left",
+true
+],
+[
+"or",
+"delete G18:J20 left",
+false
+],
+[
+"nomatch",
+"delete J11:J12 auto",
+true
+],
+[
+"nomatch",
+"delete J11:J12 auto",
+false
+],
+[
+"two",
+"insert H3:H4 down",
+true
+],
+[
+"two",
+"insert H3:H4 down",
+false
+],
+[
+"distinct",
+"delete 18:19 auto",
+true
+],
+[
+"distinct",
+"delete 18:19 auto",
+false
+],
+[
+"greater",
+"delete A11:C15 left",
+true
+],
+[
+"greater",
+"delete A11:C15 left",
+false
+],
+[
+"distinct",
+"delete 7:8 auto",
+true
+],
+[
+"distinct",
+"delete 7:8 auto",
+false
+],
+[
+"distinct",
+"delete F18:F22 auto",
+true
+],
+[
+"distinct",
+"delete F18:F22 auto",
+false
+],
+[
+"nomatch",
+"delete 11:11 auto",
+true
+],
+[
+"nomatch",
+"delete 11:11 auto",
+false
+],
+[
+"copy",
+"delete G:G auto",
+true
+],
+[
+"copy",
+"delete G:G auto",
+false
+],
+[
+"repeats",
+"delete 2:2 auto show",
+true
+],
+[
+"repeats",
+"delete 2:2 auto show",
+false
+],
+[
+"copy",
+"insert C:D auto",
+true
+],
+[
+"copy",
+"insert C:D auto",
+false
+],
+[
+"greater",
+"delete J11:J11 up",
+true
+],
+[
+"greater",
+"delete J11:J11 up",
+false
+],
+[
+"repeats",
+"delete J12:J14 left show",
+true
+],
+[
+"repeats",
+"delete J12:J14 left show",
+false
+],
+[
+"greater",
+"delete 11:14 auto show",
+true
+],
+[
+"greater",
+"delete 11:14 auto show",
+false
+],
+[
+"copy",
+"delete 12:12 auto",
+true
+],
+[
+"copy",
+"delete 12:12 auto",
+false
+],
+[
+"repeats",
+"delete A:B auto show",
+true
+],
+[
+"repeats",
+"delete A:B auto show",
+false
+],
+[
+"or",
+"delete G:G auto",
+true
+],
+[
+"or",
+"delete G:G auto",
+false
+],
+[
+"or",
+"insert J:J auto",
+true
+],
+[
+"or",
+"insert J:J auto",
+false
+],
+[
+"all",
+"delete 7:10 auto",
+true
+],
+[
+"all",
+"delete 7:10 auto",
+false
+],
+[
+"nomatch",
+"delete D:D auto",
+true
+],
+[
+"nomatch",
+"delete D:D auto",
+false
+],
+[
+"or",
+"delete G11:G11 up",
+true
+],
+[
+"or",
+"delete G11:G11 up",
+false
+],
+[
+"all",
+"insert H13:H24 down",
+true
+],
+[
+"all",
+"insert H13:H24 down",
+false
+],
+[
+"copy",
+"delete D18:F19 left show",
+true
+],
+[
+"copy",
+"delete D18:F19 left show",
+false
+],
+[
+"distinct",
+"delete 18:18 auto",
+true
+],
+[
+"distinct",
+"delete 18:18 auto",
+false
+],
+[
+"two",
+"delete E:F auto show",
+true
+],
+[
+"two",
+"delete E:F auto show",
+false
+],
+[
+"two",
+"delete A:A auto",
+true
+],
+[
+"two",
+"delete A:A auto",
+false
+],
+[
+"or",
+"delete 2:2 auto",
+true
+],
+[
+"or",
+"delete 2:2 auto",
+false
+],
+[
+"copy",
+"delete E3:E3 up",
+true
+],
+[
+"copy",
+"delete E3:E3 up",
+false
+],
+[
+"distinct",
+"delete H13:Z13 auto",
+true
+],
+[
+"distinct",
+"delete H13:Z13 auto",
+false
+],
+[
+"or",
+"delete 1:1 auto",
+true
+],
+[
+"or",
+"delete 1:1 auto",
+false
+],
+[
+"distinct",
+"delete G5:H6 left",
+true
+],
+[
+"distinct",
+"delete G5:H6 left",
+false
+],
+[
+"distinct",
+"delete D7:E8 auto",
+true
+],
+[
+"distinct",
+"delete D7:E8 auto",
+false
+],
+[
+"distinct",
+"delete B13:C24 up",
+true
+],
+[
+"distinct",
+"delete B13:C24 up",
+false
+],
+[
+"repeats",
+"delete 2:2 auto",
+true
+],
+[
+"repeats",
+"delete 2:2 auto",
+false
+],
+[
+"copy",
+"delete J11:J12 auto",
+true
+],
+[
+"copy",
+"delete J11:J12 auto",
+false
+],
+[
+"copy",
+"insert E7:G7 down show",
+true
+],
+[
+"copy",
+"insert E7:G7 down show",
+false
+],
+[
+"or",
+"delete J12:J14 auto",
+true
+],
+[
+"or",
+"delete J12:J14 auto",
+false
+],
+[
+"copy",
+"delete C:C auto",
+true
+],
+[
+"copy",
+"delete C:C auto",
+false
+],
+[
+"repeats",
+"delete F13:G17 up",
+true
+],
+[
+"repeats",
+"delete F13:G17 up",
+false
+],
+[
+"nomatch",
+"delete 18:21 auto",
+true
+],
+[
+"nomatch",
+"delete 18:21 auto",
+false
+],
+[
+"or",
+"delete E18:E19 up",
+true
+],
+[
+"or",
+"delete E18:E19 up",
+false
+],
+[
+"two",
+"insert C11:D11 auto",
+true
+],
+[
+"two",
+"insert C11:D11 auto",
+false
+],
+[
+"greater",
+"insert E:E auto",
+true
+],
+[
+"greater",
+"insert E:E auto",
+false
+],
+[
+"all",
+"delete 18:19 auto show",
+true
+],
+[
+"all",
+"delete 18:19 auto show",
+false
+],
+[
+"copy",
+"delete J13:Z24 auto",
+true
+],
+[
+"copy",
+"delete J13:Z24 auto",
+false
+],
+[
+"repeats",
+"delete E1:G3 up",
+true
+],
+[
+"repeats",
+"delete E1:G3 up",
+false
+],
+[
+"nomatch",
+"delete A:A auto",
+true
+],
+[
+"nomatch",
+"delete A:A auto",
+false
+],
+[
+"or",
+"delete C1:C3 auto",
+true
+],
+[
+"or",
+"delete C1:C3 auto",
+false
+],
+[
+"greater",
+"insert G:H auto show",
+true
+],
+[
+"greater",
+"insert G:H auto show",
+false
+],
+[
+"nomatch",
+"delete H:H auto",
+true
+],
+[
+"nomatch",
+"delete H:H auto",
+false
+],
+[
+"repeats",
+"delete B13:D15 left",
+true
+],
+[
+"repeats",
+"delete B13:D15 left",
+false
+],
+[
+"or",
+"delete J7:Z9 up",
+true
+],
+[
+"or",
+"delete J7:Z9 up",
+false
+],
+[
+"distinct",
+"delete B1:C1 left",
+true
+],
+[
+"distinct",
+"delete B1:C1 left",
+false
+],
+[
+"two",
+"insert A:A auto",
+true
+],
+[
+"two",
+"insert A:A auto",
+false
+],
+[
+"all",
+"delete 7:7 auto",
+true
+],
+[
+"all",
+"delete 7:7 auto",
+false
+],
+[
+"two",
+"delete E:F auto",
+true
+],
+[
+"two",
+"delete E:F auto",
+false
+],
+[
+"copy",
+"insert C3:E3 auto",
+true
+],
+[
+"copy",
+"insert C3:E3 auto",
+false
+],
+[
+"repeats",
+"insert 18:18 auto",
+true
+],
+[
+"repeats",
+"insert 18:18 auto",
+false
+],
+[
+"all",
+"insert E11:G11 right",
+true
+],
+[
+"all",
+"insert E11:G11 right",
+false
+],
+[
+"or",
+"delete 2:5 auto",
+true
+],
+[
+"or",
+"delete 2:5 auto",
+false
+],
+[
+"copy",
+"insert C12:C14 right show",
+true
+],
+[
+"copy",
+"insert C12:C14 right show",
+false
+],
+[
+"nomatch",
+"delete J:J auto",
+true
+],
+[
+"nomatch",
+"delete J:J auto",
+false
+],
+[
+"repeats",
+"insert C5:E7 auto",
+true
+],
+[
+"repeats",
+"insert C5:E7 auto",
+false
+],
+[
+"copy",
+"delete 11:14 auto",
+true
+],
+[
+"copy",
+"delete 11:14 auto",
+false
+],
+[
+"copy",
+"delete Z1:Z1 auto",
+true
+],
+[
+"copy",
+"delete Z1:Z1 auto",
+false
+],
+[
+"nomatch",
+"insert A2:B4 right",
+true
+],
+[
+"nomatch",
+"insert A2:B4 right",
+false
+],
+[
+"copy",
+"delete Z12:Z16 auto",
+true
+],
+[
+"copy",
+"delete Z12:Z16 auto",
+false
+]
+],
+"answers": [
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,z14,z15,z16,z17,z18,z19,z20,",
+"ERROR False dialogs=1 RunResult(outcome='modal-blocked', duration_s=1.1520563999947626, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,6,z,,e7,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,6,z,,e7,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,6,z,,e7,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,6,z,,e7,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$E$1:$E$2 ext==Sheet1!$H$1:$J$1 cells=Name,Num,e1,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,e5,,n5,5,e6,,n6,6,e7,,n7,7,e8,,n8,8,e9,,n9,9,e10,,n10,10,e11,,n11,11,e12,,,,e13,,,,e14,, g=,Name,,n6,,n7,,n8, j=Cat,,,z,,,x,,,y,,,z,,,x,,,y,,,,,, e=Num,>5,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$E$1:$E$2 ext==Sheet1!$H$1:$J$1 cells=Name,Num,e1,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,e5,,n5,5,e6,,n6,6,e7,,n7,7,e8,,n8,8,e9,,n9,9,e10,,n10,10,e11,,n11,11,e12,,,,e13,,,,e14,, g=,Name,,n6,,n7,,n8, j=Cat,,,z,,,x,,,y,,,z,,,x,,,y,,,,,, e=Num,>5,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$E$1:$E$2 ext==Sheet1!$H$1:$J$1 cells=Name,Num,e1,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,e5,,n5,5,e6,,n6,6,e7,,n7,7,e8,,n8,8,e9,,n9,9,e10,,n10,10,e11,,n11,11,e12,,,,e13,,,,e14,, g=,Name,,n6,,n7,,n8, j=Cat,,,z,,,x,,,y,,,z,,,x,,,y,,,,,, e=Num,>5,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$E$1:$E$2 ext==Sheet1!$H$1:$J$1 cells=Name,Num,e1,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,e5,,n5,5,e6,,n6,6,e7,,n7,7,e8,,n8,8,e9,,n9,9,e10,,n10,10,e11,,n11,11,e12,,,,e13,,,,e14,, g=,Name,,n6,,n7,,n8, j=Cat,,,z,,,x,,,y,,,z,,,x,,,y,,,,,, e=Num,>5,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=1004:Insert method of Range class failed show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,,,n2,2,,,n3,3,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,e2,,e3,,e4,, j=Name,Num,Cat,,,n6,,,n7,,,n8,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,x,y,z,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,,,n2,2,,,n3,3,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,e2,,e3,,e4,, j=Name,Num,Cat,,,n6,,,n7,,,n8,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,x,y,z,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,,,n2,2,,,n3,3,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,e2,,e3,,e4,, j=Name,Num,Cat,,,n6,,,n7,,,n8,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,x,y,z,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,,,n2,2,,,n3,3,,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,e2,,e3,,e4,, j=Name,Num,Cat,,,n6,,,n7,,,n8,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,x,y,z,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z17,z18,z19,z20,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z17,z18,z19,z20,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z17,z18,z19,z20,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z17,z18,z19,z20,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"ERROR False dialogs=1 RunResult(outcome='modal-blocked', duration_s=1.2398184000048786, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,y,,n5,5,z,,n6,6,x,,n7,7,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,y,,n5,5,z,,n6,6,x,,n7,7,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,y,,n5,5,z,,n6,6,x,,n7,7,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,y,,n5,5,z,,n6,6,x,,n7,7,y,,n8,8,z,,n9,9,x,,n10,10,y,,n11,11,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: fm=True auto=False hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=3,5,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: show=1004:Method 'ShowAllData' of object '_Worksheet' failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,,,,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,,,,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:ShowAllData method of Worksheet class failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,,,,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,,,,,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,1,x,,n1,2,y,,n2,3,z,,n3,4,x,,n4,5,y,,n5,6,z,,n6,7,x,,n7,8,y,,n8,9,z,,n9,10,x,,n10,11,y,,n11,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,1,x,,n1,2,y,,n2,3,z,,n3,4,x,,n4,5,y,,n5,6,z,,n6,7,x,,n7,8,y,,n8,9,z,,n9,10,x,,n10,11,y,,n11,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,1,x,,n1,2,y,,n2,3,z,,n3,4,x,,n4,5,y,,n5,6,z,,n6,7,x,,n7,8,y,,n8,9,z,,n9,10,x,,n10,11,y,,n11,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,1,x,,n1,2,y,,n2,3,z,,n3,4,x,,n4,5,y,,n5,6,z,,n6,7,x,,n7,8,y,,n8,9,z,,n9,10,x,,n10,11,y,,n11,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:Method 'ShowAllData' of object '_Worksheet' failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,e3,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,7,x,,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,e3,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,7,x,,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:ShowAllData method of Worksheet class failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,e3,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,7,x,,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,e3,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,7,x,,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=3,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e15,e16,e17,e18,e19,e20,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z15,z16,z17,z18,z19,z20,,,,",
+"err=1004:Insert method of Range class failed show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!#REF! cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!#REF! cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!#REF! cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!#REF! cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,e2,,e3,,e4, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,e2,,e3,,e4, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,e2,,e3,,e4, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,e2,,e3,,e4, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e19,e20,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z19,z20,,,,,,, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e19,e20,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z19,z20,,,,,,,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e19,e20,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z19,z20,,,,,,, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e19,e20,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z19,z20,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,>0,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,>0,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,>0,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,e2,,n2,2,e3,,n3,3,e4,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,>0,,,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,,,,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"ERROR False dialogs=1 RunResult(outcome='modal-blocked', duration_s=1.1551906999957282, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,e11,,,,e12,,,,e13,,,,e14,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,,,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,e11,,,,e12,,,,e13,,,,e14,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,,,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,e11,,,,e12,,,,e13,,,,e14,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,,,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,e11,,,,e12,,,,e13,,,,e14,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,,,,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext==Sheet1!$I$1:$K$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext==Sheet1!$I$1:$K$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext==Sheet1!$I$1:$K$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext==Sheet1!$I$1:$K$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$E$12 crit==Sheet1!$I$1:$I$2 ext==Sheet1!$L$1:$N$1 cells=Name,Num,,,n1,1,,,n2,2,,,n3,3,,,n4,4,,,n5,5,,,n6,6,,,n7,7,,,n8,8,,,n9,9,,,n10,10,,,n11,11,,,,,,,,,,, g=e1,,e2,,e3,,e4,, j=,,Name,,,n6,,,n7,,,n8,,,n9,,,n10,,,n11,,,, e=Cat,x,y,z,x,y,z,x,y,z,x,y,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$E$12 crit==Sheet1!$I$1:$I$2 ext==Sheet1!$L$1:$N$1 cells=Name,Num,,,n1,1,,,n2,2,,,n3,3,,,n4,4,,,n5,5,,,n6,6,,,n7,7,,,n8,8,,,n9,9,,,n10,10,,,n11,11,,,,,,,,,,, g=e1,,e2,,e3,,e4,, j=,,Name,,,n6,,,n7,,,n8,,,n9,,,n10,,,n11,,,, e=Cat,x,y,z,x,y,z,x,y,z,x,y,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$E$12 crit==Sheet1!$I$1:$I$2 ext==Sheet1!$L$1:$N$1 cells=Name,Num,,,n1,1,,,n2,2,,,n3,3,,,n4,4,,,n5,5,,,n6,6,,,n7,7,,,n8,8,,,n9,9,,,n10,10,,,n11,11,,,,,,,,,,, g=e1,,e2,,e3,,e4,, j=,,Name,,,n6,,,n7,,,n8,,,n9,,,n10,,,n11,,,, e=Cat,x,y,z,x,y,z,x,y,z,x,y,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$E$12 crit==Sheet1!$I$1:$I$2 ext==Sheet1!$L$1:$N$1 cells=Name,Num,,,n1,1,,,n2,2,,,n3,3,,,n4,4,,,n5,5,,,n6,6,,,n7,7,,,n8,8,,,n9,9,,,n10,10,,,n11,11,,,,,,,,,,, g=e1,,e2,,e3,,e4,, j=,,Name,,,n6,,,n7,,,n8,,,n9,,,n10,,,n11,,,, e=Cat,x,y,z,x,y,z,x,y,z,x,y,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,z15,z16,z17,z18,z19,z20,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,z15,z16,z17,z18,z19,z20,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$A$12 crit=- ext=- cells=Cat,,e1,,x,,e2,,y,,e3,,z,,e4,,x,,e5,,y,,e6,,z,,e7,,x,,e8,,y,,e9,,z,,e10,,x,,e11,,y,,e12,,,,e13,,,,e14,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$A$12 crit=- ext=- cells=Cat,,e1,,x,,e2,,y,,e3,,z,,e4,,x,,e5,,y,,e6,,z,,e7,,x,,e8,,y,,e9,,z,,e10,,x,,e11,,y,,e12,,,,e13,,,,e14,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$A$12 crit=- ext=- cells=Cat,,e1,,x,,e2,,y,,e3,,z,,e4,,x,,e5,,y,,e6,,z,,e7,,x,,e8,,y,,e9,,z,,e10,,x,,e11,,y,,e12,,,,e13,,,,e14,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$A$12 crit=- ext=- cells=Cat,,e1,,x,,e2,,y,,e3,,z,,e4,,x,,e5,,y,,e6,,z,,e7,,x,,e8,,y,,e9,,z,,e10,,x,,e11,,y,,e12,,,,e13,,,,e14,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!#REF! ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$8 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$8 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$8 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$8 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Name,Num,Cat,e1,n1,1,x,e2,n2,2,y,e3,n3,3,z,e4,n4,4,x,e5,n5,5,y,e6,n6,6,z,e7,n7,7,x,e8,n8,8,y,e9,n9,9,z,e10,n10,10,x,e11,n11,11,y,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Name,Num,Cat,e1,n1,1,x,e2,n2,2,y,e3,n3,3,z,e4,n4,4,x,e5,n5,5,y,e6,n6,6,z,e7,n7,7,x,e8,n8,8,y,e9,n9,9,z,e10,n10,10,x,e11,n11,11,y,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Name,Num,Cat,e1,n1,1,x,e2,n2,2,y,e3,n3,3,z,e4,n4,4,x,e5,n5,5,y,e6,n6,6,z,e7,n7,7,x,e8,n8,8,y,e9,n9,9,z,e10,n10,10,x,e11,n11,11,y,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Name,Num,Cat,e1,n1,1,x,e2,n2,2,y,e3,n3,3,z,e4,n4,4,x,e5,n5,5,y,e6,n6,6,z,e7,n7,7,x,e8,n8,8,y,e9,n9,9,z,e10,n10,10,x,e11,n11,11,y,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=3,6,9,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=3,6,9,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=3,6,9,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n11,11,y,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:Method 'ShowAllData' of object '_Worksheet' failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,z20,",
+"err=0: show=1004:ShowAllData method of Worksheet class failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z19,z20,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$G$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=Cat,,y,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$G$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=Cat,,y,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$G$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=Cat,,y,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$G$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=Cat,,y,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=x,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=x,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=x,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=2,5,8,11, db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=x,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,,,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,,,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,,,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,,,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=4,5,6,7,8,9,10,11, db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=4,5,6,7,8,9,10,11, db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=4,5,6,7,8,9,10,11, db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=True auto=False hidden=4,5,6,7,8,9,10,11, db==Sheet1!$C$1:$C$11 crit=- ext=- cells=Name,Num,Cat,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:Method 'ShowAllData' of object '_Worksheet' failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:ShowAllData method of Worksheet class failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"ERROR False dialogs=1 RunResult(outcome='modal-blocked', duration_s=0.9997432999953162, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext==Sheet1!$I$1:$K$1 cells=Name,Num,,e1,n1,1,,e2,n2,2,,e3,n3,3,,e4,n4,4,,e5,n5,5,,e6,n6,6,,e7,n7,7,,e8,n8,8,,e9,n9,9,,e10,n10,10,,e11,n11,11,,e12,,,,e13,,,,e14, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext==Sheet1!$I$1:$K$1 cells=Name,Num,,e1,n1,1,,e2,n2,2,,e3,n3,3,,e4,n4,4,,e5,n5,5,,e6,n6,6,,e7,n7,7,,e8,n8,8,,e9,n9,9,,e10,n10,10,,e11,n11,11,,e12,,,,e13,,,,e14, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext==Sheet1!$I$1:$K$1 cells=Name,Num,,e1,n1,1,,e2,n2,2,,e3,n3,3,,e4,n4,4,,e5,n5,5,,e6,n6,6,,e7,n7,7,,e8,n8,8,,e9,n9,9,,e10,n10,10,,e11,n11,11,,e12,,,,e13,,,,e14, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext==Sheet1!$I$1:$K$1 cells=Name,Num,,e1,n1,1,,e2,n2,2,,e3,n3,3,,e4,n4,4,,e5,n5,5,,e6,n6,6,,e7,n7,7,,e8,n8,8,,e9,n9,9,,e10,n10,10,,e11,n11,11,,e12,,,,e13,,,,e14, g=,,,,,,,, j=Num,Cat,,6,z,,7,x,,8,y,,9,z,,10,x,,11,y,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e18,e19,e20,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z18,z19,z20,,,,,, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e18,e19,e20,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z18,z19,z20,,,,,,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e18,e19,e20,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z18,z19,z20,,,,,, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e18,e19,e20,,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z18,z19,z20,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,,",
+"err=0: fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,, save=0 ~ fm=True auto=False hidden=3,6,9,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,Cat,>3,y,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 crit==Sheet1!$H$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,Num,,>5,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 crit==Sheet1!$H$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,Num,,>5,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 crit==Sheet1!$H$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,Num,,>5,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6, db==Sheet1!$A$1:$C$12 crit==Sheet1!$H$1:$H$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,Num,,>5,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: show=1004:Method 'ShowAllData' of object '_Worksheet' failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,,",
+"err=0: show=1004:ShowAllData method of Worksheet class failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e20,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z20,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9, db==Sheet1!$C$1:$C$9 crit=- ext=- cells=n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9, db==Sheet1!$C$1:$C$9 crit=- ext=- cells=n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9, db==Sheet1!$C$1:$C$9 crit=- ext=- cells=n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9, db==Sheet1!$C$1:$C$9 crit=- ext=- cells=n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$B$12 crit==Sheet1!$F$1:$F$2 ext=- cells=Num,Cat,,e1,1,x,,e2,2,y,,e3,3,z,,e4,4,x,,e5,5,y,,e6,6,z,,e7,7,x,,e8,8,y,,e9,9,z,,e10,10,x,,e11,11,y,,e12,,,,e13,,,,e14, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"ERROR False dialogs=1 RunResult(outcome='modal-blocked', duration_s=1.1528633999987505, value=None, output=[], error=None, message='Blocked by a modal dialog: Excel modal dialog', dialogs=[DialogRecord(title='Excel modal dialog', message='Its controls are not Win32 buttons, so the harness cannot read or dismiss it safely",
+"err=0: fm=True auto=False hidden=1,4,7,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$1 ext=- cells=n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=z,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=True auto=False hidden=1,4,7,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$1 ext=- cells=n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=z,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$I$1:$I$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$I$1:$I$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: show=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$I$1:$I$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$I$1:$I$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,e13,,,,e14,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,e13,,,,e14,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,e13,,,,e14,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,e13,,,,e14,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,,,,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,,,,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=True auto=False hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=True auto=False hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,, save=0 ~ fm=True auto=False hidden=3,6,7,10, db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$3 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,, g=Cat,,x,,z,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,, z=z1,z2,z3,z4,z5,z6,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,,e1,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,,e1,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,,e1,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit=- ext=- cells=Name,,e1,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$B$1:$D$12 crit==Sheet1!$H$1:$I$2 ext=- cells=,Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,, g=,Num,,>3,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$B$1:$D$12 crit==Sheet1!$H$1:$I$2 ext=- cells=,Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,, g=,Num,,>3,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$B$1:$D$12 crit==Sheet1!$H$1:$I$2 ext=- cells=,Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,, g=,Num,,>3,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$B$1:$D$12 crit==Sheet1!$H$1:$I$2 ext=- cells=,Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,, g=,Num,,>3,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=,,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$11 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,, z=z1,z2,z3,z4,z5,z6,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,7,8,10,11, db==Sheet1!$A$1:$C$12 crit==Sheet1!$E$1:$F$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=Num,>3,,,,,,,,,,,,,,,,,,, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,,,n3,3,y,,n4,4,z,,n5,5,x,,n6,6,y,,n7,7,z,,n8,8,x,,n9,9,y,,n10,10,z,,n11,11,x,,,,y,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,,,n3,3,y,,n4,4,z,,n5,5,x,,n6,6,y,,n7,7,z,,n8,8,x,,n9,9,y,,n10,10,z,,n11,11,x,,,,y,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,,,n3,3,y,,n4,4,z,,n5,5,x,,n6,6,y,,n7,7,z,,n8,8,x,,n9,9,y,,n10,10,z,,n11,11,x,,,,y,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,,,n3,3,y,,n4,4,z,,n5,5,x,,n6,6,y,,n7,7,z,,n8,8,x,,n9,9,y,,n10,10,z,,n11,11,x,,,,y,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,z18,z19, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,z18,z19,",
+"err=0: fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,z18,z19, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,,e18,e19, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,,z18,z19,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>0,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z3,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=2,3,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z3,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: fm=True auto=False hidden=2,3,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z3,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,, save=0 ~ fm=True auto=False hidden=2,3,6,9, db==Sheet1!$A$1:$C$9 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n2,2,y,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,,,,,,,,,,,,,, g=Cat,,z,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e3,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,,,, z=z1,z3,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,,,",
+"err=0: show=1004:Method 'ShowAllData' of object '_Worksheet' failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,,y,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,,y,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20,",
+"err=0: show=1004:ShowAllData method of Worksheet class failed fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,,y,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,,y,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,,,,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,,,,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=0: fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=,,,,,,,,,,,,,,,,,,,,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=5,6,7,8,9,10,11,12, db==Sheet1!$C$1:$C$12 crit=- ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=,,,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$10 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,,,,,,,,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e15,e16,e17,e18,e19,e20,,,,, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z15,z16,z17,z18,z19,z20,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=1004:Insert method of Range class failed fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20, save=0 ~ fm=True auto=False hidden=2,3,4,5,6,7,8,9,10,11,12, db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext=- cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>100,,,,,, j=,,,,,,,,,,,,,,,,,,,,,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z12,z13,z14,z15,z16,z17,z18,z19,z20,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,",
+"err=0: fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,, save=0 ~ fm=False auto=False hidden= db==Sheet1!$A$1:$C$12 crit==Sheet1!$G$1:$G$2 ext==Sheet1!$J$1:$L$1 cells=Name,Num,Cat,,n1,1,x,,n2,2,y,,n3,3,z,,n4,4,x,,n5,5,y,,n6,6,z,,n7,7,x,,n8,8,y,,n9,9,z,,n10,10,x,,n11,11,y,,,,,,,,,, g=Num,,>5,,,,,, j=Name,Num,Cat,n6,6,z,n7,7,x,n8,8,y,n9,9,z,n10,10,x,n11,11,y,,,, e=e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20, z=z1,z2,z3,z4,z5,z6,z7,z8,z9,z10,z11,z17,z18,z19,z20,,,,,,"
+],
+"crashes": []
+}

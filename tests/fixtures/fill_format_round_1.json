@@ -1,0 +1,1326 @@
+{
+ "reads": [
+  "f.Visible",
+  "f.Type",
+  "f.ForeColor.RGB",
+  "f.BackColor.RGB",
+  "f.Transparency",
+  "f.Pattern",
+  "f.GradientStyle",
+  "f.GradientVariant",
+  "f.GradientColorType",
+  "f.GradientAngle",
+  "f.RotateWithObject",
+  "f.GradientStops.Count",
+  "f.TextureAlignment",
+  "f.TextureHorizontalScale",
+  "f.TextureVerticalScale",
+  "f.TextureOffsetX",
+  "f.TextureOffsetY",
+  "f.TextureTile",
+  "f.TextureName",
+  "f.TextureType",
+  "f.PresetTexture",
+  "f.PictureEffects.Count"
+ ],
+ "cases": [
+  [
+   "oval",
+   "",
+   false
+  ],
+  [
+   "oval",
+   "f.Solid",
+   false
+  ],
+  [
+   "oval",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   false
+  ],
+  [
+   "oval",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   false
+  ],
+  [
+   "oval",
+   "f.Transparency = 0.25",
+   false
+  ],
+  [
+   "oval",
+   "f.Visible = msoFalse",
+   false
+  ],
+  [
+   "oval",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   false
+  ],
+  [
+   "oval",
+   "f.Patterned msoPatternDarkVertical",
+   false
+  ],
+  [
+   "oval",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   false
+  ],
+  [
+   "oval",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   false
+  ],
+  [
+   "oval",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   false
+  ],
+  [
+   "oval",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   false
+  ],
+  [
+   "oval",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureOffsetX = 5",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureHorizontalScale = 2",
+   false
+  ],
+  [
+   "oval",
+   "f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "oval",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "round",
+   "",
+   false
+  ],
+  [
+   "round",
+   "f.Solid",
+   false
+  ],
+  [
+   "round",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   false
+  ],
+  [
+   "round",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   false
+  ],
+  [
+   "round",
+   "f.Transparency = 0.25",
+   false
+  ],
+  [
+   "round",
+   "f.Visible = msoFalse",
+   false
+  ],
+  [
+   "round",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   false
+  ],
+  [
+   "round",
+   "f.Patterned msoPatternDarkVertical",
+   false
+  ],
+  [
+   "round",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   false
+  ],
+  [
+   "round",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   false
+  ],
+  [
+   "round",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   false
+  ],
+  [
+   "round",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   false
+  ],
+  [
+   "round",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   false
+  ],
+  [
+   "round",
+   "f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "round",
+   "f.TextureOffsetX = 5",
+   false
+  ],
+  [
+   "round",
+   "f.TextureHorizontalScale = 2",
+   false
+  ],
+  [
+   "round",
+   "f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "round",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "text",
+   "",
+   false
+  ],
+  [
+   "text",
+   "f.Solid",
+   false
+  ],
+  [
+   "text",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   false
+  ],
+  [
+   "text",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   false
+  ],
+  [
+   "text",
+   "f.Transparency = 0.25",
+   false
+  ],
+  [
+   "text",
+   "f.Visible = msoFalse",
+   false
+  ],
+  [
+   "text",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   false
+  ],
+  [
+   "text",
+   "f.Patterned msoPatternDarkVertical",
+   false
+  ],
+  [
+   "text",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   false
+  ],
+  [
+   "text",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   false
+  ],
+  [
+   "text",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   false
+  ],
+  [
+   "text",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   false
+  ],
+  [
+   "text",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   false
+  ],
+  [
+   "text",
+   "f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "text",
+   "f.TextureOffsetX = 5",
+   false
+  ],
+  [
+   "text",
+   "f.TextureHorizontalScale = 2",
+   false
+  ],
+  [
+   "text",
+   "f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "text",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "line",
+   "",
+   false
+  ],
+  [
+   "line",
+   "f.Solid",
+   false
+  ],
+  [
+   "line",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   false
+  ],
+  [
+   "line",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   false
+  ],
+  [
+   "line",
+   "f.Transparency = 0.25",
+   false
+  ],
+  [
+   "line",
+   "f.Visible = msoFalse",
+   false
+  ],
+  [
+   "line",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   false
+  ],
+  [
+   "line",
+   "f.Patterned msoPatternDarkVertical",
+   false
+  ],
+  [
+   "line",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   false
+  ],
+  [
+   "line",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   false
+  ],
+  [
+   "line",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   false
+  ],
+  [
+   "line",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   false
+  ],
+  [
+   "line",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   false
+  ],
+  [
+   "line",
+   "f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "line",
+   "f.TextureOffsetX = 5",
+   false
+  ],
+  [
+   "line",
+   "f.TextureHorizontalScale = 2",
+   false
+  ],
+  [
+   "line",
+   "f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "line",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "oval",
+   "",
+   true
+  ],
+  [
+   "oval",
+   "f.Solid",
+   true
+  ],
+  [
+   "oval",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   true
+  ],
+  [
+   "oval",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   true
+  ],
+  [
+   "oval",
+   "f.Transparency = 0.25",
+   true
+  ],
+  [
+   "oval",
+   "f.Visible = msoFalse",
+   true
+  ],
+  [
+   "oval",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   true
+  ],
+  [
+   "oval",
+   "f.Patterned msoPatternDarkVertical",
+   true
+  ],
+  [
+   "oval",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   true
+  ],
+  [
+   "oval",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   true
+  ],
+  [
+   "oval",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   true
+  ],
+  [
+   "oval",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   true
+  ],
+  [
+   "oval",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureOffsetX = 5",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureHorizontalScale = 2",
+   true
+  ],
+  [
+   "oval",
+   "f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "oval",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "round",
+   "",
+   true
+  ],
+  [
+   "round",
+   "f.Solid",
+   true
+  ],
+  [
+   "round",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   true
+  ],
+  [
+   "round",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   true
+  ],
+  [
+   "round",
+   "f.Transparency = 0.25",
+   true
+  ],
+  [
+   "round",
+   "f.Visible = msoFalse",
+   true
+  ],
+  [
+   "round",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   true
+  ],
+  [
+   "round",
+   "f.Patterned msoPatternDarkVertical",
+   true
+  ],
+  [
+   "round",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   true
+  ],
+  [
+   "round",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   true
+  ],
+  [
+   "round",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   true
+  ],
+  [
+   "round",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   true
+  ],
+  [
+   "round",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   true
+  ],
+  [
+   "round",
+   "f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "round",
+   "f.TextureOffsetX = 5",
+   true
+  ],
+  [
+   "round",
+   "f.TextureHorizontalScale = 2",
+   true
+  ],
+  [
+   "round",
+   "f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "round",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "text",
+   "",
+   true
+  ],
+  [
+   "text",
+   "f.Solid",
+   true
+  ],
+  [
+   "text",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   true
+  ],
+  [
+   "text",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   true
+  ],
+  [
+   "text",
+   "f.Transparency = 0.25",
+   true
+  ],
+  [
+   "text",
+   "f.Visible = msoFalse",
+   true
+  ],
+  [
+   "text",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   true
+  ],
+  [
+   "text",
+   "f.Patterned msoPatternDarkVertical",
+   true
+  ],
+  [
+   "text",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   true
+  ],
+  [
+   "text",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   true
+  ],
+  [
+   "text",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   true
+  ],
+  [
+   "text",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   true
+  ],
+  [
+   "text",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   true
+  ],
+  [
+   "text",
+   "f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "text",
+   "f.TextureOffsetX = 5",
+   true
+  ],
+  [
+   "text",
+   "f.TextureHorizontalScale = 2",
+   true
+  ],
+  [
+   "text",
+   "f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "text",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "line",
+   "",
+   true
+  ],
+  [
+   "line",
+   "f.Solid",
+   true
+  ],
+  [
+   "line",
+   "f.ForeColor.RGB = RGB(10, 200, 30)",
+   true
+  ],
+  [
+   "line",
+   "f.Solid: f.BackColor.RGB = RGB(5, 6, 7)",
+   true
+  ],
+  [
+   "line",
+   "f.Transparency = 0.25",
+   true
+  ],
+  [
+   "line",
+   "f.Visible = msoFalse",
+   true
+  ],
+  [
+   "line",
+   "f.Visible = msoFalse: f.Visible = msoTrue",
+   true
+  ],
+  [
+   "line",
+   "f.Patterned msoPatternDarkVertical",
+   true
+  ],
+  [
+   "line",
+   "f.TwoColorGradient msoGradientDiagonalUp, 2",
+   true
+  ],
+  [
+   "line",
+   "f.OneColorGradient msoGradientHorizontal, 1, 0.3",
+   true
+  ],
+  [
+   "line",
+   "f.PresetGradient msoGradientVertical, 3, msoGradientFire",
+   true
+  ],
+  [
+   "line",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.GradientAngle = 33",
+   true
+  ],
+  [
+   "line",
+   "f.TwoColorGradient msoGradientHorizontal, 1: f.RotateWithObject = msoFalse",
+   true
+  ],
+  [
+   "line",
+   "f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "line",
+   "f.TextureOffsetX = 5",
+   true
+  ],
+  [
+   "line",
+   "f.TextureHorizontalScale = 2",
+   true
+  ],
+  [
+   "line",
+   "f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "line",
+   "f.Patterned 5: f.TextureTile = msoFalse",
+   true
+  ]
+ ],
+ "model": [
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147467259|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:8544277|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:8544277|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:8544277|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:2|rLong:8544277|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"accent1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:2017290|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:2017290|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0AC81E\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0.25|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0.25|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"><a:alpha val=\"75000\"/></a:schemeClr></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:0|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:1|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|Long:-1|Long:2|Long:16777215|Long:16777215|Single:0|Long:14|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:-1|rLong:2|rLong:16777215|rLong:16777215|rSingle:0|rLong:14|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:pattFill prst=\"dkVert\"><a:fgClr><a:schemeClr val=\"lt1\"/></a:fgClr><a:bgClr><a:srgbClr val=\"FFFFFF\"/></a:bgClr></a:pattFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147467259|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ]
+ ]
+}

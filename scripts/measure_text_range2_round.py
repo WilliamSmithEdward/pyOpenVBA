@@ -58,7 +58,21 @@ STATEMENTS_2 = ['v = tr.Find("zzz") Is Nothing', 'v = tr.Find("zzz").Text', 'v =
                 'v = tr.InsertSymbol("Arial", 65).Font.Name', 'v = tr.Characters(2, 2).InsertSymbol("Symbol", 66).Start',
                 'v = tr.InsertSymbol("Arial", 200).Text', 'tr.Select: v = TypeName(Selection)', 'tr.RtlRun: v = tr.ParagraphFormat.TextDirection',
                 'tr.LtrRun: v = tr.ParagraphFormat.TextDirection', 'v = tr.MathZones(1).Text']
-ROUNDS = {1: (TEXTS, READS, STATEMENTS, OUT), 2: (TEXTS_2, READS_2, STATEMENTS_2, OUT.with_name('text_range2_round_2.json'))}
+#: Round 3, held out on the code rounds 1 and 2 built, on new texts and arguments.
+TEXTS_3 = [('"The cat sat. on the mat" & vbCr & "a-b c\'d"', (5, 3)), ('"  hi" & vbCr & "there."', None), ('"ABC def GHI"', (5, 3)),
+           ('"q? r! s."', None)]
+READS_3 = ['tr.Words.Count', 'tr.Words(1).Text', 'tr.Words(2).Start', 'tr.Sentences.Count', 'tr.Paragraphs(2).Text', 'tr.Runs.Count']
+STATEMENTS_3 = ['tr.ChangeCase msoCaseSentence', 'tr.ChangeCase msoCaseLower', 'tr.ChangeCase msoCaseUpper', 'tr.ChangeCase msoCaseTitle',
+                'tr.ChangeCase msoCaseToggle', 'tr.Characters(3, 5).ChangeCase msoCaseTitle', 'tr.Characters(1, 3).ChangeCase msoCaseLower',
+                'v = tr.TrimText.Text', 'v = tr.Characters(1, 4).TrimText.Length', 'tr.AddPeriods', 'tr.RemovePeriods', 'v = tr.Find("a").Start',
+                'v = tr.Find("A", MatchCase:=msoTrue).Start', 'v = tr.Find("e", After:=3).Start', 'v = tr.Find("cat", WholeWords:=msoTrue).Start',
+                'v = tr.Characters(5, 3).Find("t").Start', 'v = tr.Find("q").Length', 'v = tr.Replace("a", "@").Start',
+                'v = tr.Replace("the", "THE", MatchCase:=msoTrue) Is Nothing', 'v = tr.Characters(2, 6).Replace("e", "3").Text',
+                'v = tr.InsertSymbol("Arial", 169).Text', 'v = tr.InsertSymbol("Calibri", 8364, msoTrue).Text',
+                'v = tr.Characters(1, 1).InsertSymbol("Arial", 66).Font.Name', 'v = tr.MathZones.Count', 'tr.Select: v = TypeName(Selection)',
+                'tr.RtlRun: v = tr.ParagraphFormat.TextDirection']
+ROUNDS = {1: (TEXTS, READS, STATEMENTS, OUT), 2: (TEXTS_2, READS_2, STATEMENTS_2, OUT.with_name('text_range2_round_2.json')),
+          3: (TEXTS_3, READS_3, STATEMENTS_3, OUT.with_name('text_range2_round_3.json'))}
 ROUND = 1
 
 

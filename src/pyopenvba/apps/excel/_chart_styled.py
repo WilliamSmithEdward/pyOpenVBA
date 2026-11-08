@@ -374,12 +374,11 @@ _POINT_FONT = re.compile(r'<a:pPr><a:defRPr\b(?:[^>]*?/>|.*?</a:defRPr>)</a:pPr>
 
 def _font_of(spelled: str) -> TextLook | None:
     """What a written paragraph's default run sets, read as a file's reader reads it."""
-    import xml.etree.ElementTree as ET
-
     from pyopenvba.apps.excel._chart_fonts import read_look
+    from pyopenvba.apps.excel._charts_file import xml_tree
 
     spaces = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
-    return read_look(ET.fromstring(f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p>{spelled}</a:p></c:txPr></c:x>'),
+    return read_look(xml_tree(f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p>{spelled}</a:p></c:txPr></c:x>'),
                      spaces)
 
 
@@ -682,14 +681,13 @@ def _font_entry(key: str) -> str:
 def style_font(style: int, key: str) -> TextLook | None:
     """The font the style writes out for the element's text, as a file's reader reads it: a loaded font equal to it is the
     style's, not one of the element's own (tests/fixtures/loaded_chart_styled_edits.json)."""
-    import xml.etree.ElementTree as ET
-
     from pyopenvba.apps.excel._chart_fonts import read_look
+    from pyopenvba.apps.excel._charts_file import xml_tree
 
     spaces = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
     written = (f'<c:x xmlns:c="{spaces["c"]}" xmlns:a="{spaces["a"]}"><c:txPr><a:p><a:pPr>'
                f'{_paragraph_font(style, _font_entry(key), None)}</a:pPr></a:p></c:txPr></c:x>')
-    return read_look(ET.fromstring(written), spaces)
+    return read_look(xml_tree(written), spaces)
 
 
 def font_read(style: int, key: str, theme: tuple[str, ...]) -> tuple[float, bool, str]:

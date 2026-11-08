@@ -1257,9 +1257,13 @@ def read_trendlines(series: ET.Element, ns: dict[str, str]) -> list[TrendlineSta
 
 def _bar_values(sheet: Worksheet, element: str, given: tuple[str, list[object]]) -> str:
     """A custom error bar's plus or minus element: a reference with its values cached, or the values given as a
-    literal, which markup's last step spells (tests/fixtures/chart_error_bars.json)."""
+    literal, which markup's last step spells (tests/fixtures/chart_error_bars.json). One whose cells went caches one
+    point of 1, as a series' values do (tests/fixtures/chart_shift_losses.json)."""
     formula, values = given
-    cached = [_number(value) for value in (referenced_values(sheet, formula) if formula else values)]
+    if formula and lost(formula):
+        cached: list[float | None] = [1.0]
+    else:
+        cached = [_number(value) for value in (referenced_values(sheet, formula) if formula else values)]
     return (f'<c:{element}><c:numRef><c:f>{escape_text(formula)}</c:f>'
             f'{cache_markup(cached, numeric=True, code=source_format(sheet, formula))}</c:numRef></c:{element}>')
 

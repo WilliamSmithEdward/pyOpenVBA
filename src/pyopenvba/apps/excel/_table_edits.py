@@ -98,7 +98,11 @@ def delete_row(table: Table, index: int) -> None:
     row = area.top + table.headers + index - 1
     gone = Area(row, area.left, row, area.right, sheet.name)
     table.area = Area(area.top, area.left, area.bottom - 1, area.right)
-    shift_cells(Range(sheet, [gone]), gone, delete=True, vertical=True, through=table)
+    try:
+        shift_cells(Range(sheet, [gone]), gone, delete=True, vertical=True, through=table)
+    except BaseException:
+        table.area = area
+        raise
     _changed(table)
 
 
@@ -223,7 +227,13 @@ def delete_column(table: Table, index: int) -> None:
     band = Area(area.top, column, area.bottom, column, sheet.name)
     table.area = Area(area.top, area.left, area.bottom, area.right - 1)
     del table.columns[index - 1]
-    shift_cells(Range(sheet, [band]), band, delete=True, vertical=False, through=table)
+    try:
+        shift_cells(Range(sheet, [band]), band, delete=True, vertical=False, through=table)
+    except BaseException:
+        # A shift Excel refuses leaves the table as it was (tests/fixtures/table_shifts1.json).
+        table.area = area
+        table.columns.insert(index - 1, gone)
+        raise
     _lose_columns(table, {gone.name.lower()})
     _changed(table)
 

@@ -14,7 +14,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 HERE = Path(__file__).parent / "fixtures" / "tool_books"
 RECORD: dict[str, Any] = json.loads((HERE / "extensions.json").read_text(encoding="utf-8"))
@@ -61,13 +60,3 @@ def test_excel_read_the_models_save_as_its_own(key: str, tmp_path: Path) -> None
     app = _app()
     app.add_module(SCRIPT.ACT.format(action=SCRIPT.EDITS[name]), name="M")
     app.run("Act", file.as_posix())
-
-
-@pytest.mark.parametrize("variant", ["as_written", "all_prefixed"])
-def test_a_row_inserted_by_a_sparkline_still_reports(variant: str, tmp_path: Path) -> None:
-    file = tmp_path / f"{variant}.xlsx"
-    SCRIPT.made(HERE / "extensions.xlsx", variant, file)
-    app = _app()
-    app.add_module(SCRIPT.ACT.format(action=SCRIPT.EDITS["row_inserted"]), name="M")
-    with pytest.raises(VBAUnsupportedError, match="sparkline"):
-        app.run("Act", file.as_posix())

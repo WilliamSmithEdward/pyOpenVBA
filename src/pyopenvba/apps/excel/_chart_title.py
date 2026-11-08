@@ -66,7 +66,7 @@ class TitleCharacters(Created):
     def _replace(self, text: str) -> None:
         begin, end = self._span()
         whole = self._whole()
-        self.title.vba_set('Text', whole[:begin] + text + whole[end:])
+        self.title.set_text(whole[:begin] + text + whole[end:])
 
     @member
     def Parent(self) -> object:
@@ -135,6 +135,11 @@ class TitleMembers(Created):
 
     def _text(self, value: object) -> None:
         raise NotImplementedError
+
+    def set_text(self, value: object) -> None:
+        """Its text as Formula, Characters and ChartWizard set it: empty text leaves the title with none, where Text set
+        from VBA can take a chart's title away (tests/fixtures/chart_title.json, tests/fixtures/chart_layouts.json)."""
+        self._text(value)
 
     def Text(self) -> object:  # noqa: N802 - the owner's VBA member
         raise NotImplementedError
@@ -314,8 +319,13 @@ def title_element(look: TitleLook, *, text: str | None, linked_text: str = '', f
     formatted = look.rotation is not None or bool(settings) or font is not None
     properties = ''
     if text is not None:
-        run = f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(text)}</a:t></a:r>' if text else '<a:endParaRPr lang="en-US"/>'
-        source = f'<c:tx><c:rich>{body}<a:lstStyle/><a:p>{paragraph}{run}</a:p></c:rich></c:tx>'
+        # A carriage return starts a paragraph, plain after the first, and a line feed is a line break written CRLF
+        # (tests/fixtures/loaded_chart_styled_edits.json, tests/fixtures/loaded_chart_edits.json).
+        lines = [line.replace('\n', '\r\n') for line in text.split('\r')]
+        runs = [f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(line)}</a:t></a:r>' if line else '<a:endParaRPr lang="en-US"/>'
+                for line in lines]
+        paragraphs = f'<a:p>{paragraph}{runs[0]}</a:p>' + ''.join(f'<a:p><a:pPr><a:defRPr/></a:pPr>{run}</a:p>' for run in runs[1:])
+        source = f'<c:tx><c:rich>{body}<a:lstStyle/>{paragraphs}</c:rich></c:tx>'
     else:
         source = ''
         if look.formula:

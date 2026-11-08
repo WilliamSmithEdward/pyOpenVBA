@@ -171,9 +171,33 @@ class SeriesState:
     own_type: int | None = None
     axis_group: int = 1
 
+
+class KeptSource:
+    """The cells a chart was last given to plot and how: at their address, which inserts and cuts since do not move, and
+    the PlotBy it was given (tests/fixtures/charts_add.json). A copy of the chart shares it rather than copies it."""
+
+    __slots__ = ("sheet", "areas", "plot_by")
+
+    def __init__(self, source: Range, plot_by: object) -> None:
+        self.sheet, self.areas, self.plot_by = source.sheet, list(source.areas), plot_by
+
+    def range(self) -> Range:
+        from pyopenvba.apps.excel._model import Range
+
+        if not any(sheet is self.sheet for sheet in self.sheet.book.sheets_):
+            raise VBAUnsupportedError("Plotting again the cells of a sheet that is gone is not implemented")
+        return Range(self.sheet, list(self.areas))
+
+    def __deepcopy__(self, memo: dict[int, object]) -> KeptSource:
+        return self
+
+
 @dataclass
 class ChartState:
     chart_type: int = 51
+    #: What SetSourceData was last given, whatever became of the series since: Charts.Add plots it again while the chart is active
+    #: (tests/fixtures/charts_add.json).
+    source: KeptSource | None = field(default=None, compare=False, repr=False)
     #: A combo chart's secondary axes, its groups' own settings, and the order ChartType left its series in (see _chart_combos).
     secondary_axes: dict[int, Any] = field(default_factory=lambda: {})
     group_settings: dict[tuple[int, str], dict[str, object]] = field(default_factory=lambda: {})
@@ -516,7 +540,12 @@ def category_levels(sheet: Worksheet, entry: SeriesState) -> list[list[str]] | N
     if height == 1 or width == 1:
         return None
     points = len(referenced_values(sheet, entry.value_reference)) if entry.value_reference else len(entry.values)
-    down = height == points if (height == points) != (width == points) else height >= width
+    if (height == points) != (width == points):
+        down = height == points
+    else:
+        # Both sides as long as the values: along the values where they run across a row (tests/fixtures/charts_add.json).
+        values = parse_reference(entry.value_reference) if entry.value_reference else []
+        down = not (len(values) == 1 and values[0].top == values[0].bottom and values[0].left < values[0].right) and height >= width
     if (width if down else height) == 1:
         return None
     grid = shown_cells(sheet, entry.category_reference)
@@ -760,7 +789,7 @@ def add_chart(sheet: Worksheet, style: object, kind: object, place: tuple[object
     fresh = ChartState(unique_base=base, next_unique=base, chart_type=wanted, chart_style=chosen)
     sheet.chart_states[shape.shape_id] = fresh
     chart = Chart(sheet, shape)
-    source = _picked_up(sheet)
+    source = picked_up(sheet)
     if settled:
         _set_out(chart, settled)
         if source is None and fresh.style_labels:
@@ -840,7 +869,7 @@ def _whole(value: object, otherwise: int) -> int:
         return otherwise
 
 
-def _picked_up(sheet: Worksheet) -> Range | None:
+def picked_up(sheet: Worksheet) -> Range | None:
     """The cells a new chart takes for its data: those selected, or a single cell's region, on the sheet it goes on."""
     from pyopenvba.apps.excel._model import Range
     from pyopenvba.apps.excel._region import current_region
@@ -3052,6 +3081,7 @@ class Chart(ElementProperties, HeldPart):
         if self.state.original and len(series_plan) > len(before):
             raise VBAUnsupportedError('SetSourceData giving an imported chart more series is not implemented')
         self.state.plot_by = orientation
+        self.state.source = KeptSource(Source, orientation)
         self.state.labels_data_dropped = self.state.labels_data_dropped or dropped
         for index, series in enumerate(series_plan):
             series.unique = self.state.unique_base + index

@@ -2552,11 +2552,13 @@ class Workbook(ExcelObject):
     @member
     def Charts(self, Index: object = MISSING) -> object:
         """The chart sheets (see _chart_sheets); of a workbook with none, an empty collection
-        (tests/fixtures/empty_collections.json)."""
-        if not self.chart_sheets:
-            return self._empty("Charts", Index)
-        from pyopenvba.apps.excel._chart_sheets import ChartSheets
+        (tests/fixtures/empty_collections.json), whose Add makes one."""
+        from pyopenvba.apps.excel._chart_sheets import ChartSheets, EmptyCharts
 
+        if not self.chart_sheets:
+            held = self.held_kinds.union(*(sheet.held_kinds for sheet in self.sheets_))
+            empty = EmptyCharts(self, self, "Charts", held)
+            return empty if Index is MISSING else empty.vba_get("Item", [Index])
         found = ChartSheets(self)
         return found if Index is MISSING else found.vba_get("Item", [Index])
 
@@ -3540,7 +3542,14 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
         if len(self.book.selected()) > 1:
             # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
             raise error(1004, "Add method of Sheets class failed")
-        count = _sheets_to_add(Count)
+        if Type is not MISSING and to_integer(Type, "Long") == -4109:
+            # Sheets.Add makes a chart sheet, and Worksheets.Add refuses to (tests/fixtures/charts_add.json).
+            if self.worksheets:
+                raise error(1004, "Add method of Sheets class failed")
+            from pyopenvba.apps.excel._chart_sheets import add_chart_sheets
+
+            return add_chart_sheets(self.book, Before, After, Count)
+        count = sheets_to_add(Count)
         if Type is not MISSING and to_integer(Type, "Long") != -4167:
             raise VBAUnsupportedError("Worksheets.Add supports worksheet Type only")
         at: int | None = None
@@ -8884,7 +8893,7 @@ class _BookNames:
         return spellings.setdefault(name.lower(), name)
 
 
-def _sheets_to_add(count: object) -> int:
+def sheets_to_add(count: object) -> int:
     """Sheets.Add's Count: 1 to 255 with any fraction cut, True as 1 and Null as left out, and anything else 1004 before a sheet is
     added, where a macro's huge number must cost nothing (tests/fixtures/excel_huge_numbers.json)."""
     if count is MISSING or count is NULL or count is True:

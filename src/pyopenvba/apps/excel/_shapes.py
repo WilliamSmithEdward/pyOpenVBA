@@ -4025,10 +4025,11 @@ ShapeFont2.mixed = {
     "Kerning": (("font_kern",), lambda _: _MIXED_SINGLE),
     "Equalize": (("font_normalize",), lambda _: VBAInt(-2, "Long")),
 }
-#: What Words can read here: plain text in ASCII, with no space at its start and no @, whose rules are not worked out. A word holds
-#: an apostrophe or hyphen inside it, and a number its point and commas; marks run together; each takes the spaces after it
-#: (tests/fixtures/loaded_shape_foreign.json).
-_WORD = re.compile(r"[A-Za-z0-9]+(?:['-][A-Za-z0-9]+|(?<=[0-9])[.,][0-9]+)* *|[!-&(-,./:;<=>?\[-`{-~'-]+ *")
+#: What Words can read here: plain text in ASCII, with no space at the start of a paragraph after the first and no @, whose rules are
+#: not worked out. A word holds an apostrophe or hyphen inside it, and a number its point and commas; marks run together; each takes
+#: the spaces after it (tests/fixtures/loaded_shape_foreign.json); two spaces the text starts with are a word of their own
+#: (tests/fixtures/text_range2_round.json).
+_WORD = re.compile(r"\A  (?! )|[A-Za-z0-9]+(?:['-][A-Za-z0-9]+|(?<=[0-9])[.,][0-9]+)* *|[!-&(-,./:;<=>?\[-`{-~'-]+ *")
 #: A sentence runs to the end of its paragraph, or to a stop with a space after it, which it takes.
 _SENTENCE = re.compile(r"[^\n]*?(?:[.!?]+ +|\n)|[^\n]+$")
 
@@ -4070,6 +4071,8 @@ class TextRange2(_ShapeText):
         shape = self.owner.shape
         if kind == "Characters":
             return [(at, 1) for at in range(start, start + count)]
+        if kind == "MathZones":
+            return []
         if kind == "Runs":
             found = text_run_spans(shape)
         elif kind == "Paragraphs":
@@ -4079,7 +4082,9 @@ class TextRange2(_ShapeText):
         elif kind == "Lines":
             found = self._laid_out()
         elif kind == "Words":
-            if _WORD.sub("", shape.text).strip("\n\x0b\x0c\t") or shape.text[:1] == " ":
+            # One space at the start belongs to no word, and two are a word of their own; more were not measured.
+            lead = len(shape.text) - len(shape.text.lstrip(" "))
+            if lead > 2 or _WORD.sub("", shape.text[lead % 2:]).strip("\n\x0b\x0c\t"):
                 raise _unsupported(f"the Words of {shape.text!r}")
             found = [(match.start(), match.end() - match.start()) for match in _WORD.finditer(shape.text)]
         else:
@@ -4277,6 +4282,207 @@ class TextRange2(_ShapeText):
         if self.at is not None and not count:
             raise error(-2147467259, "Unspecified error")
         _edit_text(self.owner, at, count, "")
+        return EMPTY
+
+    # -- the text methods, as live Excel answered them (tests/fixtures/text_range2_round.json)
+
+    def _text(self) -> tuple[int, str]:
+        at, count = self.span()
+        return at, self.owner.shape.text[at:at + count]
+
+    def _whole(self, what: str) -> str:
+        at, text = self._text()
+        if (at, len(text)) != (0, len(self.owner.shape.text)):
+            raise _unsupported(f"{what} on part of a shape's text")
+        return text
+
+    def _respell(self, at: int, old: str, new: str) -> None:
+        """Change letters where they stand, each keeping its own settings, so the runs stay as they were."""
+        for place, (was, now) in enumerate(zip(old, new)):
+            if was != now:
+                _edit_text(self.owner, at + place, 1, now)
+
+    @method
+    def ChangeCase(self, Type: object = MISSING) -> object:
+        """Lower, upper and toggle change every letter. Title raises the first letter of each word between spaces, so "(x)" is "(X)" and
+        "stop-now" "Stop-now"; the range's own start counts as a word's. Sentence raises the first letter of each paragraph and of each
+        sentence after a stop and a space, "(yes)" included, over the whole text. Both lower the other letters, but for a word all in
+        capitals, which keeps them."""
+        if Type is MISSING:
+            raise error(449, "Argument not optional")
+        number = int(to_number(Type))
+        at, text = self._text()
+        if not text.isascii():
+            raise _unsupported("ChangeCase of text beyond ASCII")
+        if number in (2, 3, 5):
+            self._respell(at, text, {2: text.lower(), 3: text.upper(), 5: text.swapcase()}[number])
+            return EMPTY
+        if number not in (1, 4):
+            raise _unsupported(f"ChangeCase {number}")
+        if number == 1:
+            self._whole("ChangeCase msoCaseSentence")
+        letters = list(text)
+        capitals: set[int] = set()  # the places of words of two letters or more all in capitals
+        lone: set[int] = set()  # the places of capitals that are a word's one letter, unmeasured inside a sentence
+        for word in re.finditer(r"[^ \n\x0b\t]+", text):
+            found = [one for one in word.group() if one.isalpha()]
+            if len(found) > 1 and all(one.isupper() for one in found):
+                capitals.update(range(word.start(), word.end()))
+            elif len(found) == 1 and found[0].isupper():
+                lone.add(word.start() + word.group().index(found[0]))
+        starting, stopped = True, False
+        for place, letter in enumerate(text):
+            if letter.isalpha():
+                if number == 4:
+                    starting = not any(one.isalpha() for one in re.split(r"[ \n\x0b\t]", text[:place])[-1])
+                elif stopped and text[place - 1] in ".!?":
+                    raise _unsupported("ChangeCase msoCaseSentence on a letter right after a stop")
+                elif place in lone and not starting:
+                    raise _unsupported("ChangeCase msoCaseSentence on a word of one capital letter inside a sentence")
+                letters[place] = letter.upper() if starting else letter if place in capitals else letter.lower()
+                starting = stopped = False
+            elif number == 1 and letter == "\n":
+                starting, stopped = True, False
+            elif number == 1 and letter in ".!?":
+                stopped = True
+            elif number == 1 and letter == " " and stopped:
+                starting = True
+            elif number == 1 and not starting:
+                stopped = False
+        self._respell(at, text, "".join(letters))
+        return EMPTY
+
+    @method
+    def TrimText(self) -> object:
+        """The range less the spaces and tabs it ends with; those it starts with stay."""
+        at, text = self._text()
+        kept = text.rstrip(" \t")
+        if kept != kept.rstrip():
+            raise _unsupported("TrimText on text ending in a line's end")
+        return TextRange2(self.owner, at, len(kept))
+
+    @method
+    def AddPeriods(self) -> object:
+        """A period at the end of every paragraph that has none, after a ! or ? too."""
+        text = self._whole("AddPeriods")
+        paragraphs = text.split("\n")
+        if any(not one for one in paragraphs):
+            raise _unsupported("AddPeriods on an empty paragraph")
+        end = len(text)
+        for one in reversed(paragraphs):
+            if not one.endswith("."):
+                _edit_text(self.owner, end, 0, ".")
+            end -= len(one) + 1
+        return EMPTY
+
+    @method
+    def RemovePeriods(self) -> object:
+        """The period a paragraph ends with."""
+        text = self._whole("RemovePeriods")
+        paragraphs = text.split("\n")
+        if any(one.endswith("..") or (one != one.rstrip(" ") and one.rstrip(" ").endswith(".")) for one in paragraphs):
+            raise _unsupported("RemovePeriods on a paragraph that ends in more than one period, or in spaces after one")
+        end = len(text)
+        for one in reversed(paragraphs):
+            if one.endswith("."):
+                _edit_text(self.owner, end - 1, 1, "")
+            end -= len(one) + 1
+        return EMPTY
+
+    def _found(self, what: object, after: object, match_case: object, whole_words: object, *, inside: bool = False) -> tuple[int, int] | None:
+        """Where FindWhat first stands after the range's After-th character, as a place in the shape's text and a length. Find's search runs
+        from the range's start to the end of the text, past the range's own end; Replace's stays inside the range."""
+        at, kept = self._text()
+        text = kept if inside else self.owner.shape.text[at:]
+        needle = _shape_text(what)
+        if not needle:
+            raise _unsupported("finding no text")
+        start = 0 if after is MISSING else int(to_number(after))
+        if start < 0:
+            raise _unsupported(f"finding after character {start}")
+        if not (match_case is not MISSING and to_number(match_case)):
+            if not (text.isascii() and needle.isascii()):
+                raise _unsupported("finding text beyond ASCII without matching case")
+            text, needle = text.lower(), needle.lower()
+        words = whole_words is not MISSING and bool(to_number(whole_words))
+        place = text.find(needle, start)
+        while words and place >= 0 and (text[place - 1:place].isalnum() or text[place + len(needle):place + len(needle) + 1].isalnum()):
+            place = text.find(needle, place + 1)
+        return None if place < 0 else (at + place, len(needle))
+
+    @method
+    def Find(self, FindWhat: object = MISSING, After: object = MISSING, MatchCase: object = MISSING, WholeWords: object = MISSING) -> object:
+        """Where there is no match, an empty range after the After-th character, or at the range's start where After is left out or
+        runs past the text."""
+        found = self._found(FindWhat, After, MatchCase, WholeWords)
+        if found is not None:
+            return TextRange2(self.owner, *found)
+        at = self.span()[0]
+        after = 0 if After is MISSING else int(to_number(After))
+        return TextRange2(self.owner, at + after if after <= len(self.owner.shape.text) - at else at, 0)
+
+    @method
+    def Replace(self, FindWhat: object = MISSING, ReplaceWhat: object = MISSING, After: object = MISSING, MatchCase: object = MISSING,
+                WholeWords: object = MISSING) -> object:
+        """The first match only, which takes the settings of its first character; Nothing where there is none."""
+        found = self._found(FindWhat, After, MatchCase, WholeWords, inside=True)
+        if found is None:
+            return NOTHING
+        new = _shape_text("" if ReplaceWhat is MISSING else ReplaceWhat)
+        _edit_text(self.owner, found[0], found[1], new)
+        return TextRange2(self.owner, found[0], len(new))
+
+    @method
+    def InsertSymbol(self, FontName: object = MISSING, CharNumber: object = MISSING, Unicode: object = MISSING) -> object:
+        """The range's text becomes the one character, in the font named as its Latin and complex-script font. Without Unicode the number
+        is the character of that code, 128 being U+0080, and in the Symbol font a place in its own private range, U+F000 on. A part at the
+        end of the text leaves its last character's settings on the paragraph's end."""
+        number = int(to_number(CharNumber))
+        wide = Unicode is not MISSING and bool(to_number(Unicode))
+        font = _shape_text(FontName)
+        if wide and not 0 < number < 0x10000:
+            raise _unsupported(f"InsertSymbol of character {number}")
+        if not wide and (font.lower() in ("wingdings", "wingdings 2", "wingdings 3", "webdings", "marlett") or not 0 < number < 0x100):
+            raise _unsupported(f"InsertSymbol of character {number} in {font}")
+        symbol_text = chr(0xF000 + number) if not wide and font.lower() == "symbol" else chr(number)
+        at, count = self.span()
+        shape = self.owner.shape
+        ending = (dict(shape.text_marks[at + count - 1]) if self.at is not None and count and shape.text_marks and at + count == len(shape.text)
+                  and shape.text_end is None else None)
+        _edit_text(self.owner, at, count, symbol_text)
+        if ending is not None:
+            shape.text_end = ending
+        # The font goes on the symbol only: the paragraph's end keeps the settings it had (tests/fixtures/text_range2_round_5.json).
+        latin = _FONT_LATIN.get(font)
+        if latin is None or not font:
+            raise _unsupported(f"the font {font!r} in a shape")
+        if not shape.text_marks:
+            shape.text_marks = [{} for _ in shape.text]
+        shape.text_marks[at] = {**shape.text_marks[at], "font_latin": latin, "font_cs": latin.replace("<a:latin ", "<a:cs ", 1)}
+        self.owner.sheet.drawing_changed()
+        return TextRange2(self.owner, at, 1)
+
+    @method
+    def LtrRun(self) -> object:
+        return EMPTY
+
+    @method
+    def RtlRun(self) -> object:
+        return EMPTY
+
+    @member
+    def MathZones(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        """Text set by a macro has no math zones: they count 0, and asking for one is an error."""
+        self.span()
+        if Start is not MISSING or Length is not MISSING:
+            raise error(-2147024809, "The parameter is incorrect.")
+        return TextRange2(self.owner, self.at, self.size, "MathZones")
+
+    @method
+    def Select(self) -> object:
+        from pyopenvba.apps.excel._selected_shapes import select
+
+        select(self.owner.sheet, self.owner.shape, MISSING)
         return EMPTY
 
     def vba_default_call(self, args: Sequence[object], named: dict[str, object]) -> object:

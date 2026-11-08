@@ -98,6 +98,10 @@ def test_retained_filter_metadata_copy_is_atomic(kind: str, reopen: bool, tmp_pa
     if kind == 'extract':
         source.AdvancedFilter(2, sheet.Range('G1:G2'), sheet.Range('D1:E1'))
     elif kind == 'showall':
+        # Criteria that hide a row: with none hidden the sheet is not in filter mode and ShowAllData is 1004
+        # (tests/fixtures/advanced_filter_shifts_c.json).
+        app.add_module('Sub Hide()\nRange("G2").Value = "b*"\nEnd Sub', name='HideRows')
+        app.run('Hide')
         source.AdvancedFilter(1, sheet.Range('G1:G2'))
         sheet.ShowAllData()
     else:

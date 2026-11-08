@@ -1,0 +1,1187 @@
+{
+ "cases": [
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"big dog. small CAT ran\" & vbCr & \"it is so\"",
+   [
+    1,
+    3
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"  lone\"",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"ends with tab\" & vbTab",
+   [
+    6,
+    4
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"Fine?\" & vbCr & \"maybe.\" & vbCr & \"sure\"",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ]
+ ],
+ "model": [
+  "Long:9",
+  "String:big ",
+  "Long:5",
+  "Long:3",
+  "String:it is so",
+  "Long:2",
+  "e0=Empty:|String:Big dog. Small CAT ran<LF>It is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:Big Dog. Small CAT Ran<LF>It Is So|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:BIG DOG. SMALL cat RAN<LF>IT IS SO|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:big Dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:bIG DOg. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:31|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:ig|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:big dog. small CAT ran.<LF>it is so.|Long:33|Long:2|Long:2",
+  "e0=Empty:|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:10|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:3|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:12|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:$|String:big dog. $mall CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Boolean:True|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:18|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:Rectangle|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:-2|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "Long:2",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  Lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  LONE|Long:6|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  LONE|Long:6|Long:1|Long:1",
+  "e0=Long:6|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String: lo|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  lone.|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:3|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:3|String:  lone|Long:6|Long:1|Long:1",
+  "e91=e91|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Boolean:True|String:  lone|Long:6|Long:1|Long:1",
+  "e91=e91|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String:Rectangle|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:-2|String:  lone|Long:6|Long:1|Long:1",
+  "Long:3",
+  "String:ends ",
+  "Long:6",
+  "Long:1",
+  "e-2147024809",
+  "Long:3",
+  "e0=Empty:|String:Ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:Ends With Tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:ENDS WITH TAB\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:endS With tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:eNDS With tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:13|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:nds|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:ends with tab\t.|Long:15|Long:3|Long:1",
+  "e0=Empty:|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:4|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:3|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:12|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:$|String:end$ with tab\t|Long:14|Long:3|Long:1",
+  "e0=Boolean:True|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:8|String:ends wiTh tab\t|Long:14|Long:3|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:Rectangle|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:-2|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "Long:5",
+  "String:Fine",
+  "Long:5",
+  "Long:3",
+  "String:maybe.<LF>",
+  "Long:1",
+  "e0=Empty:|String:Fine?<LF>Maybe.<LF>Sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:Fine?<LF>Maybe.<LF>Sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:fINE?<LF>MAYBE.<LF>SURE|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:FinE?<LF>Maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:FINE?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:17|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:ine|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:Fine?.<LF>maybe.<LF>sure.|Long:19|Long:1|Long:3",
+  "e0=Empty:|String:Fine?<LF>maybe<LF>sure|Long:16|Long:1|Long:3",
+  "e0=Long:14|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:3|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:8|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:$|String:Fine?<LF>maybe.<LF>$ure|Long:17|Long:1|Long:3",
+  "e0=Boolean:True|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e91=e91|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:Rectangle|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:-2|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3"
+ ],
+ "model_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "measured_at": "2026-11-08T01:43:09.644072+00:00",
+ "excel": [
+  "Long:9",
+  "String:big ",
+  "Long:5",
+  "Long:3",
+  "String:it is so",
+  "Long:2",
+  "e0=Empty:|String:Big dog. Small CAT ran<LF>It is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:Big Dog. Small CAT Ran<LF>It Is So|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:BIG DOG. SMALL cat RAN<LF>IT IS SO|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:big Dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:bIG DOg. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:31|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:ig|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:big dog. small CAT ran.<LF>it is so.|Long:33|Long:2|Long:2",
+  "e0=Empty:|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:10|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:3|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:12|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:$|String:big dog. $mall CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Boolean:True|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:18|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:Rectangle|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:-2|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "Long:2",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  Lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  LONE|Long:6|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  LONE|Long:6|Long:1|Long:1",
+  "e0=Long:6|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String: lo|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  lone.|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:3|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:3|String:  lone|Long:6|Long:1|Long:1",
+  "e91=e91|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Boolean:True|String:  lone|Long:6|Long:1|Long:1",
+  "e91=e91|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String:Rectangle|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:-2|String:  lone|Long:6|Long:1|Long:1",
+  "Long:3",
+  "String:ends ",
+  "Long:6",
+  "Long:1",
+  "e-2147024809",
+  "Long:3",
+  "e0=Empty:|String:Ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:Ends With Tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:ENDS WITH TAB\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:endS With tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:eNDS With tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:13|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:nds|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:ends with tab\t.|Long:15|Long:3|Long:1",
+  "e0=Empty:|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:4|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:3|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:12|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:$|String:end$ with tab\t|Long:14|Long:3|Long:1",
+  "e0=Boolean:True|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:8|String:ends wiTh tab\t|Long:14|Long:3|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:Rectangle|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:-2|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "Long:5",
+  "String:Fine",
+  "Long:5",
+  "Long:3",
+  "String:maybe.<LF>",
+  "Long:1",
+  "e0=Empty:|String:Fine?<LF>Maybe.<LF>Sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:Fine?<LF>Maybe.<LF>Sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:fINE?<LF>MAYBE.<LF>SURE|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:FinE?<LF>Maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:FINE?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:17|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:ine|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:Fine?.<LF>maybe.<LF>sure.|Long:19|Long:1|Long:3",
+  "e0=Empty:|String:Fine?<LF>maybe<LF>sure|Long:16|Long:1|Long:3",
+  "e0=Long:14|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:3|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:8|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:$|String:Fine?<LF>maybe.<LF>$ure|Long:17|Long:1|Long:3",
+  "e0=Boolean:True|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e91=e91|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:Rectangle|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:-2|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3"
+ ]
+}

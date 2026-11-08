@@ -20,8 +20,8 @@ TEXT: dict[str, Any] = json.loads((FIXTURES / 'loaded_shape_text.json').read_tex
 FOREIGN: dict[str, Any] = json.loads((FIXTURES / 'loaded_shape_foreign.json').read_text(encoding='utf-8'))
 SETS: dict[str, Any] = json.loads((FIXTURES / 'loaded_shape_sets.json').read_text(encoding='utf-8'))
 #: What the model reports rather than answers: where lines wrap, a crop's size, whether a font can be embedded, the words of text
-#: with a space at its start or an @, and a text warp's kind.
-REFUSED_READS = re.compile(r'\.Lines\.Count$|PictureFormat\.Crop|Font\.Embedd|\("(Wordy|Spaces|Hyphens)"\).*\.Words|\("Warped"\).*(Path|Warp)Format$')
+#: with an @, and a text warp's kind.
+REFUSED_READS = re.compile(r'\.Lines\.Count$|PictureFormat\.Crop|Font\.Embedd|\("(Hyphens)"\).*\.Words|\("Warped"\).*(Path|Warp)Format$')
 #: Sets the model reports: routing an elbow or a curve but for its plain case, connecting one that is turned, and moving a shape one is
 #: held to, which any read of a connector on the sheet then reports.
 REFUSED_SETS = re.compile(r'^(Elbow|Curve): s\.ConnectorFormat\.(Begin|End)Connect|^(Elbow|Joined): ws\.Shapes\("End1"\)\.Left')

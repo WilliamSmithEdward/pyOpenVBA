@@ -4981,14 +4981,16 @@ class Series(PictureMembers, Created):
         if len(parts) != 4 or parts[3].strip() != str(self.full_place()) or any('{' in part for part in parts):
             raise VBAUnsupportedError('Series.Formula with a literal array or a changed order is not implemented')
         name, categories, values = (part.strip() for part in parts[:3])
-        if self.chart.state.original and categories and categories.lstrip('=') != self.entry.category_reference:
-            # Excel's save gave the other series these categories too, in the one case measured
-            # (tests/fixtures/loaded_chart_edits.json).
-            raise VBAUnsupportedError("Series.Formula changing an imported chart series' categories is not implemented")
+        # On a loaded chart, categories the Formula changes are every series' categories, whichever series it is and
+        # whatever categories the others had (tests/fixtures/loaded_chart_formula_categories.json).
+        everyone = bool(self.chart.state.original and categories and categories.lstrip('=') != self.entry.category_reference)
         book = self.chart.sheet.book
         application = book.application
         self.vba_set('Values', application.vba_get('Range', [values]))
-        if categories:
+        if everyone:
+            for entry in list(self.chart.state.series):
+                Series(self.chart, entry).vba_set('XValues', application.vba_get('Range', [categories]))
+        elif categories:
             self.vba_set('XValues', application.vba_get('Range', [categories]))
         if name.startswith('"') and name.endswith('"'):
             self.vba_set('Name', name[1:-1].replace('""', '"'))

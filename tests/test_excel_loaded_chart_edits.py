@@ -35,7 +35,7 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'legend position bottom', 'legend position same', 'legend moved position read',
          'axis maximum', 'axis minimum', 'axis both', 'axis maximum twice', 'axis maximum auto', 'axis maximum auto read',
          'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off',
-         'series name', 'series name formula', 'series name cell', 'series labels', 'point label', 'series fill',
+         'series name', 'series name formula', 'series name cell', 'series formula', 'series labels', 'point label', 'series fill',
          'chart type', 'new series', 'delete series', 'source data',
          'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
          'title caption', 'title text then gone', 'title text read after back', 'title formula',

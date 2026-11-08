@@ -1,0 +1,1018 @@
+{
+ "cases": [
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"Rain falls. sun shines! (yes) no\" & vbCr & \"end-of-day it's late\"",
+   [
+    1,
+    4
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"  two  words  \"",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"tab\" & vbTab & vbTab",
+   null,
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "read",
+   "tr.Words.Count"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "read",
+   "tr.Words(1).Text"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "read",
+   "tr.Words(2).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "read",
+   "tr.Sentences.Count"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "read",
+   "tr.Paragraphs(2).Text"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "read",
+   "tr.Runs.Count"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseSentence"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.ChangeCase msoCaseToggle"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.Characters(4, 6).ChangeCase msoCaseTitle"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.Characters(2, 5).ChangeCase msoCaseUpper"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.TrimText.Length"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Characters(2, 3).TrimText.Text"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.AddPeriods"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.RemovePeriods"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"s\").Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"S\", MatchCase:=msoTrue).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=2).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"zz\", After:=50).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Find(\"no\", WholeWords:=msoTrue).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Characters(3, 2).Find(\"a\").Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"s\", \"$\").Text"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Characters(1, 3).Replace(\"x\", \"y\") Is Nothing"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.Replace(\"t\", \"T\", After:=4).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 128).Text"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.InsertSymbol(\"Arial\", 937, msoTrue).Start"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "v = tr.MathZones.Count"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.Select: v = TypeName(Selection)"
+  ],
+  [
+   "\"AbC dEf\" & vbCr & \"x.\" & vbCr & \"y!\"",
+   [
+    3,
+    3
+   ],
+   "do",
+   "tr.LtrRun: v = tr.ParagraphFormat.TextDirection"
+  ]
+ ],
+ "model": [
+  "Long:13",
+  "String:Rain ",
+  "Long:6",
+  "Long:4",
+  "String:end-of-day it's late",
+  "Long:2",
+  "e0=Empty:|String:Rain falls. Sun shines! (yes) no<LF>End-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Empty:|String:Rain Falls. Sun Shines! (Yes) No<LF>End-of-day It's Late|Long:53|Long:2|Long:2",
+  "e0=Empty:|String:rAIN FALLS. SUN SHINES! (YES) NO<LF>END-OF-DAY IT'S LATE|Long:53|Long:2|Long:2",
+  "e0=Empty:|String:RaiN Falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Empty:|String:RAIN Falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:53|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=String:ain|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Empty:|String:Rain falls. sun shines! (yes) no.<LF>end-of-day it's late.|Long:55|Long:2|Long:2",
+  "e0=Empty:|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:10|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:1|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:3|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:51|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:31|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:7|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=String:$|String:Rain fall$. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Boolean:True|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:46|String:Rain falls. sun shines! (yes) no<LF>end-of-day iT's late|Long:53|Long:2|Long:2",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=String:Rectangle|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "e0=Long:-2|String:Rain falls. sun shines! (yes) no<LF>end-of-day it's late|Long:53|Long:2|Long:2",
+  "Long:3",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Two  words  |Long:14|Long:1|Long:1",
+  "e0=Empty:|String:  Two  Words  |Long:14|Long:1|Long:1",
+  "e0=Empty:|String:  TWO  WORDS  |Long:14|Long:1|Long:1",
+  "e0=Empty:|String:  tWo  Words  |Long:14|Long:1|Long:1",
+  "e0=Empty:|String:  TWO  words  |Long:14|Long:1|Long:1",
+  "e0=Long:12|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=String: tw|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Empty:|String:  two  words  .|Long:15|Long:1|Long:1",
+  "e0=Empty:|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:12|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:1|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:3|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:1|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:1|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:3|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=String:$|String:  two  word$  |Long:14|Long:1|Long:1",
+  "e0=Boolean:True|String:  two  words  |Long:14|Long:1|Long:1",
+  "e91=e91|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=String:Rectangle|String:  two  words  |Long:14|Long:1|Long:1",
+  "e0=Long:-2|String:  two  words  |Long:14|Long:1|Long:1",
+  "Long:1",
+  "String:tab",
+  "e-2147024809",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:Tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Empty:|String:Tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Empty:|String:TAB\t\t|Long:5|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:3|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=String:ab|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Empty:|String:tab\t\t.|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:1|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:1|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:3|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:1|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:1|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:3|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e91=e91|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Boolean:True|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e91=e91|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=String:Rectangle|String:tab\t\t|Long:5|Long:1|Long:1",
+  "e0=Long:-2|String:tab\t\t|Long:5|Long:1|Long:1",
+  "Long:6",
+  "String:AbC ",
+  "Long:5",
+  "Long:3",
+  "String:x.<LF>",
+  "Long:3",
+  "e0=Empty:|String:AbC dEf<LF>X.<LF>Y!|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:AbC DEf<LF>X.<LF>Y!|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:aBc DeF<LF>X.<LF>Y!|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:AbC DEf<LF>X.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:ABC DEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:13|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=String:bC|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Empty:|String:AbC dEf.<LF>x.<LF>y!.|Long:15|Long:3|Long:3",
+  "e0=Empty:|String:AbC dEf<LF>x<LF>y!|Long:12|Long:3|Long:3",
+  "e0=Long:1|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:1|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:3|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:1|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:1|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:3|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e91=e91|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Boolean:True|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e91=e91|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=String:\u20ac|String:\u20ac|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=String:Rectangle|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3",
+  "e0=Long:-2|String:AbC dEf<LF>x.<LF>y!|Long:13|Long:3|Long:3"
+ ],
+ "model_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ]
+}

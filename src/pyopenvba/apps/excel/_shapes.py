@@ -4400,9 +4400,14 @@ class TextRange2(_ShapeText):
 
     @method
     def Find(self, FindWhat: object = MISSING, After: object = MISSING, MatchCase: object = MISSING, WholeWords: object = MISSING) -> object:
-        """Where there is no match, an empty range at the range's start."""
+        """Where there is no match, an empty range after the After-th character, or at the range's start where After is left out or
+        runs past the text."""
         found = self._found(FindWhat, After, MatchCase, WholeWords)
-        return TextRange2(self.owner, self.span()[0], 0) if found is None else TextRange2(self.owner, *found)
+        if found is not None:
+            return TextRange2(self.owner, *found)
+        at = self.span()[0]
+        after = 0 if After is MISSING else int(to_number(After))
+        return TextRange2(self.owner, at + after if after <= len(self.owner.shape.text) - at else at, 0)
 
     @method
     def Replace(self, FindWhat: object = MISSING, ReplaceWhat: object = MISSING, After: object = MISSING, MatchCase: object = MISSING,

@@ -71,8 +71,22 @@ STATEMENTS_3 = ['tr.ChangeCase msoCaseSentence', 'tr.ChangeCase msoCaseLower', '
                 'v = tr.InsertSymbol("Arial", 169).Text', 'v = tr.InsertSymbol("Calibri", 8364, msoTrue).Text',
                 'v = tr.Characters(1, 1).InsertSymbol("Arial", 66).Font.Name', 'v = tr.MathZones.Count', 'tr.Select: v = TypeName(Selection)',
                 'tr.RtlRun: v = tr.ParagraphFormat.TextDirection']
+#: Rounds 4 and 5, held out on the code after round 3's one miss, with what the statements write to the file.
+TEXTS_4 = [('"Rain falls. sun shines! (yes) no" & vbCr & "end-of-day it\'s late"', (1, 4)), ('"  two  words  "', None),
+           ('"tab" & vbTab & vbTab', None), ('"AbC dEf" & vbCr & "x." & vbCr & "y!"', (3, 3))]
+STATEMENTS_4 = ['tr.ChangeCase msoCaseSentence', 'tr.ChangeCase msoCaseTitle', 'tr.ChangeCase msoCaseToggle', 'tr.Characters(4, 6).ChangeCase msoCaseTitle',
+                'tr.Characters(2, 5).ChangeCase msoCaseUpper', 'v = tr.TrimText.Length', 'v = tr.Characters(2, 3).TrimText.Text', 'tr.AddPeriods',
+                'tr.RemovePeriods', 'v = tr.Find("s").Start', 'v = tr.Find("S", MatchCase:=msoTrue).Start', 'v = tr.Find("zz", After:=2).Start',
+                'v = tr.Find("zz", After:=50).Start', 'v = tr.Find("no", WholeWords:=msoTrue).Start', 'v = tr.Characters(3, 2).Find("a").Start',
+                'v = tr.Replace("s", "$").Text', 'v = tr.Characters(1, 3).Replace("x", "y") Is Nothing', 'v = tr.Replace("t", "T", After:=4).Start',
+                'v = tr.InsertSymbol("Arial", 128).Text', 'v = tr.InsertSymbol("Arial", 937, msoTrue).Start', 'v = tr.MathZones.Count',
+                'tr.Select: v = TypeName(Selection)', 'tr.LtrRun: v = tr.ParagraphFormat.TextDirection']
+TEXTS_5 = [('"one two. three four? five" & vbCr & "six-seven eight\'s nine"', (5, 3)), ('"  ab"', None), ('"Zed  " & vbTab', (1, 1)),
+           ('"p." & vbCr & "Q" & vbCr & "r?"', None)]
 ROUNDS = {1: (TEXTS, READS, STATEMENTS, OUT), 2: (TEXTS_2, READS_2, STATEMENTS_2, OUT.with_name('text_range2_round_2.json')),
-          3: (TEXTS_3, READS_3, STATEMENTS_3, OUT.with_name('text_range2_round_3.json'))}
+          3: (TEXTS_3, READS_3, STATEMENTS_3, OUT.with_name('text_range2_round_3.json')),
+          4: (TEXTS_4, READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_4.json')),
+          5: (TEXTS_5, READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_5.json'))}
 ROUND = 1
 
 
@@ -137,10 +151,57 @@ def alone(case: list[Any]) -> str:
         return 'refused'
 
 
+#: From round 4, what a statement writes to the file: each saved with a text of two runs, and the shape's txBody read back.
+MARKUP = ['', 'tr.RtlRun', 'tr.LtrRun', 'tr.Paragraphs(1).RtlRun', 'tr.ChangeCase msoCaseUpper', 'tr.AddPeriods',
+          'tr.Characters(5, 3).InsertSymbol "Arial", 66', 'tr.Replace "def", "xyz"']
+
+
+def markup_macro() -> str:
+    lines = ['Function Marks(ByVal folder As String) As String', '    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object',
+             '    Application.DisplayAlerts = False']
+    for index, statement in enumerate(MARKUP):
+        lines += ['    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)',
+                  '    Set sh = ws.Shapes.AddShape(msoShapeRectangle, 100, 50, 240, 120)', '    Set tr = sh.TextFrame2.TextRange',
+                  '    tr.Text = "abc def"', '    tr.Characters(1, 3).Font.Bold = msoTrue', f'    {statement}',
+                  f'    wb.SaveAs folder & Application.PathSeparator & "m{index}.xlsx", xlOpenXMLWorkbook', '    wb.Close SaveChanges:=False']
+    return '\n'.join([*lines, '    Application.DisplayAlerts = True', 'End Function', ''])
+
+
+def text_bodies(folder: Path) -> list[list[str]]:
+    import re
+    import zipfile
+
+    bodies: list[list[str]] = []
+    for index in range(len(MARKUP)):
+        with zipfile.ZipFile(folder / f'm{index}.xlsx') as package:
+            bodies.append(re.findall(r'<xdr:txBody>.*?</xdr:txBody>', package.read('xl/drawings/drawing1.xml').decode('utf-8'), re.S))
+    return bodies
+
+
+def model_markup(folder: Path) -> list[list[str]] | str:
+    from pyopenvba.apps.excel import ExcelApplication
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module(markup_macro(), name='M')
+    try:
+        app.run('M.Marks', str(folder))
+    except VBAUnsupportedError as refused:
+        return f'refused: {refused}'
+    return text_bodies(folder)
+
+
 def predict() -> None:
+    import tempfile
+
     sys.path.insert(0, str(ROOT / 'src'))
     every = cases()
-    text = json.dumps({'cases': every, 'model': [alone(case) for case in every]}, indent=1) + '\n'
+    record: dict[str, Any] = {'cases': every, 'model': [alone(case) for case in every]}
+    if ROUND >= 4:
+        with tempfile.TemporaryDirectory() as folder:
+            record['model_markup'] = model_markup(Path(folder))
+    text = json.dumps(record, indent=1) + '\n'
     ROUNDS[ROUND][3].write_text(text, encoding='utf-8', newline='\n')
     print(len(every), 'cases; predictions sha256', hashlib.sha256(text.encode('utf-8')).hexdigest())
 
@@ -158,6 +219,14 @@ def measure() -> None:
             assert result.ok, (at, result.error, [one.message for one in result.dialogs])
             answers += str(result.value).split(SEPARATOR)
             print(at + 60, 'cases', flush=True)
+        if ROUND >= 4:
+            import tempfile
+
+            with tempfile.TemporaryDirectory() as folder:
+                result = excel.run_vba(markup_macro(), 'Marks', (folder,), timeout=300, line_numbers=False)
+                assert result.ok, (result.error, [one.message for one in result.dialogs])
+                record['excel_markup'] = text_bodies(Path(folder))
+            print('markup same as the model:', record['excel_markup'] == record['model_markup'])
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
     ROUNDS[ROUND][3].write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     wrong = sum(model != excel and model != 'refused' for model, excel in zip(record['model'], answers))

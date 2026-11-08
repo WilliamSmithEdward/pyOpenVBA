@@ -52,8 +52,16 @@ def number_format(root: XmlElement) -> object:
 
 def set_number_format(root: XmlElement, value: object, stylesheet: styles.Stylesheet) -> None:
     """Give a rule a number format: the code as NumberFormat keeps it, numbered and spelled as Excel writes a rule's
-    (tests/fixtures/conditional_number_formats/)."""
-    stylesheet.spell_rule_format(child(root, 'numFmt'), normalized(to_text(value)))
+    (tests/fixtures/conditional_number_formats/). Empty text is ";;"; a code Excel refuses is error 1004 and leaves the rule
+    with no format at all, whatever it had (tests/fixtures/format_condition_font.json)."""
+    text = to_text(value)
+    try:
+        stylesheet.spell_rule_format(child(root, 'numFmt'), normalized(text) if text else ';;')
+    except Exception:
+        entry = root.find(NS + 'numFmt')
+        if entry is not None:
+            root.remove(entry)
+        raise
 
 
 def renumber(root: XmlElement, stylesheet: styles.Stylesheet) -> None:
@@ -111,13 +119,30 @@ class _Patch(ExcelObject):
 
 
 class ConditionalFont(_Patch):
+    """A rule's font. Size and Name set are error 1004 and read Null. Bold, Italic, Strikethrough and Underline set on a
+    rule reached through other cells than its own, the sheet's, a bigger block's or one cell's, reach the rule while the
+    object goes on reading what it read, and one cell's splits the rule; that reports itself, where Color sets as on any
+    rule (tests/fixtures/format_condition_font.json)."""
+
     vba_type_name = 'Font'
+
+    def own_reach(self, member: str) -> None:
+        from pyopenvba.apps.excel._conditional import RuleObject, projected_areas
+
+        rule = self.parent
+        if not isinstance(rule, RuleObject) or rule.through is None:
+            return
+        own = sorted((area.top, area.left, area.bottom, area.right) for area in projected_areas(rule.rule))
+        reached = sorted((area.top, area.left, area.bottom, area.right) for area in rule.through)
+        if own != reached:
+            raise VBAUnsupportedError(f"Font.{member} set on a rule reached through other cells than its own is not implemented")
 
     def flag(self, name: str) -> object:
         entry = self.root.find(NS + 'font/' + NS + name)
         return NULL if entry is None else entry.get('val', '1') in ('1', 'true')
 
     def set_flag(self, name: str, value: object) -> None:
+        self.own_reach({'b': 'Bold', 'i': 'Italic', 'strike': 'Strikethrough'}[name])
         selected = False if value is NULL else to_bool(value)
         font = child(self.root, 'font')
         # Excel writes a flag that is on bare, <b/>, and one that is off with its value.
@@ -160,9 +185,17 @@ class ConditionalFont(_Patch):
     def Name(self) -> object:
         return NULL
 
+    @setter('Name')
+    def _set_name(self, value: object) -> None:
+        raise error(1004)
+
     @member
     def Size(self) -> object:
         return NULL
+
+    @setter('Size')
+    def _set_size(self, value: object) -> None:
+        raise error(1004)
 
     @member
     def Underline(self) -> object:
@@ -176,6 +209,7 @@ class ConditionalFont(_Patch):
         chosen = int(to_integer(value, 'Long'))
         if chosen not in values:
             raise error(1004)
+        self.own_reach('Underline')
         child(child(self.root, 'font'), 'u').set('val', values[chosen])
         self.changed()
 

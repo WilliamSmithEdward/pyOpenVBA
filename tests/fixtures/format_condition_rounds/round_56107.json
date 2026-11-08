@@ -11,7 +11,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -21,7 +23,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1480803660 E0",
-   "model_typed": "Long:1480803660 E0"
+   "model_typed": "Long:1480803660 E0",
+   "late": "Long:1480803660 E0",
+   "typed": "Long:1480803660 E0"
   },
   {
    "cls": "FormatCondition",
@@ -31,7 +35,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Range:D1:D5@Main E0",
-   "model_typed": "Range:D1:D5@Main E0"
+   "model_typed": "Range:D1:D5@Main E0",
+   "late": "Range:D1:D5@Main E0",
+   "typed": "Range:D1:D5@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -41,7 +47,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -51,7 +59,9 @@
    "edit": "",
    "held": "False",
    "model_late": " E438",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E438",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -61,7 +71,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Range:E2:E6@Main E0",
-   "model_typed": "Range:E2:E6@Main E0"
+   "model_typed": "Range:E2:E6@Main E0",
+   "late": "Range:E2:E6@Main E0",
+   "typed": "Range:E2:E6@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -71,7 +83,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -81,7 +95,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "String:=9 E0",
-   "model_typed": "String:=9 E0"
+   "model_typed": "String:=9 E0",
+   "late": "String:=9 E0",
+   "typed": "String:=9 E0"
   },
   {
    "cls": "FormatCondition",
@@ -91,7 +107,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -101,7 +119,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Long:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "FormatCondition",
@@ -111,7 +131,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "FormatCondition",
@@ -121,7 +143,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -131,7 +155,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -141,7 +167,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "String:0.00 E0",
-   "model_typed": "String:0.00 E0"
+   "model_typed": "String:0.00 E0",
+   "late": "String:0.00 E0",
+   "typed": "String:0.00 E0"
   },
   {
    "cls": "FormatCondition",
@@ -151,7 +179,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -161,7 +191,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -171,7 +203,9 @@
    "edit": "",
    "held": "True",
    "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
-   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "late": "Boolean:False  E0",
+   "typed": "Boolean:False  E0"
   },
   {
    "cls": "FormatCondition",
@@ -181,7 +215,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Font:? E0",
-   "model_typed": "Font:? E0"
+   "model_typed": "Font:? E0",
+   "late": "Font:? E0",
+   "typed": "Font:? E0"
   },
   {
    "cls": "FormatCondition",
@@ -191,7 +227,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Double:0  E0",
-   "model_typed": "Double:0  E0"
+   "model_typed": "Double:0  E0",
+   "late": "Double:0  E0",
+   "typed": "Double:0  E0"
   },
   {
    "cls": "FormatCondition",
@@ -201,7 +239,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -211,7 +251,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Interior:? E0",
-   "model_typed": "Interior:? E0"
+   "model_typed": "Interior:? E0",
+   "late": "Interior:? E0",
+   "typed": "Interior:? E0"
   },
   {
    "cls": "FormatCondition",
@@ -221,7 +263,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:2 2 3 E0",
-   "model_typed": "Long:2 2 3 E0"
+   "model_typed": "Long:2 2 3 E0",
+   "late": "Long:2 2 3 E0",
+   "typed": "Long:2 2 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -231,7 +275,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -241,7 +287,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -251,7 +299,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -261,7 +311,9 @@
    "edit": "",
    "held": "True",
    "model_late": "String:0.00 E0",
-   "model_typed": "String:0.00 E0"
+   "model_typed": "String:0.00 E0",
+   "late": "String:0.00 E0",
+   "typed": "String:0.00 E0"
   },
   {
    "cls": "FormatCondition",
@@ -271,7 +323,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -281,7 +335,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -291,7 +347,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -301,7 +359,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Range:D2:D6@Main E0",
-   "model_typed": "Range:D2:D6@Main E0"
+   "model_typed": "Range:D2:D6@Main E0",
+   "late": "Range:D2:D6@Main E0",
+   "typed": "Range:D2:D6@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -311,7 +371,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:2 2 3 E0",
-   "model_typed": "Long:2 2 3 E0"
+   "model_typed": "Long:2 2 3 E0",
+   "late": "Long:2 2 3 E0",
+   "typed": "Long:2 2 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -321,7 +383,9 @@
    "edit": "",
    "held": "True",
    "model_late": "String:ab 3 =RIGHT(D10,LEN(\"ab\"))=\"ab\" E0",
-   "model_typed": "String:ab 3 =RIGHT(D10,LEN(\"ab\"))=\"ab\" E0"
+   "model_typed": "String:ab 3 =RIGHT(D10,LEN(\"ab\"))=\"ab\" E0",
+   "late": "String:ab 3 =RIGHT(D10,LEN(\"ab\"))=\"ab\" E0",
+   "typed": "String:ab 3 =RIGHT(D10,LEN(\"ab\"))=\"ab\" E0"
   },
   {
    "cls": "FormatCondition",
@@ -331,7 +395,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -341,7 +407,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Long:7 E0",
-   "model_typed": "Long:7 E0"
+   "model_typed": "Long:7 E0",
+   "late": "Long:7 E0",
+   "typed": "Long:7 E0"
   },
   {
    "cls": "FormatCondition",
@@ -351,7 +419,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
-   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented"
+   "model_typed": "model VBAUnsupportedError: Font.Italic set on a rule reached through other cells than its own is not implemented",
+   "late": "Boolean:False  E0",
+   "typed": "Boolean:False  E0"
   },
   {
    "cls": "FormatCondition",
@@ -361,7 +431,9 @@
    "edit": "",
    "held": "False",
    "model_late": "String:12 E0",
-   "model_typed": "String:12 E0"
+   "model_typed": "String:12 E0",
+   "late": "String:12 E0",
+   "typed": "String:12 E0"
   },
   {
    "cls": "FormatCondition",
@@ -371,7 +443,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Long:6 =FLOOR(D1,1)=TODAY()+1 E0",
-   "model_typed": "Long:6 =FLOOR(D1,1)=TODAY()+1 E0"
+   "model_typed": "Long:6 =FLOOR(D1,1)=TODAY()+1 E0",
+   "late": "Long:6 =FLOOR(D1,1)=TODAY()+1 E0",
+   "typed": "Long:6 =FLOOR(D1,1)=TODAY()+1 E0"
   },
   {
    "cls": "FormatCondition",
@@ -381,7 +455,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -391,7 +467,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:4 2 3 E0",
-   "model_typed": "Long:4 2 3 E0"
+   "model_typed": "Long:4 2 3 E0",
+   "late": "Long:4 2 3 E0",
+   "typed": "Long:4 2 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -401,7 +479,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:7 =AND(ROUNDDOWN(D10,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D10,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
-   "model_typed": "Long:7 =AND(ROUNDDOWN(D10,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D10,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0"
+   "model_typed": "Long:7 =AND(ROUNDDOWN(D10,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D10,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
+   "late": "Long:7 =AND(ROUNDDOWN(D10,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D10,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
+   "typed": "Long:7 =AND(ROUNDDOWN(D10,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D10,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -411,7 +491,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -421,7 +503,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Font:? E0",
-   "model_typed": "Font:? E0"
+   "model_typed": "Font:? E0",
+   "late": "Font:? E0",
+   "typed": "Font:? E0"
   },
   {
    "cls": "FormatCondition",
@@ -431,7 +515,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -441,7 +527,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:1 =FLOOR(D1,1)=TODAY()-1 E0",
-   "model_typed": "Long:1 =FLOOR(D1,1)=TODAY()-1 E0"
+   "model_typed": "Long:1 =FLOOR(D1,1)=TODAY()-1 E0",
+   "late": "Long:1 =FLOOR(D1,1)=TODAY()-1 E0",
+   "typed": "Long:1 =FLOOR(D1,1)=TODAY()-1 E0"
   },
   {
    "cls": "FormatCondition",
@@ -451,7 +539,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -461,7 +551,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Null  E0",
-   "model_typed": "Null  E0"
+   "model_typed": "Null  E0",
+   "late": "Null  E0",
+   "typed": "Null  E0"
   },
   {
    "cls": "FormatCondition",
@@ -471,7 +563,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 1 3 E0",
-   "model_typed": "Long:1 1 3 E0"
+   "model_typed": "Long:1 1 3 E0",
+   "late": "Long:1 1 3 E0",
+   "typed": "Long:1 1 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -481,7 +575,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 1 2 E0",
-   "model_typed": "Long:1 1 2 E0"
+   "model_typed": "Long:1 1 2 E0",
+   "late": "Long:1 1 2 E0",
+   "typed": "Long:1 1 2 E0"
   },
   {
    "cls": "FormatCondition",
@@ -491,7 +587,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Long:6 =FLOOR(D10,1)=TODAY()+1 E0",
-   "model_typed": "Long:6 =FLOOR(D10,1)=TODAY()+1 E0"
+   "model_typed": "Long:6 =FLOOR(D10,1)=TODAY()+1 E0",
+   "late": "Long:6 =FLOOR(D10,1)=TODAY()+1 E0",
+   "typed": "Long:6 =FLOOR(D10,1)=TODAY()+1 E0"
   },
   {
    "cls": "FormatCondition",
@@ -501,7 +599,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -511,7 +611,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Long:-4125 E0",
-   "model_typed": "Long:-4125 E0"
+   "model_typed": "Long:-4125 E0",
+   "late": "Long:-4125 E0",
+   "typed": "Long:-4125 E0"
   },
   {
    "cls": "FormatCondition",
@@ -521,7 +623,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -531,7 +635,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -541,7 +647,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:2 =AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY()) E0",
-   "model_typed": "Long:2 =AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY()) E0"
+   "model_typed": "Long:2 =AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY()) E0",
+   "late": "Long:2 =AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY()) E0",
+   "typed": "Long:2 =AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY()) E0"
   },
   {
    "cls": "FormatCondition",
@@ -551,7 +659,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:1 1 2 E0",
-   "model_typed": "Long:1 1 2 E0"
+   "model_typed": "Long:1 1 2 E0",
+   "late": "Long:1 1 2 E0",
+   "typed": "Long:1 1 2 E0"
   },
   {
    "cls": "FormatCondition",
@@ -561,7 +671,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Long:-4125 E0",
-   "model_typed": "Long:-4125 E0"
+   "model_typed": "Long:-4125 E0",
+   "late": "Long:-4125 E0",
+   "typed": "Long:-4125 E0"
   },
   {
    "cls": "FormatCondition",
@@ -571,7 +683,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Double:51200 E0",
-   "model_typed": "Double:51200 E0"
+   "model_typed": "Double:51200 E0",
+   "late": "Double:51200 E0",
+   "typed": "Double:51200 E0"
   },
   {
    "cls": "FormatCondition",
@@ -581,7 +695,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
-   "model_typed": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0"
+   "model_typed": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
+   "late": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
+   "typed": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -591,7 +707,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:9 =AND(MONTH(D1)=MONTH(TODAY()),YEAR(D1)=YEAR(TODAY())) E0",
-   "model_typed": "Long:9 =AND(MONTH(D1)=MONTH(TODAY()),YEAR(D1)=YEAR(TODAY())) E0"
+   "model_typed": "Long:9 =AND(MONTH(D1)=MONTH(TODAY()),YEAR(D1)=YEAR(TODAY())) E0",
+   "late": "Long:9 =AND(MONTH(D1)=MONTH(TODAY()),YEAR(D1)=YEAR(TODAY())) E0",
+   "typed": "Long:9 =AND(MONTH(D1)=MONTH(TODAY()),YEAR(D1)=YEAR(TODAY())) E0"
   },
   {
    "cls": "FormatCondition",
@@ -601,7 +719,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Range:E1:E5@Main E0",
-   "model_typed": "Range:E1:E5@Main E0"
+   "model_typed": "Range:E1:E5@Main E0",
+   "late": "Range:E1:E5@Main E0",
+   "typed": "Range:E1:E5@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -611,7 +731,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D1))) E0",
-   "model_typed": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D1))) E0"
+   "model_typed": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D1))) E0",
+   "late": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D1))) E0",
+   "typed": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D1))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -621,7 +743,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": " E9",
-   "model_typed": " E9"
+   "model_typed": " E9",
+   "late": " E9",
+   "typed": " E9"
   },
   {
    "cls": "FormatCondition",
@@ -631,7 +755,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -641,7 +767,9 @@
    "edit": "",
    "held": "False",
    "model_late": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
-   "model_typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0"
+   "model_typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
+   "late": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
+   "typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0"
   },
   {
    "cls": "FormatCondition",
@@ -651,7 +779,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0",
-   "model_typed": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0"
+   "model_typed": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0",
+   "late": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0",
+   "typed": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0"
   },
   {
    "cls": "FormatCondition",
@@ -661,7 +791,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -671,7 +803,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -681,7 +815,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -691,7 +827,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Long:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "FormatCondition",
@@ -701,7 +839,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Empty: E0",
-   "model_typed": "Empty: E0"
+   "model_typed": "Empty: E0",
+   "late": "Empty: E0",
+   "typed": "Empty: E0"
   },
   {
    "cls": "FormatCondition",
@@ -711,7 +851,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
-   "model_typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0"
+   "model_typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
+   "late": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
+   "typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0"
   },
   {
    "cls": "FormatCondition",
@@ -721,7 +863,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Double:65535 E0",
-   "model_typed": "Double:65535 E0"
+   "model_typed": "Double:65535 E0",
+   "late": "Double:65535 E0",
+   "typed": "Double:65535 E0"
   },
   {
    "cls": "FormatCondition",
@@ -731,7 +875,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:4 2 3 E0",
-   "model_typed": "Long:4 2 3 E0"
+   "model_typed": "Long:4 2 3 E0",
+   "late": "Long:4 2 3 E0",
+   "typed": "Long:4 2 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -741,7 +887,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -751,7 +899,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:1 1 3 E0",
-   "model_typed": "Long:1 1 3 E0"
+   "model_typed": "Long:1 1 3 E0",
+   "late": "Long:1 1 3 E0",
+   "typed": "Long:1 1 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -761,7 +911,9 @@
    "edit": "",
    "held": "False",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -771,7 +923,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": " E438",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E438",
+   "typed": "late only E0"
   },
   {
    "cls": "FormatCondition",
@@ -781,7 +935,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "String:12 E0",
-   "model_typed": "String:12 E0"
+   "model_typed": "String:12 E0",
+   "late": "String:12 E0",
+   "typed": "String:12 E0"
   },
   {
    "cls": "FormatCondition",
@@ -791,7 +947,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:0 =FLOOR(D10,1)=TODAY() E0",
-   "model_typed": "Long:0 =FLOOR(D10,1)=TODAY() E0"
+   "model_typed": "Long:0 =FLOOR(D10,1)=TODAY() E0",
+   "late": "Long:0 =FLOOR(D10,1)=TODAY() E0",
+   "typed": "Long:0 =FLOOR(D10,1)=TODAY() E0"
   },
   {
    "cls": "FormatCondition",
@@ -801,7 +959,9 @@
    "edit": "",
    "held": "True",
    "model_late": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D10))) E0",
-   "model_typed": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D10))) E0"
+   "model_typed": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D10))) E0",
+   "late": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D10))) E0",
+   "typed": "String:zz =NOT(ISERROR(SEARCH(\"zz\",D10))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -811,7 +971,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "FormatCondition",
@@ -821,7 +983,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
-   "model_typed": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0"
+   "model_typed": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
+   "late": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0",
+   "typed": "Long:7 =AND(ROUNDDOWN(D1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(D1,0)-TODAY()<(15-WEEKDAY(TODAY()))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -831,7 +995,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E9",
-   "model_typed": " E9"
+   "model_typed": " E9",
+   "late": " E9",
+   "typed": " E9"
   },
   {
    "cls": "FormatCondition",
@@ -841,7 +1007,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "String:12 E0",
-   "model_typed": "String:12 E0"
+   "model_typed": "String:12 E0",
+   "late": "String:12 E0",
+   "typed": "String:12 E0"
   },
   {
    "cls": "FormatCondition",
@@ -851,7 +1019,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 1 3 E0",
-   "model_typed": "Long:1 1 3 E0"
+   "model_typed": "Long:1 1 3 E0",
+   "late": "Long:1 1 3 E0",
+   "typed": "Long:1 1 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -861,7 +1031,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:True  E0",
-   "model_typed": "Boolean:True  E0"
+   "model_typed": "Boolean:True  E0",
+   "late": "Boolean:True  E0",
+   "typed": "Boolean:True  E0"
   },
   {
    "cls": "FormatCondition",
@@ -871,7 +1043,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D1))) E0",
-   "model_typed": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D1))) E0"
+   "model_typed": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D1))) E0",
+   "late": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D1))) E0",
+   "typed": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D1))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -881,7 +1055,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Range:D11:D13@Data E0",
-   "model_typed": "Range:D11:D13@Data E0"
+   "model_typed": "Range:D11:D13@Data E0",
+   "late": "Range:D11:D13@Data E0",
+   "typed": "Range:D11:D13@Data E0"
   },
   {
    "cls": "FormatCondition",
@@ -891,7 +1067,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Font:? E0",
-   "model_typed": "Font:? E0"
+   "model_typed": "Font:? E0",
+   "late": "Font:? E0",
+   "typed": "Font:? E0"
   },
   {
    "cls": "FormatCondition",
@@ -901,7 +1079,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Double:51200 E0",
-   "model_typed": "Double:51200 E0"
+   "model_typed": "Double:51200 E0",
+   "late": "Double:51200 E0",
+   "typed": "Double:51200 E0"
   },
   {
    "cls": "FormatCondition",
@@ -911,7 +1091,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "String:=2 E0",
-   "model_typed": "String:=2 E0"
+   "model_typed": "String:=2 E0",
+   "late": "String:=2 E0",
+   "typed": "String:=2 E0"
   },
   {
    "cls": "FormatCondition",
@@ -921,7 +1103,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Null  E0",
-   "model_typed": "Null  E0"
+   "model_typed": "Null  E0",
+   "late": "Null  E0",
+   "typed": "Null  E0"
   },
   {
    "cls": "FormatCondition",
@@ -931,7 +1115,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Range:E1:E5@Main E0",
-   "model_typed": "Range:E1:E5@Main E0"
+   "model_typed": "Range:E1:E5@Main E0",
+   "late": "Range:E1:E5@Main E0",
+   "typed": "Range:E1:E5@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -941,7 +1127,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
-   "model_typed": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0"
+   "model_typed": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
+   "late": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
+   "typed": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0"
   },
   {
    "cls": "FormatCondition",
@@ -951,7 +1139,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
-   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented"
+   "model_typed": "model VBAUnsupportedError: Font.Bold set on a rule reached through other cells than its own is not implemented",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -961,7 +1151,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Application:True E0",
-   "model_typed": "Application:True E0"
+   "model_typed": "Application:True E0",
+   "late": "Application:True E0",
+   "typed": "Application:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -971,7 +1163,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -981,7 +1175,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Double:65535 E0",
-   "model_typed": "Double:65535 E0"
+   "model_typed": "Double:65535 E0",
+   "late": "Double:65535 E0",
+   "typed": "Double:65535 E0"
   },
   {
    "cls": "FormatCondition",
@@ -991,7 +1187,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1001,7 +1199,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:1 =FLOOR(D10,1)=TODAY()-1 E0",
-   "model_typed": "Long:1 =FLOOR(D10,1)=TODAY()-1 E0"
+   "model_typed": "Long:1 =FLOOR(D10,1)=TODAY()-1 E0",
+   "late": "Long:1 =FLOOR(D10,1)=TODAY()-1 E0",
+   "typed": "Long:1 =FLOOR(D10,1)=TODAY()-1 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1011,7 +1211,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -1021,7 +1223,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1031,7 +1235,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Empty: E0",
-   "model_typed": "Empty: E0"
+   "model_typed": "Empty: E0",
+   "late": "Empty: E0",
+   "typed": "Empty: E0"
   },
   {
    "cls": "FormatCondition",
@@ -1041,7 +1247,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:9 =AND(MONTH(D10)=MONTH(TODAY()),YEAR(D10)=YEAR(TODAY())) E0",
-   "model_typed": "Long:9 =AND(MONTH(D10)=MONTH(TODAY()),YEAR(D10)=YEAR(TODAY())) E0"
+   "model_typed": "Long:9 =AND(MONTH(D10)=MONTH(TODAY()),YEAR(D10)=YEAR(TODAY())) E0",
+   "late": "Long:9 =AND(MONTH(D10)=MONTH(TODAY()),YEAR(D10)=YEAR(TODAY())) E0",
+   "typed": "Long:9 =AND(MONTH(D10)=MONTH(TODAY()),YEAR(D10)=YEAR(TODAY())) E0"
   },
   {
    "cls": "FormatCondition",
@@ -1051,7 +1259,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Range:D3:D7@Main E0",
-   "model_typed": "Range:D3:D7@Main E0"
+   "model_typed": "Range:D3:D7@Main E0",
+   "late": "Range:D3:D7@Main E0",
+   "typed": "Range:D3:D7@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -1061,7 +1271,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0",
-   "model_typed": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0"
+   "model_typed": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0",
+   "late": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0",
+   "typed": "Long:2 =AND(TODAY()-FLOOR(D10,1)<=6,FLOOR(D10,1)<=TODAY()) E0"
   },
   {
    "cls": "FormatCondition",
@@ -1071,7 +1283,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Double:0  E0",
-   "model_typed": "Double:0  E0"
+   "model_typed": "Double:0  E0",
+   "late": "Double:0  E0",
+   "typed": "Double:0  E0"
   },
   {
    "cls": "FormatCondition",
@@ -1081,7 +1295,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -1091,7 +1307,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Double:0  E0",
-   "model_typed": "Double:0  E0"
+   "model_typed": "Double:0  E0",
+   "late": "Double:0  E0",
+   "typed": "Double:0  E0"
   },
   {
    "cls": "FormatCondition",
@@ -1101,7 +1319,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
-   "model_typed": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0"
+   "model_typed": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
+   "late": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
+   "typed": "Long:3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0"
   },
   {
    "cls": "FormatCondition",
@@ -1111,7 +1331,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -1121,7 +1343,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:2 1 2 E0",
-   "model_typed": "Long:2 1 2 E0"
+   "model_typed": "Long:2 1 2 E0",
+   "late": "Long:2 1 2 E0",
+   "typed": "Long:2 1 2 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1131,7 +1355,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Empty: E0",
-   "model_typed": "Empty: E0"
+   "model_typed": "Empty: E0",
+   "late": "Empty: E0",
+   "typed": "Empty: E0"
   },
   {
    "cls": "FormatCondition",
@@ -1141,7 +1367,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "String:ab 3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
-   "model_typed": "String:ab 3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0"
+   "model_typed": "String:ab 3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
+   "late": "String:ab 3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0",
+   "typed": "String:ab 3 =RIGHT(D1,LEN(\"ab\"))=\"ab\" E0"
   },
   {
    "cls": "FormatCondition",
@@ -1151,7 +1379,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -1161,7 +1391,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:2 1 3 E0",
-   "model_typed": "Long:2 1 3 E0"
+   "model_typed": "Long:2 1 3 E0",
+   "late": "Long:2 1 3 E0",
+   "typed": "Long:2 1 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1171,7 +1403,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -1181,7 +1415,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Range:1:1048576@Main E0",
-   "model_typed": "Range:1:1048576@Main E0"
+   "model_typed": "Range:1:1048576@Main E0",
+   "late": "Range:1:1048576@Main E0",
+   "typed": "Range:1:1048576@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -1191,7 +1427,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -1201,7 +1439,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Range:D1:D5@Main E0",
-   "model_typed": "Range:D1:D5@Main E0"
+   "model_typed": "Range:D1:D5@Main E0",
+   "late": "Range:D1:D5@Main E0",
+   "typed": "Range:D1:D5@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -1211,7 +1451,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1221,7 +1463,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Double:200 E0",
-   "model_typed": "Double:200 E0"
+   "model_typed": "Double:200 E0",
+   "late": "Double:200 E0",
+   "typed": "Double:200 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1231,7 +1475,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:0 =FLOOR(D1,1)=TODAY() E0",
-   "model_typed": "Long:0 =FLOOR(D1,1)=TODAY() E0"
+   "model_typed": "Long:0 =FLOOR(D1,1)=TODAY() E0",
+   "late": "Long:0 =FLOOR(D1,1)=TODAY() E0",
+   "typed": "Long:0 =FLOOR(D1,1)=TODAY() E0"
   },
   {
    "cls": "FormatCondition",
@@ -1241,7 +1487,9 @@
    "edit": "",
    "held": "False",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "FormatCondition",
@@ -1251,7 +1499,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -1261,7 +1511,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D10))) E0",
-   "model_typed": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D10))) E0"
+   "model_typed": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D10))) E0",
+   "late": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D10))) E0",
+   "typed": "String:ab 0 =NOT(ISERROR(SEARCH(\"ab\",D10))) E0"
   },
   {
    "cls": "FormatCondition",
@@ -1271,7 +1523,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:99 2 2 E0",
-   "model_typed": "Long:99 2 2 E0"
+   "model_typed": "Long:99 2 2 E0",
+   "late": "Long:99 2 2 E0",
+   "typed": "Long:99 2 2 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1281,7 +1535,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Empty: E0",
-   "model_typed": "Empty: E0"
+   "model_typed": "Empty: E0",
+   "late": "Empty: E0",
+   "typed": "Empty: E0"
   },
   {
    "cls": "FormatCondition",
@@ -1291,7 +1547,9 @@
    "edit": "",
    "held": "True",
    "model_late": "String:@ E0",
-   "model_typed": "String:@ E0"
+   "model_typed": "String:@ E0",
+   "late": "String:@ E0",
+   "typed": "String:@ E0"
   },
   {
    "cls": "FormatCondition",
@@ -1301,7 +1559,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1480803660 E0",
-   "model_typed": "Long:1480803660 E0"
+   "model_typed": "Long:1480803660 E0",
+   "late": "Long:1480803660 E0",
+   "typed": "Long:1480803660 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1311,7 +1571,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 1 3 E0",
-   "model_typed": "Long:1 1 3 E0"
+   "model_typed": "Long:1 1 3 E0",
+   "late": "Long:1 1 3 E0",
+   "typed": "Long:1 1 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1321,7 +1583,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -1331,7 +1595,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:99 2 3 E0",
-   "model_typed": "Long:99 2 3 E0"
+   "model_typed": "Long:99 2 3 E0",
+   "late": "Long:99 2 3 E0",
+   "typed": "Long:99 2 3 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1341,7 +1607,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Range:D1:D5@Main E0",
-   "model_typed": "Range:D1:D5@Main E0"
+   "model_typed": "Range:D1:D5@Main E0",
+   "late": "Range:D1:D5@Main E0",
+   "typed": "Range:D1:D5@Main E0"
   },
   {
    "cls": "FormatCondition",
@@ -1351,7 +1619,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1361,7 +1631,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -1371,7 +1643,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1381,7 +1655,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 1 2 E0",
-   "model_typed": "Long:1 1 2 E0"
+   "model_typed": "Long:1 1 2 E0",
+   "late": "Long:1 1 2 E0",
+   "typed": "Long:1 1 2 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1391,7 +1667,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "String:ab 2 =LEFT(D10,LEN(\"ab\"))=\"ab\" E0",
-   "model_typed": "String:ab 2 =LEFT(D10,LEN(\"ab\"))=\"ab\" E0"
+   "model_typed": "String:ab 2 =LEFT(D10,LEN(\"ab\"))=\"ab\" E0",
+   "late": "String:ab 2 =LEFT(D10,LEN(\"ab\"))=\"ab\" E0",
+   "typed": "String:ab 2 =LEFT(D10,LEN(\"ab\"))=\"ab\" E0"
   },
   {
    "cls": "FormatCondition",
@@ -1401,7 +1679,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Double:65535 E0",
-   "model_typed": "Double:65535 E0"
+   "model_typed": "Double:65535 E0",
+   "late": "Double:65535 E0",
+   "typed": "Double:65535 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1411,7 +1691,9 @@
    "edit": "",
    "held": "False",
    "model_late": "model VBAUnsupportedError: Modify on a rule reached through other cells than its own is not implemented",
-   "model_typed": "model VBAUnsupportedError: Modify on a rule reached through other cells than its own is not implemented"
+   "model_typed": "model VBAUnsupportedError: Modify on a rule reached through other cells than its own is not implemented",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -1421,7 +1703,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -1431,7 +1715,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Application:True E0",
-   "model_typed": "Application:True E0"
+   "model_typed": "Application:True E0",
+   "late": "Application:True E0",
+   "typed": "Application:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1441,7 +1727,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "FormatCondition",
@@ -1451,7 +1739,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "reach E9",
-   "model_typed": "reach E9"
+   "model_typed": "reach E9",
+   "late": "reach E9",
+   "typed": "reach E9"
   },
   {
    "cls": "FormatCondition",
@@ -1461,7 +1751,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "FormatCondition",
@@ -1471,7 +1763,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
-   "model_typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0"
+   "model_typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
+   "late": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0",
+   "typed": "String:ab 1 =ISERROR(SEARCH(\"ab\",D1)) E0"
   },
   {
    "cls": "FormatCondition",
@@ -1481,7 +1775,9 @@
    "edit": "",
    "held": "False",
    "model_late": "String:@ E0",
-   "model_typed": "String:@ E0"
+   "model_typed": "String:@ E0",
+   "late": "String:@ E0",
+   "typed": "String:@ E0"
   },
   {
    "cls": "FormatCondition",
@@ -1491,7 +1787,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Double:51200 E0",
-   "model_typed": "Double:51200 E0"
+   "model_typed": "Double:51200 E0",
+   "late": "Double:51200 E0",
+   "typed": "Double:51200 E0"
   },
   {
    "cls": "FormatCondition",
@@ -1501,7 +1799,10 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:3 E0",
-   "model_typed": "Long:3 E0"
+   "model_typed": "Long:3 E0",
+   "late": "Long:3 E0",
+   "typed": "Long:3 E0"
   }
- ]
+ ],
+ "measured_at": "2026-11-08T04:15:20.333400+00:00"
 }

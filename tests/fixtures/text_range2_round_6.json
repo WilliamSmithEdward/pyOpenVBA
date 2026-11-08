@@ -1026,5 +1026,162 @@
   [
    "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
   ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "measured_at": "2026-11-08T01:43:09.644072+00:00",
+ "excel": [
+  "Long:9",
+  "String:big ",
+  "Long:5",
+  "Long:3",
+  "String:it is so",
+  "Long:2",
+  "e0=Empty:|String:Big dog. Small CAT ran<LF>It is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:Big Dog. Small CAT Ran<LF>It Is So|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:BIG DOG. SMALL cat RAN<LF>IT IS SO|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:big Dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:bIG DOg. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:31|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:ig|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Empty:|String:big dog. small CAT ran.<LF>it is so.|Long:33|Long:2|Long:2",
+  "e0=Empty:|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:10|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:3|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:1|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:12|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:$|String:big dog. $mall CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Boolean:True|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:18|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=String:Rectangle|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "e0=Long:-2|String:big dog. small CAT ran<LF>it is so|Long:31|Long:2|Long:2",
+  "Long:2",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  Lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  LONE|Long:6|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  LONE|Long:6|Long:1|Long:1",
+  "e0=Long:6|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String: lo|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Empty:|String:  lone.|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:3|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:1|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:3|String:  lone|Long:6|Long:1|Long:1",
+  "e91=e91|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Boolean:True|String:  lone|Long:6|Long:1|Long:1",
+  "e91=e91|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  lone|Long:6|Long:1|Long:1",
+  "e0=String:Rectangle|String:  lone|Long:6|Long:1|Long:1",
+  "e0=Long:-2|String:  lone|Long:6|Long:1|Long:1",
+  "Long:3",
+  "String:ends ",
+  "Long:6",
+  "Long:1",
+  "e-2147024809",
+  "Long:3",
+  "e0=Empty:|String:Ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:Ends With Tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:ENDS WITH TAB\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:endS With tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:eNDS With tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:13|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:nds|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Empty:|String:ends with tab\t.|Long:15|Long:3|Long:1",
+  "e0=Empty:|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:4|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:3|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:1|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:12|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:$|String:end$ with tab\t|Long:14|Long:3|Long:1",
+  "e0=Boolean:True|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:8|String:ends wiTh tab\t|Long:14|Long:3|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=String:Rectangle|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "e0=Long:-2|String:ends with tab\t|Long:14|Long:3|Long:1",
+  "Long:5",
+  "String:Fine",
+  "Long:5",
+  "Long:3",
+  "String:maybe.<LF>",
+  "Long:1",
+  "e0=Empty:|String:Fine?<LF>Maybe.<LF>Sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:Fine?<LF>Maybe.<LF>Sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:fINE?<LF>MAYBE.<LF>SURE|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:FinE?<LF>Maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:FINE?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:17|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:ine|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Empty:|String:Fine?.<LF>maybe.<LF>sure.|Long:19|Long:1|Long:3",
+  "e0=Empty:|String:Fine?<LF>maybe<LF>sure|Long:16|Long:1|Long:3",
+  "e0=Long:14|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:3|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:1|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:8|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:$|String:Fine?<LF>maybe.<LF>$ure|Long:17|Long:1|Long:3",
+  "e0=Boolean:True|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e91=e91|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=String:Rectangle|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3",
+  "e0=Long:-2|String:Fine?<LF>maybe.<LF>sure|Long:17|Long:1|Long:3"
  ]
 }

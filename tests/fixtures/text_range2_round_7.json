@@ -1026,5 +1026,162 @@
   [
    "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
   ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "measured_at": "2026-11-08T01:43:31.552768+00:00",
+ "excel": [
+  "Long:10",
+  "String:wet ",
+  "Long:5",
+  "Long:4",
+  "String:warm wind",
+  "Long:3",
+  "e0=Empty:|String:Wet sand. Dry rock! Cold sea<LF>Warm wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:Wet Sand. Dry Rock! Cold Sea<LF>Warm Wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:WET SAND. DRY ROCK! COLD SEA<LF>WARM WIND|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:wet Sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:wET SAnd. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:38|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:et|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Empty:|String:wet sand. dry rock! cold sea.<LF>warm wind.|Long:40|Long:3|Long:2",
+  "e0=Empty:|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:5|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:1|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:3|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:1|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:1|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:6|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:$|String:wet $and. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Boolean:True|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e91=e91|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=String:Rectangle|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "e0=Long:-2|String:wet sand. dry rock! cold sea<LF>warm wind|Long:38|Long:3|Long:2",
+  "Long:3",
+  "String:  ",
+  "Long:3",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:  Xy  z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  Xy  Z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  XY  Z|Long:7|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  XY  z|Long:7|Long:1|Long:1",
+  "e0=Long:7|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=String: xy|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Empty:|String:  xy  z.|Long:8|Long:1|Long:1",
+  "e0=Empty:|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:3|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:1|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:3|String:  xy  z|Long:7|Long:1|Long:1",
+  "e91=e91|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Boolean:False|String:  yy  z|Long:7|Long:1|Long:1",
+  "e91=e91|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=String:Rectangle|String:  xy  z|Long:7|Long:1|Long:1",
+  "e0=Long:-2|String:  xy  z|Long:7|Long:1|Long:1",
+  "Long:2",
+  "String:NASA ",
+  "Long:6",
+  "Long:1",
+  "e-2147024809",
+  "Long:1",
+  "e0=Empty:|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:nasa TEAM\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=Long:9|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=String:ASA|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Empty:|String:NASA team\t.|Long:11|Long:1|Long:1",
+  "e0=Empty:|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:3|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:3|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:3|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:1|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:1|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:4|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=String:$|String:NA$A team\t|Long:10|Long:1|Long:1",
+  "e0=Boolean:True|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:6|String:NASA Team\t|Long:10|Long:1|Long:1",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=String:Rectangle|String:NASA team\t|Long:10|Long:1|Long:1",
+  "e0=Long:-2|String:NASA team\t|Long:10|Long:1|Long:1",
+  "Long:5",
+  "String:a",
+  "Long:2",
+  "Long:3",
+  "String:bb?<LF>",
+  "Long:3",
+  "e0=Empty:|String:A.<LF>Bb?<LF>Cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:A.<LF>Bb?<LF>Cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:A.<LF>BB?<LF>CC|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:a.<LF>Bb?<LF>Cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:a.<LF>BB?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:9|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=String:.<LF>b|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Empty:|String:a.<LF>bb?.<LF>cc.|Long:11|Long:3|Long:3",
+  "e0=Empty:|String:a<LF>bb?<LF>cc|Long:8|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:3|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:1|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:3|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e91=e91|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Boolean:True|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e91=e91|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=String:\u0080|String:\u0080|Long:1|Long:1|Long:1",
+  "e0=Long:1|String:\u03a9|Long:1|Long:1|Long:1",
+  "e0=Long:0|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=String:Rectangle|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3",
+  "e0=Long:-2|String:a.<LF>bb?<LF>cc|Long:9|Long:3|Long:3"
  ]
 }

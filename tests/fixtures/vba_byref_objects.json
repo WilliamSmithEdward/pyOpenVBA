@@ -1,0 +1,650 @@
+{
+ "cases": [
+  {
+   "argument": "Variant",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Worksheet",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Worksheet, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Collection",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Collection, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Thing",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Thing, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Long",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As Long, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Variant",
+   "form": "plain",
+   "source": "Sub Take(p As Variant)\nEnd Sub\nFunction Give(p As Variant) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Variant)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Object",
+   "form": "plain",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Range",
+   "form": "plain",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Worksheet",
+   "form": "plain",
+   "source": "Sub Take(p As Worksheet)\nEnd Sub\nFunction Give(p As Worksheet) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Worksheet)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Collection",
+   "form": "plain",
+   "source": "Sub Take(p As Collection)\nEnd Sub\nFunction Give(p As Collection) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Collection)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Thing",
+   "form": "plain",
+   "source": "Sub Take(p As Thing)\nEnd Sub\nFunction Give(p As Thing) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Thing)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "String",
+   "parameter": "Long",
+   "form": "plain",
+   "source": "Sub Take(p As Long)\nEnd Sub\nFunction Give(p As Long) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Long)\nEnd Sub\nFunction Probe() As String\n    Dim x As String, y As Variant\n    If False Then\n        Take x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "call",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Call Take(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "call",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Call Take(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "call",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Call Take(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "call",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Call Take(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "call",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Call Take(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "call",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Call Take(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "parenthesised",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take (x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "parenthesised",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take (x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "parenthesised",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take (x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "parenthesised",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take (x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "parenthesised",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take (x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "parenthesised",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take (x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "named",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take p:=x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "named",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        Take p:=x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "named",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take p:=x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "named",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        Take p:=x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "named",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take p:=x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "named",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        Take p:=x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "function",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        y = Give(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "function",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        y = Give(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "function",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        y = Give(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "function",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        y = Give(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "function",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        y = Give(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "function",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        y = Give(x)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "byval",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        TakeByVal x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "byval",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    If False Then\n        TakeByVal x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "byval",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        TakeByVal x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "byval",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    If False Then\n        TakeByVal x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "byval",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        TakeByVal x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "byval",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    If False Then\n        TakeByVal x\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Object",
+   "form": "array element",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    Dim xs(1) As Variant\n    If False Then\n        Take xs(0)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Variant",
+   "parameter": "Range",
+   "form": "array element",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Variant, y As Variant\n    Dim xs(1) As Variant\n    If False Then\n        Take xs(0)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Object",
+   "form": "array element",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    Dim xs(1) As Object\n    If False Then\n        Take xs(0)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Object",
+   "parameter": "Range",
+   "form": "array element",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Object, y As Variant\n    Dim xs(1) As Object\n    If False Then\n        Take xs(0)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Object",
+   "form": "array element",
+   "source": "Sub Take(p As Object)\nEnd Sub\nFunction Give(p As Object) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Object)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    Dim xs(1) As Range\n    If False Then\n        Take xs(0)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  },
+  {
+   "argument": "Range",
+   "parameter": "Range",
+   "form": "array element",
+   "source": "Sub Take(p As Range)\nEnd Sub\nFunction Give(p As Range) As Variant\nEnd Function\nSub TakeByVal(ByVal p As Range)\nEnd Sub\nFunction Probe() As String\n    Dim x As Range, y As Variant\n    Dim xs(1) As Range\n    If False Then\n        Take xs(0)\n    End If\n    Probe = \"compiled\"\nEnd Function\n"
+  }
+ ],
+ "model": [
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compile error: ByRef argument type mismatch",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compile error: ByRef argument type mismatch",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled",
+  "compiled"
+ ]
+}

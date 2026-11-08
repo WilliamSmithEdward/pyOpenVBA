@@ -221,6 +221,10 @@ class ChartState:
     style_part: bool = False
     #: Whether a loaded legend has a layout of its own, which makes its position custom.
     legend_manual: bool = False
+    #: A loaded chart's manual layouts as its file spells them, the plot area's and the legend's; empty for none
+    #: (see _charts_file.read_chart). The model places neither itself.
+    plot_layout: str = ''
+    legend_layout: str = ''
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
     legend_position: str = 'r'
@@ -823,6 +827,20 @@ def _labels_alone(entry: SeriesState) -> bool:
     """Whether what the series' points hold of their own is their labels alone."""
     return all(PointState(unique=point.unique) == replace(point, label=None, label_own=PointLabel(), label_unique=-1)
                for point in entry.points.values())
+
+
+def _dressed_with(entry: SeriesState) -> bool:
+    """Whether a series has a look of its own that goes with its cells: labels, a fill or line, or trendlines."""
+    return (entry.data_labels or any(point.label is not None for point in entry.points.values())
+            or entry.format_look is not None or bool(entry.trendlines))
+
+
+def _goes_measured(entry: SeriesState) -> bool:
+    """Whether all a series has of its own is what was measured going with its cells: labels, its points' labels, its
+    fill and line and its trendlines (tests/fixtures/loaded_chart_label_data.json, tests/fixtures/loaded_chart_structure_edits.json)."""
+    return (_labels_alone(entry) and not entry.error_bars and entry.shadow is None and not entry.invert_if_negative
+            and entry.explosion == 0 and not entry.smooth and entry.marker_size is None and entry.marker_fore is None
+            and entry.marker_back is None and entry.marker_line is None)
 
 
 def _labels_taken(entry: SeriesState) -> None:
@@ -3101,24 +3119,25 @@ class Chart(ElementProperties, HeldPart):
         return EMPTY
 
     def _labels_across(self, series_plan: list[SeriesState]) -> bool:
-        """A loaded chart's data labels across SetSourceData: a series in the same place with the same cells keeps them, and
-        one whose cells change loses them, as Excel's save does (tests/fixtures/loaded_chart_label_data.json). Whether any
-        were lost so."""
+        """A loaded chart's series looks across SetSourceData: a series in the same place with the same cells keeps its
+        labels and its fill and line, and one whose cells change loses them; its trendlines stay with its place, as
+        Excel's save does (tests/fixtures/loaded_chart_label_data.json, tests/fixtures/loaded_chart_structure_edits.json).
+        Whether any were lost so."""
         dropped = False
         for index, old in enumerate(self.state.series):
-            if not Series(self, old).has_labels():
-                continue
-            if not _labels_alone(old):
-                raise VBAUnsupportedError("SetSourceData on an imported chart whose labelled points have a look is not implemented")
-            if index >= len(series_plan):
+            if not _goes_measured(old):
+                raise VBAUnsupportedError('SetSourceData on an imported chart whose series have this look is not implemented')
+            if not _dressed_with(old) or index >= len(series_plan):
                 continue
             new = series_plan[index]
+            new.trendlines = old.trendlines
             if (new.name_reference, new.category_reference, new.value_reference) != (
                     old.name_reference, old.category_reference, old.value_reference):
                 dropped = True
                 continue
             new.data_labels, new.leader_lines, new.label_look = old.data_labels, old.leader_lines, old.label_look
             new.labels_read, new.labels_unread, new.points = old.labels_read, old.labels_unread, old.points
+            new.format_look, new.look_read = old.format_look, old.look_read
         return dropped
 
     def element_there(self) -> bool:
@@ -4380,6 +4399,10 @@ class SeriesCollection(VBACollection, ItemDefault, Created):
     @method
     def NewSeries(self) -> object:
         self.chart.plot_admitted('SeriesCollection.NewSeries')
+        if self.chart.state.original and any(entry.trendlines for entry in self.chart.state.series):
+            # Excel numbered what it added from 1 on the one book measured with a trendline, from 0 on the others
+            # (tests/fixtures/loaded_chart_structure_edits.json); the rule is not known.
+            raise VBAUnsupportedError('A new series on an imported chart with a trendline is not implemented')
         self.chart.nothing_filtered('NewSeries')
         used = {entry.series_id if entry.series_id >= 0 else index
                 for index, entry in enumerate(self.chart.state.series)}
@@ -4844,17 +4867,19 @@ class Series(PictureMembers, Created):
             raise VBAUnsupportedError('Changing the data of an imported chart after its labels went with its data is not implemented')
         reference, values = series_input(value, sheet=self.chart.sheet)
         # A loaded series' labels stay with the same cells and go with others (tests/fixtures/loaded_chart_label_data.json).
-        taken = bool(state.original and self.has_labels() and reference.lstrip('=') != self.entry.value_reference)
+        # Its fill and line go with them too (tests/fixtures/loaded_chart_structure_edits.json).
+        taken = bool(state.original and _dressed_with(self.entry) and reference.lstrip('=') != self.entry.value_reference)
         if taken and not reference:
             # Excel kept them with a literal array, in the one case measured.
             raise VBAUnsupportedError('Setting a literal array as the values of an imported chart series with labels is not implemented')
-        if taken and not _labels_alone(self.entry):
-            raise VBAUnsupportedError('Setting the values of an imported chart series whose labelled points have a look is not implemented')
+        if taken and (not _goes_measured(self.entry) or self.entry.trendlines):
+            raise VBAUnsupportedError('Setting the values of an imported chart series with this look is not implemented')
         self.position()
         self.chart.plot_changed('Series.Values')
         self.entry.value_reference, self.entry.values = reference, values
         if taken:
             _labels_taken(self.entry)
+            self.entry.format_look = None
             state.labels_data_dropped = True
 
     @member
@@ -5025,7 +5050,10 @@ class Series(PictureMembers, Created):
         own = self.chart.state.original and any(not point.label_own.empty() for point in self.entry.points.values())
         if own or any(point.label is not None for point in self.entry.points.values()):
             raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
-        if self.entry.label_look.font is not None:
+        from pyopenvba.apps.excel._charts_file import written_label_look
+
+        # A font that is the style's own is not one of theirs (see written_label_look).
+        if written_label_look(self.chart.state, self.entry).font is not None:
             raise VBAUnsupportedError('Changing data labels that have a font is not implemented')
         self.chart.part_changed(self.entry, 'labels', 'Series.HasDataLabels')
         if self.entry.data_labels and not wanted:

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, replace
 from decimal import Decimal
 import math
 import re
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel import _events
@@ -2032,6 +2032,9 @@ class ChartObject(HeldPart):
 
 class Chart(ElementProperties, HeldPart):
     vba_type_name = 'Chart'
+    #: The events a chart sheet raises to WithEvents sinks (see _events.activated, tests/fixtures/chart_sheet_members.json);
+    #: Activate is also a method.
+    raised_events: ClassVar[frozenset[str]] = frozenset({'Activate', 'Deactivate'})
 
     held_free = frozenset({'application', 'creator'})
     held_past_sheet = True
@@ -2897,6 +2900,32 @@ class Chart(ElementProperties, HeldPart):
                 self.changed()
             self.state.holds_automatic_title(self.sheet)
         return ChartTitle(self)
+
+    @member
+    def PrintedCommentPages(self) -> object:
+        """0, on a chart sheet and an embedded chart alike (tests/fixtures/chart_sheet_members.json)."""
+        self.admit_read()
+        return VBAInt(0, 'Long')
+
+    @method
+    def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
+               WriteResPassword: object = MISSING, ReadOnlyRecommended: object = MISSING,
+               CreateBackup: object = MISSING, AddToMru: object = MISSING, TextCodepage: object = MISSING,
+               TextVisualLayout: object = MISSING, Local: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        """A chart sheet's SaveAs is its workbook's; an embedded chart's raises 1004 and writes nothing
+        (tests/fixtures/chart_sheet_members.json)."""
+        from pyopenvba.apps.excel._model import refuse_save_options
+        from pyopenvba.apps.excel._text_files import text_writer
+
+        self.admit_read()
+        self.sheet.book.application.outside('Chart.SaveAs')
+        if self.sheet.chart_sheet is not self:
+            raise error(1004, 'SaveAs method of Chart class failed')
+        refuse_save_options(Password, WriteResPassword, ReadOnlyRecommended, CreateBackup)
+        if FileFormat is not MISSING and text_writer(int(to_integer(FileFormat, 'Long'))) is not None:
+            raise VBAUnsupportedError('Saving a chart sheet in a text format is not implemented')
+        self.sheet.book.save_as(Filename, FileFormat)
+        return EMPTY
 
     @member
     def PlotBy(self) -> object:

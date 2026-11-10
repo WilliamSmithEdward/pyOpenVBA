@@ -151,7 +151,7 @@ class ChartSheet(Chart):
         book.chart_sheets.insert(sum(isinstance(tab, ChartSheet) for tab in book.file_tabs[:place]), sheet)
         book.file_tabs.insert(place, sheet)
         book.saved = False
-        sheet.Activate()
+        sheet.made_active()
         return sheet
 
     def write_parts(self, package: OpcFile) -> str:
@@ -301,8 +301,19 @@ class ChartSheet(Chart):
 
     @method
     def Activate(self) -> object:
-        """The chart sheet made active, which earns its chart the automatic title it has (tests/fixtures/charts_add.json)."""
+        """The chart sheet made active, the sheet it leaves deactivating and it activating, as a worksheet does
+        (tests/fixtures/chart_sheet_members.json)."""
+        from pyopenvba.apps.excel import _events
+
         self.admit_read()
+        before = self.book.active_chart_sheet or self.book.active_sheet
+        self.made_active()
+        _events.activated(self.book, before, self)
+        return EMPTY
+
+    def made_active(self) -> None:
+        """The chart sheet made active, with no events, which earns its chart the automatic title it has
+        (tests/fixtures/charts_add.json)."""
         if self.book.active_chart_sheet is not self:
             self.state.holds_automatic_title(self.sheet)
         if self.state.original and self.book.active_chart_sheet is not self:
@@ -317,7 +328,6 @@ class ChartSheet(Chart):
         self.book.view.first_sheet = min(self.book.view.first_sheet, self.book.tabs().index(self))
         self.book.selected_sheets = []
         self.book.application.activate_book(self.book)
-        return EMPTY
 
     @method
     def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
@@ -642,7 +652,12 @@ def add_chart_sheets(book: Workbook, before: object, after: object, count: objec
     made: ChartSheet | None = None
     for _ in range(number):
         name = new_name(book, MISSING)
+        left = book.active_chart_sheet or book.active_sheet
         made = ChartSheet.created(book, name, ChartState(), Shape(name="Chart 1", kind="chart"), place)
+        # NewSheet, then the sheet left deactivates and the new one activates (tests/fixtures/chart_sheet_members.json).
+        from pyopenvba.apps.excel import _events
+
+        _events.new_sheet(book, made, left)
         if source is not None:
             made.SetSourceData(source, plot_by)
     assert made is not None

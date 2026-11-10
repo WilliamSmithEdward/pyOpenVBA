@@ -1,0 +1,62 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-11-10T15:51:02.103471+00:00",
+  "instrumentation": "none",
+  "classes": {
+    "CChartSink": "Option Explicit\nPublic WithEvents Ch As Chart\nPublic Log As String\nPrivate Sub Ch_Activate()\n    Log = Log & \"chart act:\" & Ch.Name & \";\"\nEnd Sub\nPrivate Sub Ch_Deactivate()\n    Log = Log & \"chart deact:\" & Ch.Name & \";\"\nEnd Sub\n",
+    "CSheetSink": "Option Explicit\nPublic WithEvents Ws As Worksheet\nPublic Log As String\nPrivate Sub Ws_Activate()\n    Log = Log & \"sheet act;\"\nEnd Sub\nPrivate Sub Ws_Deactivate()\n    Log = Log & \"sheet deact;\"\nEnd Sub\n",
+    "CBookSink": "Option Explicit\nPublic WithEvents Wb As Workbook\nPublic Log As String\nPrivate Sub Wb_SheetActivate(ByVal Sh As Object)\n    Log = Log & \"book sheetact:\" & TypeName(Sh) & \":\" & Sh.Name & \";\"\nEnd Sub\nPrivate Sub Wb_SheetDeactivate(ByVal Sh As Object)\n    Log = Log & \"book sheetdeact:\" & TypeName(Sh) & \":\" & Sh.Name & \";\"\nEnd Sub\nPrivate Sub Wb_NewSheet(ByVal Sh As Object)\n    Log = Log & \"book new:\" & TypeName(Sh) & \";\"\nEnd Sub\n"
+  },
+  "probes": [
+    {
+      "name": "pages_sheet",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nProbe = TypeName(ch.PrintedCommentPages) & \" \" & ch.PrintedCommentPages\nwb.Close False\nEnd Function\n",
+      "result": "Long 0"
+    },
+    {
+      "name": "pages_embedded",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nDim e As Object\nSet e = ws.ChartObjects.Add(48, 96, 240, 144).Chart\nOn Error Resume Next\nDim v As Variant\nv = e.PrintedCommentPages\nProbe = Err.Number & \" \" & TypeName(v) & \" \" & v\nOn Error GoTo 0\nwb.Close False\nEnd Function\n",
+      "result": "0 Long 0"
+    },
+    {
+      "name": "save_as_sheet",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nDim path As String\npath = Environ(\"TEMP\") & \"\\pyov_chart_sheet_save_as.xlsx\"\nIf Dir(path) <> \"\" Then Kill path\nch.SaveAs path, xlOpenXMLWorkbook\nProbe = wb.Name & \"|\" & (Dir(path) <> \"\") & \"|\" & wb.Sheets.Count & \"|\" & ActiveSheet.Name\nwb.Close False\nKill path\nEnd Function\n",
+      "result": "pyov_chart_sheet_save_as.xlsx|True|2|Chart1"
+    },
+    {
+      "name": "save_as_embedded",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nDim e As Object\nSet e = ws.ChartObjects.Add(48, 96, 240, 144).Chart\nDim path As String\npath = Environ(\"TEMP\") & \"\\pyov_chart_sheet_save_as.xlsx\"\nIf Dir(path) <> \"\" Then Kill path\nOn Error Resume Next\ne.SaveAs path, xlOpenXMLWorkbook\nProbe = Err.Number & \"|\" & (Dir(path) <> \"\") & \"|\" & (wb.Path = \"\")\nOn Error GoTo 0\nwb.Close False\nIf Dir(path) <> \"\" Then Kill path\nEnd Function\n",
+      "result": "1004|False|True"
+    },
+    {
+      "name": "events_chart_to_sheet",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nDim c As New CChartSink, s As New CSheetSink, b As New CBookSink\nSet c.Ch = ch\nSet s.Ws = ws\nSet b.Wb = wb\nApplication.EnableEvents = True\nws.Activate\nProbe = \"[\" & c.Log & \"][\" & s.Log & \"][\" & b.Log & \"]\"\nApplication.EnableEvents = False\nwb.Close False\nEnd Function\n",
+      "result": "[chart deact:Chart1;][sheet act;][book sheetdeact:Chart:Chart1;book sheetact:Worksheet:One;]"
+    },
+    {
+      "name": "events_sheet_to_chart",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nws.Activate\nDim c As New CChartSink, s As New CSheetSink, b As New CBookSink\nSet c.Ch = ch\nSet s.Ws = ws\nSet b.Wb = wb\nApplication.EnableEvents = True\nch.Activate\nProbe = \"[\" & c.Log & \"][\" & s.Log & \"][\" & b.Log & \"]\"\nApplication.EnableEvents = False\nwb.Close False\nEnd Function\n",
+      "result": "[chart act:Chart1;][sheet deact;][book sheetdeact:Worksheet:One;book sheetact:Chart:Chart1;]"
+    },
+    {
+      "name": "events_chart_select",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nws.Activate\nDim c As New CChartSink, s As New CSheetSink, b As New CBookSink\nSet c.Ch = ch\nSet s.Ws = ws\nSet b.Wb = wb\nApplication.EnableEvents = True\nch.Select\nProbe = \"[\" & c.Log & \"][\" & s.Log & \"][\" & b.Log & \"]\"\nApplication.EnableEvents = False\nwb.Close False\nEnd Function\n",
+      "result": "[chart act:Chart1;][sheet deact;][book sheetdeact:Worksheet:One;book sheetact:Chart:Chart1;]"
+    },
+    {
+      "name": "events_chart_to_chart",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nDim ch2 As Chart\nSet ch2 = wb.Charts.Add\nDim c As New CChartSink, s As New CSheetSink, b As New CBookSink\nSet c.Ch = ch\nSet s.Ws = ws\nSet b.Wb = wb\nApplication.EnableEvents = True\nch.Activate\nch2.Activate\nProbe = \"[\" & c.Log & \"][\" & s.Log & \"][\" & b.Log & \"]\"\nApplication.EnableEvents = False\nwb.Close False\nEnd Function\n",
+      "result": "[chart act:Chart1;chart deact:Chart1;][][book sheetdeact:Chart:Chart2;book sheetact:Chart:Chart1;book sheetdeact:Chart:Chart1;book sheetact:Chart:Chart2;]"
+    },
+    {
+      "name": "events_charts_add",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nws.Activate\nDim c As New CChartSink, s As New CSheetSink, b As New CBookSink\nSet c.Ch = ch\nSet s.Ws = ws\nSet b.Wb = wb\nApplication.EnableEvents = True\nwb.Charts.Add\nProbe = \"[\" & c.Log & \"][\" & s.Log & \"][\" & b.Log & \"]\"\nApplication.EnableEvents = False\nwb.Close False\nEnd Function\n",
+      "result": "[][sheet deact;][book new:Chart;book sheetdeact:Worksheet:One;book sheetact:Chart:Chart2;]"
+    },
+    {
+      "name": "events_off",
+      "macro": "\nFunction Probe() As String\nDim wb As Workbook, ws As Worksheet, ch As Chart\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nws.Name = \"One\"\nws.Range(\"A1:C1\").Value = Array(\"\", \"Rev\", \"Cost\")\nws.Range(\"A2:C2\").Value = Array(\"a\", 10, 4)\nws.Range(\"A3:C3\").Value = Array(\"b\", 20, 6)\nSet ch = wb.Charts.Add\nch.SetSourceData ws.Range(\"A1:C3\")\nDim c As New CChartSink, s As New CSheetSink, b As New CBookSink\nSet c.Ch = ch\nSet s.Ws = ws\nSet b.Wb = wb\nApplication.EnableEvents = True\nApplication.EnableEvents = False\nws.Activate\nch.Activate\nProbe = \"[\" & c.Log & \"][\" & s.Log & \"][\" & b.Log & \"]\"\nApplication.EnableEvents = False\nwb.Close False\nEnd Function\n",
+      "result": "[][][]"
+    }
+  ]
+}

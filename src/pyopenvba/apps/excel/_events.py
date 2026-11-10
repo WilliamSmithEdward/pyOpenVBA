@@ -48,6 +48,7 @@ from pyopenvba.interpreter._runtime import Slot
 from pyopenvba.interpreter._values import to_bool
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
     from pyopenvba.apps.excel._model import Application, Range, Workbook, Worksheet
     from pyopenvba.apps.excel._pivots import PivotTable
 
@@ -159,12 +160,15 @@ def before_print(book: Workbook) -> bool:
     return not to_bool(cancel.get())
 
 
-def _both(sheet: Worksheet, event: str, args: list[object], *, application: bool = True) -> None:
-    """One event, in the sheet's module and then in its workbook's, then the application's unless it has none to raise."""
+def _both(sheet: Worksheet | ChartSheet, event: str, args: list[object], *, application: bool = True) -> None:
+    """One event, in the sheet's module and then in its workbook's, then the application's unless it has none to raise.
+    A chart sheet raises its own as Chart_ (tests/fixtures/chart_sheet_members.json)."""
+    from pyopenvba.apps.excel._chart_sheets import ChartSheet
+
     if not _on(sheet.book):
         return
     _sinks(sheet.book, sheet, event, args)
-    _handle(sheet, f"Worksheet_{event}", args)
+    _handle(sheet, f"{'Chart' if isinstance(sheet, ChartSheet) else 'Worksheet'}_{event}", args)
     if not _on(sheet.book):
         return
     combined = [sheet, *args]
@@ -338,7 +342,7 @@ def quietly_edited(book: Workbook) -> None:
                  already_calculated={sheet for sheet in book.sheets_ if sheet.name.lower() in settled_names})
 
 
-def activated(book: Workbook, before: Worksheet | None, after: Worksheet) -> None:
+def activated(book: Workbook, before: Worksheet | ChartSheet | None, after: Worksheet | ChartSheet) -> None:
     """Another sheet made active: the one left deactivates, then the new one activates."""
     if not _on(book) or before is after:
         return
@@ -347,7 +351,7 @@ def activated(book: Workbook, before: Worksheet | None, after: Worksheet) -> Non
     _both(after, "Activate", [])
 
 
-def new_sheet(book: Workbook, sheet: Worksheet, left: Worksheet | None) -> None:
+def new_sheet(book: Workbook, sheet: Worksheet | ChartSheet, left: Worksheet | ChartSheet | None) -> None:
     """A sheet added: NewSheet, then the sheet it left deactivates and the new one activates."""
     if not _on(book):
         return

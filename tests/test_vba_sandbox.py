@@ -37,6 +37,8 @@ WRITES_OR_READS = [
     'Workbooks.OpenText UCase(folder) & "\\THERE.CSV"',
     'Workbooks.OpenText folder & "/there.csv"',
     'ActiveSheet.SetBackgroundPicture folder & "/there.png"',
+    'Charts.Add.SaveAs folder & "/out.xlsx"',
+    'ActiveSheet.ChartObjects.Add(0, 0, 100, 100).Chart.SaveAs folder & "/out.xlsx"',
     'ActiveWorkbook.ApplyTheme folder & "/there.png"',
     'ActiveSheet.PageSetup.LeftHeaderPicture.Filename = folder & "/there.png"',
     'ActiveWorkbook.UpdateLink folder & "/there.xlsx"',

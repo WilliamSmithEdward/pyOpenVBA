@@ -20,14 +20,24 @@ _spec.loader.exec_module(PIVOTS)
 
 RECORDS: list[dict[str, Any]] = [json.loads(path.read_text(encoding='utf-8'))
                                  for path in sorted((ROOT / 'tests/fixtures/pivot_table_rounds').glob('round_*.json'))]
-USED_UP = {57101: 'ChangeConnection given Nothing raised 13 where Excel raises 1004 (tests/fixtures/change_connection.json)'}
+USED_UP = {57101: 'ChangeConnection given Nothing raised 13 where Excel raises 1004 (tests/fixtures/change_connection.json)',
+           57102: 'a row inserted above the table left it in place where Excel moves it, and ListFormulas with another book in '
+                  'front closed its book, where Excel cannot (tests/test_excel_pivot_shift_refusal.py, list_formulas_close.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
+#: What the model reports where Excel's answer is one it does not copy: a table moved by a row inserted above it, and the
+#: book ListFormulas leaves unclosable with another book in front.
+REPORTED = {'ws2.Rows(1).Insert': 'model VBAUnsupportedError: Inserting or deleting cells that would move a pivot table',
+            'o.ListFormulas': 'model VBAUnsupportedError: PivotTable.ListFormulas with another workbook in front'}
+
+
+def _as_answered(model: str, excel: str, case: dict[str, str]) -> bool:
+    return model == excel or any(call in case['call'] and model.startswith(report) for call, report in REPORTED.items())
 
 
 @pytest.mark.parametrize(('seed', 'at', 'case'), CASES, ids=[f'{seed}-{at}' for seed, at, _ in CASES])
 def test_each_call_as_excel_answered(seed: int, at: int, case: dict[str, str]) -> None:
-    assert PIVOTS.base.model_answer(case, False, seed, PIVOTS.LISTS) == case['late']
-    assert PIVOTS.base.model_answer(case, True, seed, PIVOTS.LISTS) == case['typed']
+    assert _as_answered(PIVOTS.base.model_answer(case, False, seed, PIVOTS.LISTS), case['late'], case)
+    assert _as_answered(PIVOTS.base.model_answer(case, True, seed, PIVOTS.LISTS), case['typed'], case)
 
 
 @pytest.mark.parametrize('record', RECORDS, ids=lambda record: str(record['seed']))

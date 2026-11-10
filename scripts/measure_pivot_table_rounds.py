@@ -3,7 +3,8 @@ ranges, its field collections, its display, enable and table style switches, its
 table answers (AllocateChanges, ChangeConnection, CommitChanges, ConvertToFormulas, DiscardChanges, RefreshDataSourceValues),
 which a range's table refuses. Each is read, set and read back where it sets.
 
-RefreshDate is read for its type only: Excel answers the moment the table was refreshed, which no prediction can know.
+RefreshDate is read for its type only: Excel answers the moment the table was refreshed, which no prediction can know. No
+row goes in above the table: the model reports an edit that would move it (tests/test_excel_pivot_shift_refusal.py).
 
 The book is the table rounds' (scripts/measure_table_pivot_rounds.py): a new book whose second sheet holds a pivot table of the
 first sheet's keys and values, the same saved and reopened, or the pivot table Excel saved in tests/fixtures/dxf_table/made.xlsx.
@@ -41,7 +42,6 @@ def _flag(flag: str) -> list[str]:
 MEMBERS = {'PivotTable': [
     *[call for flag in FLAGS for call in _flag(flag)],
     *[f'x = Key(o.{name}, book)' for name in RANGES],
-    *[f'ws2.Rows(1).Insert: x = Key(o.{name}, book)' for name in ('TableRange1', 'DataBodyRange', 'RowRange')],
     *[f'x = Key(o.{name}, book) & o.{name}.Count' for name in FIELDS],
     'x = Key(o.ColumnFields(1), book)', 'x = Key(o.RowFields(1), book)', 'x = Key(o.DataFields(1), book)', 'x = Key(o.PivotFields("v"), book)',
     'o.PivotFields("v").Orientation = xlColumnField: x = Key(o.ColumnFields.Count, book) & " " & o.ColumnRange.Address',
@@ -53,7 +53,9 @@ MEMBERS = {'PivotTable': [
     'x = Key(o.AlternativeText, book)', 'o.AlternativeText = "alt": x = Key(o.AlternativeText, book)', 'o.AlternativeText = 12: x = Key(o.AlternativeText, book)',
     'x = Key(o.Summary, book)', 'o.Summary = "s" & vbLf & "t": x = Key(o.Summary, book)', 'o.Summary = "": x = Key(o.Summary, book)',
     'x = Key(o.Tag, book)', 'o.Tag = "t1": x = Key(o.Tag, book)', 'o.Tag = 3.5: x = Key(o.Tag, book)',
-    'o.ListFormulas: x = Key(ActiveSheet.Name = ws2.Name, book) & " " & wbT.Worksheets.Count',
+    # Its own book in front: with another there, Excel raises -2147417848 and leaves a book it cannot close
+    # (tests/fixtures/list_formulas_close.json), which no round asks again.
+    'wbT.Activate: o.ListFormulas: x = Key(ActiveSheet.Name = ws2.Name, book) & " " & wbT.Worksheets.Count',
     *[f'o.{call}: x = "done"' for call in CUBE],
     # Late bound through CallByName: typed, Nothing for a WorkbookConnection does not compile.
     'CallByName o, "ChangeConnection", VbMethod, Nothing: x = "done"',

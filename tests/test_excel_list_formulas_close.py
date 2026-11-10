@@ -32,7 +32,10 @@ def folder() -> Any:
 @pytest.mark.parametrize('case', CASES, ids=[f'{case["book"]}-{case["edit"]}-{case["list"]}' for case in CASES])
 def test_each_case_as_excel_answered(case: dict[str, str], folder: str) -> None:
     answer = PROBE.model(case, folder)
-    if case['book'] == 'file, another in front' and case['list'] == 'True':
+    if case['edit'] == 'ws2.Columns(1).Insert':
+        # The column goes in before the table, which Excel moves and the model reports (tests/test_excel_pivot_shift_refusal.py).
+        assert answer.startswith('model VBAUnsupportedError: Inserting or deleting cells that would move a pivot table')
+    elif case['book'] == 'file, another in front' and case['list'] == 'True':
         assert answer.startswith(REPORTED) and ' close -2147417848' in case['excel']
     else:
         assert answer == case['excel']

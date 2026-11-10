@@ -12,8 +12,8 @@ from pyopenvba.exceptions import VBACompileError
 
 RECORD = json.loads((Path(__file__).parent / 'fixtures/vba_len_arguments.json').read_text(encoding='utf-8'))
 ANSWERS: dict[str, str] = RECORD['answers']
-#: These answer the clock.
-BY_THE_CLOCK = ('Len(Now)',)
+#: These answer the clock: the date's text is 9 characters on 11/8/2026 and 10 on 11/10/2026.
+BY_THE_CLOCK = ('Len(Now)', 'Len(Date)')
 
 
 def _app(line: str) -> ExcelApplication:
@@ -33,6 +33,12 @@ def test_it_does_not_compile(line: str) -> None:
 @pytest.mark.parametrize('line', [line for line, answer in ANSWERS.items() if not answer.startswith('does not compile') and line not in BY_THE_CLOCK])
 def test_it_answers_as_excel_did(line: str) -> None:
     assert _app(line).run('H.Probe') == ANSWERS[line]
+
+
+@pytest.mark.parametrize('line', BY_THE_CLOCK)
+def test_the_clock_answers_a_long(line: str) -> None:
+    answer = _app(line).run('H.Probe')
+    assert isinstance(answer, str) and answer.startswith('0=Long:') and ANSWERS[line].startswith('0=Long:')
 
 
 def test_a_procedure_called_len_is_no_len() -> None:

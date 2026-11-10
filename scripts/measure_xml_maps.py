@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import json
 import re
-import shutil
 import tempfile
 import zipfile
 from datetime import datetime, timezone
@@ -30,6 +29,8 @@ from pathlib import Path
 
 from pyvbaharness import ExcelSession, HarnessConfig
 from pyvbaharness.results import HarnessError
+
+from fixture_workbook import copy_saved
 
 OUT = Path(__file__).resolve().parents[1] / 'tests/fixtures/xml_maps.json'
 BOOKS = Path(__file__).resolve().parents[1] / 'tests/fixtures/xml_maps'
@@ -301,7 +302,7 @@ def main() -> None:
             saved.append({name: text.replace(folder, '<folder>') for name, text in parts(Path(folder) / f'c{index}.xlsx').items()})
             if index in KEPT and (Path(folder) / f'c{index}.xlsx').exists():
                 BOOKS.mkdir(exist_ok=True)
-                shutil.copy(Path(folder) / f'c{index}.xlsx', BOOKS / f'c{index}.xlsx')
+                copy_saved(Path(folder) / f'c{index}.xlsx', BOOKS / f'c{index}.xlsx')
             print(index, CASES[index][:100], '=>', answers[-1][:300])
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': source, 'schemas': SCHEMAS, 'data': DATA,
               'cases': [[statement, answer, part] for statement, answer, part in zip(CASES, answers, saved, strict=True)]}

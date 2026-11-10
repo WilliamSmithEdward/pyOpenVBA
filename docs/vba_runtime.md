@@ -3150,7 +3150,9 @@ not establish complete calculation scheduling, iteration, or event conformance.
   into the workbook as it is, however large; only its first bytes are read,
   to name its content type. A BMP or anything else Excel converts reports
   itself unsupported, as does `PresetTextured`, whose textures are Excel's
-  own pictures.
+  own pictures. A picture fill reads back from a book opened again as it
+  did before the save. Changing one there, or hiding a picture fill or
+  making it see-through, reports itself unsupported.
   Excel embedded charts can be created and saved for eight common chart kinds;
   editing imported chart contents and broader chart formatting remain incomplete.
 - A type-suffixed name is the same variable as the name without it, so

@@ -1,0 +1,1871 @@
+{
+ "reads": [
+  "f.Visible",
+  "f.Type",
+  "f.ForeColor.RGB",
+  "f.BackColor.RGB",
+  "f.Transparency",
+  "f.Pattern",
+  "f.GradientStyle",
+  "f.GradientVariant",
+  "f.GradientColorType",
+  "f.GradientAngle",
+  "f.RotateWithObject",
+  "f.GradientStops.Count",
+  "f.TextureAlignment",
+  "f.TextureHorizontalScale",
+  "f.TextureVerticalScale",
+  "f.TextureOffsetX",
+  "f.TextureOffsetY",
+  "f.TextureTile",
+  "f.TextureName",
+  "f.TextureType",
+  "f.PresetTexture",
+  "f.PictureEffects.Count",
+  "TypeName(f.PictureEffects)"
+ ],
+ "cases": [
+  [
+   "oval",
+   "f.UserPicture At(\"p.jpg\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.gif\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.jpeg\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"jpg_named.png\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"gif_named.png\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"png_named.gif\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   false
+  ],
+  [
+   "oval",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.jpg\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.gif\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.jpeg\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"jpg_named.png\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"gif_named.png\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"png_named.gif\")",
+   false
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   false
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   false
+  ],
+  [
+   "round",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.jpg\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.gif\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.jpeg\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"jpg_named.png\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"gif_named.png\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"png_named.gif\")",
+   false
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   false
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   false
+  ],
+  [
+   "text",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.jpg\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.gif\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.jpeg\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"jpg_named.png\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"gif_named.png\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"png_named.gif\")",
+   false
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   false
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   false
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   false
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   false
+  ],
+  [
+   "line",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   false
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.jpg\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.gif\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.jpeg\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"jpg_named.png\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"gif_named.png\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"png_named.gif\")",
+   true
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "oval",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   true
+  ],
+  [
+   "oval",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   true
+  ],
+  [
+   "oval",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.jpg\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.gif\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.jpeg\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"jpg_named.png\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"gif_named.png\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"png_named.gif\")",
+   true
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "round",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   true
+  ],
+  [
+   "round",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   true
+  ],
+  [
+   "round",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.jpg\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.gif\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.jpeg\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"jpg_named.png\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"gif_named.png\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"png_named.gif\")",
+   true
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "text",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   true
+  ],
+  [
+   "text",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   true
+  ],
+  [
+   "text",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.jpg\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.gif\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.jpeg\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"jpg_named.png\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"gif_named.png\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"png_named.gif\")",
+   true
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.jpg\"): f.TextureVerticalScale = 1.5: f.TextureOffsetY = -4",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.gif\"): f.TextureAlignment = msoTextureCenter",
+   true
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.png\"): f.TextureTile = msoTrue",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.jpg\"): f.TextureTile = msoFalse",
+   true
+  ],
+  [
+   "line",
+   "f.UserTextured At(\"p.gif\"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)",
+   true
+  ],
+  [
+   "line",
+   "f.UserPicture At(\"p.png\"): f.UserTextured At(\"p.jpg\")",
+   true
+  ],
+  [
+   "line",
+   "f.Patterned msoPatternWeave: f.UserPicture At(\"p.gif\")",
+   true
+  ]
+ ],
+ "model": [
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:44|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:44|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:44|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:44|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:44|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "refused",
+   "",
+   []
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:44|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused|refused",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ]
+ ]
+}

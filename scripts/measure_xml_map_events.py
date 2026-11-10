@@ -82,6 +82,11 @@ CASES: list[tuple[int, str]] = [
     (2, MAKE + 'r = m.ImportXml(data): wb.SaveAsXMLData f & "out4.xml", m: r = r & " " & (Dir(f & "out4.xml") <> "")'),
     (1, MAKE + 'r = wb.XmlImportXml(data, m, True) & " " & lo.Range.Address'),
     (0, MAKE + 'r = m.ImportXml(data, False) & " " & m.ImportXml("<list/>")'),
+    # The round above was stopped before it finished, so it is spent. Held-out rounds A and B, predicted before either ran.
+    (0, MAKE + 'r = wb.XmlImport(f & "d.xml", m, True) & " " & lo.Range.Address'),
+    (3, MAKE + 'r = m.Import(f & "d.xml") & " " & lo.Range.Address'),
+    (0, MAKE + 'r = m.ImportXml("not xml")'),
+    (2, MAKE + 'r = m.ImportXml(data): wb.SaveAsXMLData f & "out5.xml", m: r = r & " done"'),
 ]
 PROBE = '''Function Probe(ByVal folder As String, ByVal which As Long) As String
     Dim sink As New ExcelSink, wb As Workbook, m As Object, lo As Object, r As Variant, s As String, f As String, data As String, failure As String

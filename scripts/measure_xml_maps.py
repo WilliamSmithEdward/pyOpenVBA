@@ -171,6 +171,34 @@ CASES += [
     'r = m.ImportXml("<doc><title>T</title></doc>") & " " & IsEmpty(ws.Range("B3").Value)',
     ADD1 + COLUMNS1 + 'm.AdjustColumnWidth = False: ' + IMPORT1 + 'r = ws.Columns(2).ColumnWidth',
 ]
+# The second held-out round was stopped before it finished (the stand-down of 2026-11-08), so the cases above are spent.
+# Held-out round A, written and predicted with round B before either ran, on the same code.
+NS_DATA = '<list xmlns="urn:t"><item><n>3</n><s>x</s></item></list>'
+CASES += [
+    ADD1 + COLUMNS1 + 'm.AppendOnImport = True: ' + IMPORT1 + 'r = m.ImportXml(ReadAll(f & "d1.xml")) & " " & lo.Range.Address & " " & ws.Range("A6").Value',
+    ADD1 + COLUMNS1 + IMPORT1 + 'r = m.ExportXml(s) & " " & Len(s) & " " & InStr(s, vbCr) & " " & InStr(s, vbLf)',
+    S4 + 'ws.Range("B2").XPath.SetValue m, "/doc/title": ws.Range("B3").XPath.SetValue m, "/doc/count": '
+    'r = m.ImportXml("<doc><count>4</count></doc>") & " " & IsEmpty(ws.Range("B2").Value) & " " & ws.Range("B3").Value',
+    ADD1 + 'r = wb.XmlMaps("LIST_MAP").Name & " " & wb.XmlMaps("list_map").RootElementName',
+    ADD1 + 'ws.Range("A1:A3").XPath.SetValue m, "/list/item/n": ' + IMPORT1 + 'r = r & " " & ws.ListObjects(1).Range.Address & " " & ws.Range("A3").Value',
+    ADD1 + COLUMNS1 + 'ws.Range("A2").Value = 7: ws.Range("B2").Value = "t": ws.Range("C2").Value = DateSerial(2022, 2, 3): ws.Range("D2").Value = True: '
+    'ws.Range("E2").Value = 1: r = m.ExportXml(s) & " " & s',
+    'Set m = wb.XmlMaps.Add(f & "s2.xsd", "list"): ws.Range("A1").XPath.SetValue m, "/ns1:list/ns1:item/ns1:n": '
+    f'r = m.ImportXml("{NS_DATA.replace(chr(34), chr(34) * 2)}") & " " & ws.Range("A1").Value & " " & TypeName(ws.Range("A1").Value)',
+]
+# Held-out round B.
+CASES += [
+    ADD1 + COLUMNS1 + 'r = m.ImportXml("<list><item><n>+7</n><s>p</s><d>2024-02-29</d><b>1</b><x>2.50</x></item></list>") & " " & '
+    'ws.Range("A2").Value & " " & ws.Range("C2").Value & " " & ws.Range("D2").Value & " " & ws.Range("E2").Value',
+    ADD1 + COLUMNS1 + 'r = m.ImportXml("<list><item><n>1</n><s>p</s><d>2024-13-01</d><b>0</b><x>1</x></item></list>") & " " & '
+    'TypeName(ws.Range("C2").Value) & " " & ws.Range("C2").Value & " " & ws.Range("D2").Value',
+    ADD1 + COLUMNS1 + 'r = m.ImportXml("<list>" & String(3, "x") & "</list>")',
+    ADD1 + COLUMNS1 + 'r = m.ImportXml(Replace(ReadAll(f & "d1.xml"), "</list>", "<item><n>3</n><s>c</s><d>2024-05-06</d><b>true</b><x>0</x></item></list>")) & '
+    '" " & lo.Range.Address & " " & ws.Range("B4").Value',
+    S3 + S4 + ADD1 + 'r = wb.XmlMaps(1).Name & " " & wb.XmlMaps(2).Name & " " & wb.XmlMaps(3).Name & " " & wb.XmlMaps.Count',
+    'Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range("A1:B2"), , xlYes): r = TypeName(lo.XmlMap) & " " & lo.ListColumns(1).XPath.Value & "|" & ws.Range("D4").XPath.Value',
+    ADD1 + COLUMNS1 + IMPORT1 + 'ws.Range("B3").Value = "": r = m.ExportXml(s) & " " & s',
+]
 #: The cases whose saved workbooks are kept, for the model to open as Excel saved them.
 KEPT = (16, 17, 19, 22, 34, 44, 49)
 READS = '''Private Function ReadAll(ByVal path As String) As String

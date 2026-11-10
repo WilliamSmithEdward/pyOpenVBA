@@ -262,7 +262,11 @@ def _typed(text: str, kind: str) -> tuple[object, bool]:
         if found:
             import datetime as dt
 
-            return VBADate.from_datetime(dt.date(int(found.group(1)), int(found.group(2)), int(found.group(3)))), True
+            try:
+                return VBADate.from_datetime(dt.date(int(found.group(1)), int(found.group(2)), int(found.group(3)))), True
+            except ValueError:
+                # A day no calendar has, 2024-13-01: kept as its text, as any value the schema refuses.
+                return text, False
         return text, False
     raise VBAUnsupportedError(f"importing an XML value of type {kind} is not implemented")
 

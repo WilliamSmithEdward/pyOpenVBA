@@ -4,7 +4,8 @@ TextureOffsetY, TextureTile, TextureName, TextureType, PresetTexture, PictureEff
 answers are written down first, each case run alone, so a refusal answers that case only.
 
 Each case makes a workbook, adds the case's shape as sh, runs its statement on f, its Fill, typed and late, and reads READS, each as its
-value or "e" and the error number. It then saves the workbook, reopens it, reads READS again and records the shape's spPr.
+value or "e" and the error number. It then saves the workbook, reopens it, reads READS again and records the shape's spPr, which
+from round 6 on it leaves out, comparing the reads of the book opened again only.
 
     python scripts/measure_fill_format_round.py predict [round]
     python scripts/measure_fill_format_round.py measure [round]
@@ -63,6 +64,25 @@ ROUNDS[5] = ['f.UserPicture At("p.jpg")', 'f.UserTextured At("p.gif")', 'f.UserP
              'f.UserPicture At("p.gif"): f.TextureAlignment = msoTextureCenter', 'f.UserTextured At("p.png"): f.TextureTile = msoTrue',
              'f.UserPicture At("p.jpg"): f.TextureTile = msoFalse', 'f.UserTextured At("p.gif"): f.Solid: f.ForeColor.RGB = RGB(1, 2, 3)',
              'f.UserPicture At("p.png"): f.UserTextured At("p.jpg")', 'f.Patterned msoPatternWeave: f.UserPicture At("p.gif")']
+#: Round 6, held out on a picture fill read back from the book opened again: pictures of each kind stretched and tiled, texture settings
+#: not measured before, and a picture fill hidden or made see-through. Only the reads of the book opened again are compared, and no
+#: spPr is kept, so the round holds nothing that depends on the display's DPI.
+ROUNDS[6] = ['f.UserPicture At("p.gif")', 'f.UserTextured At("p.jpeg")', 'f.UserTextured At("png_named.jpg")',
+             'f.UserPicture At("text.png"): f.TextureOffsetY = 2', 'f.UserTextured At("p.png"): f.TextureVerticalScale = 2: f.TextureOffsetX = -1',
+             'f.UserTextured At("p.png"): f.TextureAlignment = msoTextureCenter', 'f.UserPicture At("p.png"): f.TextureHorizontalScale = 0.25',
+             'f.UserTextured At("p.gif"): f.TextureTile = msoFalse', 'f.UserPicture At("p.jpg"): f.TextureAlignment = msoTextureTopRight',
+             'f.UserTextured At("big.png"): f.TextureOffsetX = 7: f.TextureOffsetY = 7', 'f.UserPicture At("p.png"): f.Visible = msoFalse',
+             'f.UserTextured At("p.png"): f.Transparency = 0.3']
+#: From round 6 on, a round compares only the reads of the book opened again.
+REOPENED_ONLY = 6
+
+
+def reopened(answer: str) -> list[str]:
+    """The reads of the book opened again in a case's answer, or the answer itself where the case was refused or did not compile."""
+    parts = answer.split('|')
+    return parts[-len(READS):] if len(parts) == 1 + 2 * len(READS) else parts
+
+
 #: What round 2 adds to READS: whether PictureEffects itself answers, which round 1's PictureEffects.Count could not tell.
 READS_2 = ['TypeName(f.PictureEffects)']
 
@@ -244,7 +264,9 @@ def predict() -> None:
     with tempfile.TemporaryDirectory() as folder:
         write_files(Path(folder))
         model = [alone(case, index, Path(folder)) for index, case in enumerate(every)]
-    text = json.dumps({'reads': READS, 'cases': every, 'model': model}, indent=1) + '\n'
+    if ROUND >= REOPENED_ONLY:
+        model = [[one[0]] for one in model]
+    text =json.dumps({'reads': READS, 'cases': every, 'model': model}, indent=1) + '\n'
     out().write_text(text, encoding='utf-8', newline='\n')
     print(len(every), 'cases; predictions sha256', hashlib.sha256(text.encode('utf-8')).hexdigest())
 
@@ -265,11 +287,16 @@ def measure() -> None:
                 result = excel.run_vba(macro(chosen[at:at + 24]), 'Probe', (folder,), timeout=600, line_numbers=False)
                 assert result.ok, (at, result.error, [one.message for one in result.dialogs])
                 for (index, _case_), value in zip(chosen[at:at + 24], str(result.value).split(SEPARATOR)):
-                    answers.append([value, shape_xml(Path(folder), index), *([package(Path(folder), index)] if ROUND >= 2 else [])])
+                    answers.append([value] if ROUND >= REOPENED_ONLY else
+                                   [value, shape_xml(Path(folder), index), *([package(Path(folder), index)] if ROUND >= 2 else [])])
                 print(typed, at + 24, flush=True)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
     out().write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
-    wrong = sum(model != excel and model[0] != 'refused' for model, excel in zip(record['model'], answers))
+    if ROUND >= REOPENED_ONLY:
+        wrong = sum(sum(mine not in (theirs, 'refused') for mine, theirs in zip(reopened(model[0]), reopened(excel[0])))
+                    for model, excel in zip(record['model'], answers) if model[0] != 'refused')
+    else:
+        wrong = sum(model != excel and model[0] != 'refused' for model, excel in zip(record['model'], answers))
     print('model wrong', wrong, 'refused', sum(model[0] == 'refused' for model in record['model']), 'of', len(answers))
 
 

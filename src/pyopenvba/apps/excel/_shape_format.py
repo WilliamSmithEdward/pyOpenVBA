@@ -285,6 +285,9 @@ class _Format(HeldPart):
         self.style()
         if self.shape.kind == "freeform":
             raise _unmeasured("Changing the fill or line of a freeform")
+        if self.shape.fill_line is None and self.shape.source and self.look().fill_picture is not None:
+            # Only reads of a picture fill opened again are measured (tests/fixtures/fill_format_round_6.json).
+            raise _unmeasured("Changing the fill or line of a shape with a picture fill from a file")
         if self.shape.kind == "picture" and not self.shape.source:
             # A new picture's markup has nowhere that takes these yet, so a save would lose them.
             raise _unmeasured("Changing the fill or line of a new picture")

@@ -7,6 +7,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBASandboxError, VBAUnsupportedError
+from pyopenvba.shapes._read_look import read_look
 
 ROOT = Path(__file__).resolve().parents[1]
 _SPEC = importlib.util.spec_from_file_location('measure_fill_format_round', ROOT / 'scripts/measure_fill_format_round.py')
@@ -42,23 +44,53 @@ def test_each_case_answers_as_excel_did(number: int, monkeypatch: pytest.MonkeyP
     assert differ == []
 
 
-@pytest.mark.parametrize(('member', 'kind'), [('UserPicture', '6'), ('UserTextured', '4')])
-def test_a_picture_fill_in_a_book_opened_again_is_refused(member: str, kind: str, tmp_path: Path) -> None:
-    """The model writes a picture fill but does not read one back from a file: a book opened again refuses the shape's fill by name.
-    This is every read round 2 refuses."""
-    (tmp_path / 'p.png').write_bytes(PROBE.files()['p.png'])
+def _picture_filled_book(member: str, folder: Path) -> ExcelApplication:
+    """A book saved with a shape S whose fill is p.png by ``member``, and a module H whose Q(folder, change) opens it again, makes
+    ``change`` to S's fill, if any, and answers its Type, and whose R saves it again as g.xlsx."""
+    (folder / 'p.png').write_bytes(PROBE.files()['p.png'])
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    app.add_module('Function P(ByVal folder As String) As String\n    Dim wb As Object\n    Set wb = Workbooks.Add\n'
+    app.add_module('Sub P(ByVal folder As String)\n    Dim wb As Object\n    Set wb = Workbooks.Add\n'
                    '    wb.Worksheets(1).Shapes.AddShape(msoShapeOval, 20, 20, 120, 60).Name = "S"\n'
                    f'    wb.Worksheets(1).Shapes("S").Fill.{member} folder & Application.PathSeparator & "p.png"\n'
-                   '    P = CStr(wb.Worksheets(1).Shapes("S").Fill.Type)\n'
-                   '    wb.SaveAs folder & Application.PathSeparator & "f.xlsx", xlOpenXMLWorkbook\n    wb.Close False\nEnd Function\n'
-                   'Function Q(ByVal folder As String) As String\n    Dim wb As Object\n    Set wb = Workbooks.Open(folder & Application.PathSeparator & "f.xlsx")\n'
-                   '    Q = CStr(wb.Worksheets(1).Shapes("S").Fill.Type)\nEnd Function\n', name='H')
-    assert app.run('H.P', str(tmp_path)) == kind
-    with pytest.raises(VBAUnsupportedError, match='The fill and line of a shape with blipFill are not implemented'):
-        app.run('H.Q', str(tmp_path))
+                   '    wb.SaveAs folder & Application.PathSeparator & "f.xlsx", xlOpenXMLWorkbook\n    wb.Close False\nEnd Sub\n'
+                   'Function Q(ByVal folder As String, ByVal change As String) As String\n    Dim wb As Object\n'
+                   '    Set wb = Workbooks.Open(folder & Application.PathSeparator & "f.xlsx")\n'
+                   '    If change = "Solid" Then wb.Worksheets(1).Shapes("S").Fill.Solid\n'
+                   '    If change = "Line" Then wb.Worksheets(1).Shapes("S").Line.Weight = 3\n'
+                   '    Q = CStr(wb.Worksheets(1).Shapes("S").Fill.Type)\nEnd Function\n'
+                   'Sub R(ByVal folder As String)\n    ActiveWorkbook.SaveAs folder & Application.PathSeparator & "g.xlsx", xlOpenXMLWorkbook\nEnd Sub\n',
+                   name='H')
+    app.run('H.P', str(folder))
+    return app
+
+
+@pytest.mark.parametrize(('member', 'kind'), [('UserPicture', '6'), ('UserTextured', '4')])
+def test_a_picture_fill_in_a_book_opened_again_reads_as_before(member: str, kind: str, tmp_path: Path) -> None:
+    """Excel answers a picture fill opened again as it did before the save (rounds 2 to 4); a save of the book unchanged keeps it."""
+    app = _picture_filled_book(member, tmp_path)
+    assert app.run('H.Q', str(tmp_path), '') == kind
+    app.run('H.R', str(tmp_path))
+    with zipfile.ZipFile(tmp_path / 'f.xlsx') as first, zipfile.ZipFile(tmp_path / 'g.xlsx') as second:
+        assert second.read('xl/drawings/drawing1.xml') == first.read('xl/drawings/drawing1.xml')
+        assert second.read('xl/media/image1.png') == first.read('xl/media/image1.png') == PROBE.files()['p.png']
+
+
+@pytest.mark.parametrize('change', ['Solid', 'Line'])
+def test_a_change_to_a_picture_fill_from_a_file_is_refused(change: str, tmp_path: Path) -> None:
+    """Only reads of a picture fill opened again are measured, so a change to its fill or line reports itself."""
+    app = _picture_filled_book('UserPicture', tmp_path)
+    with pytest.raises(VBAUnsupportedError, match='with a picture fill from a file'):
+        app.run('H.Q', str(tmp_path), change)
+
+
+@pytest.mark.parametrize('blip', ['<a:blip r:embed="rId1"><a:alphaModFix amt="70000"/></a:blip><a:stretch><a:fillRect/></a:stretch>',
+                                  '<a:blip r:embed="rId1"/><a:srcRect l="10"/><a:stretch><a:fillRect/></a:stretch>',
+                                  '<a:blip r:link="rId1"/><a:stretch><a:fillRect/></a:stretch>'])
+def test_a_picture_fill_excel_s_user_picture_does_not_write_is_refused(blip: str) -> None:
+    """A picture fill with effects, a crop or a linked image is not read, as nothing has measured what Excel answers of it."""
+    with pytest.raises(VBAUnsupportedError, match="blipFill Excel's UserPicture or UserTextured does not write"):
+        read_look(f'<xdr:spPr><a:prstGeom prst="ellipse"><a:avLst/></a:prstGeom><a:blipFill>{blip}</a:blipFill></xdr:spPr>')
 
 
 def test_a_picture_from_a_file_is_refused_under_the_sandbox(tmp_path: Path) -> None:

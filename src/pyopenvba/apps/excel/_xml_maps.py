@@ -252,10 +252,11 @@ def _typed(text: str, kind: str) -> tuple[object, bool]:
             return float(text), True
         return text, False
     if kind == "boolean":
-        if text.strip() in ("true", "1"):
-            return True, True
-        if text.strip() in ("false", "0"):
-            return False, True
+        # true and false are Booleans, but 1 and 0 the numbers they spell (tests/fixtures/xml_maps.json).
+        if text.strip() in ("true", "false"):
+            return text.strip() == "true", True
+        if text.strip() in ("1", "0"):
+            return float(text.strip()), True
         return text, False
     if kind == "date":
         found = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", text.strip())
@@ -291,12 +292,26 @@ def _value_under(node: ElementTree.Element, steps: list[str]) -> str | None:
     return node.text or ""
 
 
-def import_xml(book: Workbook, state: MapState, data: str, overwrite: bool) -> int:
-    """XmlMap.ImportXml: 0, or 2 where the data's root is not the map's or a value is not its type; data that is not XML fails."""
+def _parsed(data: str) -> ElementTree.Element:
     try:
-        tree = ElementTree.fromstring(data)
+        return ElementTree.fromstring(data)
     except ElementTree.ParseError:
         raise error(_UNSPECIFIED, "Automation error\nUnspecified error") from None
+
+
+def keeps_empty_text(sheet: Worksheet, row: int, column: int) -> bool:
+    """Whether "" written to a cell stays a zero-length string: in the body of a table column an XML map fills it does, where
+    a plain cell or plain table cell is emptied (tests/fixtures/xml_maps.json). A cell mapped on its own is not measured."""
+    for table in sheet.tables:
+        data = table.data
+        if data is not None and data.top <= row <= data.bottom and table.area.left <= column <= table.area.right:
+            return table.columns[column - table.area.left].xml is not None
+    return False
+
+
+def import_xml(book: Workbook, state: MapState, data: str, overwrite: bool) -> int:
+    """XmlMap.ImportXml: 0, or 2 where the data's root is not the map's or a value is not its type; data that is not XML fails."""
+    tree = _parsed(data)
     schema = state.schema
     if _local(tree.tag) != schema.root:
         return 2
@@ -464,8 +479,8 @@ def export_text(book: Workbook, state: MapState, *, file: bool) -> tuple[str, in
             for leaf in inner:
                 element(leaf, one[leaf.path], "\t\t")
             lines.append(f"\t</{item}>")
-    # A file's lines end in CR LF, one more byte each than the text a macro reads back of it (tests/fixtures/xml_maps.json).
-    end = "\r\n" if file else "\n"
+    # Lines end in CR LF, in a file and in the text ExportXml gives alike (tests/fixtures/xml_maps.json).
+    end = "\r\n"
     declaration = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + end if file else '<?xml version="1.0" standalone="yes"?>'
     body = end.join([f"<{schema.root}>", *lines, f"</{schema.root}>"])
     return declaration + body, 1 if failed else 0
@@ -797,6 +812,8 @@ class XmlMap(ExcelObject):
 
         self._admit_import()
         state = self._alive()
+        # Text that is not XML fails before any event is raised (tests/fixtures/xml_map_events.json).
+        _parsed(data)
         if not _events.before_xml_import(self.book, self, url or "Unspecified"):
             # A handler that cancels it fails the call (tests/fixtures/xml_map_events.json).
             raise error(1004, "Application-defined or object-defined error")
@@ -871,7 +888,8 @@ class XmlMaps(VBACollection, ItemDefault, ExcelObject):
         if isinstance(index, str):
             for one in items:
                 assert isinstance(one, XmlMap)
-                if one.state.name.casefold() == index.casefold():
+                # A name is found as it is spelt, case and all (tests/fixtures/xml_maps.json).
+                if one.state.name == index:
                     return one
             raise error(9, "Subscript out of range")
         place = int(cast(Any, index)) if isinstance(index, (int, float)) and not isinstance(index, bool) else -1

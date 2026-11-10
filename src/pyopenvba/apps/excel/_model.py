@@ -8096,7 +8096,13 @@ class Range(ExcelObject):
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         style = cell.style or self.sheet.book.stylesheet.default
-        self._store(row, column, typed(value, style.number_format, raw=raw, epoch_1904=self.sheet.book.epoch_1904))
+        result = typed(value, style.number_format, raw=raw, epoch_1904=self.sheet.book.epoch_1904)
+        if value == "" and isinstance(value, str) and self.sheet.tables and self.sheet.book.xml_maps:
+            from pyopenvba.apps.excel._xml_maps import keeps_empty_text
+
+            if keeps_empty_text(self.sheet, row, column):
+                result = replace(result, value="")
+        self._store(row, column, result)
 
     def store_typed(self, row: int, column: int, result: Typed) -> None:
         """Put what a feature typed into one cell, as a write puts it (see _store): TextToColumns's fields."""

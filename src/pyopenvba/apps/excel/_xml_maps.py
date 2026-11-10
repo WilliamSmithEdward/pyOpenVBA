@@ -375,7 +375,12 @@ def _fill_table(table: Table, state: MapState, tree: XmlElement, overwrite: bool
     start = data.top if overwrite else data.bottom + 1
     rows = max(len(items), 1) if overwrite else len(items)
     bottom = start + rows - 1 if rows else data.bottom
-    if bottom != table.area.bottom:
+    if bottom < table.area.bottom:
+        # Fewer rows than the table had: it shrinks, and the rows it gives up are emptied (tests/fixtures/xml_maps.json).
+        given_up = Range(table.sheet, [Area(bottom + 1, table.area.left, table.area.bottom, table.area.right)])
+        resize(table, Area(table.area.top, table.area.left, bottom, table.area.right))
+        given_up.vba_call("ClearContents", [])
+    elif bottom != table.area.bottom:
         resize(table, Area(table.area.top, table.area.left, bottom, table.area.right))
     failed = False
     for offset in range(rows):

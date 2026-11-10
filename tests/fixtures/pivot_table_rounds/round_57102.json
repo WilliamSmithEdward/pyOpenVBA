@@ -1,0 +1,1507 @@
+{
+ "seed": 57102,
+ "predicted_at": "2026-11-10T16:13:20.290123+00:00",
+ "predictions_sha256_16": "011fd08e365fce46",
+ "cases": [
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.Application, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "Application:True E0",
+   "model_typed": "Application:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.Creator, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Long:1480803660 E0",
+   "model_typed": "Long:1480803660 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.Parent, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Worksheet:Second E0",
+   "model_typed": "Worksheet:Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.Creator = 0",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "Set o.Application = Nothing",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.AllowMultipleFilters = Not o.AllowMultipleFilters: x = Key(o.AllowMultipleFilters, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.DisplayContextTooltips = Not o.DisplayContextTooltips: x = Key(o.DisplayContextTooltips, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.DisplayEmptyColumn = \"yes\": x = Key(o.DisplayEmptyColumn, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.DisplayEmptyRow = \"yes\": x = Key(o.DisplayEmptyRow, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.DisplayImmediateItems = Not o.DisplayImmediateItems: x = Key(o.DisplayImmediateItems, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.EnableDataValueEditing, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.EnableDrilldown = 0: x = Key(o.EnableDrilldown, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.EnableFieldDialog = \"yes\": x = Key(o.EnableFieldDialog, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.EnableFieldList = Not o.EnableFieldList: x = Key(o.EnableFieldList, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.EnableWizard = \"yes\": x = Key(o.EnableWizard, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.FieldListSortAscending = Not o.FieldListSortAscending: x = Key(o.FieldListSortAscending, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.HasAutoFormat, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.InGridDropZones = \"yes\": x = Key(o.InGridDropZones, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.PreserveFormatting = \"yes\": x = Key(o.PreserveFormatting, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PrintTitles, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.RepeatItemsOnEachPrintedPage = \"yes\": x = Key(o.RepeatItemsOnEachPrintedPage, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.ShowDrillIndicators = \"yes\": x = Key(o.ShowDrillIndicators, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.ShowTableStyleColumnHeaders, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.ShowTableStyleLastColumn = Not o.ShowTableStyleLastColumn: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.ShowTableStyleRowHeaders = Not o.ShowTableStyleRowHeaders: x = Key(o.ShowTableStyleRowHeaders, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ShowTableStyleRowStripes = \"yes\": x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.SortUsingCustomLists = \"yes\": x = Key(o.SortUsingCustomLists, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.SubtotalHiddenPageItems, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.ColumnRange, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "ws2.Rows(1).Insert: x = Key(o.DataBodyRange, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Range:B4:B5@pivot E0",
+   "model_typed": "Range:B4:B5@pivot E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.DataLabelRange, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.PageRange, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PageRangeCells, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.RowRange, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Range:A3:A6@Second E0",
+   "model_typed": "Range:A3:A6@Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.TableRange1, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": "Range:A3:B6@Second E0",
+   "model_typed": "Range:A3:B6@Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.TableRange2, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Range:A3:B6@Second E0",
+   "model_typed": "Range:A3:B6@Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.ColumnFields, book) & o.ColumnFields.Count",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "PivotFields:?0 E0",
+   "model_typed": "PivotFields:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.ColumnFields(1), book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.RowFields(1), book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "PivotField:k E0",
+   "model_typed": "PivotField:k E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.DataFields(1), book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "PivotField:Total E0",
+   "model_typed": "PivotField:Total E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PivotFields(\"v\"), book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.PivotFields(\"v\").Orientation = xlColumnField: x = Key(o.ColumnFields.Count, book) & \" \" & o.ColumnRange.Address",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Long:1 $B$3:$E$4 E0",
+   "model_typed": "Long:1 $B$3:$E$4 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PivotCache, book) & \" \" & o.PivotCache.SourceType",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "PivotCache:? 1 E0",
+   "model_typed": "PivotCache:? 1 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PivotColumnAxis, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "PivotAxis:? E0",
+   "model_typed": "PivotAxis:? E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PivotRowAxis, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "PivotAxis:? E0",
+   "model_typed": "PivotAxis:? E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.Version, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Long:8 E0",
+   "model_typed": "Long:8 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = TypeName(o.RefreshDate)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Date E0",
+   "model_typed": "Date E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.RefreshName, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "String:William E0",
+   "model_typed": "String:William E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.AlternativeText = 12: x = Key(o.AlternativeText, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String:12 E0",
+   "model_typed": "String:12 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.Summary = \"s\" & vbLf & \"t\": x = Key(o.Summary, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "String:s\nt E0",
+   "model_typed": "String:s\nt E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.Tag = \"t1\": x = Key(o.Tag, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "String:t1 E0",
+   "model_typed": "String:t1 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ListFormulas: x = Key(ActiveSheet.Name = ws2.Name, book) & \" \" & wbT.Worksheets.Count",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False 5 E0",
+   "model_typed": "Boolean:False 5 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.AllocateChanges: x = \"done\"",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.CommitChanges: x = \"done\"",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.ConvertToFormulas False: x = \"done\"",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.DiscardChanges: x = \"done\"",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.RefreshDataSourceValues: x = \"done\"",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "CallByName o, \"ChangeConnection\", VbMethod, Nothing: x = \"done\"",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.EnableDataValueEditing = 0: x = Key(o.EnableDataValueEditing, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.PrintTitles = Not o.PrintTitles: x = Key(o.PrintTitles, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.SubtotalHiddenPageItems = 0: x = Key(o.SubtotalHiddenPageItems, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.ShowTableStyleRowStripes = 0: x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.Summary, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.TableRange2, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Range:A3:B6@Second E0",
+   "model_typed": "Range:A3:B6@Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.VisibleFields, book) & o.VisibleFields.Count",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "PivotFields:?2 E0",
+   "model_typed": "PivotFields:?2 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.RefreshName, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String:William E0",
+   "model_typed": "String:William E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.DisplayContextTooltips, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.DisplayEmptyRow = \"yes\": x = Key(o.DisplayEmptyRow, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ShowDrillIndicators = 0: x = Key(o.ShowDrillIndicators, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.HasAutoFormat = 0: x = Key(o.HasAutoFormat, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.ShowDrillIndicators = 0: x = Key(o.ShowDrillIndicators, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.PreserveFormatting = 0: x = Key(o.PreserveFormatting, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.ShowTableStyleColumnHeaders = \"yes\": x = Key(o.ShowTableStyleColumnHeaders, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.SubtotalHiddenPageItems = \"yes\": x = Key(o.SubtotalHiddenPageItems, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.Application, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Application:True E0",
+   "model_typed": "Application:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.DisplayContextTooltips = 0: x = Key(o.DisplayContextTooltips, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.DisplayImmediateItems = 0: x = Key(o.DisplayImmediateItems, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.EnableFieldDialog = 0: x = Key(o.EnableFieldDialog, book)",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.EnableFieldDialog = 0: x = Key(o.EnableFieldDialog, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.PageFields, book) & o.PageFields.Count",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "PivotFields:?0 E0",
+   "model_typed": "PivotFields:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.DisplayImmediateItems = \"yes\": x = Key(o.DisplayImmediateItems, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.FieldListSortAscending = Not o.FieldListSortAscending: x = Key(o.FieldListSortAscending, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.Creator, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Long:1480803660 E0",
+   "model_typed": "Long:1480803660 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.HiddenFields, book) & o.HiddenFields.Count",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "PivotFields:?0 E0",
+   "model_typed": "PivotFields:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.EnableFieldDialog = Not o.EnableFieldDialog: x = Key(o.EnableFieldDialog, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.RepeatItemsOnEachPrintedPage = 0: x = Key(o.RepeatItemsOnEachPrintedPage, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.ShowTableStyleColumnHeaders, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.AlternativeText = 12: x = Key(o.AlternativeText, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": "String:12 E0",
+   "model_typed": "String:12 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.HasAutoFormat = \"yes\": x = Key(o.HasAutoFormat, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.EnableWizard = 0: x = Key(o.EnableWizard, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.Tag, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.PivotColumnAxis, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "PivotAxis:? E0",
+   "model_typed": "PivotAxis:? E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.PivotFormulas, book) & o.PivotFormulas.Count",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "PivotFormulas:?0 E0",
+   "model_typed": "PivotFormulas:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.CalculatedFields, book) & o.CalculatedFields.Count",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "CalculatedFields:?0 E0",
+   "model_typed": "CalculatedFields:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ShowTableStyleColumnHeaders = Not o.ShowTableStyleColumnHeaders: x = Key(o.ShowTableStyleColumnHeaders, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.EnableWizard, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "ws2.Rows(1).Insert: x = Key(o.TableRange1, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Range:A3:B6@Second E0",
+   "model_typed": "Range:A3:B6@Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.ShowTableStyleRowStripes = \"yes\": x = Key(o.ShowTableStyleRowStripes, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.SortUsingCustomLists = Not o.SortUsingCustomLists: x = Key(o.SortUsingCustomLists, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.DisplayEmptyColumn = Not o.DisplayEmptyColumn: x = Key(o.DisplayEmptyColumn, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "ws2.Rows(1).Insert: x = Key(o.DataBodyRange, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Range:B4:B6@Second E0",
+   "model_typed": "Range:B4:B6@Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.PivotFormulas, book) & o.PivotFormulas.Count",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "PivotFormulas:?0 E0",
+   "model_typed": "PivotFormulas:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.RepeatItemsOnEachPrintedPage = \"yes\": x = Key(o.RepeatItemsOnEachPrintedPage, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.ShowTableStyleColumnHeaders, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.PageRange, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ShowTableStyleRowHeaders = 0: x = Key(o.ShowTableStyleRowHeaders, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.ShowTableStyleColumnStripes = Not o.ShowTableStyleColumnStripes: x = Key(o.ShowTableStyleColumnStripes, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.DisplayImmediateItems, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.HasAutoFormat = \"yes\": x = Key(o.HasAutoFormat, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.EnableWizard = \"yes\": x = Key(o.EnableWizard, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.SubtotalHiddenPageItems = \"yes\": x = Key(o.SubtotalHiddenPageItems, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.PageFields, book) & o.PageFields.Count",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "PivotFields:?0 E0",
+   "model_typed": "PivotFields:?0 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.PreserveFormatting = 0: x = Key(o.PreserveFormatting, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.SubtotalHiddenPageItems = Not o.SubtotalHiddenPageItems: x = Key(o.SubtotalHiddenPageItems, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.PrintTitles = 0: x = Key(o.PrintTitles, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.SubtotalHiddenPageItems = Not o.SubtotalHiddenPageItems: x = Key(o.SubtotalHiddenPageItems, book)",
+   "kind": "reopened",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "x = Key(o.FieldListSortAscending, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.Creator = 0",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": " E450",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.RowRange, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Range:A3:A5@pivot E0",
+   "model_typed": "Range:A3:A5@pivot E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.RepeatItemsOnEachPrintedPage = 0: x = Key(o.RepeatItemsOnEachPrintedPage, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.EnableFieldDialog = \"yes\": x = Key(o.EnableFieldDialog, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.PageRangeCells, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.Summary, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.AllowMultipleFilters = \"yes\": x = Key(o.AllowMultipleFilters, book)",
+   "kind": "reopened",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.EnableFieldList = Not o.EnableFieldList: x = Key(o.EnableFieldList, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.DisplayContextTooltips, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.RepeatItemsOnEachPrintedPage = Not o.RepeatItemsOnEachPrintedPage: x = Key(o.RepeatItemsOnEachPrintedPage, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "Set o.Parent = Nothing",
+   "kind": "file",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": " E438",
+   "model_typed": "late only E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.AlternativeText = 12: x = Key(o.AlternativeText, book)",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "String:12 E0",
+   "model_typed": "String:12 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.Parent, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Worksheet:Second E0",
+   "model_typed": "Worksheet:Second E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.RowFields, book) & o.RowFields.Count",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "PivotFields:?1 E0",
+   "model_typed": "PivotFields:?1 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.DisplayEmptyRow = Not o.DisplayEmptyRow: x = Key(o.DisplayEmptyRow, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.InGridDropZones = 0: x = Key(o.InGridDropZones, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.EnableDrilldown, book)",
+   "kind": "file",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.PivotFields(\"k\").Orientation = xlPageField: x = Key(o.PageFields.Count, book) & \" \" & o.PageRange.Address",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "Long:1 $A$1:$B$1 E0",
+   "model_typed": "Long:1 $A$1:$B$1 E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.HasAutoFormat = 0: x = Key(o.HasAutoFormat, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.ShowDrillIndicators = \"yes\": x = Key(o.ShowDrillIndicators, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.DisplayContextTooltips = \"yes\": x = Key(o.DisplayContextTooltips, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.EnableFieldList = \"yes\": x = Key(o.EnableFieldList, book)",
+   "kind": "new",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "x = Key(o.ColumnFields(1), book)",
+   "kind": "file",
+   "edit": "",
+   "held": "True",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "x = Key(o.AlternativeText, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "True",
+   "model_late": "String: E0",
+   "model_typed": "String: E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.DiscardChanges: x = \"done\"",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.RepeatItemsOnEachPrintedPage = Not o.RepeatItemsOnEachPrintedPage: x = Key(o.RepeatItemsOnEachPrintedPage, book)",
+   "kind": "file",
+   "edit": "ws.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.EnableDataValueEditing = \"yes\": x = Key(o.EnableDataValueEditing, book)",
+   "kind": "new",
+   "edit": "ws.Columns(1).Insert",
+   "held": "False",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(1)",
+   "call": "o.DisplayContextTooltips = \"yes\": x = Key(o.DisplayContextTooltips, book)",
+   "kind": "new",
+   "edit": "",
+   "held": "False",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.Range(ptcell).PivotTable",
+   "call": "o.DisplayEmptyRow = 0: x = Key(o.DisplayEmptyRow, book)",
+   "kind": "reopened",
+   "edit": "ws.Rows(1).Insert",
+   "held": "False",
+   "model_late": " E1004",
+   "model_typed": " E1004"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ShowTableStyleLastColumn = Not o.ShowTableStyleLastColumn: x = Key(o.ShowTableStyleLastColumn, book)",
+   "kind": "new",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.EnableFieldDialog = Not o.EnableFieldDialog: x = Key(o.EnableFieldDialog, book)",
+   "kind": "reopened",
+   "edit": "wsL.Rows(1).Insert",
+   "held": "True",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "cls": "PivotTable",
+   "reach": "ws2.PivotTables(ptname)",
+   "call": "o.ConvertToFormulas False: x = \"done\"",
+   "kind": "file",
+   "edit": "",
+   "held": "False",
+   "model_late": "done E1004",
+   "model_typed": "done E1004"
+  }
+ ]
+}

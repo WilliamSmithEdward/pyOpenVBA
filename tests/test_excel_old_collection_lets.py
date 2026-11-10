@@ -27,9 +27,6 @@ NOT_YET: dict[str, str] = {
     'Buttons.Formula': 'Excel answers 1004 and changes nothing; the item setter is not measured',
     **{f'{kind}.Formula': 'Excel links no item, answering 1004 on Arcs, Ovals and TextBoxes and nothing on Rectangles, by no rule found yet'
        for kind in ('Arcs', 'Ovals', 'Rectangles', 'TextBoxes')},
-    'Lines.ArrowHeadLength': "the line's item setter reports itself",
-    'Lines.ArrowHeadStyle': "the line's item setter reports itself",
-    'Lines.ArrowHeadWidth': "the line's item setter reports itself",
     'Ovals.AutoSize': "the drawing's item setter reports itself",
     'Pictures.Formula': "the picture's item setter reports itself",
     'Pictures.Shadow': "the picture's item setter reports itself",

@@ -38,7 +38,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   A new or loaded drawing also takes `LockedText = False`, `ReadingOrder` and `Shadow = True`, alone and through
   its collection, and saves each where Excel writes it. Its `Formula` links its text to a cell: the text shows the
   cell's, in the cell's font, follows the cell, and stays when the link comes off. `AutoScaleFont` is taken and kept
-  nowhere, as in Excel.
+  nowhere, as in Excel. A line's old `ArrowHeadStyle`, `ArrowHeadLength` and `ArrowHeadWidth` set its ends as Excel
+  does, alone and through `Lines`.
   `Duplicate` on a collection of shapes read from a file, form controls or lines says it is not implemented.
 - `Range.Insert` with something on the clipboard is Insert Copied Cells or Insert Cut Cells:
   `Rows(3).Copy: Rows(6).Insert` duplicates the row and `Rows(3).Cut: Rows(6).Insert` moves it. Measured in live Excel

@@ -558,29 +558,64 @@ class Line(OldDrawing):
             return NoEffect(self, 'Interior', {'Color': VBAInt(0, 'Long'), 'ColorIndex': VBAInt(_XL_NONE, 'Long'), 'Pattern': VBAInt(_XL_NONE, 'Long')})
         return super().vba_get(name, args, named)
 
+    # Through the shape's LineFormat (tests/fixtures/line_arrowheads.json): a style is the pair of ends it reads as, Open and Closed the
+    # end the line was drawn to, the double ones both; a length or width is both ends'.
+    def _line(self) -> VBAObject:
+        return _object(self.drawn.vba_get('Line', []))
+
     @member
     def ArrowHeadStyle(self) -> object:
-        return VBAInt(_XL_NONE, 'Long')
+        line = self._line()
+        ends = (int(to_number(line.vba_get('BeginArrowheadStyle', []))), int(to_number(line.vba_get('EndArrowheadStyle', []))))
+        found = next((style for style, pair in _ARROW_STYLES.items() if pair == ends), None)
+        if found is None:
+            raise VBAUnsupportedError("The old ArrowHeadStyle of a line whose ends are these arrowheads is not implemented")
+        return VBAInt(found, 'Long')
 
     @setter('ArrowHeadStyle')
     def _arrow_head_style(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a Line's arrowhead through its old object is not implemented")
+        pair = _ARROW_STYLES.get(int(to_number(value)))
+        if pair is None:
+            raise VBAUnsupportedError('This ArrowHeadStyle of a line is not implemented')
+        line = self._line()
+        begin, end = pair
+        if begin != 1 or end == 1:
+            line.vba_set('BeginArrowheadStyle', VBAInt(begin, 'Long'))
+        line.vba_set('EndArrowheadStyle', VBAInt(end, 'Long'))
+
+    def _sized(self, name: str) -> object:
+        found = int(to_number(self._line().vba_get(f'EndArrowhead{name}', [])))
+        return VBAInt(next(old for old, size in _ARROW_SIZES.items() if size == found), 'Long')
+
+    def _size(self, name: str, value: object) -> None:
+        size = _ARROW_SIZES.get(int(to_number(value)))
+        if size is None:
+            raise VBAUnsupportedError(f'This ArrowHead{name} of a line is not implemented')
+        line = self._line()
+        line.vba_set(f'BeginArrowhead{name}', VBAInt(size, 'Long'))
+        line.vba_set(f'EndArrowhead{name}', VBAInt(size, 'Long'))
 
     @member
     def ArrowHeadLength(self) -> object:
-        return VBAInt(-4138, 'Long')
+        return self._sized('Length')
 
     @setter('ArrowHeadLength')
     def _arrow_head_length(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a Line's arrowhead through its old object is not implemented")
+        self._size('Length', value)
 
     @member
     def ArrowHeadWidth(self) -> object:
-        return VBAInt(-4138, 'Long')
+        return self._sized('Width')
 
     @setter('ArrowHeadWidth')
     def _arrow_head_width(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a Line's arrowhead through its old object is not implemented")
+        self._size('Width', value)
+
+
+#: Each old ArrowHeadStyle as the msoArrowhead styles of the line's begin and end: none, open (3) and triangle (2).
+_ARROW_STYLES = {_XL_NONE: (1, 1), 2: (1, 3), 3: (1, 2), 4: (3, 3), 5: (2, 2)}
+#: Each old ArrowHeadLength or ArrowHeadWidth as msoArrowhead's: short or narrow, medium, long or wide.
+_ARROW_SIZES = {1: 1, -4138: 2, 3: 3}
 
 
 class Picture(_Filled):
@@ -730,8 +765,8 @@ class Arcs(_Drawings):
 
 
 class Lines(_Drawings):
-    spread_reads = frozenset({'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
+    spread_reads = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
     vba_type_name = 'Lines'
     parts = frozenset({'Border'})
     several = {}
@@ -783,7 +818,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

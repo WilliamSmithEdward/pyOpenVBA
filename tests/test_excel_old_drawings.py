@@ -19,7 +19,9 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/old_drawi
 READS: list[str] = RECORD['reads']
 #: Each of these reports itself: what they write is not worked out, or was measured once. Copy and Cut failed in the probe with the clipboard away.
 #: A linked drawing's Font reads a colour by a rule not worked out (Formula is replayed in test_excel_drawing_text_links.py).
-UNBUILT = ('ws.Buttons.Add', 'h.Copy', 'h.Cut', 'h.Formula =', 'h.RoundedCorners =', 'h.ArrowHead', 'h.AutoSize = True', 'ws.DrawingObjects.Left', 'h.Characters(1, 2).Font',
+#: xlArrowHeadStyleTriangle is no constant: it sets Empty, which Excel took as Open, from one case (the measured styles are replayed in
+#: test_excel_line_arrowheads.py).
+UNBUILT = ('ws.Buttons.Add', 'h.Copy', 'h.Cut', 'h.Formula =', 'h.ArrowHeadStyle = xlArrowHeadStyleTriangle', 'h.RoundedCorners =', 'h.AutoSize = True', 'ws.DrawingObjects.Left', 'h.Characters(1, 2).Font',
            'Set h = ws.Lines.Add(10, 10, 110, 50): Set o = h.Duplicate', 'Set h = ws.Arcs.Add(10, 10, 110, 50): Set o = h.Duplicate')
 PICTURE_UNBUILT = ('h.Interior', 'h.Border', 'Set o = h.Duplicate', 'h.Shadow')
 #: Reading these goes through the display, whose scale here snaps them to a pixel after some reads, and neither Interior.ColorIndex nor Enabled gives more.

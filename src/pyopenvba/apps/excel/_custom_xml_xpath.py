@@ -391,12 +391,11 @@ def _axis(node: Node, axis: str) -> list[Node]:
         return siblings[place + 1:]
     if axis == 'preceding-sibling':
         return list(reversed(siblings[:place]))
+    found: list[Node] = []
     if axis == 'following':
-        found = []
         for sibling in siblings[place + 1:]:
             found += [sibling, *_descendants(sibling)]
         return found + _axis(parent, 'following')
-    found = []
     for sibling in reversed(siblings[:place]):
         found += list(reversed([sibling, *_descendants(sibling)]))
     return found + [one for one in _axis(parent, 'preceding')]
@@ -407,8 +406,8 @@ def _filtered(nodes: list[Node], predicate: Expression, *, reverse: bool) -> lis
     kept: list[Node] = []
     for place, node in enumerate(nodes, 1):
         value = predicate(_Context(node, place, size))
-        if isinstance(value, float) and not isinstance(value, bool):
-            if value == place:
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            if float(value) == float(place):
                 kept.append(node)
         elif _boolean(value):
             kept.append(node)
@@ -420,12 +419,13 @@ def _text(value: Value) -> str:
         return value[0].text() if value else ''
     if isinstance(value, bool):
         return 'true' if value else 'false'
-    if isinstance(value, float):
-        if math.isnan(value):
+    if isinstance(value, (int, float)):
+        number = float(value)
+        if math.isnan(number):
             return 'NaN'
-        if math.isinf(value):
-            return 'Infinity' if value > 0 else '-Infinity'
-        return str(int(value)) if value == int(value) else repr(value)
+        if math.isinf(number):
+            return 'Infinity' if number > 0 else '-Infinity'
+        return str(int(number)) if number.is_integer() else repr(number)
     return value
 
 
@@ -446,8 +446,8 @@ def _boolean(value: Value) -> bool:
         return bool(value)
     if isinstance(value, bool):
         return value
-    if isinstance(value, float):
-        return value != 0 and not math.isnan(value)
+    if isinstance(value, (int, float)):
+        return float(value) != 0.0 and not math.isnan(float(value))
     return bool(value)
 
 
@@ -492,11 +492,9 @@ def _function(name: str, arguments: list[Expression]) -> Expression:
         'last': lambda context: float(context.size),
         'position': lambda context: float(context.position),
         'count': lambda context: float(len(_node_set(one(context)))),
-        'local-name': lambda context: _first(one(context)).local if _first(one(context)) is not None
-        and _first(one(context)).kind in (ELEMENT, ATTRIBUTE) else '',  # type: ignore[union-attr]
-        'name': lambda context: _first(one(context)).name if _first(one(context)) is not None
-        and _first(one(context)).kind in (ELEMENT, ATTRIBUTE) else '',  # type: ignore[union-attr]
-        'namespace-uri': lambda context: _first(one(context)).uri if _first(one(context)) is not None else '',  # type: ignore[union-attr]
+        'local-name': lambda context: _named(one(context), 'local'),
+        'name': lambda context: _named(one(context), 'name'),
+        'namespace-uri': lambda context: _named(one(context), 'uri'),
         'string': lambda context: string(context),
         'concat': lambda context: ''.join(_text(argument(context)) for argument in arguments),
         'starts-with': lambda context: string(context).startswith(string(context, 1)),
@@ -525,6 +523,14 @@ def _node_set(value: Value) -> list[Node]:
     if not isinstance(value, list):
         raise VBAUnsupportedError('an XPath function given what is not a node-set is not implemented')
     return value
+
+
+def _named(value: Value, which: str) -> str:
+    """local-name(), name() and namespace-uri() of the first node, '' for none or one with no name."""
+    node = _first(value)
+    if node is None or node.kind not in (ELEMENT, ATTRIBUTE):
+        return ''
+    return node.local if which == 'local' else node.name if which == 'name' else node.uri
 
 
 def _first(value: Value) -> Node | None:

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import re
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -209,6 +209,9 @@ class CustomXMLPart(_Owned):
 
     vba_type_name = "CustomXMLPart"
     vba_library = "office"
+    #: Its node events, which no edit a macro makes raises, as Excel raises none (tests/fixtures/custom_xml_c.json):
+    #: a WithEvents variable binds to them and hears nothing.
+    raised_events: ClassVar[frozenset[str]] = frozenset({"NodeAfterDelete", "NodeAfterInsert", "NodeAfterReplace"})
 
     def vba_no_member(self, name: str) -> Exception:
         from pyopenvba.apps.excel._custom_xml import no_member
@@ -414,18 +417,10 @@ def _custom_parts(book: Workbook) -> list[CustomXMLPart]:
     return parts
 
 
-def _namespace_of(text: str) -> str:
-    from pyopenvba.apps.excel._custom_xml_tree import parsed
-
-    if not text:
-        return ""
-    root = parsed(text).root()
-    return root.uri if root is not None else ""
-
-
 class CustomXMLParts(VBACollection, _Owned):
     vba_type_name = "CustomXMLParts"
     vba_library = "office"
+    raised_events: ClassVar[frozenset[str]] = frozenset({"PartAfterAdd", "PartAfterLoad", "PartBeforeDelete"})
 
     def vba_no_member(self, name: str) -> Exception:
         from pyopenvba.apps.excel._custom_xml import no_member

@@ -87,6 +87,9 @@ CASES: list[tuple[int, str]] = [
     (3, MAKE + 'r = m.Import(f & "d.xml") & " " & lo.Range.Address'),
     (0, MAKE + 'r = m.ImportXml("not xml")'),
     (2, MAKE + 'r = m.ImportXml(data): wb.SaveAsXMLData f & "out5.xml", m: r = r & " done"'),
+    # A DTD in the data, with an entity and without: predicted to fail as text that is not XML does, before any event.
+    (0, MAKE + 'r = m.ImportXml("<!DOCTYPE list [<!ENTITY e ""1"">]><list><item><n>&e;</n></item></list>") & " " & lo.Range.Address'),
+    (0, MAKE + 'r = m.ImportXml("<!DOCTYPE list><list><item><n>1</n></item></list>") & " " & lo.Range.Address'),
 ]
 PROBE = '''Function Probe(ByVal folder As String, ByVal which As Long) As String
     Dim sink As New ExcelSink, wb As Workbook, m As Object, lo As Object, r As Variant, s As String, f As String, data As String, failure As String

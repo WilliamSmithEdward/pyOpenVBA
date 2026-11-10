@@ -130,6 +130,30 @@ def test_maps_the_model_does_not_build_are_saved_as_they_came(tmp_path: Path) ->
             assert after.read(name) == before.read(name), name
 
 
+#: Nested entities that would expand to a million characters, read only if a DTD were.
+_LAUGHS = ('<!DOCTYPE list [<!ENTITY a "aaaaaaaaaa">' + ''.join(f'<!ENTITY {b} "{("&" + a + ";") * 10}">' for a, b in zip('abcde', 'bcdef'))
+           + ']><list><item><n>&f;</n></item></list>')
+
+
+@pytest.mark.parametrize('statement', [f'r = ActiveWorkbook.XmlMaps(1).ImportXml("{_LAUGHS.replace(chr(34), chr(34) * 2)}")',
+                                       'r = ActiveWorkbook.XmlMaps.Add(folder & "/dtd.xsd", "list").Name'])
+def test_xml_with_a_dtd_is_refused_before_any_entity_is_read(statement: str, tmp_path: Path) -> None:
+    # Excel fails a DOCTYPE in imported data as it fails text that is not XML (tests/fixtures/xml_map_events.json); the model
+    # reads every XML a macro or a file supplies with DTDs and declared entities refused, so nothing is expanded.
+    (tmp_path / 'dtd.xsd').write_text('<!DOCTYPE schema [<!ENTITY e "x">]><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">'
+                                      '<xs:element name="list" type="xs:string"/></xs:schema>', encoding='utf-8')
+    shutil.copy(BOOKS / 'c22.xlsx', tmp_path / 'book.xlsx')
+    app = ExcelApplication.open(tmp_path / 'book.xlsx', with_vba=False, sandbox=False)
+    app.add_module('Public Function State() As String\n'
+                   '    State = ActiveWorkbook.XmlMaps.Count & "|" & ActiveSheet.UsedRange.Address & "|" & Len(Join(Application.Transpose('
+                   'Application.Transpose(ActiveSheet.UsedRange.Rows(2).Value)), ""))\nEnd Function\n'
+                   'Public Function Go(ByVal folder As String) As String\n    Dim r As Variant\n    On Error Resume Next\n'
+                   f'    {statement}\n    Go = Err.Number\nEnd Function\n', name='P')
+    before = app.run('P.State')
+    assert str(app.run('P.Go', str(tmp_path))) == '-2147467259'
+    assert app.run('P.State') == before
+
+
 @pytest.mark.parametrize('statement', ['ActiveWorkbook.XmlMaps(1).Import folder & "/there.xml"',
                                        'ActiveWorkbook.XmlMaps(1).Export folder & "/out.xml", True',
                                        'ActiveWorkbook.XmlMaps.Add folder & "/there.xsd", "list"'])

@@ -13,13 +13,14 @@ writes goes through the sandbox gate (Application.outside) and is opened at its 
 from __future__ import annotations
 
 import re
-import xml.etree.ElementTree as ElementTree
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast
+from xml.parsers import expat
 
 from pyopenvba._a1 import Area
 from pyopenvba._xml import escape
+from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -109,10 +110,7 @@ def _declaration_left_out(text: str) -> str:
 
 def read_schema(text: str, root: object, number: int) -> Schema:
     """A flat schema's leaves under ``root``, or the first top-level element when it is left out."""
-    try:
-        tree = ElementTree.fromstring(text)
-    except ElementTree.ParseError:
-        raise error(_UNSPECIFIED, "Automation error\nUnspecified error") from None
+    tree = _parsed(text)
     if tree.tag != XS + "schema":
         raise error(_UNSPECIFIED, "Automation error\nUnspecified error")
     for child in tree:
@@ -132,7 +130,7 @@ def read_schema(text: str, root: object, number: int) -> Schema:
     def step(name: str, top_level: bool) -> str:
         return f"{prefix}:{name}" if prefix and (top_level or qualified) else name
 
-    def walk(element: ElementTree.Element, path: str, repeating: bool, depth: int) -> None:
+    def walk(element: XmlElement, path: str, repeating: bool, depth: int) -> None:
         name = element.get("name", "")
         if not name or element.get("ref") is not None:
             raise VBAUnsupportedError("an XML schema element by reference is not implemented")
@@ -276,11 +274,11 @@ def _steps(path: str) -> list[str]:
     return [one.split(":")[-1] for one in path.split("/") if one]
 
 
-def _children(node: ElementTree.Element, name: str) -> list[ElementTree.Element]:
+def _children(node: XmlElement, name: str) -> list[XmlElement]:
     return [one for one in node if _local(one.tag) == name]
 
 
-def _value_under(node: ElementTree.Element, steps: list[str]) -> str | None:
+def _value_under(node: XmlElement, steps: list[str]) -> str | None:
     """The text at ``steps`` below ``node``, the first where several match; an attribute is a step starting with @."""
     for place, one in enumerate(steps):
         if one.startswith("@"):
@@ -292,10 +290,12 @@ def _value_under(node: ElementTree.Element, steps: list[str]) -> str | None:
     return node.text or ""
 
 
-def _parsed(data: str) -> ElementTree.Element:
+def _parsed(data: str) -> XmlElement:
+    """XML a macro or a file supplied, read with DTDs and declared entities refused before anything in them is expanded. Excel
+    refuses a DOCTYPE in imported data too, with the error it gives text that is not XML (tests/fixtures/xml_map_events.json)."""
     try:
-        return ElementTree.fromstring(data)
-    except ElementTree.ParseError:
+        return xml_tree(data)
+    except (expat.ExpatError, ValueError):
         raise error(_UNSPECIFIED, "Automation error\nUnspecified error") from None
 
 
@@ -339,7 +339,7 @@ def import_xml(book: Workbook, state: MapState, data: str, overwrite: bool) -> i
     return 2 if failed else 0
 
 
-def _missing(tree: ElementTree.Element, schema: Schema) -> bool:
+def _missing(tree: XmlElement, schema: Schema) -> bool:
     """Whether the data leaves out what the schema requires: a leaf element, or every one of the repeating element, which an
     import answers as failing validation (tests/fixtures/xml_maps.json)."""
     outer = [leaf for leaf in schema.leaves if not leaf.repeating and leaf.required and '@' not in leaf.path]
@@ -355,14 +355,14 @@ def _missing(tree: ElementTree.Element, schema: Schema) -> bool:
     return any(_value_under(item, _steps(leaf.path)[depth:]) is None for item in items for leaf in inner)
 
 
-def _items(tree: ElementTree.Element, schema: Schema) -> list[ElementTree.Element]:
+def _items(tree: XmlElement, schema: Schema) -> list[XmlElement]:
     nodes = [tree]
     for one in schema.repeat_steps[1:]:
         nodes = [child for node in nodes for child in _children(node, one.split(":")[-1])]
     return nodes
 
 
-def _fill_table(table: Table, state: MapState, tree: ElementTree.Element, overwrite: bool) -> bool:
+def _fill_table(table: Table, state: MapState, tree: XmlElement, overwrite: bool) -> bool:
     from pyopenvba.apps.excel._table_edits import resize
     from pyopenvba._a1 import Area
 
@@ -1201,7 +1201,7 @@ def read_parts(book: Workbook, package: Any, sheet_parts: dict[str, Worksheet]) 
         return
     try:
         _read_parts(book, package)
-    except (VBAUnsupportedError, KeyError, ValueError, ElementTree.ParseError) as failed:
+    except (VBAUnsupportedError, KeyError, ValueError, expat.ExpatError) as failed:
         book.xml_maps.clear()
         for sheet in book.sheets_:
             sheet.xml_cells.clear()
@@ -1219,7 +1219,7 @@ def refuse_unread(book: Workbook) -> None:
 
 
 def _read_parts(book: Workbook, package: Any) -> None:
-    root = ElementTree.fromstring(package.read("xl/xmlMaps.xml"))
+    root = xml_tree(package.read("xl/xmlMaps.xml"))
     main = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
     schemas: dict[str, Schema] = {}
     raw = package.read("xl/xmlMaps.xml").decode("utf-8")

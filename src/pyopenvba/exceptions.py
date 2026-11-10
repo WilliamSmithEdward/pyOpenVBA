@@ -67,7 +67,10 @@ class VBARuntimeError(VBAError):
 
     Carries the same number and description the ``Err`` object would, and
     is the only one of the three that ``On Error`` can trap. An error that
-    escapes an event callback bypasses the invoking procedure's handler.
+    escapes an event callback, or a macro ``Application.Run`` started,
+    bypasses every handler of the procedures that called it, and
+    ``past_handlers`` is then True: Excel shows its run-time error dialog
+    there and ends every macro.
     """
 
     def __init__(
@@ -82,9 +85,10 @@ class VBARuntimeError(VBAError):
         self.number = number
         self.description = description
         self.source = source
-        # Event callbacks have their own error policy. Once an error escapes
-        # that boundary, a calling procedure's On Error cannot recover it.
-        self.unhandled_event = False
+        # Once an error escapes an event callback or a macro Application.Run
+        # started, no calling procedure's On Error recovers it
+        # (tests/fixtures/vba_run_errors.json).
+        self.past_handlers = False
 
 
 class VBAUnsupportedError(VBAError):

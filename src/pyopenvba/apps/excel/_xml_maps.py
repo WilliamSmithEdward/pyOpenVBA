@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any, cast
 from xml.parsers import expat
 
 from pyopenvba._a1 import Area
-from pyopenvba._xml import escape
+from pyopenvba._xml import escape, unescape
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
@@ -165,7 +165,7 @@ def read_schema(text: str, root: object, number: int) -> Schema:
             schema.repeat_steps = [one for one in here.split("/") if one]
             schema.repeat_required = element.get("minOccurs", "1") != "0"
         for part in complex_type:
-            if _local(part.tag) == "sequence":
+            if _local(part.tag) in ("sequence", "all"):
                 for child in part:
                     if child.tag != XS + "element":
                         raise VBAUnsupportedError(f"an XML schema with {_local(child.tag)} in a sequence is not implemented")
@@ -1369,6 +1369,10 @@ def _read_parts(book: Workbook, package: Any) -> None:
                 if mapped is not None:
                     state = by_id[int(mapped.group(1))]
                     column.xml = (state, _leaf_at(state.schema, mapped.group(2)))
+                    if not column.xml[1].repeating or column.xml[1].repeats_again:
+                        # A column of a value outside the repeating element, repeated down the rows: a map Excel cannot
+                        # export (tests/fixtures/xml_infer.json).
+                        raise VBAUnsupportedError("a table column mapped to an XML value that does not repeat once")
                     unique = re.search(r'\buniqueName="([^"]*)"', found.group(0))
                     column.xml_name = unescape(unique.group(1)) if unique else column.xml[1].name
         part = sheet.xml_cells_part

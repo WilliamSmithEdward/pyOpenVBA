@@ -33,6 +33,9 @@ class _Shape:
     #: Whether some occurrence has child elements, and whether some has text beside them.
     complex: bool = False
     mixed: bool = False
+    #: Whether its children come in one order everywhere it occurs; where they do not, Excel declares them in an xsd:all
+    #: (tests/fixtures/xml_infer.json).
+    ordered: bool = True
 
 
 def _split(tag: str) -> tuple[str, str]:
@@ -65,6 +68,10 @@ def _merge(shape: _Shape, node: XmlElement, namespaces: set[str]) -> None:
         _merge(shape.children.setdefault(name, _Shape(name)), child, namespaces)
     for name, count in counts.items():
         shape.children[name].most = max(shape.children[name].most, count)
+    known = list(shape.children)
+    places = [known.index(name) for name in dict.fromkeys(_split(child.tag)[1] for child in elements)]
+    if places != sorted(places):
+        shape.ordered = False
 
 
 # --- types --------------------------------------------------------------------------------------------------------------
@@ -131,8 +138,13 @@ def _element(shape: _Shape, top: bool, form: str) -> str:
     inner = "".join(_element(one, False, form) for one in shape.children.values())
     attributes = "".join(f'<xsd:attribute name="{name}" form="unqualified" type="xsd:{leaf_type(values)}"></xsd:attribute>'
                          for name, values in shape.attributes.items())
-    return (f'{head} name="{shape.name}"{tail}><xsd:complexType><xsd:sequence minOccurs="0">{inner}</xsd:sequence>'
-            f'{attributes}</xsd:complexType></xsd:element>')
+    if shape.ordered:
+        group = f'<xsd:sequence minOccurs="0">{inner}</xsd:sequence>'
+    else:
+        if any(one.most > 1 for one in shape.children.values()):
+            raise VBAUnsupportedError("inferring a schema for repeating elements that come in different orders is not implemented")
+        group = f"<xsd:all>{inner}</xsd:all>"
+    return f'{head} name="{shape.name}"{tail}><xsd:complexType>{group}{attributes}</xsd:complexType></xsd:element>'
 
 
 def _admit(root: _Shape) -> None:
@@ -156,8 +168,13 @@ def _admit(root: _Shape) -> None:
     if len(repeating) > 1:
         raise VBAUnsupportedError("inferring a schema with more than one repeating element is not implemented")
     if not repeating:
-        if root.attributes or any(one.complex for one in root.children.values()):
-            raise VBAUnsupportedError("inferring a schema for XML nested without repeating is not implemented")
+        # Nothing repeats: a cell for each leaf across one row, nested or not (tests/fixtures/xml_infer.json). Attributes are
+        # not measured there.
+        def attributed(shape: _Shape) -> bool:
+            return bool(shape.attributes) or any(attributed(one) for one in shape.children.values())
+
+        if attributed(root):
+            raise VBAUnsupportedError("inferring a schema for attributes where nothing repeats is not implemented")
         return
     found = repeating[0]
     if any(one.complex for one in found.children.values()):

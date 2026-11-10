@@ -23,7 +23,7 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_num
 from pyopenvba._xml import attributes
 from pyopenvba.apps.excel import (_arrays, _data_tables, _hyperlinks, _merges, _shared, _spills, _tables, _validation,
                                   _windows)
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
 
@@ -103,6 +103,27 @@ def name_scope(book: Workbook, entry: NameEntry) -> str:
     return scope
 
 
+def refuse_pivot_moves(sheet: Worksheet, *, vertical: bool, band: tuple[int, int] | None, start: int) -> None:
+    """Report an insert or delete that would move, cut or split a pivot table on ``sheet``: one whose cells lie across the
+    ``band`` of columns (``vertical``) or rows that shifts, or across any for whole rows or columns, and reach ``start`` or
+    past it. Excel moves the table, where the model would leave it in place (PivotTable round 57102). An edit before every
+    table, or beside it, still answers."""
+    from pyopenvba.apps.excel._model import Range as ExcelRange
+
+    for table in getattr(sheet, 'pivot_tables', []):
+        try:
+            found = table.TableRange2()
+        except VBARuntimeError:
+            continue
+        if not isinstance(found, ExcelRange):
+            continue
+        box = found.first
+        near, far = (box.left, box.right) if vertical else (box.top, box.bottom)
+        reach = box.bottom if vertical else box.right
+        if (band is None or (near <= band[1] and far >= band[0])) and reach >= start:
+            raise VBAUnsupportedError('Inserting or deleting cells that would move a pivot table is not implemented')
+
+
 def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False) -> None:
     """Whole rows or columns deleted or inserted; inserted ones take the formats of the line before them, or with
     ``below`` the line after them. ``laid`` is for a caller that lays the outline out itself once it is done, as
@@ -113,6 +134,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     sheet.book.application.parameters_ready = True
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
+    refuse_pivot_moves(sheet, vertical=rows, band=None, start=start)
     if not laid:
         from pyopenvba.apps.excel._outline import guard_axis_edit
 
@@ -273,6 +295,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     sheet = target.sheet
     shift = CellShift.of(area, delete=delete, vertical=vertical)
     band, start, count = shift.band, shift.start, shift.count
+    refuse_pivot_moves(sheet, vertical=vertical, band=band, start=start)
     limit = MAX_ROWS if vertical else MAX_COLUMNS
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
     from pyopenvba.apps.excel._conditional_edits import planned

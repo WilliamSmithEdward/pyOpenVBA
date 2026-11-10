@@ -22,7 +22,7 @@ from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_reports import PivotReport
@@ -456,7 +456,10 @@ class PivotTable(HeldPart, ExcelObject):
     def ChangeConnection(self, conn: object = MISSING) -> object:
         from pyopenvba.apps.excel._connections import WorkbookConnection
 
-        # A table over a list takes no connection: 5 for a connection, 13 for anything else.
+        # A table over a list takes no connection: 5 for a connection, 1004 for Nothing, 13 for anything else, however it
+        # is passed (tests/fixtures/pivot_table_more.json, change_connection.json).
+        if conn is NOTHING:
+            raise error(1004)
         raise error(5 if isinstance(conn, WorkbookConnection) else 13)
 
     @method

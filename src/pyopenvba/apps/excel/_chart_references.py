@@ -4,8 +4,10 @@
 The movers work out what every reference becomes before anything moves, and carry it out afterwards. A point's look
 and label stay with its cell, and moved to another place they lose their unique ids. A series' values becoming #REF!
 take its points' looks and labels with them (tests/fixtures/chart_lost_cells.json). A chart read from a file keeps its
-part, with only the references in it rewritten (tests/fixtures/loaded_chart_references.json); its points are numbered
-inside that part, so cells moving between them are refused, and so is taking its cells away."""
+part, with only the references in it rewritten (tests/fixtures/loaded_chart_references.json). Its points keep the
+numbers the part gives them, as Excel keeps them, and a reference whose cells all go reads #REF! in the part with its
+cached points kept, while the series still reads it as it was (tests/fixtures/chart_shift_losses.json). An error bar
+whose cells go reads #REF! too, in a chart made in the session as in one from a file."""
 from __future__ import annotations
 
 import re
@@ -14,7 +16,6 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import column_letter, parse_reference, quote_sheet
 from pyopenvba._xml import escape_text, unescape
-from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 
 if TYPE_CHECKING:
@@ -28,8 +29,6 @@ Step = Callable[[], None]
 NO_ID = -2
 #: A reference where a chart part spells one.
 _PART_REFERENCE = re.compile(r'<((?:\w+:)?f|c15:sqref)>(.*?)</\1>', re.DOTALL)
-#: What a chart part numbers by its place among the series' cells.
-_NUMBERED = re.compile(r'<(?:\w+:)?(?:dPt|dLbl)>')
 
 
 def renamed(formula: str, old: str, new: str) -> str:
@@ -69,33 +68,51 @@ def _single(reference: str) -> tuple[str, int, int, int, int] | None:
     return reference.rsplit('!', 1)[0] + '!', area.top, area.left, area.bottom, area.right
 
 
-def _points_step(entry: SeriesState, turned: str, sheet: str, change: Change) -> Step | None:
-    """The series' points going with their cells, when its values have moved."""
-    before, after = _single(entry.value_reference), _single(turned)
-    if before is None or after is None or not entry.points:
+def _points_step(state: ChartState, sheet: str, change: Change) -> Step | None:
+    """Each point's look and label going with its cell: to the place among a series' cells it lands on, that
+    series' or another's, and gone where it lands among none (tests/fixtures/chart_shift_losses*.json)."""
+    entries = state.full_series or state.series
+    if not any(entry.points for entry in entries):
         return None
-    prefix, top, left, bottom, right = before
-    _, new_top, new_left, new_bottom, _ = after
-    down = bottom > top
-    places: dict[int, int] = {}
-    for index in entry.points:
-        row, column = (top + index, left) if down else (top, left + index)
-        if row > bottom or column > right:
+    after = [_single(change(f'={entry.value_reference}', sheet)[1:]) if entry.value_reference else None
+             for entry in entries]
+    landings: list[tuple[SeriesState, int, SeriesState, int]] = []
+    for entry in entries:
+        before = _single(entry.value_reference) if entry.points else None
+        if before is None:
             continue
-        cell = _single(change(f'={prefix}${column_letter(column)}${row}', sheet)[1:])
-        if cell is not None:
-            places[index] = cell[1] - new_top if down or new_bottom > new_top else cell[2] - new_left
+        prefix, top, left, bottom, right = before
+        down = bottom > top
+        for index in entry.points:
+            row, column = (top + index, left) if down else (top, left + index)
+            if row > bottom or column > right:
+                continue
+            cell = _single(change(f'={prefix}${column_letter(column)}${row}', sheet)[1:])
+            if cell is None:
+                continue
+            for target, area in zip(entries, after, strict=True):
+                if area is None or area[0] != cell[0]:
+                    continue
+                _, new_top, new_left, new_bottom, new_right = area
+                if new_top <= cell[1] <= new_bottom and new_left <= cell[2] <= new_right:
+                    place = cell[1] - new_top if new_bottom > new_top else cell[2] - new_left
+                    landings.append((entry, index, target, place))
+                    break
+    if len(landings) == sum(len(entry.points) for entry in entries) and all(
+            entry is target and index == place for entry, index, target, place in landings):
+        return None
 
     def step() -> None:
-        kept = {}
-        for index, point in entry.points.items():
-            if index in places:
-                if places[index] != index:
-                    point.unique = -1
-                    if point.label_unique >= 0:
-                        point.label_unique = NO_ID
-                kept[places[index]] = point
-        entry.points = kept
+        moved = [(target, place, entry.points[index], entry is target and index == place)
+                 for entry, index, target, place in landings]
+        for entry in entries:
+            entry.points = {}
+        for target, place, point, kept in moved:
+            if not kept:
+                point.unique = -1
+                if point.label_unique >= 0:
+                    point.label_unique = NO_ID
+            target.points[place] = point
     return step
 
 
@@ -120,23 +137,15 @@ def _categories_gone(sheet: Worksheet, entry: SeriesState) -> Step:
     return step
 
 
-def _extent(reference: str) -> tuple[int, int] | None:
-    """How many rows and columns a reference to one area covers."""
-    area = _single(reference)
-    return None if area is None else (area[3] - area[1], area[4] - area[2])
-
-
 def _part_step(state: ChartState, turned_text: Callable[[str], str]) -> Step | None:
-    """The references in the part of a chart read from a file going with their cells."""
-    numbered = _NUMBERED.search(state.original) is not None
-
+    """The references in the part of a chart read from a file going with their cells. The points the part numbers
+    keep their numbers, and the cached points of a reference turned #REF! stay, as Excel keeps them
+    (tests/fixtures/chart_shift_losses.json)."""
     def follow(match: re.Match[str]) -> str:
         text = unescape(match.group(2))
         turned = turned_text(text)
         if turned == text:
             return match.group(0)
-        if numbered and (_extent(text) is None or _extent(text) != _extent(turned)):
-            raise VBAUnsupportedError('Moving cells between the points of a chart from a file is not implemented')
         return f'<{match.group(1)}>{escape_text(turned)}</{match.group(1)}>'
 
     rewritten = _PART_REFERENCE.sub(follow, state.original)
@@ -169,10 +178,7 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
             sheet.drawing_changed()
 
     def turned_text(text: str) -> str:
-        turned = change(f'={text}', sheet.name)[1:]
-        if turned != text and '#REF!' in turned and state.original:
-            raise VBAUnsupportedError('Taking away the cells a chart from a file reads is not implemented')
-        return turned
+        return change(f'={text}', sheet.name)[1:]
 
     def setting(holder: object, field: str, value: str) -> Step:
         def step() -> None:
@@ -180,21 +186,23 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
             changed()
         return step
 
+    if not state.original:
+        # Points first: a series whose values go takes its points with it afterwards (_values_gone).
+        moving = _points_step(state, sheet.name, change)
+        if moving is not None:
+            steps += [moving, changed]
     for holder, field in _slots(state):
         text: str = getattr(holder, field)
         if not text:
             continue
         turned = turned_text(text)
-        if turned == text:
+        if turned == text or (state.original and '#REF!' in turned):
+            # A chart from a file goes on reading a reference whose cells went as it was; its part says #REF!.
             continue
         if field == 'category_reference' and '#REF!' in turned:
             steps.append(_categories_gone(sheet, holder))  # pyright: ignore[reportArgumentType]
         if field == 'value_reference' and '#REF!' in turned:
             steps.append(_values_gone(holder))  # pyright: ignore[reportArgumentType]
-        elif field == 'value_reference':
-            moving = _points_step(holder, turned, sheet.name, change)  # pyright: ignore[reportArgumentType]
-            if moving is not None:
-                steps.append(moving)
         steps.append(setting(holder, field, turned))
     for entry in state.full_series or state.series:
         for bar in entry.error_bars:
@@ -202,9 +210,7 @@ def _chart_plan(sheet: Worksheet, state: ChartState, change: Change) -> list[Ste
                 reference, values = getattr(bar, field)
                 if reference:
                     turned = turned_text(reference)
-                    if '#REF!' in turned:
-                        raise VBAUnsupportedError('Taking away the cells an error bar reads is not implemented')
-                    if turned != reference:
+                    if turned != reference and not (state.original and '#REF!' in turned):
                         steps.append(setting(bar, field, (turned, values)))  # pyright: ignore[reportArgumentType]
     if state.original:
         following = _part_step(state, turned_text)

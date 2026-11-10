@@ -219,8 +219,15 @@ def taken_over(table: Table, fields: dict[int, FieldFilter]) -> None:
 
 
 def refuse_filtered(table: Table, doing: str) -> None:
-    """Report an edit of a filtered table that was not measured."""
+    """ListRows.Add inside a filtered table, or ListRow.Delete there: error 1004 where the sheet is in filter mode by
+    the table's criteria, as Excel has it (tests/fixtures/table_shifts_a.json); reported where it is not, which was
+    not measured."""
     if table.auto_filter and table.filter is not None and table.filter.fields:
+        if filter_mode(table.sheet):
+            from pyopenvba.apps.excel._table_shifts import FILTERED
+            from pyopenvba.interpreter._values import error
+
+            raise error(1004, FILTERED)
         raise VBAUnsupportedError(f"{doing} a filtered table is not implemented")
 
 
@@ -232,12 +239,23 @@ def column_added(table: Table, index: int) -> None:
 
 
 def column_deleted(table: Table, index: int) -> None:
-    """Before ListColumn.Delete takes column ``index`` out: the criteria right of it move with their columns."""
+    """Before ListColumn.Delete takes column ``index`` out: the criteria right of it move with their columns. The
+    column the table alone is filtered by takes its criteria with it, every row showing again
+    (tests/fixtures/table_shifts_a.json)."""
     found = table.filter
     if found is None or not found.fields:
         return
     if index in found.fields:
-        raise VBAUnsupportedError("deleting a column a table is filtered by is not implemented")
+        if len(found.fields) > 1:
+            raise VBAUnsupportedError("deleting a column a table is filtered by, beside others, is not implemented")
+        sheet, area = table.sheet, table.area
+        for row in range(area.top + table.headers, area.bottom + 1):
+            if sheet.dims.row_hidden(row):
+                sheet.dims.hide_row(row, False)
+        found.fields = {}
+        if sheet.table_filter_mode is not None:
+            sheet.table_filter_mode = False
+        return
     found.fields = {(at - 1 if at > index else at): one for at, one in found.fields.items()}
 
 

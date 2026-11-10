@@ -17,7 +17,7 @@ NAMES = [case[0] for case in RECORD['cases']]
 #: Refused, which each case below checks: setting what a new control only reads, a control's Border and Interior, a size a
 #: control picks for itself, changes on a sheet whose drawing objects are protected, a button's font and duplicating a control,
 #: whose writing to the file is not measured.
-REFUSED = ('o.Duplicate', 'o.Font.', 'TypeName(o.Characters.Font) & " " & o.Characters.Font.Bold', 'o.AutoSize =', 'o.HorizontalAlignment =', 'o.VerticalAlignment =', 'o.Orientation =', 'o.Display3DShading =', 'TypeName(o.Border)', 'TypeName(o.Interior)', 'Add(48, 96, 0, 0)', 'ws.Protect: o.Left')
+REFUSED = ('o.Duplicate', 'o.Font.', 'TypeName(o.Characters.Font) & " " & o.Characters.Font.Bold', 'o.AutoSize =', 'TypeName(o.Border)', 'TypeName(o.Interior)', 'Add(48, 96, 0, 0)', 'ws.Protect: o.Left')
 #: Measured and not replayed: a list box's height, which Excel fits to whole rows at this display's DPI, and a shape's place
 #: after a row goes in above it, in rows of this display's height; and DrawingObjects, which still answers as Shapes.
 LEFT_OUT = ('ListBoxes.Add(Left:=', 'TypeName(ws.DrawingObjects(1))', 'ws.Rows(1).Insert: r = o.Top')

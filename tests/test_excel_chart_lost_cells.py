@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import json
 import os
+import zipfile
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 from test_excel_chart_markup import chart_part
 
 RECORD: dict[str, Any] = json.loads(
@@ -95,7 +95,8 @@ End Function
     assert app.run('Trial.Reopened') == '#REF!|1'
 
 
-def test_taking_away_an_error_bars_cells_is_refused() -> None:
+def test_taking_away_an_error_bars_cells_turns_it_ref(tmp_path: Path) -> None:
+    """As Excel has it, the bar reads #REF!, cached as one point of 1 (tests/fixtures/chart_shift_losses.json)."""
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('''Public Sub Try()
@@ -109,5 +110,9 @@ def test_taking_away_an_error_bars_cells_is_refused() -> None:
     d.Columns(5).Delete
 End Sub
 ''', name='Trial')
-    with pytest.raises(VBAUnsupportedError, match='an error bar'):
-        app.run('Trial.Try')
+    app.run('Trial.Try')
+    app.save(tmp_path / 'lost.xlsx')
+    with zipfile.ZipFile(tmp_path / 'lost.xlsx') as package:
+        chart = package.read('xl/charts/chart1.xml').decode('utf-8')
+    assert chart.count('<c:f>Sheet1!#REF!</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="1"/>'
+                       '<c:pt idx="0"><c:v>1</c:v></c:pt></c:numCache>') == 2

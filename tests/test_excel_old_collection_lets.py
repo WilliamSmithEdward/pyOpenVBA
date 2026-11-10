@@ -23,7 +23,6 @@ _spec.loader.exec_module(_script)
 row_source: Any = getattr(_script, 'row_source')
 #: Sets the model does not yet answer as Excel did, each with why.
 NOT_YET: dict[str, str] = {
-    'Arcs.AddIndent': "the drawing's item setter reports itself",
     'Arcs.AutoScaleFont': "the drawing's item setter reports itself",
     'Arcs.Formula': "the drawing's item setter reports itself",
     'Arcs.LockedText': "the drawing's item setter reports itself",
@@ -33,7 +32,6 @@ NOT_YET: dict[str, str] = {
     'Lines.ArrowHeadLength': "the line's item setter reports itself",
     'Lines.ArrowHeadStyle': "the line's item setter reports itself",
     'Lines.ArrowHeadWidth': "the line's item setter reports itself",
-    'Ovals.AddIndent': "the drawing's item setter reports itself",
     'Ovals.AutoScaleFont': "the drawing's item setter reports itself",
     'Ovals.AutoSize': "the drawing's item setter reports itself",
     'Ovals.Formula': "the drawing's item setter reports itself",
@@ -42,7 +40,6 @@ NOT_YET: dict[str, str] = {
     'Ovals.Shadow': "the drawing's item setter reports itself",
     'Pictures.Formula': "the picture's item setter reports itself",
     'Pictures.Shadow': "the picture's item setter reports itself",
-    'Rectangles.AddIndent': "the drawing's item setter reports itself",
     'Rectangles.AutoScaleFont': "the drawing's item setter reports itself",
     'Rectangles.AutoSize': "the drawing's item setter reports itself",
     'Rectangles.Formula': "the drawing's item setter reports itself",
@@ -50,7 +47,6 @@ NOT_YET: dict[str, str] = {
     'Rectangles.ReadingOrder': "the drawing's item setter reports itself",
     'Rectangles.RoundedCorners': "the drawing's item setter reports itself",
     'Rectangles.Shadow': "the drawing's item setter reports itself",
-    'TextBoxes.AddIndent': "the drawing's item setter reports itself",
     'TextBoxes.AutoScaleFont': "the drawing's item setter reports itself",
     'TextBoxes.AutoSize': "the drawing's item setter reports itself",
     'TextBoxes.Formula': "the drawing's item setter reports itself",

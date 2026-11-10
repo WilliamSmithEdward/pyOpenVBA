@@ -35,15 +35,17 @@ BUILT = ('HasTitle True', 'HasTitle False', 'HasTitle True then False', 'title d
          'legend position bottom', 'legend position same', 'legend moved position read',
          'axis maximum', 'axis minimum', 'axis both', 'axis maximum twice', 'axis maximum auto', 'axis maximum auto read',
          'axis gridlines', 'gridlines back', 'category gridlines', 'minor gridlines', 'minor gridlines off',
-         'series name', 'series name formula', 'series name cell', 'series labels', 'point label', 'series fill',
+         'series name', 'series name formula', 'series name cell', 'series formula', 'series labels', 'point label', 'series fill',
          'chart type', 'new series', 'delete series', 'source data',
          'title text', 'title text marks', 'title text two lines', 'title text cr', 'title text empty', 'title text spaces', 'title text twice',
          'title caption', 'title text then gone', 'title text read after back', 'title formula',
          'axis title', 'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
-#: Built, but not for the dressed book: its plot area, labels, axis titles and gridlines are not written as the file holds them.
-NEEDS_NO_STYLE = ('series labels', 'point label', 'chart type', 'new series', 'delete series',
-                  'source data', 'category gridlines', 'minor gridlines', 'minor gridlines off', 'axis title',
-                  'axis title on', 'axis title text read', 'axis title off', 'axis title back', 'category axis title', 'axis title with gridlines')
+#: Built, but not for the dressed book: a point's label on a series whose labels have a look, and a turn of a chart whose series
+#: have a look of their own.
+NEEDS_NO_STYLE = ('point label', 'chart type')
+#: Built for the dressed book alone: a chart with a style writes its part whole for these, as a new chart of its style
+#: (see tests/test_excel_loaded_chart_styled_edits.py).
+STYLED_ONLY = ('area font size', 'title font bold')
 NOT_EXCELS = 'loaded_chart_openpyxl.xlsx'
 
 
@@ -58,6 +60,8 @@ def label(case: list[Any]) -> str:
 def answered(case: list[Any]) -> bool:
     if what(case) in NEEDS_NO_STYLE and 'dressed' in case[0]:
         return False
+    if what(case) in STYLED_ONLY:
+        return 'dressed' in case[0]
     return what(case) in ANSWERED or (what(case) in BUILT and case[0] != NOT_EXCELS)
 
 

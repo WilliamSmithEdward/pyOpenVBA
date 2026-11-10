@@ -1,0 +1,8692 @@
+{
+"cases": [
+{
+"call": [
+"session",
+"d.Rows(\"3:3\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$4,Data!$B$2:$B$4,1) pts=3 eb=True 8544277 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$4,Data!$C$2:$C$4,2) pts=3 eb=False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"a",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$4",
+[
+"1",
+"3",
+"4"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.75</c:v></c:pt><c:pt idx=\"2\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.3</c:v></c:pt><c:pt idx=\"2\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.75",
+"1",
+"0.1",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"a",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$4",
+[
+"5",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"1"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C1:C2\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$1:$C$3,2) pts=3 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!#REF!",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$1:$C$3",
+[
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C5:D5\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>8</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"0.1",
+"0.2",
+"0.3",
+"8"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"3:3\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$6,Data!$B$2:$B$6,1) pts=5 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$6,Data!$C$2:$C$6,2) pts=5 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"2\"><c:v>0.25</c:v></c:pt><c:pt idx=\"3\"><c:v>0.75</c:v></c:pt><c:pt idx=\"4\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"2\"><c:v>0.2</c:v></c:pt><c:pt idx=\"3\"><c:v>0.3</c:v></c:pt><c:pt idx=\"4\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$6",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"B:C\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$D$1,Data!$A$2:$A$5,Data!$D$2:$D$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$E$1,Data!$A$2:$A$5,Data!$E$2:$E$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$D$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$D$2:$D$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$G$2:$G$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$E$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$E$2:$E$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"E3:E6\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"2:4\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$2,Data!$B$2:$B$2,1) pts=1 eb=True 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$2,Data!$C$2:$C$2,2) pts=1 eb=False False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$2",
+[
+"d"
+]
+],
+[
+"Data!$B$2:$B$2",
+[
+"4"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"1",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$2",
+[
+"d"
+]
+],
+[
+"Data!$C$2:$C$2",
+[
+"8"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"A5:A8\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$4,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$4,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"a",
+"b",
+"c"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"a",
+"b",
+"c"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"A6:A6\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"7:8\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A3:B4\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$7,Data!$B$2:$B$7,1) pts=6 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$7,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C3:C6\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>6</c:v></c:pt><c:pt idx=\"2\"><c:v>7</c:v></c:pt><c:pt idx=\"3\"><c:v>8</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"6",
+"7",
+"8",
+"0.1",
+"0.25",
+"0.75",
+"1"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"1:2\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$3,Data!$A$4:$A$7,Data!$B$4:$B$7,1) pts=4 eb=True |=SERIES(Data!$C$3,Data!$A$4:$A$7,Data!$C$4:$C$7,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$3",
+[
+"v"
+]
+],
+[
+"Data!$A$4:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$4:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$4:$D$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$4:$E$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$3",
+[
+"w"
+]
+],
+[
+"Data!$A$4:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$4:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"1:3\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$1:$A$2,Data!$B$1:$B$2,1) pts=2 eb=True |=SERIES(Data!$C$1,Data!$A$1:$A$2,Data!$C$1:$C$2,2) pts=2 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!#REF!",
+[
+"v"
+]
+],
+[
+"Data!$A$1:$A$2",
+[
+"c",
+"d"
+]
+],
+[
+"Data!$B$1:$B$2",
+[
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$1:$D$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.75</c:v></c:pt><c:pt idx=\"1\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$1:$E$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.3</c:v></c:pt><c:pt idx=\"1\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.75",
+"1",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!#REF!",
+[
+"w"
+]
+],
+[
+"Data!$A$1:$A$2",
+[
+"c",
+"d"
+]
+],
+[
+"Data!$C$1:$C$2",
+[
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A4:A4\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"3",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"7",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.3",
+"1",
+"0.1",
+"0.2",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"3",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"0.75",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C5:C6\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$7,2) pts=6 eb=False False False True False False False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"D3:D3\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.2",
+"0.75",
+"1",
+"0.1",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Columns(\"C:C\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!#REF!",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Columns(\"B:C\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!#REF!",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$B$2:$B$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!#REF!",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"4:4\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$6,Data!$B$2:$B$6,1) pts=5 eb=True 8544277 255 8544277 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$6,Data!$C$2:$C$6,2) pts=5 eb=False False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"3\"><c:v>0.75</c:v></c:pt><c:pt idx=\"4\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"3\"><c:v>0.3</c:v></c:pt><c:pt idx=\"4\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$6",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"3"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"E5:F5\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"3:5\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$8,Data!$B$2:$B$8,1) pts=7 eb=True 8544277 8544277 8544277 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$8,Data!$C$2:$C$8,2) pts=7 eb=False False False False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$8",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$8",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"4"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$8</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"7\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"4\"><c:v>0.25</c:v></c:pt><c:pt idx=\"5\"><c:v>0.75</c:v></c:pt><c:pt idx=\"6\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$8</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"7\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"4\"><c:v>0.2</c:v></c:pt><c:pt idx=\"5\"><c:v>0.3</c:v></c:pt><c:pt idx=\"6\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$8",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$8",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"5"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Columns(\"C:D\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!#REF!</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!#REF!",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"D1:D1\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B1:B1\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$2,Data!$A$2:$A$5,Data!$B$3:$B$6,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$2",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$3:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Columns(\"E:F\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$G$2:$G$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"D4:D7\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"3:4\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$3,Data!$B$2:$B$3,1) pts=2 eb=True 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$3,Data!$C$2:$C$3,2) pts=2 eb=False False False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"a",
+"d"
+]
+],
+[
+"Data!$B$2:$B$3",
+[
+"1",
+"4"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"1",
+"0.1",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"a",
+"d"
+]
+],
+[
+"Data!$C$2:$C$3",
+[
+"5",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"1:2\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$3,Data!$A$4:$A$7,Data!$B$4:$B$7,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$3,Data!$A$4:$A$7,Data!$C$4:$C$7,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$3",
+[
+"v"
+]
+],
+[
+"Data!$A$4:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$4:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$4:$D$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$4:$E$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$3",
+[
+"w"
+]
+],
+[
+"Data!$A$4:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$4:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"1:3\").Delete"
+],
+"model": "err=0 n=2 |- pts=2 eb=True 8544277 8544277 |- pts=2 eb=False True False",
+"part": [
+{
+"references": [
+[
+"Data!$A$1:$A$2",
+[
+"c",
+"d"
+]
+],
+[
+"Data!$B$1:$B$2",
+[
+"3",
+"4"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$1:$D$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.75</c:v></c:pt><c:pt idx=\"1\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$1:$E$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.3</c:v></c:pt><c:pt idx=\"1\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.75",
+"1",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$A$1:$A$2",
+[
+"c",
+"d"
+]
+],
+[
+"Data!$C$1:$C$2",
+[
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"0"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C6:D9\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C3:C6\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$9,2) pts=8 eb=False False False False False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$9",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"6"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"4:5\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$7,Data!$B$2:$B$7,1) pts=6 eb=True 8544277 255 8544277 8544277 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$7,Data!$C$2:$C$7,2) pts=6 eb=False False False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"6\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"4\"><c:v>0.75</c:v></c:pt><c:pt idx=\"5\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"6\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"4\"><c:v>0.3</c:v></c:pt><c:pt idx=\"5\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"4"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"E3:E3\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"2\"><c:v>0.2</c:v></c:pt><c:pt idx=\"3\"><c:v>0.3</c:v></c:pt><c:pt idx=\"4\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"A:A\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$A$1,,Data!$A$2:$A$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$B$1,,Data!$B$2:$B$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$A$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$B$1",
+[
+"w"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B6:B6\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C5:D6\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$7,2) pts=6 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"6\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"5\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Columns(\"E:F\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!#REF!</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"C:C\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$D$1,Data!$A$2:$A$5,Data!$D$2:$D$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$D$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$D$2:$D$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B3:C4\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$7,1) pts=6 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$7,2) pts=6 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"E:E\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"7:8\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B2:C2\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"1",
+"0.25",
+"0.75",
+"1",
+"5",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"3:5\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$2,Data!$B$2:$B$2,1) pts=1 eb=True 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$2,Data!$C$2:$C$2,2) pts=1 eb=False False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$2",
+[
+"a"
+]
+],
+[
+"Data!$B$2:$B$2",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.1"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$2",
+[
+"a"
+]
+],
+[
+"Data!$C$2:$C$2",
+[
+"5"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A4:B4\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$6,Data!$B$2:$B$6,1) pts=5 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$6,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"B:B\").Delete"
+],
+"model": "err=0 n=2 |- pts=1 eb=True 8544277 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!#REF!",
+[
+"#REF!"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$B$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"5:7\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$4,Data!$B$2:$B$4,1) pts=3 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$4,Data!$C$2:$C$4,2) pts=3 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"a",
+"b",
+"c"
+]
+],
+[
+"Data!$B$2:$B$4",
+[
+"1",
+"2",
+"3"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"0.1",
+"0.2",
+"0.3"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"a",
+"b",
+"c"
+]
+],
+[
+"Data!$C$2:$C$4",
+[
+"5",
+"6",
+"7"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"4:4\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$6,Data!$B$2:$B$6,1) pts=5 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$6,Data!$C$2:$C$6,2) pts=5 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"3\"><c:v>0.75</c:v></c:pt><c:pt idx=\"4\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"3\"><c:v>0.3</c:v></c:pt><c:pt idx=\"4\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$6",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"A1:B1\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$2,Data!$A$3:$A$6,Data!$B$3:$B$6,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$3:$A$6,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$2",
+[
+"v"
+]
+],
+[
+"Data!$A$3:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$3:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$3:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C4:C4\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$4,2) pts=3 eb=False False False False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$4",
+[
+"5",
+"6",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"1:2\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$1:$A$3,Data!$B$1:$B$3,1) pts=3 eb=True |=SERIES(Data!$C$1,Data!$A$1:$A$3,Data!$C$1:$C$3,2) pts=3 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!#REF!",
+[
+"v"
+]
+],
+[
+"Data!$A$1:$A$3",
+[
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$1:$B$3",
+[
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$1:$D$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.25</c:v></c:pt><c:pt idx=\"1\"><c:v>0.75</c:v></c:pt><c:pt idx=\"2\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$1:$E$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.2</c:v></c:pt><c:pt idx=\"1\"><c:v>0.3</c:v></c:pt><c:pt idx=\"2\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.25",
+"0.75",
+"1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!#REF!",
+[
+"w"
+]
+],
+[
+"Data!$A$1:$A$3",
+[
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$1:$C$3",
+[
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"6:8\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C6:C6\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"B6:B7\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"E1:E1\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"D4:D4\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$6</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"5\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"3\"><c:v>0.75</c:v></c:pt><c:pt idx=\"4\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C1:C1\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$2,Data!$A$2:$A$5,Data!$C$3:$C$6,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$2",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$3:$C$6",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B5:C5\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$4,1) pts=3 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$4,2) pts=3 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$4",
+[
+"1",
+"2",
+"3"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$4",
+[
+"5",
+"6",
+"7"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A1:B1\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$D$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$E$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$D$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$E$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C5:C8\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$9,2) pts=8 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$9",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A3:B3\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$6,Data!$B$2:$B$6,1) pts=5 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$6,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$6",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$6",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"E1:E1\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C5:C5\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$4,2) pts=3 eb=False False False True",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$4",
+[
+"5",
+"6",
+"7"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"A1:A1\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$1:$A$4,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$1:$A$4,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$1:$A$4",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$1:$A$4",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"E:E\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!#REF!</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"1"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"C:D\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$E$1,Data!$A$2:$A$5,Data!$E$2:$E$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$G$2:$G$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$E$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$E$2:$E$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"2:2\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$4,Data!$B$2:$B$4,1) pts=3 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$4,Data!$C$2:$C$4,2) pts=3 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$4",
+[
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.25</c:v></c:pt><c:pt idx=\"1\"><c:v>0.75</c:v></c:pt><c:pt idx=\"2\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.2</c:v></c:pt><c:pt idx=\"1\"><c:v>0.3</c:v></c:pt><c:pt idx=\"2\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.25",
+"0.75",
+"1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$4",
+[
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$4",
+[
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C6:C7\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"E2:F3\").Insert xlShiftDown"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$4:$E$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"B:B\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$D$1,Data!$A$2:$A$5,Data!$D$2:$D$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$C$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$D$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$D$2:$D$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"D5:D5\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"0.1",
+"0.2",
+"0.3"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A3:A4\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$3,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$3,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"a",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"a",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"C3:C3\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.2",
+"0.75",
+"1",
+"0.1",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"0.25",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"2:4\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$2,Data!$B$2:$B$2,1) pts=1 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$2,Data!$C$2:$C$2,2) pts=1 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$2",
+[
+"d"
+]
+],
+[
+"Data!$B$2:$B$2",
+[
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"1",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$2",
+[
+"d"
+]
+],
+[
+"Data!$C$2:$C$2",
+[
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"A4:B4\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>3</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>7</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"3",
+"1",
+"0.1",
+"0.2",
+"7",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"0",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"D3:D6\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$2</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.1"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"7:9\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"D4:D4\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.3",
+"1",
+"0.1",
+"0.2",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"6:6\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B3:B3\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>6</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"6",
+"0.75",
+"1",
+"0.1",
+"0.25",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"2",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"D4:D7\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.1",
+"0.2"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"E:F\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$G$2:$G$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"B:C\").Delete"
+],
+"model": "err=0 n=2 |- pts=1 eb=True 8544277 |- pts=1 eb=False False",
+"part": [
+{
+"references": [
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$B$2:$B$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"1:1\").Delete"
+],
+"model": "err=0 n=2 |- pts=4 eb=True 8544277 255 8544277 8544277 |- pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$A$1:$A$4",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$1:$B$4",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$1:$D$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$1:$E$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$A$1:$A$4",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$1:$C$4",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"D5:D6\").Delete xlShiftUp"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$4</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"3\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"C4:C7\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>7</c:v></c:pt><c:pt idx=\"3\"><c:v>8</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"7",
+"8",
+"0.1",
+"0.2",
+"0.75",
+"1"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"B1:B2\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True |=SERIES(Data!$D$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$C$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"5",
+"0.25",
+"0.75",
+"1",
+"0.5",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$D$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"1",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"3:4\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$3,Data!$B$2:$B$3,1) pts=2 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$3,Data!$C$2:$C$3,2) pts=2 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"a",
+"d"
+]
+],
+[
+"Data!$B$2:$B$3",
+[
+"1",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"1",
+"0.1",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"a",
+"d"
+]
+],
+[
+"Data!$C$2:$C$3",
+[
+"5",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"A6:B6\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Columns(\"B:B\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,1) pts=4 eb=True |=SERIES(Data!$D$1,Data!$A$2:$A$5,Data!$D$2:$D$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$C$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$D$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$D$2:$D$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"D:D\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!#REF!</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"1\"/><c:pt idx=\"0\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"2:3\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$4:$A$7,Data!$B$4:$B$7,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$A$4:$A$7,Data!$C$4:$C$7,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$4:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$4:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$4:$D$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$4:$E$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$4:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$4:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Columns(\"A:B\").Delete"
+],
+"model": "err=0 n=2 |- pts=1 eb=True 8544277 |=SERIES(Data!$A$1,,Data!$A$2:$A$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!#REF!",
+[
+"#REF!"
+]
+],
+[
+"Data!#REF!",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$B$2:$B$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$A$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Range(\"B2:C5\").Delete xlShiftToLeft"
+],
+"model": "err=0 n=2 |- pts=1 eb=True 8544277 |- pts=1 eb=False False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$B$2:$B$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$C$2:$C$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!#REF!",
+[
+"1"
+]
+]
+],
+"looks": [],
+"labels": [],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Range(\"A2:A5\").Insert xlShiftToRight"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$B$2:$B$5,Data!$C$2:$C$5,1) pts=4 eb=True |=SERIES(Data!$C$1,Data!$B$2:$B$5,Data!$D$2:$D$5,2) pts=4 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$F$2:$F$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$D$2:$D$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"5:6\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$7,Data!$B$2:$B$7,1) pts=6 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$7,Data!$C$2:$C$7,2) pts=6 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$7",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"6\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"5\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$7</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"6\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"5\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$7",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$7",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"1:3\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$4,Data!$A$5:$A$8,Data!$B$5:$B$8,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$4,Data!$A$5:$A$8,Data!$C$5:$C$8,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$4",
+[
+"v"
+]
+],
+[
+"Data!$A$5:$A$8",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$5:$B$8",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$5:$D$8</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$5:$E$8</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$4",
+[
+"w"
+]
+],
+[
+"Data!$A$5:$A$8",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$5:$C$8",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"7:7\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$5,Data!$B$2:$B$5,1) pts=4 eb=True 8544277 255 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$5,Data!$C$2:$C$5,2) pts=4 eb=False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$5",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"2\"><c:v>0.75</c:v></c:pt><c:pt idx=\"3\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$5</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"4\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"2\"><c:v>0.3</c:v></c:pt><c:pt idx=\"3\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$5",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$5",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"loaded",
+"d.Rows(\"2:3\").Delete"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$3,Data!$B$2:$B$3,1) pts=2 eb=True |=SERIES(Data!$C$1,Data!$A$2:$A$3,Data!$C$2:$C$3,2) pts=2 eb=False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$3",
+[
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.75</c:v></c:pt><c:pt idx=\"1\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$3</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"2\"/><c:pt idx=\"0\"><c:v>0.3</c:v></c:pt><c:pt idx=\"1\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.75",
+"1",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$3",
+[
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$3",
+[
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"2"
+],
+"bars": [],
+"bar values": []
+}
+]
+},
+{
+"call": [
+"session",
+"d.Rows(\"4:6\").Insert"
+],
+"model": "err=0 n=2 |=SERIES(Data!$B$1,Data!$A$2:$A$8,Data!$B$2:$B$8,1) pts=7 eb=True 8544277 255 8544277 8544277 8544277 8544277 8544277 |=SERIES(Data!$C$1,Data!$A$2:$A$8,Data!$C$2:$C$8,2) pts=7 eb=False False False False False False True False",
+"part": [
+{
+"references": [
+[
+"Data!$B$1",
+[
+"v"
+]
+],
+[
+"Data!$A$2:$A$8",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$B$2:$B$8",
+[
+"1",
+"2",
+"3",
+"4"
+]
+]
+],
+"looks": [
+"1"
+],
+"labels": [],
+"bars": [
+"<c:errBarType val=\"both\"/><c:errValType val=\"cust\"/><c:noEndCap val=\"0\"/><c:plus><c:numRef><c:f>Data!$D$2:$D$8</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"7\"/><c:pt idx=\"0\"><c:v>0.5</c:v></c:pt><c:pt idx=\"1\"><c:v>0.25</c:v></c:pt><c:pt idx=\"5\"><c:v>0.75</c:v></c:pt><c:pt idx=\"6\"><c:v>1</c:v></c:pt></c:numCache></c:numRef></c:plus><c:minus><c:numRef><c:f>Data!$E$2:$E$8</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val=\"7\"/><c:pt idx=\"0\"><c:v>0.1</c:v></c:pt><c:pt idx=\"1\"><c:v>0.2</c:v></c:pt><c:pt idx=\"5\"><c:v>0.3</c:v></c:pt><c:pt idx=\"6\"><c:v>0.4</c:v></c:pt></c:numCache></c:numRef></c:minus>"
+],
+"bar values": [
+[
+"0.5",
+"0.25",
+"0.75",
+"1",
+"0.1",
+"0.2",
+"0.3",
+"0.4"
+]
+]
+},
+{
+"references": [
+[
+"Data!$C$1",
+[
+"w"
+]
+],
+[
+"Data!$A$2:$A$8",
+[
+"a",
+"b",
+"c",
+"d"
+]
+],
+[
+"Data!$C$2:$C$8",
+[
+"5",
+"6",
+"7",
+"8"
+]
+]
+],
+"looks": [],
+"labels": [
+"5"
+],
+"bars": [],
+"bar values": []
+}
+]
+}
+]
+}

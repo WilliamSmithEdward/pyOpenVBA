@@ -864,6 +864,14 @@ def edit_admitted(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
     from pyopenvba.apps.excel._table_sort import guard_edit
 
     end = start + count - 1
+    if rows:
+        # Rows put in or taken away through two tables at once are 1004 (tests/fixtures/table_shifts1.json).
+        def through(area: Area) -> bool:
+            return start <= area.bottom and area.top <= end if delete else area.top < start <= area.bottom
+
+        cut = [table for table in sheet.tables if through(table.area)]
+        if len(cut) > 1:
+            raise error(1004, "Delete method of Range class failed" if delete else "Insert method of Range class failed")
     for table in sheet.tables:
         area = table.area
         if start <= (area.bottom if rows else area.right):

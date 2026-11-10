@@ -1,0 +1,222 @@
+{
+ "measured_at": "2026-11-08T04:05:40.254967+00:00",
+ "source": "Public Function Twice(x As Variant) As Variant\n    Twice = x * 2\nEnd Function\n\nPublic Function Sum3(Optional a As Variant = 10, Optional b As Variant = 20, Optional c As Variant = 30) As Variant\n    Sum3 = a + b + c\nEnd Function\n\nPublic Sub Hello()\nEnd Sub\n\nPublic Function Plus3(Optional a As Variant = 10, Optional b As Variant = 20, Optional c As Variant = 30) As Variant\n    Plus3 = a + b + c\nEnd Function\n\nPublic Function Shown(x As Variant) As String\n    Shown = TypeName(x) & \" \" & CStr(x)\nEnd Function\n\nPublic Function XFE1() As Variant\n    XFE1 = 5\nEnd Function\n\nPublic Function AB12() As Variant\n    AB12 = 1\nEnd Function\n\nPublic Function Kind(which As Long) As Variant\n    Select Case which\n    Case 1: Kind = CLng(70000)\n    Case 2: Kind = \"text\"\n    Case 3: Kind = True\n    Case 4: Kind = DateSerial(2024, 1, 2)\n    Case 5: Kind = CCur(1.5)\n    Case 6: Kind = Array(1, \"a\")\n    Case 7: Set Kind = ThisWorkbook\n    Case 8: Kind = CSng(1.5)\n    Case 9: Kind = CVErr(xlErrNA)\n    Case 10: Kind = CByte(7)\n    Case 11: Kind = CDec(2.5)\n    Case 12: Kind = Null\n    Case 13: Kind = Array(Array(1, 2), 3)\n    Case 14: Kind = Array()\n    Case 15: Kind = CInt(3)\n    Case 16: Kind = Array(\"a\")\n    Case 17: Kind = Array(1, ThisWorkbook)\n    End Select\nEnd Function\n\nPublic Function Raises() As Variant\n    Err.Raise 11\nEnd Function\n\nPrivate Function Tried(ByVal how As Long, ByVal which As Long) As String\n    Dim r As Variant, o As Object\n    r = Empty\n    On Error GoTo Bad\n    Set o = Application\n    Select Case which\n    Case 0\n        If how = 0 Then r = Application.Run(\"Twice\", 4)\n        If how = 1 Then r = Application.[_Run2](\"Twice\", 4)\n        If how = 2 Then r = o.[_Run2](\"Twice\", 4)\n    Case 1\n        If how = 0 Then r = Application.Run(\"Twice\", \"4\")\n        If how = 1 Then r = Application.[_Run2](\"Twice\", \"4\")\n        If how = 2 Then r = o.[_Run2](\"Twice\", \"4\")\n    Case 2\n        If how = 0 Then r = Application.Run(\"Hello\")\n        If how = 1 Then r = Application.[_Run2](\"Hello\")\n        If how = 2 Then r = o.[_Run2](\"Hello\")\n    Case 3\n        If how = 0 Then r = Application.Run(\"Twice\")\n        If how = 1 Then r = Application.[_Run2](\"Twice\")\n        If how = 2 Then r = o.[_Run2](\"Twice\")\n    Case 4\n        If how = 0 Then r = Application.Run(\"Nope\")\n        If how = 1 Then r = Application.[_Run2](\"Nope\")\n        If how = 2 Then r = o.[_Run2](\"Nope\")\n    Case 5\n        If how = 0 Then r = Application.Run()\n        If how = 1 Then r = Application.[_Run2]()\n        If how = 2 Then r = o.[_Run2]()\n    Case 6\n        If how = 0 Then r = Application.Run(\"Twice\", 1, 2)\n        If how = 1 Then r = Application.[_Run2](\"Twice\", 1, 2)\n        If how = 2 Then r = o.[_Run2](\"Twice\", 1, 2)\n    Case 7\n        If how = 0 Then r = Application.Run(\"Sum3\", 1, 2, 3)\n        If how = 1 Then r = Application.[_Run2](\"Sum3\", 1, 2, 3)\n        If how = 2 Then r = o.[_Run2](\"Sum3\", 1, 2, 3)\n    Case 8\n        If how = 0 Then r = Application.Run(\"P.Twice\", 5)\n        If how = 1 Then r = Application.[_Run2](\"P.Twice\", 5)\n        If how = 2 Then r = o.[_Run2](\"P.Twice\", 5)\n    Case 9\n        If how = 0 Then r = Application.Run(1)\n        If how = 1 Then r = Application.[_Run2](1)\n        If how = 2 Then r = o.[_Run2](1)\n    Case 10\n        If how = 0 Then r = Application.Run(\"Twice\", Empty)\n        If how = 1 Then r = Application.[_Run2](\"Twice\", Empty)\n        If how = 2 Then r = o.[_Run2](\"Twice\", Empty)\n    Case 11\n        If how = 0 Then r = Application.Run(\"Sum3\", 1, , 3)\n        If how = 1 Then r = Application.[_Run2](\"Sum3\", 1, , 3)\n        If how = 2 Then r = o.[_Run2](\"Sum3\", 1, , 3)\n    Case 12\n        If how = 0 Then r = Application.Run(\"Plus3\", 1, 2, 3)\n        If how = 1 Then r = Application.[_Run2](\"Plus3\", 1, 2, 3)\n        If how = 2 Then r = o.[_Run2](\"Plus3\", 1, 2, 3)\n    Case 13\n        If how = 0 Then r = Application.Run(\"Plus3\", 1, , 3)\n        If how = 1 Then r = Application.[_Run2](\"Plus3\", 1, , 3)\n        If how = 2 Then r = o.[_Run2](\"Plus3\", 1, , 3)\n    Case 14\n        If how = 0 Then r = Application.Run(\"AB12\")\n        If how = 1 Then r = Application.[_Run2](\"AB12\")\n        If how = 2 Then r = o.[_Run2](\"AB12\")\n    Case 15\n        If how = 0 Then r = Application.Run(\"Kind\", 1)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 1)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 1)\n    Case 16\n        If how = 0 Then r = Application.Run(\"Kind\", 2)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 2)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 2)\n    Case 17\n        If how = 0 Then r = Application.Run(\"Kind\", 3)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 3)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 3)\n    Case 18\n        If how = 0 Then r = Application.Run(\"Kind\", 4)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 4)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 4)\n    Case 19\n        If how = 0 Then r = Application.Run(\"Kind\", 5)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 5)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 5)\n    Case 20\n        If how = 0 Then r = Application.Run(\"Kind\", 6)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 6)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 6)\n    Case 21\n        If how = 0 Then r = Application.Run(\"Kind\", 7)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 7)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 7)\n    Case 22\n        If how = 0 Then r = Application.Run(\"Kind\", 8)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 8)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 8)\n    Case 23\n        If how = 0 Then r = Application.Run(\"Kind\", 9)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 9)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 9)\n    Case 24\n        If how = 0 Then r = Application.Run(\"Twice\", 2.5)\n        If how = 1 Then r = Application.[_Run2](\"Twice\", 2.5)\n        If how = 2 Then r = o.[_Run2](\"Twice\", 2.5)\n    Case 25\n        If how = 0 Then r = Application.Run(\"Twice\", True)\n        If how = 1 Then r = Application.[_Run2](\"Twice\", True)\n        If how = 2 Then r = o.[_Run2](\"Twice\", True)\n    Case 26\n        If how = 0 Then r = Application.Run(\"XFE1\")\n        If how = 1 Then r = Application.[_Run2](\"XFE1\")\n        If how = 2 Then r = o.[_Run2](\"XFE1\")\n    Case 27\n        If how = 0 Then r = Application.Run(\"P.Plus3\", 1)\n        If how = 1 Then r = Application.[_Run2](\"P.Plus3\", 1)\n        If how = 2 Then r = o.[_Run2](\"P.Plus3\", 1)\n    Case 28\n        If how = 0 Then r = Application.Run(2.5)\n        If how = 1 Then r = Application.[_Run2](2.5)\n        If how = 2 Then r = o.[_Run2](2.5)\n    Case 29\n        If how = 0 Then r = Application.Run(\"Hello\", 1)\n        If how = 1 Then r = Application.[_Run2](\"Hello\", 1)\n        If how = 2 Then r = o.[_Run2](\"Hello\", 1)\n    Case 30\n        If how = 0 Then r = Application.Run(\"Twice\", 1.5)\n        If how = 1 Then r = Application.[_Run2](\"Twice\", 1.5)\n        If how = 2 Then r = o.[_Run2](\"Twice\", 1.5)\n    Case 31\n        If how = 0 Then r = Application.Run(\"Kind\", 10)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 10)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 10)\n    Case 32\n        If how = 0 Then r = Application.Run(\"Kind\", 11)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 11)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 11)\n    Case 33\n        If how = 0 Then r = Application.Run(\"Kind\", 12)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 12)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 12)\n    Case 34\n        If how = 0 Then r = Application.Run(\"Kind\", 13)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 13)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 13)\n    Case 35\n        If how = 0 Then r = Application.Run(\"Kind\", 14)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 14)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 14)\n    Case 36\n        If how = 0 Then r = Application.Run(\"A1\")\n        If how = 1 Then r = Application.[_Run2](\"A1\")\n        If how = 2 Then r = o.[_Run2](\"A1\")\n    Case 37\n        If how = 0 Then r = Application.Run(\"Kind\", 15)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 15)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 15)\n    Case 38\n        If how = 0 Then r = Application.Run(\"Kind\", 16)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 16)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 16)\n    Case 39\n        If how = 0 Then r = Application.Run(\"Kind\", 17)\n        If how = 1 Then r = Application.[_Run2](\"Kind\", 17)\n        If how = 2 Then r = o.[_Run2](\"Kind\", 17)\n    Case 40\n        If how = 0 Then r = Application.Run(\"Shown\", 4)\n        If how = 1 Then r = Application.[_Run2](\"Shown\", 4)\n        If how = 2 Then r = o.[_Run2](\"Shown\", 4)\n    Case 41\n        If how = 0 Then r = Application.Run(\"Shown\", CByte(2))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", CByte(2))\n        If how = 2 Then r = o.[_Run2](\"Shown\", CByte(2))\n    Case 42\n        If how = 0 Then r = Application.Run(\"Shown\", CLng(3))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", CLng(3))\n        If how = 2 Then r = o.[_Run2](\"Shown\", CLng(3))\n    Case 43\n        If how = 0 Then r = Application.Run(\"Shown\", CCur(1.5))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", CCur(1.5))\n        If how = 2 Then r = o.[_Run2](\"Shown\", CCur(1.5))\n    Case 44\n        If how = 0 Then r = Application.Run(\"Shown\", #1/2/2024#)\n        If how = 1 Then r = Application.[_Run2](\"Shown\", #1/2/2024#)\n        If how = 2 Then r = o.[_Run2](\"Shown\", #1/2/2024#)\n    Case 45\n        If how = 0 Then r = Application.Run(\"Shown\", CSng(0.5))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", CSng(0.5))\n        If how = 2 Then r = o.[_Run2](\"Shown\", CSng(0.5))\n    Case 46\n        If how = 0 Then r = Application.Run(\"Shown\", Empty)\n        If how = 1 Then r = Application.[_Run2](\"Shown\", Empty)\n        If how = 2 Then r = o.[_Run2](\"Shown\", Empty)\n    Case 47\n        If how = 0 Then r = Application.Run(\"Shown\", True)\n        If how = 1 Then r = Application.[_Run2](\"Shown\", True)\n        If how = 2 Then r = o.[_Run2](\"Shown\", True)\n    Case 48\n        If how = 0 Then r = Application.Run(\"Shown\", \"4\")\n        If how = 1 Then r = Application.[_Run2](\"Shown\", \"4\")\n        If how = 2 Then r = o.[_Run2](\"Shown\", \"4\")\n    Case 49\n        If how = 0 Then r = Application.Run(\"Shown\", 2.5)\n        If how = 1 Then r = Application.[_Run2](\"Shown\", 2.5)\n        If how = 2 Then r = o.[_Run2](\"Shown\", 2.5)\n    Case 50\n        If how = 0 Then r = Application.Run(\"Shown\", #3:15:00 PM#)\n        If how = 1 Then r = Application.[_Run2](\"Shown\", #3:15:00 PM#)\n        If how = 2 Then r = o.[_Run2](\"Shown\", #3:15:00 PM#)\n    Case 51\n        If how = 0 Then r = Application.Run(\"Shown\", CDate(\"2024-02-29 13:05\"))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", CDate(\"2024-02-29 13:05\"))\n        If how = 2 Then r = o.[_Run2](\"Shown\", CDate(\"2024-02-29 13:05\"))\n    Case 52\n        If how = 0 Then r = Application.Run(\"Shown\", CDec(2.5))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", CDec(2.5))\n        If how = 2 Then r = o.[_Run2](\"Shown\", CDec(2.5))\n    Case 53\n        If how = 0 Then r = Application.Run(\"Shown\", DateSerial(2024, 12, 31))\n        If how = 1 Then r = Application.[_Run2](\"Shown\", DateSerial(2024, 12, 31))\n        If how = 2 Then r = o.[_Run2](\"Shown\", DateSerial(2024, 12, 31))\n    End Select\n    If IsObject(r) Then\n        Tried = TypeName(r)\n    ElseIf IsArray(r) Then\n        Tried = TypeName(r) & \" \" & LBound(r) & \" \" & UBound(r)\n    Else\n        Tried = TypeName(r) & \" \" & CStr(r)\n    End If\n    Exit Function\nBad:\n    Tried = \"E\" & Err.Number\nEnd Function\n\nPublic Function Probe() As String\n    Dim s As String, which As Long, how As Long\n    For which = 0 To 53\n        For how = 0 To 2\n            s = s & \"|\" & Tried(how, which)\n        Next\n        s = s & \"~\"\n    Next\n    Probe = s\nEnd Function\n",
+ "cases": [
+  [
+   "(\"Twice\", 4)",
+   "|Integer 8|Double 8|E450"
+  ],
+  [
+   "(\"Twice\", \"4\")",
+   "|Double 8|Double 8|E450"
+  ],
+  [
+   "(\"Hello\")",
+   "|Empty |Empty |E450"
+  ],
+  [
+   "(\"Twice\")",
+   "|E449|Error Error 2015|E450"
+  ],
+  [
+   "(\"Nope\")",
+   "|E1004|E1004|E450"
+  ],
+  [
+   "()",
+   "|E5|Error Error 2015|Error Error 2029"
+  ],
+  [
+   "(\"Twice\", 1, 2)",
+   "|E450|Error Error 2015|E450"
+  ],
+  [
+   "(\"Sum3\", 1, 2, 3)",
+   "|E1004|E1004|E450"
+  ],
+  [
+   "(\"P.Twice\", 5)",
+   "|Integer 10|Double 10|E450"
+  ],
+  [
+   "(1)",
+   "|Error Error 2015|Error Error 2015|E450"
+  ],
+  [
+   "(\"Twice\", Empty)",
+   "|Integer 0|Double 0|E450"
+  ],
+  [
+   "(\"Sum3\", 1, , 3)",
+   "|E1004|E1004|E450"
+  ],
+  [
+   "(\"Plus3\", 1, 2, 3)",
+   "|Integer 6|Double 6|E450"
+  ],
+  [
+   "(\"Plus3\", 1, , 3)",
+   "|Integer 24|Double 24|E450"
+  ],
+  [
+   "(\"AB12\")",
+   "|E1004|E1004|E450"
+  ],
+  [
+   "(\"Kind\", 1)",
+   "|Long 70000|Double 70000|E450"
+  ],
+  [
+   "(\"Kind\", 2)",
+   "|String text|String text|E450"
+  ],
+  [
+   "(\"Kind\", 3)",
+   "|Boolean True|Boolean True|E450"
+  ],
+  [
+   "(\"Kind\", 4)",
+   "|Date 1/2/2024|Double 45293|E450"
+  ],
+  [
+   "(\"Kind\", 5)",
+   "|Currency 1.5|Double 1.5|E450"
+  ],
+  [
+   "(\"Kind\", 6)",
+   "|Variant() 0 1|Variant() 1 2|E450"
+  ],
+  [
+   "(\"Kind\", 7)",
+   "|E438|Error Error 2015|E450"
+  ],
+  [
+   "(\"Kind\", 8)",
+   "|Single 1.5|Double 1.5|E450"
+  ],
+  [
+   "(\"Kind\", 9)",
+   "|Error Error 2042|Error Error 2042|E450"
+  ],
+  [
+   "(\"Twice\", 2.5)",
+   "|Double 5|Double 5|E450"
+  ],
+  [
+   "(\"Twice\", True)",
+   "|Integer -2|Long -2|E450"
+  ],
+  [
+   "(\"XFE1\")",
+   "|Integer 5|Long 5|E450"
+  ],
+  [
+   "(\"P.Plus3\", 1)",
+   "|Integer 51|Double 51|E450"
+  ],
+  [
+   "(2.5)",
+   "|Error Error 2015|Error Error 2015|E450"
+  ],
+  [
+   "(\"Hello\", 1)",
+   "|E450|Error Error 2015|E450"
+  ],
+  [
+   "(\"Twice\", 1.5)",
+   "|Double 3|Double 3|E450"
+  ],
+  [
+   "(\"Kind\", 10)",
+   "|Byte 7|Long 7|E450"
+  ],
+  [
+   "(\"Kind\", 11)",
+   "|Decimal 2.5|Double 2.5|E450"
+  ],
+  [
+   "(\"Kind\", 12)",
+   "|E94|E94|E450"
+  ],
+  [
+   "(\"Kind\", 13)",
+   "|Variant() 0 1|Error Error 2015|E450"
+  ],
+  [
+   "(\"Kind\", 14)",
+   "|Variant() 0 -1|Error Error 2015|E450"
+  ],
+  [
+   "(\"A1\")",
+   "|E1004|E1004|E450"
+  ],
+  [
+   "(\"Kind\", 15)",
+   "|Integer 3|Long 3|E450"
+  ],
+  [
+   "(\"Kind\", 16)",
+   "|Variant() 0 0|Variant() 1 1|E450"
+  ],
+  [
+   "(\"Kind\", 17)",
+   "|Variant() 0 1|Error Error 2015|E450"
+  ],
+  [
+   "(\"Shown\", 4)",
+   "|String Integer 4|String Double 4|E450"
+  ],
+  [
+   "(\"Shown\", CByte(2))",
+   "|String Byte 2|String Double 2|E450"
+  ],
+  [
+   "(\"Shown\", CLng(3))",
+   "|String Long 3|String Double 3|E450"
+  ],
+  [
+   "(\"Shown\", CCur(1.5))",
+   "|String Currency 1.5|String String $1.50 |E450"
+  ],
+  [
+   "(\"Shown\", #1/2/2024#)",
+   "|String Date 1/2/2024|String String 1/2/2024|E450"
+  ],
+  [
+   "(\"Shown\", CSng(0.5))",
+   "|String Single 0.5|String Double 0.5|E450"
+  ],
+  [
+   "(\"Shown\", Empty)",
+   "|String Empty |String Double 0|E450"
+  ],
+  [
+   "(\"Shown\", True)",
+   "|String Boolean True|String Boolean True|E450"
+  ],
+  [
+   "(\"Shown\", \"4\")",
+   "|String String 4|String String 4|E450"
+  ],
+  [
+   "(\"Shown\", 2.5)",
+   "|String Double 2.5|String Double 2.5|E450"
+  ],
+  [
+   "(\"Shown\", #3:15:00 PM#)",
+   "|String Date 3:15:00 PM|String String 3:15:00 PM|E450"
+  ],
+  [
+   "(\"Shown\", CDate(\"2024-02-29 13:05\"))",
+   "|String Date 2/29/2024 1:05:00 PM|String String 2/29/2024  1:05:00 PM|E450"
+  ],
+  [
+   "(\"Shown\", CDec(2.5))",
+   "|String Decimal 2.5|String Double 2.5|E450"
+  ],
+  [
+   "(\"Shown\", DateSerial(2024, 12, 31))",
+   "|String Date 12/31/2024|String String 12/31/2024|E450"
+  ]
+ ]
+}

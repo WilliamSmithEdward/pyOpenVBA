@@ -10,7 +10,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 from test_excel_chart_markup import chart_part
 
 RECORD: dict[str, Any] = json.loads(
@@ -65,7 +64,8 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[dict[int, str], Path], ind
     assert chart_part(run[1] / f'c{index}.xlsx') == RECORD['cases'][index][2]
 
 
-def test_taking_away_what_an_error_bar_reads_is_refused_with_nothing_moved() -> None:
+def test_taking_away_what_an_error_bar_reads_goes_through() -> None:
+    """The bar reads #REF!, as Excel has it (tests/fixtures/chart_shift_losses.json)."""
     app = ExcelApplication()
     app.add_workbook()
     app.add_module('Public Sub Go()\n    Dim ch As Object\n    ActiveSheet.Range("A1:C4").Value = 1\n'
@@ -79,6 +79,5 @@ def test_taking_away_what_an_error_bar_reads_is_refused_with_nothing_moved() -> 
                    'Public Function Left() As String\n'
                    '    Left = ActiveSheet.Range("A1").Value & ActiveSheet.Range("E1").Value\nEnd Function\n',
                    name='Refused')
-    with pytest.raises(VBAUnsupportedError):
-        app.run('Refused.Go')
-    assert app.run('Refused.Left') == 'ke'
+    app.run('Refused.Go')
+    assert app.run('Refused.Left') == 'k'

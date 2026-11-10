@@ -4884,7 +4884,12 @@ def chart_copied(sheet: Worksheet, shape: Shape) -> None:
     if chart is None or chart.original:
         raise VBAUnsupportedError("Copying a chart read from a file is not implemented")
     application = sheet.book.application
+    # It ends a copy of cells (tests/fixtures/clipboard_formats.json).
+    application.clipboard = None
     application.copied_chart = (deepcopy(shape), deepcopy(chart), application.clipboard)
+    from pyopenvba.apps.excel._clipboard import SHAPE_FORMATS, hold_formats
+
+    hold_formats(application, SHAPE_FORMATS)
 
 
 def chart_pasted(sheet: Worksheet, destination: object) -> bool:

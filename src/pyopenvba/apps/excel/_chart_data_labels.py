@@ -225,6 +225,9 @@ class DataLabels(ElementProperties, VBACollection, ItemDefault, Created):
 
     def set_flag(self, field: str, value: object) -> None:
         wanted = to_bool(value)
+        if self.series.chart.state.original and not replace(self.look(), **{field: wanted}).shown():
+            # What Excel's save makes of a loaded chart's labels that show nothing was not measured.
+            raise unmeasured("Leaving an imported chart's data labels showing nothing")
         setattr(self.change(_FLAG_MEMBERS[field]), field, wanted)
 
     @member

@@ -1,0 +1,218 @@
+{
+ "measured_at": "2026-11-08T03:47:52.964478+00:00",
+ "source": "Private Declare PtrSafe Function OpenClipboard Lib \"user32\" (ByVal hwnd As LongPtr) As Long\nPrivate Declare PtrSafe Function EmptyClipboard Lib \"user32\" () As Long\nPrivate Declare PtrSafe Function CloseClipboard Lib \"user32\" () As Long\n\nPrivate Sub Emptied()\n    If OpenClipboard(0) <> 0 Then\n        EmptyClipboard\n        CloseClipboard\n    End If\nEnd Sub\n\nPrivate Function Listed(v As Variant) As String\n    Dim s As String, i As Long\n    On Error GoTo Bad\n    s = TypeName(v)\n    If IsArray(v) Then\n        s = s & \" \" & LBound(v) & \" \" & UBound(v) & \":\"\n        For i = LBound(v) To UBound(v)\n            s = s & \" \" & TypeName(v(i)) & \" \" & v(i)\n        Next\n    Else\n        s = s & \" \" & CStr(v)\n    End If\n    Listed = s\n    Exit Function\nBad:\n    Listed = s & \" E\" & Err.Number\nEnd Function\n\nPrivate Function Typed() As String\n    Dim v As Variant\n    On Error GoTo Bad\n    v = Application.ClipboardFormats\n    Typed = Listed(v)\n    Exit Function\nBad:\n    Typed = \"E\" & Err.Number\nEnd Function\n\nPrivate Function Late() As String\n    Dim o As Object, v As Variant\n    On Error GoTo Bad\n    Set o = Application\n    v = o.ClipboardFormats\n    Late = Listed(v)\n    Exit Function\nBad:\n    Late = \"E\" & Err.Number\nEnd Function\n\nPrivate Function First() As String\n    On Error GoTo Bad\n    First = CStr(Application.ClipboardFormats(1))\n    Exit Function\nBad:\n    First = \"E\" & Err.Number\nEnd Function\n\nPrivate Sub Act(ByVal which As Long, ws As Worksheet, r As Variant)\n    Dim c As Object, w2 As Object\n    Select Case which\n    Case 0\n        r = 1\n    Case 1\n        ws.Range(\"A1\").Copy\n    Case 2\n        ws.Range(\"B1\").Copy\n    Case 3\n        ws.Range(\"A2\").Copy\n    Case 4\n        ws.Range(\"Z99\").Copy\n    Case 5\n        ws.Range(\"A1:B2\").Copy\n    Case 6\n        ws.Range(\"A:A\").Copy\n    Case 7\n        ws.Range(\"A1:A2,C1:C2\").Copy\n    Case 8\n        ws.Range(\"A1\").Cut\n    Case 9\n        ws.Range(\"A1\").Copy: Application.CutCopyMode = False\n    Case 10\n        ws.Range(\"A1\").Cut: Application.CutCopyMode = False\n    Case 11\n        ws.Range(\"A1\").Copy: ws.Range(\"C5\").Value = 1\n    Case 12\n        ws.Range(\"A1\").Copy: ws.Paste ws.Range(\"D1\")\n    Case 13\n        ws.Range(\"A1\").Cut: ws.Paste ws.Range(\"D1\")\n    Case 14\n        ws.Range(\"A1\").Cut ws.Range(\"F1\")\n    Case 15\n        ws.Range(\"A1\").Copy ws.Range(\"F1\")\n    Case 16\n        ws.Range(\"A1\").CopyPicture\n    Case 17\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap\n    Case 18\n        ws.Range(\"A1\").CopyPicture xlPrinter, xlPicture\n    Case 19\n        ws.Shapes.AddShape(1, 10, 10, 50, 50).Copy\n    Case 20\n        ws.Shapes.AddShape(1, 10, 10, 50, 50).CopyPicture\n    Case 21\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy\n    Case 22\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy\n    Case 23\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.CopyPicture\n    Case 24\n        ws.Range(\"A1\").Copy: Set w2 = Workbooks.Add: w2.Close False\n    Case 25\n        ws.Range(\"A1\").Copy: ws.Range(\"A1\").ClearContents\n    Case 26\n        ws.Range(\"A1\").Copy: ws.Rows(1).Insert\n    Case 27\n        ws.Copy: ActiveWorkbook.Close False\n    Case 28\n        ws.Range(\"A1\").Copy: ws.Range(\"B1\").Copy\n    Case 29\n        ws.Range(\"B2\").Cut: ws.Range(\"B2\").Copy\n    Case 30\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy: ws.Range(\"A1\").Copy\n    Case 31\n        ws.Range(\"A1\").Copy: Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy\n    Case 32\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy\n    Case 33\n        ws.Range(\"A1\").Copy: ws.Range(\"A1\").CopyPicture\n    Case 34\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: Application.CutCopyMode = False\n    Case 35\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy: Application.CutCopyMode = False\n    Case 36\n        ws.Range(\"A1:C2\").Copy: ws.Range(\"A5\").PasteSpecial xlPasteValues\n    Case 37\n        ws.Range(\"A1\").Copy: ws.Range(\"A1\").Value = 9\n    Case 38\n        ws.Range(\"A1\").Copy: ws.Calculate\n    Case 39\n        ws.Range(\"A1\").Copy: ws.Range(\"D4\").Select\n    Case 40\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.CopyPicture xlScreen, xlBitmap\n    Case 41\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Copy\n    Case 42\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy\n    Case 43\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy\n    Case 44\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Copy\n    Case 45\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Copy\n    Case 46\n        ws.Range(\"A1\").CopyPicture: ws.Range(\"A1\").Copy\n    Case 47\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"B1\").Copy\n    Case 48\n        Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Cut\n    Case 49\n        ws.Shapes.AddShape(1, 10, 10, 50, 50).CopyPicture: ws.Range(\"A1\").Copy\n    Case 50\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy: ws.Paste ws.Range(\"E5\"): r = ws.Range(\"E5\").Value\n    Case 51\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy: Application.CutCopyMode = False\n    Case 52\n        ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy: ws.Range(\"B1\").Copy\n    End Select\nEnd Sub\n\nPublic Function Probe(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, r As Variant, s As String\n    Application.DisplayAlerts = False\n    Emptied\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 5\n    ws.Range(\"B1\").Value = \"text\"\n    ws.Range(\"A2\").Formula = \"=A1*2\"\n    ws.Range(\"B2\").Value = 7\n    ws.Range(\"C1:C2\").Value = 3\n    On Error GoTo Failed\n    Act which, ws, r\n    s = \"ok\"\nAnswered:\n    On Error GoTo 0\n    s = s & \"|\" & Application.CutCopyMode & \"|\" & Typed() & \"|\" & Late() & \"|\" & First()\n    Application.CutCopyMode = False\n    wb.Close False\n    Emptied\n    Application.DisplayAlerts = True\n    Probe = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "r = 1",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"B1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A2\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"Z99\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1:B2\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A:A\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1:A2,C1:C2\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Cut",
+   "ok|2|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: Application.CutCopyMode = False",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Cut: Application.CutCopyMode = False",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Range(\"C5\").Value = 1",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Paste ws.Range(\"D1\")",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Cut: ws.Paste ws.Range(\"D1\")",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Cut ws.Range(\"F1\")",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Copy ws.Range(\"F1\")",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture",
+   "ok|0|Variant() 1 2: Double 2 Double 11|Variant() 1 2: Double 2 Double 11|2"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap",
+   "ok|0|Variant() 1 3: Double 9 Double 11 Double 45|Variant() 1 3: Double 9 Double 11 Double 45|9"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlPrinter, xlPicture",
+   "ok|0|Variant() 1 2: Double 2 Double 11|Variant() 1 2: Double 2 Double 11|2"
+  ],
+  [
+   "ws.Shapes.AddShape(1, 10, 10, 50, 50).Copy",
+   "ok|0|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|2"
+  ],
+  [
+   "ws.Shapes.AddShape(1, 10, 10, 50, 50).CopyPicture",
+   "ok|0|Variant() 1 1: Double 2|Variant() 1 1: Double 2|2"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy",
+   "ok|0|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|2"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy",
+   "ok|0|Variant() 1 18: Double 2 Double 9 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|Variant() 1 18: Double 2 Double 9 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|2"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.CopyPicture",
+   "ok|0|Variant() 1 1: Double 2|Variant() 1 1: Double 2|2"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: Set w2 = Workbooks.Add: w2.Close False",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Range(\"A1\").ClearContents",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Rows(1).Insert",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Copy: ActiveWorkbook.Close False",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Range(\"B1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"B2\").Cut: ws.Range(\"B2\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy",
+   "ok|0|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|2"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Range(\"A1\").CopyPicture",
+   "ok|0|Variant() 1 2: Double 2 Double 11|Variant() 1 2: Double 2 Double 11|2"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: Application.CutCopyMode = False",
+   "ok|0|Variant() 1 18: Double 2 Double 9 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|Variant() 1 18: Double 2 Double 9 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|2"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Copy: Application.CutCopyMode = False",
+   "ok|0|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|Variant() 1 11: Double 2 Double 9 Double 45 Double 51 Double 52 Double 53 Double 61 Double 62 Double 66 Double 71 Double 72|2"
+  ],
+  [
+   "ws.Range(\"A1:C2\").Copy: ws.Range(\"A5\").PasteSpecial xlPasteValues",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Range(\"A1\").Value = 9",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Calculate",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").Copy: ws.Range(\"D4\").Select",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.CopyPicture xlScreen, xlBitmap",
+   "ok|0|Variant() 1 1: Double 2|Variant() 1 1: Double 2|2"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 3: Double 9 Double 11 Double 45|Variant() 1 3: Double 9 Double 11 Double 45|9"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 3: Double 9 Double 11 Double 45|Variant() 1 3: Double 9 Double 11 Double 45|9"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"B1\").Copy",
+   "ok|1|Variant() 1 3: Double 9 Double 11 Double 45|Variant() 1 3: Double 9 Double 11 Double 45|9"
+  ],
+  [
+   "Set c = ws.ChartObjects.Add(100, 100, 200, 120): c.Chart.SetSourceData ws.Range(\"A1:B2\"): c.Chart.ChartArea.Copy: ws.Range(\"A1\").Cut",
+   "ok|2|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Shapes.AddShape(1, 10, 10, 50, 50).CopyPicture: ws.Range(\"A1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy: ws.Paste ws.Range(\"E5\"): r = ws.Range(\"E5\").Value",
+   "ok|1|Variant() 1 3: Double 9 Double 11 Double 45|Variant() 1 3: Double 9 Double 11 Double 45|9"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy: Application.CutCopyMode = False",
+   "ok|0|Variant() 1 1: Double -1|Variant() 1 1: Double -1|-1"
+  ],
+  [
+   "ws.Range(\"A1\").CopyPicture xlScreen, xlBitmap: ws.Range(\"A1\").Copy: ws.Range(\"B1\").Copy",
+   "ok|1|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|Variant() 1 23: Double 0 Double 2 Double 4 Double 5 Double 6 Double 7 Double 8 Double 9 Double 11 Double 12 Double 14 Double 17 Double 19 Double 22 Double 23 Double 31 Double 32 Double 33 Double 44 Double 45 Double 50 Double 58 Double 63|0"
+  ]
+ ]
+}

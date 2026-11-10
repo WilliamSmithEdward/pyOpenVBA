@@ -105,18 +105,18 @@ FLAGS: dict[str, Any] = json.loads((FIXTURES / 'button_flags.json').read_text(en
 
 @pytest.mark.parametrize('case', FLAGS['cases'], ids=lambda one: f'{"new" if one["new"] else "loaded"} {one["member"]}')
 def test_a_button_flag_reads_in_the_session_as_excel_did(case: dict[str, Any], tmp_path: Path) -> None:
-    """scripts/measure_button_flags.py: the roles read True for the session and False after a reopen, AddIndent False throughout. On a new
-    button what the set writes is not measured, and it reports itself."""
+    """scripts/measure_button_flags.py: the roles read True for the session and False after a reopen, AddIndent False throughout. A new
+    button's roles are not saved yet (tests/test_excel_new_control_edits.py), and the save reports itself."""
     book, saved = tmp_path / 'in.xlsx', tmp_path / 'out.xlsx'
     book.write_bytes((FIXTURES / 'old_collections.xlsx').read_bytes())
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(FLAGS['source'], name='Probe')
-    if case['new']:
-        with pytest.raises(VBAUnsupportedError, match='new form control'):
+    if case['new'] and case['member'] != 'AddIndent':
+        with pytest.raises(VBAUnsupportedError, match="Saving a new button's"):
             app.run('Probe.Row', str(book), str(saved), case['member'], True)
         return
-    assert str(app.run('Probe.Row', str(book), str(saved), case['member'], False)) == case['excel']
+    assert str(app.run('Probe.Row', str(book), str(saved), case['member'], case['new'])) == case['excel']
 
 
 def _loaded(tmp_path: Path, body: str) -> ExcelApplication:
@@ -136,10 +136,11 @@ def test_a_second_text_setting_on_one_button_is_refused(tmp_path: Path) -> None:
         app.run('Go.Go')
 
 
-def test_a_new_button_text_setting_is_refused(tmp_path: Path) -> None:
+def test_saving_a_new_button_text_setting_is_refused(tmp_path: Path) -> None:
     app = _loaded(tmp_path, '        .Buttons.Add(300, 300, 60, 30).Orientation = xlUpward\n')
-    with pytest.raises(VBAUnsupportedError, match='new form control'):
-        app.run('Go.Go')
+    app.run('Go.Go')
+    with pytest.raises(VBAUnsupportedError, match="Saving a new button's"):
+        app.save(tmp_path / 'out.xlsx')
 
 
 @pytest.mark.parametrize('member', ['HorizontalAlignment = xlDistributed', 'VerticalAlignment = xlBottom', 'Orientation = xlUpward'])

@@ -433,7 +433,8 @@ def _put(sheet: Worksheet, row: int, column: int, value: object, kind: str = "")
     wanted = _FORMATS.get(kind)
     if wanted is not None and value is not EMPTY and value != "" and (kind != "string" or isinstance(value, str)):
         cell.vba_set("NumberFormat", wanted)
-    cell.vba_set("Value", value)
+    # An empty value leaves the cell empty, though a macro's "" stays text in a mapped column (tests/fixtures/xml_maps.json).
+    cell.vba_set("Value", EMPTY if value == "" else value)
 
 
 # --- exporting -----------------------------------------------------------------------------------------------------------

@@ -204,6 +204,9 @@ CASES += [
     # An empty value imported into a mapped string column: predicted Empty, as an inferred map's is (xml_infer.json).
     ADD1 + COLUMNS1 + 'r = m.ImportXml("<list><item><n>1</n><s></s><d>2024-01-02</d><b>true</b><x>1</x></item></list>") & " " & '
                       'TypeName(ws.Range("B2").Value)',
+    # An overwrite of fewer rows: predicted to shrink the table and empty the rows it gives up, as after an inferred import.
+    ADD1 + COLUMNS1 + IMPORT1 + 'r = m.ImportXml("<list><item><n>5</n><s>e</s><d>2024-01-02</d><b>true</b><x>1</x></item></list>") & " " & '
+                                'lo.Range.Address',
 ]
 #: The cases whose saved workbooks are kept, for the model to open as Excel saved them.
 KEPT = (16, 17, 19, 22, 34, 44, 49)

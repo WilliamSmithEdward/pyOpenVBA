@@ -587,8 +587,9 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
             # A cell in the first column keeps what it has on its left (tests/fixtures/border_gaps.json). Where another
             # column has a format and the first has none, that holds only in the blocks of 16 rows with a cell in the
             # first column (tests/fixtures/border_neighbours.json).
+            # Set with the Borders collection, the first column takes the line too (tests/fixtures/used_range.json).
             kept = {row: own_side(sheet, row, 1, "left") for row in _first_column_rows(sheet, area.top, area.bottom)} \
-                if _along_first_column(sheet) else {}
+                if _along_first_column(sheet) and not together else {}
             format_rows(sheet, area.top, area.bottom, lambda style: _sides(style, left=new, right=new))
             for row, side in kept.items():
                 change_side(sheet, row, 1, 7, lambda _: side, clear_neighbour=False)  # noqa: B023

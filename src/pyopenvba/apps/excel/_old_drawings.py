@@ -8,18 +8,21 @@ drawing; setting those reports itself until what they write is measured.
 from __future__ import annotations
 
 import re
+import uuid
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
+from pyopenvba._xml import escape
 from pyopenvba.apps.excel._held import HeldPart
-from pyopenvba.apps.excel._old_controls import ListedControls, OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
+from pyopenvba.apps.excel._old_controls import ListedControls, OldControls, OldObject, ValueDefault, _object  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.apps.excel._styles import Color
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _image_points  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_number, to_text
 from pyopenvba.shapes._values import FillLine, Shape
+from pyopenvba.shapes._xlsx import OLD_SHADOW, shape_as_loaded
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -262,13 +265,18 @@ class _Texted(_Filled):
     def _whole(self) -> VBAObject:
         return _object(self._frame().vba_get('Characters', []))
 
+    def _words(self, value: object) -> None:
+        if self.shape.text_link_made:
+            raise VBAUnsupportedError("Setting the text of a drawing linked to a cell this session is not implemented")
+        self._whole().vba_set('Text', value)
+
     @member
     def Text(self) -> object:
         return self._whole().vba_get('Text', [])
 
     @setter('Text')
     def _text(self, value: object) -> None:
-        self._whole().vba_set('Text', value)
+        self._words(value)
 
     @member
     def Caption(self) -> object:
@@ -276,7 +284,7 @@ class _Texted(_Filled):
 
     @setter('Caption')
     def _caption(self, value: object) -> None:
-        self._whole().vba_set('Text', value)
+        self._words(value)
 
     @method
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:  # noqa: N803 - native named arguments
@@ -284,6 +292,10 @@ class _Texted(_Filled):
 
     @member
     def Font(self) -> object:
+        if self.shape.text_link_made:
+            # Excel reads a linked drawing's Font.Color as -2147483648 whatever its colours, by a rule not worked out yet
+            # (tests/fixtures/old_drawings.json).
+            raise VBAUnsupportedError("The Font of a drawing linked to a cell this session is not implemented")
         return self._whole().vba_get('Font', [])
 
     @member
@@ -340,26 +352,124 @@ class _Texted(_Filled):
         to_bool(value)
 
     @member
+    def AutoScaleFont(self) -> object:
+        return False
+
+    @setter('AutoScaleFont')
+    def _auto_scale_font(self, value: object) -> None:
+        # Taken and kept nowhere, on a new or loaded drawing (tests/fixtures/drawing_text_links.json).
+        to_bool(value)
+
+    @member
     def LockedText(self) -> object:
-        return True
+        return self.shape.locks_text
 
     @setter('LockedText')
     def _locked_text(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting LockedText on a drawing's old object is not implemented")
+        # Turned off, the file says fLocksText="0" (tests/fixtures/old_drawings.json, loaded_drawing_edits.json); turning a file's back on
+        # is not measured.
+        wanted = to_bool(value)
+        loaded = shape_as_loaded(self.shape)
+        if wanted and loaded is not None and not loaded.locks_text:
+            raise VBAUnsupportedError("Locking the text of a drawing whose file has it unlocked is not implemented")
+        self.shape.locks_text = wanted
+        self.sheet.drawing_changed()
 
     @member
     def ReadingOrder(self) -> object:
-        return VBAInt(-2, 'Long')
+        return self._frame().vba_get('ReadingOrder', [])
+
+    @setter('ReadingOrder')
+    def _reading_order(self, value: object) -> None:
+        # As the shape's TextFrame takes it: rtl on each paragraph, and xlContext 1004 (tests/fixtures/loaded_drawing_edits.json).
+        self._frame().vba_set('ReadingOrder', value)
 
     @member
     def Formula(self) -> object:
-        # From a file Excel reads the link back with a space after it (tests/fixtures/old_collection_members.json).
-        found = re.search(r'\btextlink="([^"]+)"', self.shape.source)
-        return f'{found.group(1)} ' if found else ''
+        # The link reads back with a space after it, in the session as from a file (tests/fixtures/drawing_text_links.json,
+        # old_collection_members.json).
+        return f'{self.shape.text_link} ' if self.shape.text_link else ''
 
     @setter('Formula')
     def _formula(self, value: object) -> None:
-        raise VBAUnsupportedError("Linking a drawing's text to a cell is not implemented")
+        link_text(self.sheet, self.shape, to_text(value))
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        if self.shape.text_link_made:
+            follow_text_link(self.sheet, self.shape)
+        return super().vba_get(name, args, named)
+
+
+#: A link to one cell: an optional sheet, plain or quoted, and the cell (tests/fixtures/drawing_text_links.json).
+_LINKED_CELL = re.compile(r"=(?:(?:'([^']+)'|([A-Za-z_][A-Za-z0-9_.]*))!)?(\$?[A-Za-z]{1,3}\$?[0-9]{1,7})")
+_PLAIN_SHEET = re.compile(r'[A-Za-z_][A-Za-z0-9_.]*')
+
+
+def link_text(sheet: Worksheet, shape: Shape, formula: str) -> None:
+    """A drawing's Formula: its text linked to a cell, which it shows in the cell's font until the link is taken off, keeping the text."""
+    loaded = shape_as_loaded(shape)
+    if loaded is not None and loaded.text_link:
+        raise VBAUnsupportedError("Changing the link of a drawing whose file links its text is not implemented")
+    if formula == '' and shape.text_link:
+        # Taken off, the text stays as it was shown, in a plain run.
+        follow_text_link(sheet, shape)
+        shape.text_link = shape.text_link_id = shape.text_link_run = ''
+        shape.text_link_made = False
+        sheet.drawing_changed()
+        return
+    found = _LINKED_CELL.fullmatch(formula)
+    if found is None:
+        raise VBAUnsupportedError("Linking a drawing's text to anything but one cell, or taking off a link it does not have, is not implemented")
+    named = found.group(1) or found.group(2)
+    if named is not None and (named.lower() != sheet.name.lower() or not _PLAIN_SHEET.fullmatch(sheet.name)):
+        raise VBAUnsupportedError("Linking a drawing's text to another sheet, or to a sheet whose name needs quotes, is not implemented")
+    body = '' if loaded is None else loaded.source
+    if ('\n' in shape.text or '\r' in shape.text or shape.text_marks or shape.text_paragraphs is not None
+            or len(re.findall(r'<a:r>|<a:fld\b|<a:br\b', body)) > 1 or len(re.findall(r'<a:p>', body)) > 1):
+        raise VBAUnsupportedError("Linking the text of a drawing that holds more than one run of text is not implemented")
+    shape.text_link = (f'{sheet.name}!' if named is not None else '') + found.group(3).upper()
+    shape.text_link_id = '{' + str(uuid.uuid4()).upper() + '}'
+    shape.text_link_made = True
+    follow_text_link(sheet, shape)
+    sheet.drawing_changed()
+
+
+def follow_text_link(sheet: Worksheet, shape: Shape) -> bool:
+    """A linked drawing's text, the cell's as shown (a space for an empty one), and for a link made this session its run in the cell's
+    font; whether either changed."""
+    cell = _object(sheet.vba_get('Range', [shape.text_link.rsplit('!', 1)[-1]]))
+    text = to_text(cell.vba_get('Text', [])) or ' '
+    run = shape.text_link_run
+    if shape.text_link_made:
+        run = _linked_run(shape, _object(cell.vba_get('Font', [])))
+    changed = (text, run) != (shape.text, shape.text_link_run)
+    shape.text, shape.text_link_run = text, run
+    return changed
+
+
+def _linked_run(shape: Shape, font: VBAObject) -> str:
+    """The TxLink field's rPr: the run's lang and size, and the cell's bold, colour and font name. Italic, underline, strikethrough and a
+    size other than the run's are not measured."""
+    if to_bool(font.vba_get('Italic', [])) or int(to_number(font.vba_get('Underline', []))) != -4142 or to_bool(font.vba_get('Strikethrough', [])):
+        raise VBAUnsupportedError("Linking a drawing's text to a cell in italic, underlined or struck through is not implemented")
+    source = shape_as_loaded(shape)
+    found = re.search(r'<a:(?:rPr|endParaRPr)\b([^>]*?)/?>', '' if source is None else source.source)
+    lang = re.search(r'\blang="([^"]*)"', found.group(1)) if found else None
+    size = re.search(r'\bsz="([^"]*)"', found.group(1)) if found else None
+    sz = size.group(1) if size else '1100'
+    if round(float(to_number(font.vba_get('Size', []))) * 100) != int(sz):
+        raise VBAUnsupportedError("Linking a drawing's text to a cell whose font size differs from the text's is not implemented")
+    colour = int(to_number(font.vba_get('Color', [])))
+    rgb = f'{colour & 0xFF:02X}{(colour >> 8) & 0xFF:02X}{(colour >> 16) & 0xFF:02X}'
+    bold = 1 if to_bool(font.vba_get('Bold', [])) else 0
+    return (f'<a:rPr lang="{lang.group(1) if lang else "en-US"}" sz="{sz}" b="{bold}" i="0" u="none" strike="noStrike"><a:solidFill>'
+            f'<a:srgbClr val="{rgb}"/></a:solidFill><a:latin typeface="{escape(to_text(font.vba_get("Name", [])))}"/></a:rPr>')
+
+
+def follow_text_links(sheet: Worksheet) -> None:
+    """Before a save: each linked drawing shows its cell as it is now."""
+    if any([follow_text_link(sheet, shape) for shape in sheet.shapes_ if shape.text_link_made and shape.kind in ('shape', 'textBox')]):
+        sheet.drawing_changed()
 
 
 class _Shadowed(HeldPart):
@@ -369,17 +479,43 @@ class _Shadowed(HeldPart):
 
     @member
     def Shadow(self) -> object:
+        shape: Shape = getattr(self, 'shape')
+        if shape.source:
+            return _loaded_shadow(shape)
         return bool(to_number(_object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_get('Visible', [])))
 
     @setter('Shadow')
     def _shadow(self, value: object) -> None:
         if not to_bool(value):
             raise VBAUnsupportedError("Taking the Shadow off a drawing's old object is not implemented")
-        _object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_set('Visible', VBAInt(-1, 'Long'))
+        shape: Shape = getattr(self, 'shape')
+        if not shape.source:
+            _object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_set('Visible', VBAInt(-1, 'Long'))
+        elif not _loaded_shadow(shape):
+            # Excel gives it the effectLst a new drawing gets (tests/fixtures/loaded_drawing_edits.json).
+            shape.shadow_added = True
+            getattr(self, 'sheet').drawing_changed()
+
+
+def _loaded_shadow(shape: Shape) -> bool:
+    """Whether a drawing from a file has a shadow: its own effects say, or with none, a theme effect it does not take."""
+    if shape.shadow_added:
+        return True
+    properties = re.search(r'<xdr:spPr>(.*?)</xdr:spPr>', shape.source, re.DOTALL)
+    held = '' if properties is None else properties.group(1)
+    if OLD_SHADOW in held:
+        return True
+    if '<a:effectLst' in held or '<a:effectDag' in held:
+        raise VBAUnsupportedError("The Shadow of a drawing whose file gives it effects is not implemented")
+    effect = re.search(r'<a:effectRef\b[^>]*\bidx="(\d+)"', shape.source)
+    if effect is not None and effect.group(1) != '0':
+        raise VBAUnsupportedError("The Shadow of a drawing that takes its theme's effects is not implemented")
+    return False
 
 
 class _Cornered(HeldPart):
-    """RoundedCorners, which only reads here: setting it renames a rectangle, by a rule measured once."""
+    """RoundedCorners: turned on, the preset becomes roundRect, and a rectangle that keeps Excel's name reads as "Rounded Rectangle", saved as
+    "Rectangle: Rounded Corners", new or loaded; a text box keeps its name (tests/fixtures/old_drawings.json, loaded_drawing_edits.json)."""
 
     vba_type_name = ''
 
@@ -389,7 +525,19 @@ class _Cornered(HeldPart):
 
     @setter('RoundedCorners')
     def _rounded_corners(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting RoundedCorners on a drawing's old object is not implemented")
+        shape: Shape = getattr(self, 'shape')
+        wanted = to_bool(value)
+        if wanted == (shape.geometry == 'roundRect'):
+            return
+        if not wanted or shape.geometry not in ('', 'rect') or shape.adjustments:
+            raise VBAUnsupportedError("Taking a drawing's rounded corners off, or rounding a shape other than a plain rectangle, is not implemented")
+        shape.geometry = 'roundRect'
+        if shape.kind == 'shape':
+            shape.auto_shape_type = 5
+            found = re.fullmatch(r'Rectangle (\d+)', shape.name)
+            if found is not None:
+                shape.name = f'Rounded Rectangle {found.group(1)}'
+        getattr(self, 'sheet').drawing_changed()
 
 
 class TextBox(_Shadowed, _Cornered, _Texted):
@@ -425,29 +573,64 @@ class Line(OldDrawing):
             return NoEffect(self, 'Interior', {'Color': VBAInt(0, 'Long'), 'ColorIndex': VBAInt(_XL_NONE, 'Long'), 'Pattern': VBAInt(_XL_NONE, 'Long')})
         return super().vba_get(name, args, named)
 
+    # Through the shape's LineFormat (tests/fixtures/line_arrowheads.json): a style is the pair of ends it reads as, Open and Closed the
+    # end the line was drawn to, the double ones both; a length or width is both ends'.
+    def _line(self) -> VBAObject:
+        return _object(self.drawn.vba_get('Line', []))
+
     @member
     def ArrowHeadStyle(self) -> object:
-        return VBAInt(_XL_NONE, 'Long')
+        line = self._line()
+        ends = (int(to_number(line.vba_get('BeginArrowheadStyle', []))), int(to_number(line.vba_get('EndArrowheadStyle', []))))
+        found = next((style for style, pair in _ARROW_STYLES.items() if pair == ends), None)
+        if found is None:
+            raise VBAUnsupportedError("The old ArrowHeadStyle of a line whose ends are these arrowheads is not implemented")
+        return VBAInt(found, 'Long')
 
     @setter('ArrowHeadStyle')
     def _arrow_head_style(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a Line's arrowhead through its old object is not implemented")
+        pair = _ARROW_STYLES.get(int(to_number(value)))
+        if pair is None:
+            raise VBAUnsupportedError('This ArrowHeadStyle of a line is not implemented')
+        line = self._line()
+        begin, end = pair
+        if begin != 1 or end == 1:
+            line.vba_set('BeginArrowheadStyle', VBAInt(begin, 'Long'))
+        line.vba_set('EndArrowheadStyle', VBAInt(end, 'Long'))
+
+    def _sized(self, name: str) -> object:
+        found = int(to_number(self._line().vba_get(f'EndArrowhead{name}', [])))
+        return VBAInt(next(old for old, size in _ARROW_SIZES.items() if size == found), 'Long')
+
+    def _size(self, name: str, value: object) -> None:
+        size = _ARROW_SIZES.get(int(to_number(value)))
+        if size is None:
+            raise VBAUnsupportedError(f'This ArrowHead{name} of a line is not implemented')
+        line = self._line()
+        line.vba_set(f'BeginArrowhead{name}', VBAInt(size, 'Long'))
+        line.vba_set(f'EndArrowhead{name}', VBAInt(size, 'Long'))
 
     @member
     def ArrowHeadLength(self) -> object:
-        return VBAInt(-4138, 'Long')
+        return self._sized('Length')
 
     @setter('ArrowHeadLength')
     def _arrow_head_length(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a Line's arrowhead through its old object is not implemented")
+        self._size('Length', value)
 
     @member
     def ArrowHeadWidth(self) -> object:
-        return VBAInt(-4138, 'Long')
+        return self._sized('Width')
 
     @setter('ArrowHeadWidth')
     def _arrow_head_width(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a Line's arrowhead through its old object is not implemented")
+        self._size('Width', value)
+
+
+#: Each old ArrowHeadStyle as the msoArrowhead styles of the line's begin and end: none, open (3) and triangle (2).
+_ARROW_STYLES = {_XL_NONE: (1, 1), 2: (1, 3), 3: (1, 2), 4: (3, 3), 5: (2, 2)}
+#: Each old ArrowHeadLength or ArrowHeadWidth as msoArrowhead's: short or narrow, medium, long or wide.
+_ARROW_SIZES = {1: 1, -4138: 2, 3: 3}
 
 
 class Picture(_Filled):
@@ -553,8 +736,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Text', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -567,8 +750,8 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -576,16 +759,16 @@ class Rectangles(_BoxAdded):
 
 
 class Ovals(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
 
 
 class Arcs(_Drawings):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Arcs'
     item = Arc
 
@@ -597,8 +780,8 @@ class Arcs(_Drawings):
 
 
 class Lines(_Drawings):
-    spread_reads = frozenset({'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
+    spread_reads = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
     vba_type_name = 'Lines'
     parts = frozenset({'Border'})
     several = {}
@@ -647,10 +830,10 @@ class Pictures(_Drawings):
         return drawing_of(self.sheet, shape)
 
 
-class DrawingObjects(_Drawings, ListedControls):
+class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'VerticalAlignment', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

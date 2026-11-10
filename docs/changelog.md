@@ -35,6 +35,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   is not implemented: Excel reads them from a text body the model does not write for a new button yet. A rectangle,
   oval, arc or text box loaded from a file takes its alignments, `Orientation`, `AddIndent`, `Placement`,
   `Visible`, `Locked` and `PrintObject` as Excel does. Measured typed and late, through a save and a reopen.
+  A new or loaded drawing also takes `LockedText = False`, `ReadingOrder` and `Shadow = True`, alone and through
+  its collection, and saves each where Excel writes it. Its `Formula` links its text to a cell: the text shows the
+  cell's, in the cell's font, follows the cell, and stays when the link comes off. `AutoScaleFont` is taken and kept
+  nowhere, as in Excel. A line's old `ArrowHeadStyle`, `ArrowHeadLength` and `ArrowHeadWidth` set its ends as Excel
+  does, alone and through `Lines`. The hidden `_Default` of `CheckBoxes`, `OptionButtons`, `DropDowns`, `ListBoxes`
+  and `DrawingObjects` is their items' `Value`, as Excel answers it typed. `RoundedCorners = True` rounds a new or
+  loaded rectangle or text box, and renames a rectangle as Excel does.
   `Duplicate` on a collection of shapes read from a file, form controls or lines says it is not implemented.
 - `Range.Insert` with something on the clipboard is Insert Copied Cells or Insert Cut Cells:
   `Rows(3).Copy: Rows(6).Insert` duplicates the row and `Rows(3).Cut: Rows(6).Insert` moves it. Measured in live Excel

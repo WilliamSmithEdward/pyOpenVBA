@@ -28,19 +28,15 @@ KINDS = ('Rectangles', 'Ovals', 'Arcs', 'TextBoxes')
 #: The settings the model does not yet make on a loaded drawing as Excel does, each with why.
 NOT_YET: dict[tuple[str, str, str], str] = {
     **{(kind, 'Orientation', 'xlHorizontal'): 'Excel writes vert="horz" though the text was horizontal; the model writes nothing' for kind in KINDS[:3]},
-    **{(kind, 'ReadingOrder', value): "the old object's setter reports itself" for kind in KINDS for value in ('xlRTL', 'xlLTR', 'xlContext')},
-    **{(kind, 'LockedText', 'False'): "the old object's setter reports itself: Excel writes fLocksText" for kind in KINDS},
-    **{(kind, 'Formula', '"=$A$1"'): "linking a drawing's text to a cell reports itself" for kind in KINDS},
-    **{(kind, 'Shadow', 'True'): "the effects of a loaded shape report themselves" for kind in ('Rectangles', 'Ovals', 'TextBoxes')},
-    **{(kind, 'RoundedCorners', 'True'): 'the old object\'s setter reports itself: Excel renames the shape "Rectangle: Rounded Corners"'
-       for kind in ('Rectangles', 'TextBoxes')},
     **{(kind, 'AutoSize', 'True'): 'fitting a shape to its text needs the text measured in its font' for kind in ('Rectangles', 'Ovals', 'TextBoxes')},
 }
 CASES = [one for one in RECORD['cases'] if (one['kind'], one['member'], one['value']) not in NOT_YET]
 
 
 def _quiet(found: list[list[Any]]) -> list[list[Any]]:
-    return [one for one in found if not any('creationId' in piece for piece in one[1] + one[2])]
+    """Without the creationIds, and with each TxLink field's id, new on every save, compared as an id."""
+    return [[tag, [re.sub(r'\{[0-9A-F-]{36}\}', '{id}', piece) for piece in old], [re.sub(r'\{[0-9A-F-]{36}\}', '{id}', piece) for piece in new]]
+            for tag, old, new in found if not any('creationId' in piece for piece in old + new)]
 
 
 def _saved(case: dict[str, Any], folder: Path, change: bool) -> tuple[str, dict[str, str]]:

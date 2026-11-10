@@ -18,7 +18,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_area
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
@@ -56,6 +56,24 @@ def _whole(body: Area, pages: Area | None) -> Area:
     return Area(pages.top, min(body.left, pages.left), body.bottom, max(body.right, pages.right))
 
 
+def _measured(sheet: Worksheet, table: PivotTable, rows: bool, by: int) -> None:
+    """Refuse the shapes no round measured, where the rule above would answer unproven: a sheet holding more than one
+    pivot table, a table with column fields or with page fields in more than one row or column, and a table the move
+    would push past the sheet's edge."""
+    location = table.root.find(NS + 'location')
+    assert location is not None
+    if len(getattr(sheet, 'pivot_tables', [])) > 1:
+        raise VBAUnsupportedError('Inserting or deleting cells that move or cut one of several pivot tables on a sheet '
+                                  'is not implemented')
+    if table.root.findall(f'{NS}colFields/{NS}field') or int(location.get('rowPageCount', '0')) > 1 or \
+            int(location.get('colPageCount', '0')) > 1:
+        raise VBAUnsupportedError('Inserting or deleting cells that move or cut a pivot table with column fields or '
+                                  'several page fields is not implemented')
+    box = _whole(*_boxes(table))
+    if (box.bottom if rows else box.right) + by > (MAX_ROWS if rows else MAX_COLUMNS):
+        raise VBAUnsupportedError('Moving a pivot table past the edge of the sheet is not implemented')
+
+
 def _moved(table: PivotTable, rows: bool, by: int) -> Callable[[], None]:
     def move() -> None:
         location = table.root.find(NS + 'location')
@@ -85,10 +103,12 @@ def lines_planned(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
             if start <= low and high <= end:
                 # Range.Delete took it already; anything else deleting all of it is not measured.
                 raise VBAUnsupportedError('Deleting every line of a pivot table this way is not implemented')
+            _measured(sheet, table, rows, -count)
             if low <= end:
                 raise error(1004, CUT)
             steps.append(_moved(table, rows, -count))
         else:
+            _measured(sheet, table, rows, count)
             if low < start:
                 raise error(1004, CUT)
             steps.append(_moved(table, rows, count))
@@ -107,7 +127,9 @@ def cells_planned(sheet: Worksheet, area: Area, shift: CellShift) -> Callable[[]
     for table in list(getattr(sheet, 'pivot_tables', [])):
         body, pages = _boxes(table)
         box = _whole(body, pages)
+        by = -shift.count if shift.delete else shift.count
         if _meets(area, box):
+            _measured(sheet, table, vertical, by)
             if shift.delete and area.top <= box.top and area.left <= box.left and box.bottom <= area.bottom and \
                     box.right <= area.right:
                 raise VBAUnsupportedError('Deleting all of a pivot table this way is not implemented')
@@ -119,9 +141,10 @@ def cells_planned(sheet: Worksheet, area: Area, shift: CellShift) -> Callable[[]
         along = box.top if vertical else box.left
         if across[1] < band[0] or across[0] > band[1] or along < shift.start:
             continue
+        _measured(sheet, table, vertical, by)
         if not (band[0] <= across[0] and across[1] <= band[1]):
             raise error(1004, CUT)
-        steps.append(_moved(table, vertical, -shift.count if shift.delete else shift.count))
+        steps.append(_moved(table, vertical, by))
     sources: list[Callable[[], None]] = []
     for cache, origin, ref in _local_sources(sheet):
         moved = shifted_box((ref.top, ref.left, ref.bottom, ref.right), shift)
@@ -143,7 +166,18 @@ def _local_sources(sheet: Worksheet) -> list[tuple[PivotCache, XmlElement, Area]
     found: list[tuple[PivotCache, XmlElement, Area]] = []
     for cache in caches:
         origin = cache.root.find(f'{NS}cacheSource/{NS}worksheetSource')
-        if origin is None or origin.get('name') or origin.get('sheet', '').casefold() != sheet.name.casefold():
+        if origin is not None and origin.get('name'):
+            from pyopenvba.apps.excel._pivot_create import source_range
+
+            try:
+                named = source_range(sheet.book, origin.get('name'), cache_source=True)
+            except VBARuntimeError:
+                continue
+            if named.sheet is sheet:
+                raise VBAUnsupportedError('Inserting or deleting cells on the sheet of a pivot source given by a name '
+                                          'is not implemented')
+            continue
+        if origin is None or origin.get('sheet', '').casefold() != sheet.name.casefold():
             continue
         try:
             ref = parse_area(origin.get('ref', ''))

@@ -40,6 +40,7 @@ WRITES_OR_READS = [
     'Charts.Add.SaveAs folder & "/out.xlsx"',
     'ActiveSheet.ChartObjects.Add(0, 0, 100, 100).Chart.SaveAs folder & "/out.xlsx"',
     'ActiveSheet.ChartObjects.Add(0, 0, 100, 100).Chart.SetBackgroundPicture folder & "/there.png"',
+    'ActiveSheet.ChartObjects.Add(0, 0, 100, 100).Chart.ApplyChartTemplate folder & "/there.crtx"',
     'ActiveWorkbook.ApplyTheme folder & "/there.png"',
     'ActiveSheet.PageSetup.LeftHeaderPicture.Filename = folder & "/there.png"',
     'ActiveWorkbook.UpdateLink folder & "/there.xlsx"',
@@ -191,6 +192,7 @@ _BEHIND_A_GATE = {
     ('apps/excel/_output.py', '_check_writable'),  # _hooks.gate, which every caller runs first
     ('apps/excel/_output.py', '_check_export_path'),  # _hooks.gate or Interpreter.outside, which export_chart runs first
     ('apps/excel/_hooks.py', 'saved_bytes'),  # a temporary file of its own, for the caller's function
+    ('apps/excel/_chart_templates.py', 'save_template'),  # _hooks.gate, which it runs before the function or the disk, as Export
 }
 
 

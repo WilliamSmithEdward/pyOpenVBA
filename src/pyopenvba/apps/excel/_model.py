@@ -77,7 +77,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._allow_edit_ranges import SheetRanges
     from pyopenvba.apps.excel._external_links import LinkedBook
-    from pyopenvba.apps.excel._workbook_more import CustomXMLPart
+    from pyopenvba.apps.excel._workbook_more import CustomXMLPart, CustomXMLParts
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
@@ -1987,7 +1987,10 @@ class Workbook(ExcelObject):
         #: many came from its file (see _workbook_more).
         self.theme_colours_changed = False
         self.custom_xml_parts_: list[CustomXMLPart] | None = None
-        self.custom_xml_read = 0
+        #: Whether a macro added, loaded, changed or deleted a custom XML part since the file was read or written, and
+        #: the CustomXMLParts a macro's WithEvents variable listens to.
+        self.custom_xml_changed = False
+        self.custom_xml_view: CustomXMLParts | None = None
         self.auto_recover = True
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
@@ -3031,9 +3034,9 @@ class Workbook(ExcelObject):
 
     @member
     def CustomXMLParts(self) -> object:
-        from pyopenvba.apps.excel._workbook_more import CustomXMLParts
+        from pyopenvba.apps.excel._workbook_more import parts_of
 
-        return CustomXMLParts(self)
+        return parts_of(self)
 
     @method
     def ChangeFileAccess(self, Mode: object = MISSING, WritePassword: object = MISSING,

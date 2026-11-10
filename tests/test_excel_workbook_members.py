@@ -17,12 +17,12 @@ RECORD: dict[str, Any] = json.loads(
 NAMES = [case[0] for case in RECORD['cases']]
 #: What the model reports instead of following: a theme's font changed, a custom XML part saved, read and write access
 #: again where Excel reopens the file.
-REPORTED = ('MinorFont(1).Name = ', 'MajorFont(2).Name = ', 'saved.CustomXMLParts.Add', 'saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess xlReadWrite',
+REPORTED = ('MinorFont(1).Name = ', 'MajorFont(2).Name = ', 'saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess xlReadWrite',
             'CustomXMLParts(1): r = Len', 'A1").Value = 1: saved.ChangeFileAccess xlReadOnly: saved.ChangeFileAccess')
 #: Left out: what broke the run; members with no model yet; a pivot table made in the probe, which Excel refused; the
 #: nodes of a custom XML part and the window a macro opens, which are other work; and what this machine answers.
-LEFT_OUT = ('wb.NewWindow', 'ToggleFormsDesign', 'MailEnvelope', 'SelectSingleNode', 'DocumentElement', 'wb.[_CodeName]', 'wb.Theme.ThemeColorScheme.Colors(5) = 255',
-            'CreatePivotTable', 'HPageBreaks.Add', 'CanCheckOut', '[_NewEnum]', 'Colors(5).Parent', 'Colors(5).RGB = -1', 'Colors(5).RGB = 16777216', 'r = wb.CustomXMLParts.Add().Count', 'r = ws.Scenarios.Merge(other)', 'ws.Scenarios.CreateSummary',
+LEFT_OUT = ('wb.NewWindow', 'ToggleFormsDesign', 'MailEnvelope', 'wb.[_CodeName]', 'wb.Theme.ThemeColorScheme.Colors(5) = 255',
+            'CreatePivotTable', 'HPageBreaks.Add', 'CanCheckOut', '[_NewEnum]', 'Colors(5).Parent', 'Colors(5).RGB = -1', 'Colors(5).RGB = 16777216', 'r = ws.Scenarios.Merge(other)', 'ws.Scenarios.CreateSummary',
             'ws.PageSetup.Pages.Parent', 'wb.UpdateFromFile', 'saved.UpdateFromFile', 'ws.PageSetup.LeftHeaderPicture.Filename = ')
 KEPT = [index for index, name in enumerate(NAMES)
         if not any(text in name for text in LEFT_OUT) and not any(text in name for text in REPORTED)]

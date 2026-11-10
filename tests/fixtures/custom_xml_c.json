@@ -1,0 +1,362 @@
+{
+ "measured_at": "2026-11-10T15:53:51.503197+00:00",
+ "source": "Public Function Go(ByVal which As Long, ByVal path As String) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim wb As Workbook, p As Object, n As Object, b As Variant, s As String, v As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    On Error Resume Next\n    Select Case which\n    Case 0\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 1\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add()\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        b = p.LoadXML(\"<q/>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 2\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<root xmlns=\"\"urn:a\"\"><x k=\"\"1\"\">one</x><x k=\"\"2\"\">two</x><y>three</y></root>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.Delete\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 3\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set tp = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set tn = tp.DocumentElement\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        tp.AddNode tn, \"z\", \"\", , msoCustomXMLNodeElement, \"v\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 4\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set tp = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set tn = tp.DocumentElement\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        tp.AddNode tn, \"id\", \"\", , msoCustomXMLNodeAttribute, \"7\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 5\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.SelectSingleNode(\"/book/title[1]\").Delete\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 6\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.SelectSingleNode(\"/book/n\").Text = \"9\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 7\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.SelectSingleNode(\"/book/n/text()\").NodeValue = \"9\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 8\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.SelectSingleNode(\"//@lang\").NodeValue = \"de\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 9\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.DocumentElement.AppendChildNode \"m\", \"\", 1, \"x\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.DocumentElement.AppendChildSubtree \"<s><t/></s>\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 10\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.DocumentElement.RemoveChild p.DocumentElement.LastChild\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 11\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.DocumentElement.ReplaceChildNode p.DocumentElement.LastChild, \"m\", \"\", 1, \"8\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 12\n        Err.Clear\n        Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add()\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set k.p = p\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        b = p.LoadXML(\"<q><r/></q>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = k.log\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 13\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r>\" & vbLf & \"  <a>1</a>\" & vbCrLf & \"</r>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = Replace(Replace(p.XML, vbCr, \"~\"), vbLf, \"^\")\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = Replace(Replace(p.DocumentElement.Text, vbCr, \"~\"), vbLf, \"^\")\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = Replace(Replace(p.DocumentElement.XML, vbCr, \"~\"), vbLf, \"^\")\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = Replace(Replace(p.DocumentElement.FirstChild.NodeValue, vbCr, \"~\"), vbLf, \"^\")\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 14\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        p.SelectSingleNode(\"/book/n\").Text = \"a\" & vbCrLf & \"b\" & vbLf & \"c\"\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = Replace(Replace(p.XML, vbCr, \"~\"), vbLf, \"^\")\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = Replace(Replace(p.SelectSingleNode(\"/book/n\").Text, vbCr, \"~\"), vbLf, \"^\")\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 15\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<root xmlns=\"\"urn:a\"\"><x k=\"\"1\"\">one</x><x k=\"\"2\"\">two</x><y>three</y></root>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection.Count\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection(1).NamespaceURI\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection(1).Location\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection(1).XML\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = TypeName(p.SchemaCollection(1).Parent)\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 16\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection.Count\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection.Validate\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n        Err.Clear\n        v = Empty\n        v = TypeName(p.SchemaCollection.Item(1))\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case 17\n        Err.Clear\n        Set p = ActiveWorkbook.CustomXMLParts.Add(\"<root xmlns=\"\"urn:a\"\"><x k=\"\"1\"\">one</x><x k=\"\"2\"\">two</x><y>three</y></root>\")\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        Set p.SchemaCollection = Nothing\n        If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n        Err.Clear\n        v = Empty\n        v = p.SchemaCollection.Count\n        If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    End Select\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    s = s & \" save=\" & Err.Number\n    Application.DisplayAlerts = True\n    wb.Close False\n    Go = s\nEnd Function\n",
+ "sink": "Public WithEvents p As CustomXMLPart\nPublic WithEvents ps As CustomXMLParts\nPublic log As String\n\nPrivate Function Nm(n As Object) As String\n    On Error Resume Next\n    Nm = \"?\"\n    If n Is Nothing Then Nm = \"-\" Else Nm = n.BaseName & \":\" & n.NodeType\nEnd Function\n\nPrivate Sub p_NodeAfterDelete(ByVal OldNode As CustomXMLNode, ByVal OldParentNode As CustomXMLNode, ByVal OldNextSibling As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"D(\" & Nm(OldNode) & \",\" & Nm(OldParentNode) & \",\" & Nm(OldNextSibling) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub p_NodeAfterInsert(ByVal NewNode As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"I(\" & Nm(NewNode) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub p_NodeAfterReplace(ByVal OldNode As CustomXMLNode, ByVal NewNode As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"R(\" & Nm(OldNode) & \",\" & Nm(NewNode) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub ps_PartAfterAdd(ByVal NewPart As CustomXMLPart)\n    log = log & \"A(\" & NewPart.NamespaceURI & \")\"\nEnd Sub\n\nPrivate Sub ps_PartAfterLoad(ByVal Part As CustomXMLPart)\n    log = log & \"L(\" & Part.NamespaceURI & \")\"\nEnd Sub\n\nPrivate Sub ps_PartBeforeDelete(ByVal OldPart As CustomXMLPart)\n    log = log & \"B(\" & OldPart.NamespaceURI & \")\"\nEnd Sub\n",
+ "cases": [
+  [
+   "events add",
+   [
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")"
+   ],
+   [
+    "k.log"
+   ],
+   "|String:A()L() save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>5</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{C337B57C-22E8-4313-944F-5DFCE0750A19}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events add empty and load",
+   [
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set p = ActiveWorkbook.CustomXMLParts.Add()",
+    "b = p.LoadXML(\"<q/>\")"
+   ],
+   [
+    "k.log"
+   ],
+   "|String:A()L() save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<q/>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{5923F44B-C500-44FB-8B51-39AFF9D2256A}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events delete part",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<root xmlns=\"\"urn:a\"\"><x k=\"\"1\"\">one</x><x k=\"\"2\"\">two</x><y>three</y></root>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "p.Delete"
+   ],
+   [
+    "k.log"
+   ],
+   "|String:B(urn:a) save=0",
+   {
+    "workbook rels": "",
+    "content types": ""
+   }
+  ],
+  [
+   "events add node",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "Set tp = p",
+    "Set tn = tp.DocumentElement",
+    "tp.AddNode tn, \"z\", \"\", , msoCustomXMLNodeElement, \"v\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>5</n><z>v</z></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{8A3896F1-A5DA-4FD0-9EE2-D2C5C1F4AD0D}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events add attribute",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "Set tp = p",
+    "Set tn = tp.DocumentElement",
+    "tp.AddNode tn, \"id\", \"\", , msoCustomXMLNodeAttribute, \"7\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book id=\"7\"><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>5</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{CBB8FC37-7C7A-4F9D-9E22-31201026EAEA}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events delete node",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.SelectSingleNode(\"/book/title[1]\").Delete"
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"fr\">Texte</title><n>5</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{955421E3-52DB-4617-91DE-B4F8AEDD71C3}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events text",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.SelectSingleNode(\"/book/n\").Text = \"9\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>9</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{C5D6990F-F308-4F6F-A9E3-8D1BA1A9FD96}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events node value",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.SelectSingleNode(\"/book/n/text()\").NodeValue = \"9\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>9</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{F8917C19-F7E5-4BAC-8514-4D1E0242148C}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events attribute value",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.SelectSingleNode(\"//@lang\").NodeValue = \"de\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"de\">Text</title><title lang=\"fr\">Texte</title><n>5</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{6290A22E-15B8-4DAE-9085-202B947994CD}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events append",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.DocumentElement.AppendChildNode \"m\", \"\", 1, \"x\"",
+    "p.DocumentElement.AppendChildSubtree \"<s><t/></s>\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>5</n><m>x</m><s><t/></s></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{238ABE08-27FF-4467-90AA-F5B5D09847E4}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events remove",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.DocumentElement.RemoveChild p.DocumentElement.LastChild"
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{8B4DC915-D773-41B4-9098-CFEC5ECABE87}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events replace",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set k.p = p",
+    "p.DocumentElement.ReplaceChildNode p.DocumentElement.LastChild, \"m\", \"\", 1, \"8\""
+   ],
+   [
+    "k.log"
+   ],
+   "|String: save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><m>8</m></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{E4674C2D-1FF6-4631-AA9A-F02641C51D06}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "events load xml",
+   [
+    "Set k = New Sink: Set k.ps = ActiveWorkbook.CustomXMLParts",
+    "Set p = ActiveWorkbook.CustomXMLParts.Add()",
+    "Set k.p = p",
+    "b = p.LoadXML(\"<q><r/></q>\")"
+   ],
+   [
+    "k.log"
+   ],
+   "|String:A()L() save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<q><r/></q>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{0463934C-752D-4C26-844B-C860AC3E3588}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "returns",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r>\" & vbLf & \"  <a>1</a>\" & vbCrLf & \"</r>\")"
+   ],
+   [
+    "Replace(Replace(p.XML, vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(p.DocumentElement.Text, vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(p.DocumentElement.XML, vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(p.DocumentElement.FirstChild.NodeValue, vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:<r>~^  <a>1</a>~^</r>|String:^  1^|String:<r>~^  <a>1</a>~^</r>|String:^   save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r>\r\n  <a>1</a>\r\n</r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{9C7ECC57-0C60-41F3-B5F4-9DD4D08650C2}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "returns in text",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")",
+    "p.SelectSingleNode(\"/book/n\").Text = \"a\" & vbCrLf & \"b\" & vbLf & \"c\""
+   ],
+   [
+    "Replace(Replace(p.XML, vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(p.SelectSingleNode(\"/book/n\").Text, vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>a~^b~^c</n></book>|String:a^b^c save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>a\r\nb\r\nc</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{9C720B30-63EC-4391-92FC-419942BC331C}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "schemas namespaced",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<root xmlns=\"\"urn:a\"\"><x k=\"\"1\"\">one</x><x k=\"\"2\"\">two</x><y>three</y></root>\")"
+   ],
+   [
+    "p.SchemaCollection.Count",
+    "p.SchemaCollection(1).NamespaceURI",
+    "p.SchemaCollection(1).Location",
+    "p.SchemaCollection(1).XML",
+    "TypeName(p.SchemaCollection(1).Parent)"
+   ],
+   "|Long:1|String:urn:a|String:|E438:Object doesn't support this property or method|String:CustomXMLSchemaCollection save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<root xmlns=\"urn:a\"><x k=\"1\">one</x><x k=\"2\">two</x><y>three</y></root>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{BFECEF9F-EFCA-4275-BC4C-860A4B831A86}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:a\"/></ds:schemaRefs></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "schemas plain",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<book><title lang=\"\"en\"\">Text</title><title lang=\"\"fr\"\">Texte</title><n>5</n></book>\")"
+   ],
+   [
+    "p.SchemaCollection.Count",
+    "p.SchemaCollection.Validate",
+    "TypeName(p.SchemaCollection.Item(1))"
+   ],
+   "|Long:0|Boolean:True|E-2147352565:This operation failed because one or more changes made during events were invalid. save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<book><title lang=\"en\">Text</title><title lang=\"fr\">Texte</title><n>5</n></book>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{42D1C898-56A4-4A29-A067-B107BA782B26}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "schema set nothing",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<root xmlns=\"\"urn:a\"\"><x k=\"\"1\"\">one</x><x k=\"\"2\"\">two</x><y>three</y></root>\")",
+    "Set p.SchemaCollection = Nothing"
+   ],
+   [
+    "p.SchemaCollection.Count"
+   ],
+   "[438:Object doesn't support this property or method]|Long:1 save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<root xmlns=\"urn:a\"><x k=\"1\">one</x><x k=\"2\">two</x><y>three</y></root>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{97255CE9-E75F-4B14-8491-0FF4DEDE7342}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:a\"/></ds:schemaRefs></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ]
+ ]
+}

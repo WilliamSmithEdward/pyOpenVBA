@@ -204,12 +204,42 @@ def apply_theme(book: Workbook, file_name: object) -> None:
 
 
 class CustomXMLPart(_Owned):
-    vba_type_name = "CustomXMLPart"
+    """A custom XML part: its tree, what reads and selects in it, and the prefixes its XPath knows
+    (see _custom_xml)."""
 
-    def __init__(self, owner: object, book: Workbook, namespace: str, text: str | None, built_in: bool) -> None:
+    vba_type_name = "CustomXMLPart"
+    vba_library = "office"
+
+    def vba_no_member(self, name: str) -> Exception:
+        from pyopenvba.apps.excel._custom_xml import no_member
+
+        return no_member(self, name) or super().vba_no_member(name)
+
+    def __init__(self, owner: object, book: Workbook, text: str | None, built_in: bool, *, namespace: str = "",
+                 identity: str = "") -> None:
+        from pyopenvba.apps.excel._custom_xml import mappings_for
+        from pyopenvba.apps.excel._custom_xml_tree import parsed
+
         super().__init__(owner, book)
-        self.namespace, self.text, self.built_in = namespace, text, built_in
-        self.identity = "{" + str(uuid.uuid4()).upper() + "}"
+        self.built_in, self.built_in_namespace = built_in, namespace
+        self.document = parsed(text) if text else None
+        self.mappings: list[tuple[str, str]] = [] if built_in else mappings_for(self.document)
+        self.identity = identity or "{" + str(uuid.uuid4()).upper() + "}"
+
+    @property
+    def namespace(self) -> str:
+        if self.built_in:
+            return self.built_in_namespace
+        root = self.document.root() if self.document is not None else None
+        return root.uri if root is not None else ""
+
+    def edited(self) -> None:
+        self.book.custom_xml_changed = True
+        self.book.saved = False
+
+    def _own(self) -> None:
+        if self.built_in:
+            raise VBAUnsupportedError("the nodes of a workbook's built-in custom XML parts are not implemented")
 
     @member
     def BuiltIn(self) -> object:
@@ -221,13 +251,116 @@ class CustomXMLPart(_Owned):
 
     @member
     def XML(self) -> object:
-        if self.text is None:
-            raise VBAUnsupportedError("the XML of a workbook's built-in custom XML parts is not implemented")
-        return self.text
+        from pyopenvba.apps.excel._custom_xml_tree import serialized
+
+        self._own()
+        return "" if self.document is None else serialized(self.document)
 
     @member
     def ID(self) -> object:
         return self.identity
+
+    @member
+    def DocumentElement(self) -> object:
+        from pyopenvba.apps.excel._custom_xml import view
+
+        self._own()
+        return view(self, None if self.document is None else self.document.root())
+
+    @member
+    def NamespaceManager(self) -> object:
+        from pyopenvba.apps.excel._custom_xml import CustomXMLPrefixMappings
+
+        self._own()
+        return CustomXMLPrefixMappings(self)
+
+    @member
+    def Errors(self) -> object:
+        from pyopenvba.apps.excel._custom_xml import CustomXMLValidationErrors
+
+        return CustomXMLValidationErrors(self)
+
+    @member
+    def SchemaCollection(self) -> object:
+        from pyopenvba.apps.excel._custom_xml import CustomXMLSchemaCollection
+
+        return CustomXMLSchemaCollection(self)
+
+    @setter("SchemaCollection", objects=True)
+    def _set_schema_collection(self, value: object) -> None:
+        # Measured late bound: Set is error 438 (tests/fixtures/custom_xml_c.json).
+        raise error(438, "Object doesn't support this property or method")
+
+    @method
+    def SelectNodes(self, XPath: object = MISSING) -> object:
+        from pyopenvba.apps.excel._custom_xml import CustomXMLNodes, select
+        from pyopenvba.apps.excel._custom_xml_tree import Node
+
+        self._own()
+        return CustomXMLNodes(self, select(self, self.document or Node(9), XPath))
+
+    @method
+    def SelectSingleNode(self, XPath: object = MISSING) -> object:
+        from pyopenvba.apps.excel._custom_xml import select, view
+        from pyopenvba.apps.excel._custom_xml_tree import Node
+
+        self._own()
+        found = select(self, self.document or Node(9), XPath)
+        return view(self, found[0] if found else None)
+
+    @method
+    def AddNode(self, Parent: object = MISSING, Name: object = MISSING, NamespaceURI: object = MISSING,
+                NextSibling: object = MISSING, NodeType: object = MISSING, NodeValue: object = MISSING) -> object:
+        """A node made under Parent. Late bound, a NextSibling left out is error 13
+        (tests/fixtures/custom_xml.json); typed, it puts the node last."""
+        from pyopenvba.apps.excel._custom_xml import CustomXMLNode, add
+        from pyopenvba.interpreter._objects import BINDING
+
+        self._own()
+        if not isinstance(Parent, CustomXMLNode) or Parent.part is not self or (BINDING.late and NextSibling is MISSING):
+            raise error(13, "Type mismatch")
+        before = None
+        if isinstance(NextSibling, CustomXMLNode):
+            if NextSibling.node.parent is not Parent.node:
+                raise VBAUnsupportedError("a NextSibling that is not one of the parent's children is not implemented")
+            before = NextSibling.node
+        add(self, Parent.node, Name, NamespaceURI, before, NodeType, NodeValue)
+        return None
+
+    def _loaded(self, text: str) -> object:
+        from pyopenvba.apps.excel._custom_xml import mappings_for
+        from pyopenvba.apps.excel._custom_xml_tree import parsed
+
+        if self.document is not None:
+            raise error(-536602616, "This custom XML part has already been loaded.")
+        document = parsed(text)
+        mappings = mappings_for(document)
+        self.document, self.mappings = document, mappings
+        self.edited()
+        return True
+
+    @method
+    def LoadXML(self, XML: object = MISSING) -> object:
+        self._own()
+        return self._loaded(to_text(XML))
+
+    @method
+    def Load(self, FilePath: object = MISSING) -> object:
+        """The part read from a file, through the sandbox's gate; a file not there is error 432."""
+        import os
+
+        from pyopenvba.interpreter._files import final_path
+
+        self._own()
+        self.book.application.outside("CustomXMLPart.Load")
+        if self.document is not None:
+            raise error(-536602616, "This custom XML part has already been loaded.")
+        path = final_path(to_text(FilePath))
+        if not os.path.isfile(path):
+            raise error(432, "File name or class name not found during Automation operation")
+        with open(path, "rb") as source:
+            data = source.read()
+        return self._loaded(data.decode("utf-8-sig", errors="replace"))
 
     @method
     def Delete(self) -> object:
@@ -236,40 +369,66 @@ class CustomXMLPart(_Owned):
                                     "deleted.")
         parts = _custom_parts(self.book)
         if self in parts:
+            _raised(self.book, "PartBeforeDelete", [self])
             parts.remove(self)
+            self.edited()
         return None
 
 
+def _raised(book: Workbook, event: str, args: list[object]) -> None:
+    """One of CustomXMLParts' events, for a macro listening to the workbook's parts (tests/fixtures/custom_xml_c.json):
+    Application.EnableEvents has no say in it."""
+    interpreter = book.application.interpreter
+    if interpreter is not None:
+        interpreter.raise_event(parts_of(book), event, args)
+
+
+def parts_of(book: Workbook) -> CustomXMLParts:
+    """Workbook.CustomXMLParts, the same object each time, so a WithEvents variable holding it hears its events."""
+    if book.custom_xml_view is None:
+        book.custom_xml_view = CustomXMLParts(book)
+    return book.custom_xml_view
+
+
 def _custom_parts(book: Workbook) -> list[CustomXMLPart]:
-    """The workbook's parts, its three built in first and then those its file holds."""
+    """The workbook's parts, its three built in first and then those its file holds, each with the ID its properties
+    give it."""
     parts = book.custom_xml_parts_
     if parts is None:
-        parts = [CustomXMLPart(book, book, namespace, None, True) for namespace in _BUILT_IN_XML]
+        parts = [CustomXMLPart(book, book, None, True, namespace=namespace) for namespace in _BUILT_IN_XML]
         package = book.package
         if package is not None:
-            for name in sorted(package.names()):
-                if re.fullmatch(r"customXml/item\d+\.xml", name):
-                    text = package.read(name).decode("utf-8-sig", errors="replace")
-                    parts.append(CustomXMLPart(book, book, _namespace_of(text), text, False))
+            items = sorted((name for name in package.names() if re.fullmatch(r"customXml/item\d+\.xml", name)),
+                           key=lambda name: int(re.findall(r"\d+", name)[0]))
+            for name in items:
+                text = package.read(name).decode("utf-8-sig", errors="replace")
+                properties = name.replace("/item", "/itemProps")
+                identity = ""
+                if package.has(properties):
+                    found = re.search(r'itemID="([^"]+)"', package.read(properties).decode("utf-8", errors="replace"))
+                    identity = found.group(1) if found else ""
+                parts.append(CustomXMLPart(book, book, text, False, identity=identity))
         book.custom_xml_parts_ = parts
-        book.custom_xml_read = len(parts)
     return parts
 
 
 def _namespace_of(text: str) -> str:
-    from pyopenvba.apps.excel._charts_file import xml_tree
+    from pyopenvba.apps.excel._custom_xml_tree import parsed
 
     if not text:
         return ""
-    try:
-        root = xml_tree(text)
-    except Exception as failure:
-        raise error(_XML_FAILED, "Invalid at the top level of the document.\n") from failure
-    return root.tag[1:].partition("}")[0] if root.tag.startswith("{") else ""
+    root = parsed(text).root()
+    return root.uri if root is not None else ""
 
 
 class CustomXMLParts(VBACollection, _Owned):
     vba_type_name = "CustomXMLParts"
+    vba_library = "office"
+
+    def vba_no_member(self, name: str) -> Exception:
+        from pyopenvba.apps.excel._custom_xml import no_member
+
+        return no_member(self, name) or super().vba_no_member(name)
 
     def __init__(self, book: Workbook, chosen: list[CustomXMLPart] | None = None) -> None:
         _Owned.__init__(self, book, book)
@@ -290,12 +449,16 @@ class CustomXMLParts(VBACollection, _Owned):
 
     @method
     def Add(self, XML: object = MISSING, SchemaCollection: object = MISSING) -> object:
+        """A new part, after which the workbook's parts raise PartAfterAdd and PartAfterLoad, as Excel's do even for
+        an empty part (tests/fixtures/custom_xml_c.json)."""
         if SchemaCollection is not MISSING:
             raise VBAUnsupportedError("CustomXMLParts.Add with a schema collection is not implemented")
         text = "" if XML is MISSING else to_text(XML)
-        made = CustomXMLPart(self.book, self.book, _namespace_of(text), re.sub(r"\s+/>", "/>", text), False)
+        made = CustomXMLPart(self.book, self.book, text, False)
         _custom_parts(self.book).append(made)
-        self.book.saved = False
+        made.edited()
+        _raised(self.book, "PartAfterAdd", [made])
+        _raised(self.book, "PartAfterLoad", [made])
         return made
 
     @method
@@ -309,11 +472,11 @@ class CustomXMLParts(VBACollection, _Owned):
         return next((part for part in _custom_parts(self.book) if part.identity == wanted), NOTHING)
 
 
-def refuse_added_parts(book: Workbook) -> None:
-    """Report a custom XML part a save would have to write."""
-    parts = book.custom_xml_parts_
-    if parts is not None and len(parts) > book.custom_xml_read:
-        raise VBAUnsupportedError("saving a custom XML part a macro added is not implemented")
+def write_parts(book: Workbook, package: OpcFile) -> None:
+    """The custom XML parts a macro added, loaded, changed or deleted, written (see _custom_xml)."""
+    from pyopenvba.apps.excel._custom_xml import write
+
+    write(book, package)
 
 
 def change_file_access(book: Workbook, mode: object) -> object:

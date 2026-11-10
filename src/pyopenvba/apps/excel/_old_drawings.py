@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._held import HeldPart
-from pyopenvba.apps.excel._old_controls import ListedControls, OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
+from pyopenvba.apps.excel._old_controls import ListedControls, OldControls, OldObject, ValueDefault, _object  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.apps.excel._styles import Color
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, TextFrame, _image_points  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -815,7 +815,7 @@ class Pictures(_Drawings):
         return drawing_of(self.sheet, shape)
 
 
-class DrawingObjects(_Drawings, ListedControls):
+class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     parts = frozenset()
     several = {}
     spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})

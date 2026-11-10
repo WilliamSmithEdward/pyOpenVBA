@@ -516,6 +516,12 @@ class Shape:
     #: Excel: LockAspectRatio once set, None until then; Locked.
     lock_aspect: bool | None = None
     locked: bool = True
+    #: Excel: a drawing's LockedText, which the file keeps as fLocksText="0" while it is off (tests/fixtures/old_drawings.json,
+    #: loaded_drawing_edits.json).
+    locks_text: bool = True
+    #: Excel: a loaded drawing given a shadow through its old object, which Excel writes as a new drawing's effectLst
+    #: (tests/fixtures/loaded_drawing_edits.json).
+    shadow_added: bool = False
     #: Excel: a new picture's image file, the extension its part takes, and what PictureFormat set: brightness and contrast
     #: as the file's lum values (None until either is set), its ColorType, the colour made transparent as RRGGBB, and
     #: whether TransparentBackground is on (tests/fixtures/shape_picture_formats.json).

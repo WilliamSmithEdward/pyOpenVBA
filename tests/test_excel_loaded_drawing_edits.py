@@ -28,10 +28,7 @@ KINDS = ('Rectangles', 'Ovals', 'Arcs', 'TextBoxes')
 #: The settings the model does not yet make on a loaded drawing as Excel does, each with why.
 NOT_YET: dict[tuple[str, str, str], str] = {
     **{(kind, 'Orientation', 'xlHorizontal'): 'Excel writes vert="horz" though the text was horizontal; the model writes nothing' for kind in KINDS[:3]},
-    **{(kind, 'ReadingOrder', value): "the old object's setter reports itself" for kind in KINDS for value in ('xlRTL', 'xlLTR', 'xlContext')},
-    **{(kind, 'LockedText', 'False'): "the old object's setter reports itself: Excel writes fLocksText" for kind in KINDS},
     **{(kind, 'Formula', '"=$A$1"'): "linking a drawing's text to a cell reports itself" for kind in KINDS},
-    **{(kind, 'Shadow', 'True'): "the effects of a loaded shape report themselves" for kind in ('Rectangles', 'Ovals', 'TextBoxes')},
     **{(kind, 'RoundedCorners', 'True'): 'the old object\'s setter reports itself: Excel renames the shape "Rectangle: Rounded Corners"'
        for kind in ('Rectangles', 'TextBoxes')},
     **{(kind, 'AutoSize', 'True'): 'fitting a shape to its text needs the text measured in its font' for kind in ('Rectangles', 'Ovals', 'TextBoxes')},

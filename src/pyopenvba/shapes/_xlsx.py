@@ -49,6 +49,9 @@ _ELEMENTS: dict[str, str] = {
 }
 
 _MACRO = re.compile(r'\bmacro="([^"]*)"')
+#: The shadow an old object's Shadow = True gives a drawing (tests/fixtures/old_drawings.json, loaded_drawing_edits.json).
+OLD_SHADOW = ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0"><a:scrgbClr r="0" g="0" b="0"/>'
+              '</a:outerShdw></a:effectLst>')
 _TXBOX = re.compile(r"<xdr:cNvSpPr\b[^>]*?\btxBox=\"1\"")
 _CONTROL = re.compile(r"<control\b[^>]*?>.*?</control>|<control\b[^>]*?/>", re.DOTALL)
 _CONTROL_HEAD = re.compile(r"<control\b([^>]*?)/?>")
@@ -265,6 +268,8 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
             if found is not None:
                 setattr(shape, field_name, unescape(found.group(1)))
     shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
+    head = re.match(r"<xdr:sp\b([^>]*)>", markup)
+    shape.locks_text = head is None or re.search(r'\bfLocksText="(?:0|false)"', head.group(1)) is None
     # A form control's drawing is hidden for its own reasons; Visible reads only a shape's own hidden.
     link = _LINK.search(markup[: markup.find("</xdr:cNvPr>") if "</xdr:cNvPr>" in markup else 0])
     if link is not None:
@@ -1534,7 +1539,7 @@ def _new_element(shape: Shape) -> str:
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
     box = ' txBox="1"' if shape.kind == "textBox" else ""
-    textlink = "" if line else ' textlink=""'
+    textlink = "" if line else ' textlink=""' + ("" if shape.locks_text else ' fLocksText="0"')
     identity = _identity(shape)
     locks = "" if shape.lock_aspect is None else (
         '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>")
@@ -2068,6 +2073,13 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
             element = re.search(r"<(xdr:(?:sp|cxnSp|pic|graphicFrame|grpSp))(?=[\s/>])", markup)
             if element:
                 markup = _attribute_on_tag(markup, element.group(1), "macro", shape.macro)
+        if shape.locks_text != was.locks_text:
+            markup = _attribute_on_tag(markup, "xdr:sp", "fLocksText", None if shape.locks_text else "0")
+        if shape.shadow_added:
+            # In the schema's place: after the fill and line, before any 3-D settings.
+            properties = re.search(r"<xdr:spPr>.*?(?=<a:scene3d\b|<a:sp3d\b|<a:extLst\b|</xdr:spPr>)", markup, re.DOTALL)
+            if properties is not None:
+                markup = markup[:properties.end()] + OLD_SHADOW + markup[properties.end():]
     # Excel-authored controls can also carry a hidden DrawingML
     # caption. Excel prefers it to VML when both exist.
     markup = _with_loaded_text(markup, shape, was)

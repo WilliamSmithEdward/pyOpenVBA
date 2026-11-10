@@ -20,6 +20,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_number, to_text
 from pyopenvba.shapes._values import FillLine, Shape
+from pyopenvba.shapes._xlsx import OLD_SHADOW, shape_as_loaded
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -341,15 +342,27 @@ class _Texted(_Filled):
 
     @member
     def LockedText(self) -> object:
-        return True
+        return self.shape.locks_text
 
     @setter('LockedText')
     def _locked_text(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting LockedText on a drawing's old object is not implemented")
+        # Turned off, the file says fLocksText="0" (tests/fixtures/old_drawings.json, loaded_drawing_edits.json); turning a file's back on
+        # is not measured.
+        wanted = to_bool(value)
+        loaded = shape_as_loaded(self.shape)
+        if wanted and loaded is not None and not loaded.locks_text:
+            raise VBAUnsupportedError("Locking the text of a drawing whose file has it unlocked is not implemented")
+        self.shape.locks_text = wanted
+        self.sheet.drawing_changed()
 
     @member
     def ReadingOrder(self) -> object:
-        return VBAInt(-2, 'Long')
+        return self._frame().vba_get('ReadingOrder', [])
+
+    @setter('ReadingOrder')
+    def _reading_order(self, value: object) -> None:
+        # As the shape's TextFrame takes it: rtl on each paragraph, and xlContext 1004 (tests/fixtures/loaded_drawing_edits.json).
+        self._frame().vba_set('ReadingOrder', value)
 
     @member
     def Formula(self) -> object:
@@ -369,13 +382,38 @@ class _Shadowed(HeldPart):
 
     @member
     def Shadow(self) -> object:
+        shape: Shape = getattr(self, 'shape')
+        if shape.source:
+            return _loaded_shadow(shape)
         return bool(to_number(_object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_get('Visible', [])))
 
     @setter('Shadow')
     def _shadow(self, value: object) -> None:
         if not to_bool(value):
             raise VBAUnsupportedError("Taking the Shadow off a drawing's old object is not implemented")
-        _object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_set('Visible', VBAInt(-1, 'Long'))
+        shape: Shape = getattr(self, 'shape')
+        if not shape.source:
+            _object(getattr(self, 'drawn').vba_get('Shadow', [])).vba_set('Visible', VBAInt(-1, 'Long'))
+        elif not _loaded_shadow(shape):
+            # Excel gives it the effectLst a new drawing gets (tests/fixtures/loaded_drawing_edits.json).
+            shape.shadow_added = True
+            getattr(self, 'sheet').drawing_changed()
+
+
+def _loaded_shadow(shape: Shape) -> bool:
+    """Whether a drawing from a file has a shadow: its own effects say, or with none, a theme effect it does not take."""
+    if shape.shadow_added:
+        return True
+    properties = re.search(r'<xdr:spPr>(.*?)</xdr:spPr>', shape.source, re.DOTALL)
+    held = '' if properties is None else properties.group(1)
+    if OLD_SHADOW in held:
+        return True
+    if '<a:effectLst' in held or '<a:effectDag' in held:
+        raise VBAUnsupportedError("The Shadow of a drawing whose file gives it effects is not implemented")
+    effect = re.search(r'<a:effectRef\b[^>]*\bidx="(\d+)"', shape.source)
+    if effect is not None and effect.group(1) != '0':
+        raise VBAUnsupportedError("The Shadow of a drawing that takes its theme's effects is not implemented")
+    return False
 
 
 class _Cornered(HeldPart):
@@ -553,8 +591,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Text', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'Text', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -567,8 +605,8 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -576,16 +614,16 @@ class Rectangles(_BoxAdded):
 
 
 class Ovals(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
 
 
 class Arcs(_Drawings):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'Orientation', 'Placement', 'PrintObject', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Arcs'
     item = Arc
 
@@ -650,7 +688,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

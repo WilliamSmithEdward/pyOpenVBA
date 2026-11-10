@@ -12,6 +12,7 @@ else a schema says, choices, references, named types, a second repeating level, 
 writes goes through the sandbox gate (Application.outside) and is opened at its final_path."""
 from __future__ import annotations
 
+import datetime as dt
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -40,7 +41,9 @@ _NO_ROOT = -2147217373
 _NO_FILE = -2147217376
 _UNSPECIFIED = -2147467259
 #: The leaf types an import reads and an export writes, as the parts spell them.
-_TYPES = {"integer", "string", "date", "boolean", "decimal"}
+_TYPES = {"integer", "string", "date", "boolean", "decimal", "double", "dateTime", "time"}
+#: Those an export writes; the rest, met only in inferred schemas so far, are not measured written.
+_EXPORTED = {"integer", "string", "date", "boolean", "decimal"}
 
 
 @dataclass
@@ -72,6 +75,8 @@ class Schema:
     repeat_steps: list[str] = field(default_factory=lambda: list[str]())
     #: Whether the schema requires one of the repeating element at least.
     repeat_required: bool = False
+    #: Whether it declares nillable elements, which puts the xsi namespace on an export's root (tests/fixtures/xml_infer.json).
+    nillable: bool = False
 
 
 @dataclass
@@ -94,6 +99,9 @@ class SingleMapping:
     leaf: Leaf
     uid: str = ""
     cell_uid: str = ""
+    #: The uniqueName a save writes: 1 for a cell mapped with SetValue, the leaf's name for one an import with no map laid out
+    #: (tests/fixtures/xml_maps.json, xml_infer.json).
+    unique: str = "1"
 
 
 # --- reading a schema --------------------------------------------------------------------------------------------------
@@ -127,14 +135,17 @@ def read_schema(text: str, root: object, number: int) -> Schema:
     schema = Schema(id=f"Schema{number}", xml=_declaration_left_out(text), namespace=namespace, prefix=prefix, root=wanted,
                     leaves=[], repeat_path="")
 
-    def step(name: str, top_level: bool) -> str:
-        return f"{prefix}:{name}" if prefix and (top_level or qualified) else name
+    def step(name: str, top_level: bool, form: str | None) -> str:
+        # An element's own form outranks the schema's elementFormDefault; Excel's inferred schemas give each its form.
+        named = qualified if form is None else form == "qualified"
+        return f"{prefix}:{name}" if prefix and (top_level or named) else name
 
     def walk(element: XmlElement, path: str, repeating: bool, depth: int) -> None:
         name = element.get("name", "")
         if not name or element.get("ref") is not None:
             raise VBAUnsupportedError("an XML schema element by reference is not implemented")
-        here = path + "/" + step(name, depth == 0)
+        here = path + "/" + step(name, depth == 0, element.get("form"))
+        schema.nillable |= element.get("nillable") == "true"
         repeats = element.get("maxOccurs", "1") not in ("1", "0")
         kind = element.get("type")
         complex_type = element.find(XS + "complexType")
@@ -215,6 +226,12 @@ def add_map(book: Workbook, schema_path: object, root: object) -> MapState:
     if schema_path is MISSING:
         raise error(449, "Argument not optional")
     text = _read_file(book, to_text(schema_path), "XmlMaps.Add")
+    return new_map(book, text, root)
+
+
+def new_map(book: Workbook, text: str, root: object) -> MapState:
+    """A map of the schema ``text``: named after its root with _Map, numbered past the names taken, its schema numbered past
+    the schemas made, whether added or inferred (tests/fixtures/xml_maps.json, xml_infer.json)."""
     book.xml_schemas_made += 1
     schema = read_schema(text, root, book.xml_schemas_made)
     names = {one.name.casefold() for one in maps_of(book)}
@@ -259,15 +276,32 @@ def _typed(text: str, kind: str) -> tuple[object, bool]:
     if kind == "date":
         found = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", text.strip())
         if found:
-            import datetime as dt
-
             try:
                 return VBADate.from_datetime(dt.date(int(found.group(1)), int(found.group(2)), int(found.group(3)))), True
             except ValueError:
                 # A day no calendar has, 2024-13-01: kept as its text, as any value the schema refuses.
                 return text, False
         return text, False
+    if kind == "double":
+        # NaN and INF are doubles the schema takes, kept in the cell as their text (tests/fixtures/xml_infer.json).
+        if re.fullmatch(r"[+-]?\d+(\.\d*)?([eE][+-]?\d+)?", text.strip()):
+            return float(text), True
+        return text, text.strip() in ("NaN", "INF", "-INF")
+    if kind in ("dateTime", "time"):
+        from pyopenvba.apps.excel._xml_infer import _takes
+
+        if not _takes(kind, text):
+            return text, False
+        numbers = [int(one) for one in re.findall(r"\d+", text)]
+        if kind == "time":
+            return (numbers[0] * 3600 + numbers[1] * 60 + numbers[2]) / 86400, True
+        return VBADate.from_datetime(dt.datetime(*numbers)), True
     raise VBAUnsupportedError(f"importing an XML value of type {kind} is not implemented")
+
+
+#: The number format an import gives a cell of each leaf type before its value, where it is not the one its value brings:
+#: text kept as text, a time as a time (tests/fixtures/xml_infer.json).
+_FORMATS = {"string": "@", "time": "h:mm:ss", "dateTime": "m/d/yyyy h:mm"}
 
 
 def _steps(path: str) -> list[str]:
@@ -323,7 +357,7 @@ def import_xml(book: Workbook, state: MapState, data: str, overwrite: bool) -> i
         text = _value_under(tree, _steps(single.leaf.path)[1:])
         value, good = (EMPTY, True) if text is None else _typed(text, single.leaf.kind)
         failed |= not good
-        _put(sheet, row, column, value)
+        _put(sheet, row, column, value, single.leaf.kind)
     tables: dict[int, Table] = {}
     for table, _ in columns:
         tables[id(table)] = table
@@ -387,14 +421,19 @@ def _fill_table(table: Table, state: MapState, tree: XmlElement, overwrite: bool
             text = None if item is None else _value_under(item, _steps(leaf.path)[depth:])
             value, good = (EMPTY, True) if text is None else _typed(text, leaf.kind)
             failed |= not good
-            _put(table.sheet, start + offset, table.area.left + place, value)
+            _put(table.sheet, start + offset, table.area.left + place, value, leaf.kind)
     return failed
 
 
-def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
+def _put(sheet: Worksheet, row: int, column: int, value: object, kind: str = "") -> None:
+    """Write one value as an import does: a leaf's format first, where its type gives one, so "1" from a string leaf stays text."""
     from pyopenvba._a1 import Area
 
-    Range(sheet, [Area(row, column, row, column)]).vba_set("Value", value)
+    cell = Range(sheet, [Area(row, column, row, column)])
+    wanted = _FORMATS.get(kind)
+    if wanted is not None and value is not EMPTY and value != "" and (kind != "string" or isinstance(value, str)):
+        cell.vba_set("NumberFormat", wanted)
+    cell.vba_set("Value", value)
 
 
 # --- exporting -----------------------------------------------------------------------------------------------------------
@@ -427,6 +466,8 @@ def export_text(book: Workbook, state: MapState, *, file: bool) -> tuple[str, in
     schema = state.schema
     if schema.namespace or any(leaf.path.rsplit("/", 1)[-1].startswith("@") for leaf in schema.leaves):
         raise VBAUnsupportedError("exporting an XML map with a namespace or attributes is not implemented")
+    if any(leaf.kind not in _EXPORTED for leaf in schema.leaves):
+        raise VBAUnsupportedError("exporting an XML leaf of type double, dateTime or time is not implemented")
     singles, columns = mappings(book, state)
     if not singles and not columns:
         raise error(_UNSPECIFIED, "Automation error\nUnspecified error")
@@ -482,7 +523,9 @@ def export_text(book: Workbook, state: MapState, *, file: bool) -> tuple[str, in
     # Lines end in CR LF, in a file and in the text ExportXml gives alike (tests/fixtures/xml_maps.json).
     end = "\r\n"
     declaration = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + end if file else '<?xml version="1.0" standalone="yes"?>'
-    body = end.join([f"<{schema.root}>", *lines, f"</{schema.root}>"])
+    # A schema of nillable elements, as Excel infers one, puts the xsi namespace on the root (tests/fixtures/xml_infer.json).
+    opening = f'<{schema.root} xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' if schema.nillable else f"<{schema.root}>"
+    body = end.join([opening, *lines, f"</{schema.root}>"])
     return declaration + body, 1 if failed else 0
 
 
@@ -1083,10 +1126,12 @@ def table_map(table: Table) -> object:
 
 
 def workbook_import(book: Workbook, data: str, import_map: object, overwrite: object, destination: object, *, url: str = "") -> object:
-    """Workbook.XmlImportXml and XmlImport with a map; with none, Excel infers a schema, which is not built."""
+    """Workbook.XmlImportXml and XmlImport, with a map or with none, where Excel infers a schema from the data."""
     held = import_map.get() if isinstance(import_map, Slot) else import_map
+    if held is NOTHING or held is EMPTY or held is MISSING:
+        return _import_inferred(book, data, import_map, overwrite, destination, url)
     if not isinstance(held, XmlMap):
-        raise VBAUnsupportedError("importing XML with no map, which Excel infers a schema for, is not implemented")
+        raise VBAUnsupportedError("importing XML with an ImportMap that is not an XmlMap is not implemented")
     if destination is not MISSING:
         raise VBAUnsupportedError("importing XML into a map with a Destination is not implemented")
     if overwrite is MISSING:
@@ -1096,6 +1141,76 @@ def workbook_import(book: Workbook, data: str, import_map: object, overwrite: ob
     if url:
         state.source_url = url
     return result
+
+
+def _import_inferred(book: Workbook, data: str, import_map: object, overwrite: object, destination: object, url: str) -> object:
+    """An import with no map: a map of the schema Excel infers, its table or cells laid out at Destination, then the import."""
+    from pyopenvba.apps.excel._tables import add, guid
+    from pyopenvba.apps.excel._xml_infer import schema_text
+
+    if destination is MISSING:
+        # Excel lays out what it infers only where it is told (tests/fixtures/xml_infer.json).
+        raise error(-2147024809, "The parameter is incorrect.")
+    target = plain(destination)
+    if not isinstance(target, Range):
+        raise VBAUnsupportedError("importing XML with a Destination that is not a Range is not implemented")
+    if len(target.areas) != 1 or target.first.rows != 1 or target.first.columns != 1:
+        raise error(5, "Invalid procedure call or argument")
+    text = schema_text(_parsed(data))
+    sheet, top, left = target.sheet, target.first.top, target.first.left
+    # The layout is worked out from a schema read for it alone, so a refusal leaves the workbook as it was.
+    schema = read_schema(text, MISSING, 0)
+    inner = [leaf for leaf in schema.leaves if leaf.repeating]
+    # A table's columns are the repeating element's attributes, then its leaves (tests/fixtures/xml_infer.json).
+    ordered = [leaf for leaf in inner if "/@" in leaf.path] + [leaf for leaf in inner if "/@" not in leaf.path]
+    cells = ordered if schema.repeat_path else schema.leaves
+    bottom = top + 1 if schema.repeat_path else top
+    for row in range(top, bottom + 1):
+        for column in range(left, left + len(cells)):
+            held = sheet.cell(row, column)
+            if (held is not None and (held.value is not EMPTY or held.formula)) or sheet.xml_cells.get((row, column)) is not None:
+                raise VBAUnsupportedError("importing XML with no map over cells that hold something is not implemented")
+    from pyopenvba._a1 import Area
+
+    if any(table.area.top <= bottom and top <= table.area.bottom and table.area.left < left + len(cells) and left <= table.area.right
+           for table in sheet.tables):
+        raise VBAUnsupportedError("importing XML with no map over a table is not implemented")
+    state = new_map(book, text, MISSING)
+    # XmlImport from a file keeps where it came from, as a map imported with one does (tests/fixtures/xml_infer.json).
+    state.save_source, state.source_url = bool(url), url
+    if schema.repeat_path:
+        for place, leaf in enumerate(ordered):
+            _put(sheet, top, left + place, _named(leaf))
+        table = add(sheet, Range(sheet, [Area(top, left, bottom, left + len(ordered) - 1)]), 1, "TableStyleMedium2")
+        for column, leaf in zip(table.columns, _leaves_of(state, ordered), strict=True):
+            column.xml, column.xml_name = (state, leaf), _named(leaf)
+        table.kind = "xml"
+        table.changed = True
+    else:
+        for place, leaf in enumerate(_leaves_of(state, cells)):
+            sheet.xml_cells[(top, left + place)] = SingleMapping(state, leaf, guid(), guid(), _named(leaf))
+    book.xml_maps_changed = True
+    sheet.touched()
+    made = XmlMap(book, state)
+    if isinstance(import_map, Slot):
+        import_map.set(made)
+    if overwrite is not MISSING:
+        to_bool(overwrite)
+    # The table is new, so an import that would add rows fills its one empty row as an overwrite does
+    # (tests/fixtures/xml_infer.json).
+    return made.imported(data, True, url)
+
+
+def _named(leaf: Leaf) -> str:
+    """A leaf's name as a header and a uniqueName have it: its last step as its XPath spells it, ns1:n for a namespaced one,
+    id for an attribute (tests/fixtures/xml_infer.json)."""
+    return leaf.path.rsplit("/", 1)[-1].lstrip("@")
+
+
+def _leaves_of(state: MapState, leaves: list[Leaf]) -> list[Leaf]:
+    """The map's own leaves at the paths of ``leaves``, read from the same text for the layout."""
+    found = {leaf.path: leaf for leaf in state.schema.leaves}
+    return [found[leaf.path] for leaf in leaves]
 
 
 def read_url(book: Workbook, url: object, what: str) -> tuple[str, str]:
@@ -1158,7 +1273,7 @@ def singles_xml(sheet: Worksheet) -> str:
 
         where = Area(row, column, row, column).address(absolute=False)
         cells.append(f'<singleXmlCell id="{number}" xr6:uid="{single.uid}" r="{where}" connectionId="0"><xmlCellPr id="1" '
-                     f'xr6:uid="{single.cell_uid}" uniqueName="1"><xmlPr mapId="{single.map.id}" xpath="{escape(single.leaf.path)}" '
+                     f'xr6:uid="{single.cell_uid}" uniqueName="{escape(single.unique)}"><xmlPr mapId="{single.map.id}" xpath="{escape(single.leaf.path)}" '
                      f'xmlDataType="{single.leaf.kind}"/></xmlCellPr></singleXmlCell>')
     return f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<singleXmlCells {_SINGLES_NAMESPACES}>{"".join(cells)}</singleXmlCells>'
 
@@ -1253,17 +1368,19 @@ def _read_parts(book: Workbook, package: Any) -> None:
                 if mapped is not None:
                     state = by_id[int(mapped.group(1))]
                     column.xml = (state, _leaf_at(state.schema, mapped.group(2)))
-                    column.xml_name = column.xml[1].name
+                    unique = re.search(r'\buniqueName="([^"]*)"', found.group(0))
+                    column.xml_name = unescape(unique.group(1)) if unique else column.xml[1].name
         part = sheet.xml_cells_part
         if part and package.has(part):
             from pyopenvba._a1 import parse_area
 
             text = package.read(part).decode("utf-8")
-            for cell in re.finditer(r'<singleXmlCell\b[^>]*\bxr6:uid="([^"]*)"[^>]*\br="([^"]+)".*?<xmlCellPr\b[^>]*\bxr6:uid="([^"]*)".*?'
-                                    r'<xmlPr mapId="(\d+)" xpath="([^"]*)"', text, re.DOTALL):
-                state = by_id[int(cell.group(4))]
+            for cell in re.finditer(r'<singleXmlCell\b[^>]*\bxr6:uid="([^"]*)"[^>]*\br="([^"]+)".*?<xmlCellPr\b[^>]*\bxr6:uid="([^"]*)"'
+                                    r'[^>]*\buniqueName="([^"]*)".*?<xmlPr mapId="(\d+)" xpath="([^"]*)"', text, re.DOTALL):
+                state = by_id[int(cell.group(5))]
                 at = parse_area(cell.group(2))
-                sheet.xml_cells[(at.top, at.left)] = SingleMapping(state, _leaf_at(state.schema, cell.group(5)), cell.group(1), cell.group(3))
+                sheet.xml_cells[(at.top, at.left)] = SingleMapping(state, _leaf_at(state.schema, cell.group(6)), cell.group(1), cell.group(3),
+                                                                   unescape(cell.group(4)))
     book.xml_maps_changed = False
 
 

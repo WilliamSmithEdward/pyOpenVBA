@@ -73,10 +73,20 @@ def _merge(shape: _Shape, node: XmlElement, namespaces: set[str]) -> None:
     known = list(shape.children)
     names = list(dict.fromkeys(_split(child.tag)[1] for child in elements))
     places = [known.index(name) for name in names]
-    # Children in another order, or one the first occurrence did not have, make an xsd:all (tests/fixtures/xml_infer.json).
-    if places != sorted(places) or (shape.first is not None and any(name not in shape.first for name in names)):
+    # Children in another order make an xsd:all; so does a child no earlier occurrence had, unless a sibling before it in
+    # the same occurrence places it after the rest (tests/fixtures/xml_infer.json).
+    if places != sorted(places):
         shape.ordered = False
-    if shape.first is None:
+    if shape.first is not None:
+        for place, name in enumerate(names):
+            if name in shape.first:
+                continue
+            if place == 0:
+                shape.ordered = False
+            elif any(later in shape.first for later in names[place + 1:]):
+                raise VBAUnsupportedError("inferring a schema for a child first met between children already seen is not implemented")
+        shape.first |= set(names)
+    else:
         shape.first = set(names)
 
 

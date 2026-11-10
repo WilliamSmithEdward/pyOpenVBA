@@ -168,6 +168,20 @@ CASES: list[str] = [
     imported('<list><item><x>1</x><y>2</y></item><item><y>3</y><x>4</x></item></list>') + 'r = r & " " & m.ExportXml(s) & " " & s',
     typed('0.0', '1'),
     imported('<doc><t></t><u>2</u></doc>') + 'r = r & " " & m.ExportXml(s) & " " & s',
+    # Held-out round I, predicted before it ran.
+    imported('<list><item><a>1</a></item><item><a>2</a><b>3</b><c>4</c></item></list>'),
+    imported('<list><item><a>1</a><b>2</b></item><item><b>3</b></item></list>'),
+    imported('<list><item><b>1</b></item><item><a>2</a><b>3</b></item></list>'),
+    typed('-5', '5'),
+    imported('<doc><x>1</x></doc>') + 'Set m = Nothing: r = r & " " & wb.XmlImportXml(' + _vba(DATA['d.xml']) + ', m, True, ws.Range("D2"))'
+    + ' & " " & ws.ListObjects(1).Name',
+    # Held-out round J, predicted before it ran.
+    imported('<r><item><k>1</k></item><item><k>2</k><m>z</m></item></r>') + 'r = r & " " & m.ExportXml(s) & " " & s',
+    imported(DATA['d.xml'], 'ws.Range("A1")') + 'r = r & " " & m.ImportXml("<list><item><n>1</n><s>a</s></item></list>") & " " & '
+    'm.ImportXml("<list/>") & " " & ws.ListObjects(1).Range.Address',
+    typed('1', '2', '3.5'),
+    imported('<doc><a><b>1</b></a><c>2</c></doc>', 'ws.Range("D4")'),
+    imported('<list><item><a>x</a><b>1</b></item><item><a>y</a><b>2</b><c>true</c></item></list>'),
 ]
 #: The cases whose saved workbooks are kept, for the model to open as Excel saved them.
 KEPT = (39, 37, 38, 26)

@@ -24,9 +24,9 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'loaded_chart_styled_edits.json').read_text(encoding='utf-8'))
 BOOK = 'loaded_chart_styled.xlsx'
-#: Refused on the loaded book: a Series.Formula changing categories; the Interior of a styled chart's element, which Excel reads
-#: as the element's own; and the series' labels going with a point's label of its own.
-REFUSED_LOADED = ('element series formula', 'look interior colour', 'labels point label then labels off')
+#: Refused on the loaded book: the Interior of a styled chart's element, which Excel reads as the element's own; and the series'
+#: labels going with a point's label of its own.
+REFUSED_LOADED = ('look interior colour', 'labels point label then labels off')
 #: Refused on the new chart too.
 REFUSED_NEW = ('labels point label then labels off',)
 _UNIQUE = re.compile(r'(uniqueId val="\{[0-9A-F]{8})-[0-9A-F-]+')

@@ -1939,6 +1939,14 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         for shape in sheet.shapes_:
             if shape.macro_book:
                 raise VBAUnsupportedError(f"Saving a form control whose macro is in {shape.macro_book}, an external link in the file, is not implemented")
+            control = shape.control
+            if shape.kind == "formControl" and not shape.source and control is not None and (
+                    control.text_frame not in (None, ("HorizontalAlignment", -4108), ("VerticalAlignment", -4108), ("Orientation", -4128))
+                    or control.button_flags - {"JustLastX"}):
+                # Excel gives a new button a DrawingML text body, which it reads these from in place of the VML, and the model writes
+                # none yet: Excel would read the model's file otherwise (tests/fixtures/new_control_edits.json).
+                raise VBAUnsupportedError("Saving a new button's alignment, Orientation or DefaultButton, CancelButton, DismissButton or "
+                                          "HelpButton is not implemented")
     from pyopenvba.apps.excel._query_tables import write as write_query_tables
 
     write_query_tables(book, package, _add_sheet_relationship, _override_before_properties, _sheet_relationships, _resolved, _drop_sheet_part)

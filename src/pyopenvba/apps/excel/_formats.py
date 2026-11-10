@@ -120,8 +120,9 @@ def restyle(target: Range, change: Callable[[S.Style], S.Style]) -> None:
     On a filtered sheet only the visible cells change, as _visible has it.
     """
     sheet = target.sheet
-    parts = [area for area in visible_areas(target) or target.areas
-             if not _row_formats.format_area(sheet, area, change)]
+    areas = visible_areas(target) or target.areas
+    _row_formats.refuse_past_half(areas)
+    parts = [area for area in areas if not _row_formats.format_area(sheet, area, change)]
     for row, column in _positions(parts):
         sheet.restyle(row, column, change(sheet.style_at(row, column)))
 
@@ -1321,12 +1322,14 @@ class Border(ExcelObject):
 
     vba_type_name = "Border"
 
-    def __init__(self, target: Range, index: int, *, together: bool = False) -> None:
+    def __init__(self, target: Range, index: int, *, together: bool = False, collection: bool = False) -> None:
         self.target = target
         self.index = index
         # Set as one of the Borders collection's or BorderAround's edges, which on whole rows or columns leave the
         # neighbours' facing sides alone.
         self.together = together
+        # Set as one of the Borders collection's, which draws even where an edge set alone draws nothing (_wide).
+        self.collection = collection
 
     def guard_set(self, member: str) -> None:
         from pyopenvba.apps.excel._protection import check_format_set
@@ -1403,12 +1406,28 @@ class Border(ExcelObject):
         """Set the border on each area -- each visible area, on a filtered sheet, measured for the bottom edge."""
         sheet = self.target.sheet
         areas = visible_areas(self.target) or self.target.areas
+        _row_formats.refuse_past_half(areas)
         if self.index not in (5, 6) and _leaves_lines(change) and all(_row_formats.whole(area) for area in areas):
             # No colour along whole rows or columns changes nothing where the border reads a line, and otherwise takes
             # every line along it away (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
             if self.side().style:
                 return
             change = _exactly(S.NO_SIDE)
+        elif self.index in EDGES and _leaves_lines(change) and len(areas) == 1:
+            # Along several cells no colour changes nothing, not even which cells hold a format, where the edge reads a
+            # line: from its last cell for a bottom or right edge, else from its first (tests/fixtures/used_range.json).
+            name = EDGES[self.index]
+            places = _edge_places(areas[0], name)
+            if len(places) > 1:
+                row, column = places[-1] if name in ("bottom", "right") else places[0]
+                if effective_side(sheet, row, column, name).style:
+                    return
+        if self.index in EDGES and not self.collection:
+            # An edge set alone across more than half the sheet to its last column or row can draw nothing
+            # (tests/fixtures/used_range.json).
+            areas = [area for area in areas if not _row_formats.edge_past_half(sheet, area, self.index)]
+            if not areas:
+                return
         if self.index in (5, 6) and (len(areas) > 1 or areas[0].rows * areas[0].columns > 1):
             # A diagonal on a union first copies outlines to its later areas as an edge does, whatever it sets
             # (tests/fixtures/border_union.json).
@@ -1662,7 +1681,7 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         elif what == "Color" and value is not NULL and value is not True and int(to_integer(value, "Long")) == -1:
             what, value = "ColorIndex", XL_AUTOMATIC
         for index in self._indexes():
-            Border(self.target, index, together=True).assign(what, value)
+            Border(self.target, index, together=True, collection=True).assign(what, value)
         if colour:
             restyle(self.target, lambda style: S.applying(style, "fill"))
 

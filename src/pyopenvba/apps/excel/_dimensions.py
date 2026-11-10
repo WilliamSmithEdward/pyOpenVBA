@@ -316,9 +316,17 @@ class SheetDimensions:
         #: Whether the sheet came from a file, whose column XFD holds the sheet's format for the used block (see
         #: used_columns).
         self.opened = False
-        #: Whether column XFD took its format last along with the columns before it, as Columns("B:XFD") or the whole
-        #: sheet gives it, rather than alone (see _apart_from_most).
-        self.last_shared = False
+        #: The first column of the last format set across more than half the columns to the last one, 1 for the whole
+        #: sheet, or None; and the columns of that set formatted alone since (see formatted_columns).
+        self.wide_left: int | None = None
+        self.since_wide: set[int] = set()
+        self.wide_plain: int | None = None
+        #: While that format goes on, its columns are not ones formatted apart.
+        self.widening = False
+        #: The columns that kept their own format through the last such format.
+        self.own_before_wide: set[int] = set()
+        #: An opened file's column XFD format, against which its columns count (see formatted_columns).
+        self.opened_base: Style | None = None
         #: Rows their fonts make another height than the standard row, or
         #: give another descent: row -> (quarter pixels, descent in twips).
         self._grown: dict[int, tuple[int, int]] = {}
@@ -1322,35 +1330,48 @@ class SheetDimensions:
         found = set(self.kept_columns)
         found.update(column for column, record in self.columns.items()
                      if record.hidden and record.custom and record.width)
-        found.update(self.formatted_columns() if self.opened else self._apart_from_most())
+        found.update(self.formatted_columns())
         return sorted(found)
 
-    def _apart_from_most(self) -> list[int]:
-        """Columns apart from the sheet's format, for a sheet made in the session. With no format on column XFD the
-        formatted columns count. XFD's format is the sheet's while column XFC shares it, as Columns("B:XFD") leaves
-        column A alone to count, or while XFD took it last along with the columns before it, whatever those show now;
-        a column XFD formatted alone, apart from XFC, counts like any other, against XFC's format
-        (tests/fixtures/used_range.json, tests/fixtures/clear_rows_formats.json, tests/fixtures/row_formats.json)."""
-        last = self.column_style(MAX_COLUMNS)
-        if last is None:
-            return [column for column, record in self.columns.items() if record.style is not None]
-        before = self.column_style(MAX_COLUMNS - 1)
-        sheet_format = last if before == last or self.last_shared else before
-        return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format]
+    def went_wide(self, left: int) -> None:
+        """A format went on more than half the columns from ``left`` to the last one, or on the whole sheet from 1. A
+        column that had a format of its own keeps its own record and counts as one formatted alone; one that had none
+        shows the sheet's format from now on (see formatted_columns)."""
+        if self.wide_left is None:
+            own = {column for column, record in self.columns.items() if record.style is not None and column >= left}
+        else:
+            # After another such format, the columns of their own are those it left out and those formatted apart since.
+            own = {column for column in [*range(left, self.wide_left), *self.since_wide] if column >= left}
+        self.wide_left, self.since_wide, self.widening, self.own_before_wide = left, own, True, set(own)
+        # A column the set reached with no format of its own, short of its first, which the set may line apart.
+        self.wide_plain = next((column for column in range(left + 1, MAX_COLUMNS + 1) if column not in own), None)
+
+    def wide_format(self) -> Style | None:
+        """The sheet's format after a format went on more than half its columns: a column's the set reached that had no
+        format of its own."""
+        return None if self.wide_plain is None else self.column_style(self.wide_plain)
 
     def formatted_columns(self) -> list[int]:
-        """Columns whose format is not the sheet's own, which the last column's is.
+        """Columns apart from the sheet's format: they count toward the used block, and a row format crossing one
+        leaves a cell there.
 
-        Formatting the whole sheet formats every column, and Excel counts
-        none of them in the used block; a column formatted apart from the
-        rest counts, and so does one left in the default format beside them.
-        Excel reads a file's columns the same way: whatever format column XFD
-        has is the sheet's.
+        A format set across more than half the columns to the last one, or
+        on the whole sheet, is the sheet's: Excel formats every column and
+        gives those before the set back what they had, each its own. After
+        that a column counts while its format is apart from the one the set
+        gave a column with none of its own (wide_format). A file's columns count
+        against the format its column XFD had when it was opened, so XFD
+        counts too once a macro formats it apart. Otherwise the formatted
+        columns count (tests/fixtures/used_range.json,
+        tests/fixtures/clear_rows_formats.json,
+        tests/fixtures/row_formats/row_formats.json).
         """
-        sheet_format = self.column_style(MAX_COLUMNS)
-        if sheet_format is None:
-            return [column for column, record in self.columns.items() if record.style is not None]
-        return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format]
+        if self.wide_left is not None:
+            sheet = self.wide_format()
+            return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet]
+        if self.opened and self.opened_base is not None:
+            return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != self.opened_base]
+        return [column for column, record in self.columns.items() if record.style is not None]
 
     def columns_written(self) -> bool:
         """Whether the sheet's cols element has to be written again."""

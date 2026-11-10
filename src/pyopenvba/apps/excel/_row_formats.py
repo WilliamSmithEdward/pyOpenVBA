@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _styles as S
+from pyopenvba.exceptions import VBAUnsupportedError
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Worksheet
@@ -52,8 +53,15 @@ def whole(area: Area) -> str:
 
 
 def sheet_format(sheet: Worksheet) -> S.Style:
-    """The format a row takes a change from when it has none of its own: column XFD's."""
-    return sheet.dims.column_style(MAX_COLUMNS) or sheet.book.stylesheet.default
+    """The format a row takes a change from when it has none of its own: the sheet's, which is column XFD's once a
+    format went on more than half the columns to it or on the whole sheet, or the one XFD had when the file was opened
+    (see SheetDimensions.formatted_columns)."""
+    dims, default = sheet.dims, sheet.book.stylesheet.default
+    if dims.wide_left is not None:
+        return dims.wide_format() or default
+    if dims.opened and dims.opened_base is not None:
+        return dims.opened_base
+    return default
 
 
 def _cells_by_row(sheet: Worksheet, top: int, bottom: int) -> dict[int, dict[int, Cell]]:
@@ -122,6 +130,9 @@ def _set_column(sheet: Worksheet, column: int, style: S.Style | None) -> None:
     if record is None and style is None:
         return
     record = dims.touch_column(column)
+    if dims.wide_left is not None and column >= dims.wide_left and not dims.widening:
+        # A column formatted apart after a format went on more than half the columns (see formatted_columns).
+        dims.since_wide.add(column)
     record.style, record.xf = (None if style == sheet.book.stylesheet.default else style), -1
     sheet.book.stylesheet.meet(record.style)
     dims.settle_column(column)
@@ -198,11 +209,13 @@ def format_columns(sheet: Worksheet, left: int, right: int, change: Change, *, c
     default = sheet.book.stylesheet.default
     styled_rows = [(row, record.style) for row, record in sheet.dims.rows.items() if record.style is not None] if crossings else []
     cells = _cells_by_column(sheet, left, right)
-    if right == MAX_COLUMNS:
-        sheet.dims.last_shared = left < MAX_COLUMNS
+    dims = sheet.dims
+    wide = right == MAX_COLUMNS and right - left + 1 > MAX_COLUMNS // 2
+    if wide:
+        dims.went_wide(left)
     for column in range(left, right + 1):
         mine = cells.get(column, {})
-        for row, style in styled_rows:
+        for row, style in styled_rows if not wide else []:
             if row not in mine and change(style) != style:
                 _put(sheet, row, column, change(style))
         _set_column(sheet, column, change(sheet.dims.column_style(column) or default))
@@ -210,6 +223,15 @@ def format_columns(sheet: Worksheet, left: int, right: int, change: Change, *, c
             _restyle_cell(sheet, row, column, cell, change(cell.style or default))
             sheet.settle(row, column)
             sheet.dims.fonts_changed(row)
+    if wide:
+        # Across more than half the columns Excel formats the whole sheet, rows with formats of their own too, and gives
+        # the columns before the set back what those rows showed there, as cells (tests/fixtures/used_range.json).
+        for row, style in styled_rows:
+            _set_row(sheet, row, change(style))
+            for column in range(1, left):
+                if (row, column) not in sheet.cells_ and change(style) != style:
+                    _put(sheet, row, column, style)
+    dims.widening = False
     sheet.dims.column_fonts_changed()
 
 
@@ -217,9 +239,10 @@ def format_sheet(sheet: Worksheet, change: Change) -> None:
     """The whole sheet formatted: every column, every formatted row and every cell."""
     change = shared(change)
     default = sheet.book.stylesheet.default
-    sheet.dims.last_shared = True
+    sheet.dims.went_wide(1)
     for column in range(1, MAX_COLUMNS + 1):
         _set_column(sheet, column, change(sheet.dims.column_style(column) or default))
+    sheet.dims.widening = False
     for row, record in list(sheet.dims.rows.items()):
         if record.style is not None:
             _set_row(sheet, row, change(record.style))
@@ -469,12 +492,56 @@ def current_side(found: Iterable[S.Side], *, last: bool = False) -> S.Side:
     return S.Side(sides[-1 if last else 0].style or "thin", S.Color("auto"))
 
 
+def edge_past_half(sheet: Worksheet, area: Area, index: int) -> bool:
+    """A left or right edge set alone on more than half the sheet's columns, whole, to its last one, draws nothing while
+    no cell and no column format stands in them short of the last one: True once the columns are touched as Excel touches
+    them, through their own formats (tests/fixtures/used_range.json)."""
+    if index not in (7, 10) or not (area.top == 1 and area.bottom == MAX_ROWS and 1 < area.left
+                                    and area.right == MAX_COLUMNS and area.columns > MAX_COLUMNS // 2):
+        return False
+    dims = sheet.dims
+    # Columns formatted apart: after a format on more than half the columns, only those formatted apart since.
+    apart = (dims.since_wide if dims.wide_left is not None and dims.wide_left <= area.left
+             else {column for column, record in dims.columns.items() if record.style is not None})
+    if any(area.left <= column < MAX_COLUMNS for _, column in sheet.cells_) or any(
+            area.left <= column < MAX_COLUMNS for column in apart):
+        return False
+    format_columns(sheet, area.left, area.right, _touch)
+    return True
+
+
+def refuse_past_half(areas: Iterable[Area]) -> None:
+    """Refuse a format set on more than half the sheet's rows down to its last one, short of row 1, or on more than half
+    its columns to its last one short of whole columns. Excel formats the whole sheet then and gives the rest back what
+    it had, each part its own; the model does that only for whole columns (tests/fixtures/used_range.json)."""
+    for area in areas:
+        down = area.bottom == MAX_ROWS and 1 < area.top and area.rows > MAX_ROWS // 2
+        across = (area.right == MAX_COLUMNS and 1 < area.left and area.columns > MAX_COLUMNS // 2
+                  and not (area.top == 1 and area.bottom == MAX_ROWS))
+        if down or across:
+            raise VBAUnsupportedError("formatting more than half the sheet's rows down to its last row, or more than "
+                                      "half its columns to its last column short of whole columns, is not implemented")
+
+
 def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Side], S.Side], *,
                 together: bool = False) -> bool:
+    """A border set on whole rows, whole columns or the sheet; False for any other area. On more than half the columns
+    to the last one, every column the border reaches is part of that one format, none of them formatted apart
+    (tests/fixtures/used_range.json)."""
+    wide = whole(area) == "columns" and area.right == MAX_COLUMNS and area.columns > MAX_COLUMNS // 2
+    done = _border_area(sheet, area, index, change, together=together)
+    if wide and sheet.dims.wide_left == area.left:
+        sheet.dims.since_wide -= set(range(area.left, MAX_COLUMNS + 1)) - sheet.dims.own_before_wide
+    return done
+
+
+def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Side], S.Side], *,
+                 together: bool = False) -> bool:
     """A border set on whole rows, whole columns or the sheet; False for any other area.
 
-    An edge set alone clears the side facing it beyond: a bottom or right edge only on that row's or column's own format
-    and its cells, not where a formatted column or row crosses it. Set together, as the Borders collection and
+    An edge set alone clears the side facing it beyond, unless that side already has the line the edge now has: a bottom
+    or right edge only on that row's or column's own format and its cells, not where a formatted column or row crosses
+    it (tests/fixtures/used_range.json). Set together, as the Borders collection and
     BorderAround set them, edges leave every side beyond alone, and the stronger line shows
     (tests/fixtures/border_neighbours.json)."""
     from pyopenvba.apps.excel._formats import change_side, effective_side, own_side, with_diagonal
@@ -486,9 +553,13 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
         format_area(sheet, area, lambda style: S.applying(style, "border",
                                                           border=with_diagonal(style.border, index, change)))
         return True
-    # A border along whole rows or columns gives each of them the border part, which then counts toward UsedRange
-    # (tests/fixtures/used_range.json).
-    if kind == "rows":
+    # A border along whole rows or columns gives each of them the border part, which then counts toward UsedRange; a
+    # right edge along whole rows gives it only to their cells in the last column (tests/fixtures/used_range.json,
+    # tests/fixtures/border_gaps.json).
+    if kind == "rows" and index == 10:
+        for row in range(area.top, area.bottom + 1):
+            sheet.restyle(row, MAX_COLUMNS, _touch(sheet.style_at(row, MAX_COLUMNS)))
+    elif kind == "rows":
         format_rows(sheet, area.top, area.bottom, _touch)
     elif kind == "columns":
         format_columns(sheet, area.left, area.right, _touch)
@@ -501,7 +572,8 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
             format_rows(sheet, row, row, lambda style: _sides(style, **{name: new}))
             if 1 <= beyond <= MAX_ROWS and not together:
                 format_rows(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
-                            if getattr(style.border, opposite).style else style, crossings=index == 8)
+                            if getattr(style.border, opposite).style and getattr(style.border, opposite) != new else style,
+                            crossings=index == 8)
         elif index == 12:
             for row in range(area.top, area.bottom):
                 new = change(_current_pair(sheet, [(row, column, row + 1, column) for column in columns],
@@ -536,14 +608,24 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
                     change_side(sheet, row, column, 10, lambda _: S.NO_SIDE)
     elif kind == "columns":
         rows = sample_rows(sheet, 1, MAX_ROWS, area.left - 1, area.right + 1)
-        if index in (7, 10):
+        if index == 10 and area.right == MAX_COLUMNS and area.columns > MAX_COLUMNS // 2:
+            # Across more than half the columns to the last one, Excel stores no right edge on the last column
+            # (tests/fixtures/used_range.json).
+            pass
+        elif index in (7, 10):
             column = area.left if index == 7 else area.right
             name, opposite, beyond = ("left", "right", column - 1) if index == 7 else ("right", "left", column + 1)
             new = change(current_side((effective_side(sheet, row, column, name) for row in rows), last=index == 10))
             format_columns(sheet, column, column, lambda style: _sides(style, **{name: new}))
             if 1 <= beyond <= MAX_COLUMNS and not together:
                 format_columns(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
-                               if getattr(style.border, opposite).style else style, crossings=index == 7)
+                               if getattr(style.border, opposite).style and getattr(style.border, opposite) != new else style,
+                               crossings=index == 7)
+        elif index == 11 and area.right == MAX_COLUMNS and area.columns > MAX_COLUMNS // 2:
+            # Across more than half the columns to the last one, every column takes the line on both sides, the first
+            # and the last too, as on the whole sheet (tests/fixtures/used_range.json).
+            new = change(_current_pair(sheet, [(row, area.left, row, area.left + 1) for row in rows], "right", "left"))
+            format_columns(sheet, area.left, area.right, lambda style: _sides(style, left=new, right=new))
         elif index == 11:
             for column in range(area.left, area.right):
                 new = change(_current_pair(sheet, [(row, column, row, column + 1) for row in rows], "right", "left"))

@@ -20,7 +20,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, NamedTuple
 
-from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference, split_sheet
+from pyopenvba._a1 import MAX_COLUMNS, Area, column_letter, column_number, parse_area, parse_reference, split_sheet
 from pyopenvba._relationships import in_office_order
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
@@ -314,6 +314,7 @@ def load_workbook(application: Application, path: Path, *, _passed: object = Non
         # again, so such a row counts toward the used block only through the file's own record (tests/fixtures/used_range.json).
         sheet.dims.opened_shapes = sheet.dims.shaped_rows() - sheet.dims.listed_rows
         sheet.dims.opened = True
+        sheet.dims.opened_base = sheet.dims.column_style(MAX_COLUMNS)
     return book
 
 

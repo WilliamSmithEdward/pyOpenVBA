@@ -122,12 +122,21 @@ def _standard_height(excel: Any) -> str:
 
 
 def _lock() -> None:
+    """Take the live lock, one Excel at a time, and say who holds it in its owner file."""
     while True:
         try:
             os.mkdir(LOCK)
-            return
+            break
         except FileExistsError:
             time.sleep(5)
+    (LOCK / "owner").write_text(f"{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} measure_used_range_rounds "
+                                f"{os.getpid()}\n", encoding="utf-8")
+
+
+def _unlock() -> None:
+    """Give back the lock this run took."""
+    (LOCK / "owner").unlink(missing_ok=True)
+    os.rmdir(LOCK)
 
 
 def main() -> None:
@@ -167,7 +176,7 @@ def main() -> None:
                 cases[todo[0]]["excel"] = f"no answer, Excel ended: {str(failure)[:80]}"
                 todo.pop(0)
             finally:
-                os.rmdir(LOCK)
+                _unlock()
             file.write_text(json.dumps(cases, indent=0), encoding="utf-8")
     if step == "rescore":
         for at, case in enumerate(cases):

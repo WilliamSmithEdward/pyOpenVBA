@@ -803,7 +803,7 @@ Chart,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads
 Chart,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_members.json; tests/test_excel_chart_members.py,"Raises 1004, as Excel does."
 Chart,PageSetup,"property, read-only",As PageSetup,,PARTIAL,tests/test_excel_chart_protection.py,"As live Excel, for the kinds of chart the model draws."
 Chart,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/excel_chart_objects.json,"ChartObject, by the way it is reached; Set o.Parent is the error set_parent_error gives."
-Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
+Chart,Paste,method,Paste([Type As Variant]),,PARTIAL,tests/fixtures/chart_templates.json; tests/test_excel_chart_templates.py,"Copied cells onto a chart plotted by rows: each row a new series named by its first cell, over the chart's own categories; nothing copied is 1004. A Type, cut cells and other shapes of cells are refused."
 Chart,Perspective,property,As Long,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter.
 Chart,PieGroups,not in the type library,,,PARTIAL,tests/test_excel_combo_charts.py,"The chart's groups of this kind, as measured on column, line and area combo charts."
 Chart,PivotLayout,"property, read-only",As PivotLayout,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
@@ -832,7 +832,7 @@ Chart,Select,event,"Select(ElementID As Long, Arg1 As Long, Arg2 As Long)","no E
 Chart,SeriesChange,event,"SeriesChange(SeriesIndex As Long, PointIndex As Long)",,MISSING,,
 Chart,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,SeriesNameLevel,property,As XlSeriesNameLevel,no setter,PARTIAL,tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,What every chart type the model makes reads; imported charts are refused. No setter. Labels of several levels are refused.
-Chart,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,MISSING,,
+Chart,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,PARTIAL,tests/fixtures/chart_templates.json; tests/test_excel_chart_templates.py,"The chart area tiled with a PNG, kept byte for byte, its Fill.Type 4; a missing file raises -2147024894. Measured on a new chart with no style or chart-area look; the rest, and other picture types, are refused."
 Chart,SetDefaultChart,method,SetDefaultChart(Name As Variant),,MISSING,,"Not probed: it sets Excel's default chart for every later session, where the registry holds none on the machine measured, and whether it can return to none is not known; held for William."
 Chart,SetElement,method,SetElement(Element As MsoChartElementType),,PARTIAL,tests/test_excel_chart_set_element.py,"Every element on column, bar, line, scatter, area, pie and doughnut charts, as live Excel. A data label callout, taking away the plot area and an area chart's error bars are refused."
 Chart,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."

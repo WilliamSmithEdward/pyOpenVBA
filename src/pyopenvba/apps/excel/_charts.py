@@ -6,6 +6,7 @@ from dataclasses import dataclass, field, replace
 from decimal import Decimal
 import math
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from pyopenvba._a1 import Area, parse_reference
@@ -224,6 +225,8 @@ class ChartState:
     #: A loaded chart's manual layouts as its file spells them, the plot area's and the legend's; empty for none
     #: (see _charts_file.read_chart). The model places neither itself.
     plot_layout: str = ''
+    #: The PNG SetBackgroundPicture gave the chart area, tiled, written in xl/media at save (tests/fixtures/chart_templates.json).
+    background: bytes | None = None
     legend_layout: str = ''
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
@@ -2900,6 +2903,70 @@ class Chart(ElementProperties, HeldPart):
                 self.changed()
             self.state.holds_automatic_title(self.sheet)
         return ChartTitle(self)
+
+    @method
+    def SetBackgroundPicture(self, Filename: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The chart area filled with the picture, tiled, the PNG kept byte for byte (tests/fixtures/chart_templates.json).
+        Measured on a new chart with no style and no look of its chart area, with a PNG; the rest is refused."""
+        from pyopenvba.apps.excel._chart_styled import is_styled
+        from pyopenvba.interpreter._files import native_path
+
+        self.admit_read()
+        self.sheet.book.application.outside('Chart.SetBackgroundPicture')
+        if Filename is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        state = self.state
+        if state.original or state.style_part or is_styled(state.chart_style) or self.sheet.chart_sheet is not None:
+            raise VBAUnsupportedError('SetBackgroundPicture on this chart is not implemented')
+        if 'area' in state.element_looks or 'area' in state.element_fonts or state.shadow is not None:
+            raise VBAUnsupportedError("SetBackgroundPicture on a chart area with a look of its own is not implemented")
+        found = Path(native_path(to_text(Filename)))
+        if not found.is_file():
+            raise error(-2147024894, 'Automation error\nThe system cannot find the file specified.')
+        data = found.read_bytes()
+        if not data.startswith(b'\x89PNG\r\n\x1a\n'):
+            raise VBAUnsupportedError('SetBackgroundPicture with a picture other than a PNG is not implemented')
+        self.changed()
+        state.background = data
+        return EMPTY
+
+    @method
+    def Paste(self, Type: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Cells copied onto a chart plotted by rows: each row a new series, named by its first cell, its values the rest,
+        the chart's categories its own (tests/fixtures/chart_templates.json). Measured on a new chart whose series share
+        categories over the same columns; the rest is refused."""
+        self.admit_read()
+        if Type is not MISSING:
+            raise VBAUnsupportedError('Chart.Paste with a Type is not implemented')
+        clip = self.sheet.book.application.clipboard
+        if clip is None:
+            raise error(1004, 'Paste method of Chart class failed')
+        state = self.state
+        categories = {entry.category_reference for entry in state.series}
+        if (clip.cut or clip.orphaned or state.original or is_combo(state) or plot_by(state) != 1 or len(categories) != 1
+                or len(clip.source.areas) != 1):
+            raise VBAUnsupportedError('Chart.Paste of these cells onto this chart is not implemented')
+        block = clip.source.areas[0]
+        shown = parse_reference(next(iter(categories)))
+        if len(shown) != 1 or block.left + 1 != shown[0].left or block.right != shown[0].right or (
+                shown[0].sheet and shown[0].sheet != clip.source.sheet.name):
+            raise VBAUnsupportedError('Chart.Paste of cells not over the chart\'s categories is not implemented')
+        self.plot_admitted('Chart.Paste')
+        self.plot_changed('Chart.Paste')
+        sheet = clip.source.sheet
+        for row in range(block.top, block.bottom + 1):
+            used = {entry.series_id if entry.series_id >= 0 else index for index, entry in enumerate(state.series)}
+            series_id = 0
+            while series_id in used:
+                series_id += 1
+            entry = SeriesState(series_id=series_id, unique=state.next_unique, marker=default_marker(state))
+            entry.name_reference = reference(sheet, Area(row, block.left, row, block.left))
+            entry.value_reference = reference(sheet, Area(row, block.left + 1, row, block.right))
+            entry.category_reference = next(iter(categories))
+            state.next_unique += 1
+            state.series.append(entry)
+        _labelled(state)
+        return EMPTY
 
     @member
     def PrintedCommentPages(self) -> object:

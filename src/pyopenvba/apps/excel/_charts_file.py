@@ -1198,6 +1198,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     # (tests/fixtures/chart_element_format.json).
     xml = xml.replace('</c:plotArea>', element_markup('plot', state.element_looks.get('plot')) + '</c:plotArea>', 1)
     area = element_markup('area', state.element_looks.get('area')) + text_properties(state.element_fonts.get('area'))
+    if state.background is not None:
+        # SetBackgroundPicture's picture, tiled, its relationship the chart's first (tests/fixtures/chart_templates.json).
+        area = ('<c:spPr><a:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+                'r:embed="rId1"/><a:tile tx="0" ty="0" sx="100000" sy="100000" flip="none" algn="tl"/></a:blipFill></c:spPr>')
     if area and state.shadow is not None:
         raise VBAUnsupportedError('A chart area with both a shadow and a Format look is not implemented')
     xml = xml.replace('</c:chart><c:printSettings>', f'</c:chart>{area}<c:printSettings>', 1)
@@ -1300,7 +1304,23 @@ def _bar_values(sheet: Worksheet, element: str, given: tuple[str, list[object]])
             f'{cache_markup(cached, numeric=True, code=source_format(sheet, formula))}</c:numRef></c:{element}>')
 
 
-def _style_part_names(part: str) -> tuple[str, str]:
+def _style_part_names(part: str, package: OpcFile | None = None) -> tuple[str, str]:
+    """A chart's style and colours parts: those its relationships name, else, given the package, the first number free
+    for both, as Excel numbers them among the charts that have them (tests/fixtures/chart_templates.json); without the
+    package, the chart's own number."""
+    if package is not None:
+        rels = rels_part(part)
+        if package.has(rels):
+            text = package.read(rels).decode('utf-8')
+            style = re.search(rf'Type="{re.escape(REL_CHART_STYLE)}" Target="([^"]+)"', text)
+            colours = re.search(rf'Type="{re.escape(REL_CHART_COLORS)}" Target="([^"]+)"', text)
+            if style and colours:
+                return (posixpath.normpath(posixpath.join(posixpath.dirname(part), style.group(1))),
+                        posixpath.normpath(posixpath.join(posixpath.dirname(part), colours.group(1))))
+        number = 1
+        while package.has(f'xl/charts/style{number}.xml') or package.has(f'xl/charts/colors{number}.xml'):
+            number += 1
+        return f'xl/charts/style{number}.xml', f'xl/charts/colors{number}.xml'
     number = part[len('xl/charts/chart'):-len('.xml')]
     return f'xl/charts/style{number}.xml', f'xl/charts/colors{number}.xml'
 
@@ -1313,7 +1333,7 @@ def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
     if not is_styled(chart.chart_style):
         remove_style_parts(package, chart.part)
         return
-    style, colours = _style_part_names(chart.part)
+    style, colours = _style_part_names(chart.part, package)
     package.write(style, style_part(chart.chart_style).encode('utf-8'))
     package.write(colours, COLORS_PART.encode('utf-8'))
     add_content_type(package, style, CT_CHART_STYLE)
@@ -1327,11 +1347,31 @@ def _write_style_parts(package: OpcFile, chart: ChartState) -> None:
 
 
 def remove_style_parts(package: OpcFile, part: str) -> None:
-    for name in _style_part_names(part):
+    for name in _style_part_names(part, package):
         if package.has(name):
             package.remove(name)
             drop_content_type(package, name)
             package.remove(rels_part(part))
+
+
+def _write_background(package: OpcFile, part: str, picture: bytes) -> None:
+    """A chart's background picture in xl/media, sharing a part that holds the same bytes, and its relationship, the
+    chart's first (tests/fixtures/chart_templates.json)."""
+    from pyopenvba.apps.excel._io import _add_default_content_type  # pyright: ignore[reportPrivateUsage]
+
+    held = sorted(name for name in package.names() if name.startswith('xl/media/'))
+    media = next((name for name in held if package.read(name) == picture), None)
+    if media is None:
+        number = 1
+        while f'xl/media/image{number}.png' in held:
+            number += 1
+        media = f'xl/media/image{number}.png'
+        package.write(media, picture)
+    _add_default_content_type(package, 'png', 'image/png')
+    rels = rels_part(part)
+    package.remove(rels)
+    add_relationship(package, rels, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+                     posixpath.relpath(media, posixpath.dirname(part)))
 
 
 def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
@@ -1371,5 +1411,7 @@ def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
             package.write(chart.part, generated.encode('utf-8'))
             add_content_type(package, chart.part, CT_CHART)
             _write_style_parts(package, chart)
+            if chart.background is not None:
+                _write_background(package, chart.part, chart.background)
             chart.dirty = False
     sheet.deleted_chart_parts.clear()

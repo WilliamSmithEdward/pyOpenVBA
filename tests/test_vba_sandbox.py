@@ -39,6 +39,7 @@ WRITES_OR_READS = [
     'ActiveSheet.SetBackgroundPicture folder & "/there.png"',
     'Charts.Add.SaveAs folder & "/out.xlsx"',
     'ActiveSheet.ChartObjects.Add(0, 0, 100, 100).Chart.SaveAs folder & "/out.xlsx"',
+    'ActiveSheet.ChartObjects.Add(0, 0, 100, 100).Chart.SetBackgroundPicture folder & "/there.png"',
     'ActiveWorkbook.ApplyTheme folder & "/there.png"',
     'ActiveSheet.PageSetup.LeftHeaderPicture.Filename = folder & "/there.png"',
     'ActiveWorkbook.UpdateLink folder & "/there.xlsx"',

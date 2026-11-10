@@ -276,22 +276,27 @@ CASES_C: list[tuple[str, list[str], list[str]]] = [
 
 
 def source(cases: list[tuple[str, list[str], list[str]]]) -> str:
+    """Go, which runs case ``which`` on a new workbook and saves it to ``path``; each case is a function of its own,
+    as one procedure holding them all is too large for VBA."""
     lines = ['Public Function Go(ByVal which As Long, ByVal path As String) As String',
-             '    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink',
-             '    Dim wb As Workbook, p As Object, n As Object, b As Variant, s As String, v As Variant',
-             '    Set wb = Workbooks.Add(xlWBATWorksheet)', '    On Error Resume Next', '    Select Case which']
-    for number, (_name, statements, reads) in enumerate(cases):
-        lines.append(f'    Case {number}')
-        for statement in statements:
-            lines += ['        Err.Clear', f'        {statement}',
-                      '        If Err.Number <> 0 Then s = s & "[" & Err.Number & ":" & Err.Description & "]"']
-        for read in reads:
-            lines += ['        Err.Clear', '        v = Empty', f'        v = {read}',
-                      '        If Err.Number <> 0 Then s = s & "|E" & Err.Number & ":" & Err.Description '
-                      'Else s = s & "|" & TypeName(v) & ":" & CStr(v)']
+             '    Dim wb As Workbook, s As String', '    Set wb = Workbooks.Add(xlWBATWorksheet)',
+             '    On Error Resume Next', '    Select Case which']
+    lines += [f'    Case {number}: s = Case{number}(wb)' for number in range(len(cases))]
     lines += ['    End Select', '    Err.Clear', '    Application.DisplayAlerts = False', '    wb.SaveAs path, 51',
               '    s = s & " save=" & Err.Number', '    Application.DisplayAlerts = True', '    wb.Close False',
               '    Go = s', 'End Function']
+    for number, (_name, statements, reads) in enumerate(cases):
+        lines += ['', f'Private Function Case{number}(wb As Workbook) As String',
+                  '    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink',
+                  '    Dim p As Object, n As Object, b As Variant, s As String, v As Variant', '    On Error Resume Next']
+        for statement in statements:
+            lines += ['    Err.Clear', f'    {statement}',
+                      '    If Err.Number <> 0 Then s = s & "[" & Err.Number & ":" & Err.Description & "]"']
+        for read in reads:
+            lines += ['    Err.Clear', '    v = Empty', f'    v = {read}',
+                      '    If Err.Number <> 0 Then s = s & "|E" & Err.Number & ":" & Err.Description '
+                      'Else s = s & "|" & TypeName(v) & ":" & CStr(v)']
+        lines += [f'    Case{number} = s', 'End Function']
     return '\n'.join(lines) + '\n'
 
 

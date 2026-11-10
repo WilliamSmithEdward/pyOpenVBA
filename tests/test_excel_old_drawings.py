@@ -18,6 +18,7 @@ from pyopenvba.apps.excel import ExcelApplication
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/old_drawings.json').read_text(encoding='utf-8'))
 READS: list[str] = RECORD['reads']
 #: Each of these reports itself: what they write is not worked out, or was measured once. Copy and Cut failed in the probe with the clipboard away.
+#: A linked drawing's Font reads a colour by a rule not worked out (Formula is replayed in test_excel_drawing_text_links.py).
 UNBUILT = ('ws.Buttons.Add', 'h.Copy', 'h.Cut', 'h.Formula =', 'h.RoundedCorners =', 'h.ArrowHead', 'h.AutoSize = True', 'ws.DrawingObjects.Left', 'h.Characters(1, 2).Font',
            'Set h = ws.Lines.Add(10, 10, 110, 50): Set o = h.Duplicate', 'Set h = ws.Arcs.Add(10, 10, 110, 50): Set o = h.Duplicate')
 PICTURE_UNBUILT = ('h.Interior', 'h.Border', 'Set o = h.Duplicate', 'h.Shadow')

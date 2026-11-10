@@ -270,6 +270,8 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
     shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
     head = re.match(r"<xdr:sp\b([^>]*)>", markup)
     shape.locks_text = head is None or re.search(r'\bfLocksText="(?:0|false)"', head.group(1)) is None
+    linked = None if head is None else re.search(r'\btextlink="([^"]*)"', head.group(1))
+    shape.text_link = "" if linked is None else unescape(linked.group(1))
     # A form control's drawing is hidden for its own reasons; Visible reads only a shape's own hidden.
     link = _LINK.search(markup[: markup.find("</xdr:cNvPr>") if "</xdr:cNvPr>" in markup else 0])
     if link is not None:
@@ -1422,8 +1424,41 @@ def _with_loaded_links(markup: str, shape: Shape) -> str:
     return markup[:span.start()] + written + markup[span.end():]
 
 
+def _linked(body: str, shape: Shape) -> str:
+    """A txBody whose first paragraph shows the linked cell: its pPr kept, its runs one TxLink field in the cell's font, and its
+    endParaRPr, or one with the run's lang and sz (tests/fixtures/drawing_text_links.json)."""
+    paragraph = re.search(r"<a:p>(.*?)</a:p>", body, re.DOTALL)
+    if paragraph is None:
+        return body
+    inner = paragraph.group(1)
+    settings = re.match(r"<a:pPr\b[^>]*?(?:/>|>.*?</a:pPr>)", inner, re.DOTALL)
+    end = re.search(r"<a:endParaRPr\b[^>]*?(?:/>|>.*?</a:endParaRPr>)", inner, re.DOTALL)
+    if end is not None:
+        closing = end.group(0)
+    else:
+        run = re.search(r"<a:rPr\b([^>]*?)/?>", inner)
+        kept = re.findall(r'\b(lang|sz)="([^"]*)"', run.group(1)) if run is not None else [("lang", "en-US"), ("sz", "1100")]
+        closing = "<a:endParaRPr" + "".join(f' {name}="{value}"' for name, value in kept) + "/>"
+    field = f'<a:fld id="{shape.text_link_id}" type="TxLink">{shape.text_link_run}<a:t>{escape(shape.text)}</a:t></a:fld>'
+    return body[:paragraph.start(1)] + (settings.group(0) if settings else "") + field + closing + body[paragraph.end(1):]
+
+
+def _with_loaded_link(markup: str, shape: Shape, was: Shape) -> str:
+    """A loaded shape's markup with its text linked this session, or with the words of the field its file links now showing."""
+    if shape.text_link != was.text_link:
+        markup = _attribute_on_tag(markup, "xdr:sp", "textlink", shape.text_link)
+        span = dml.element_span(markup, "xdr:txBody")
+        return markup if span is None else markup[:span[0]] + _linked(markup[span[0]:span[1]], shape) + markup[span[1]:]
+    if shape.text == was.text:
+        return markup
+    return re.sub(r'(<a:fld\b[^>]*\btype="TxLink"[^>]*>.*?<a:t>)(.*?)(</a:t>)', lambda found: found.group(1) + escape(shape.text) + found.group(3),
+                  markup, count=1, flags=re.DOTALL)
+
+
 def _new_text_body(shape: Shape) -> str:
     """A shape's txBody as the model writes it."""
+    if shape.text_link:
+        return _linked(_new_text_body(replace(shape, text="", text_link="")), shape)
     body = dml.text_body(shape.text, "xdr:txBody")
     if shape.kind in ("shape", "freeform"):
         # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
@@ -1539,7 +1574,7 @@ def _new_element(shape: Shape) -> str:
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
     box = ' txBox="1"' if shape.kind == "textBox" else ""
-    textlink = "" if line else ' textlink=""' + ("" if shape.locks_text else ' fLocksText="0"')
+    textlink = "" if line else f' textlink="{escape(shape.text_link)}"' + ("" if shape.locks_text else ' fLocksText="0"')
     identity = _identity(shape)
     locks = "" if shape.lock_aspect is None else (
         '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>")
@@ -2082,7 +2117,8 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
                 markup = markup[:properties.end()] + OLD_SHADOW + markup[properties.end():]
     # Excel-authored controls can also carry a hidden DrawingML
     # caption. Excel prefers it to VML when both exist.
-    markup = _with_loaded_text(markup, shape, was)
+    linked = shape.text_link_id and shape.kind in ("shape", "textBox")
+    markup = _with_loaded_link(markup, shape, was) if linked else _with_loaded_text(markup, shape, was)
     if shape.kind == "formControl" and shape.control is not None:
         markup = with_text_frame(markup, shape.control)
     if shape.kind == "picture":

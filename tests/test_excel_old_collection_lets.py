@@ -23,26 +23,20 @@ _spec.loader.exec_module(_script)
 row_source: Any = getattr(_script, 'row_source')
 #: Sets the model does not yet answer as Excel did, each with why.
 NOT_YET: dict[str, str] = {
-    'Arcs.AutoScaleFont': "the drawing's item setter reports itself",
-    'Arcs.Formula': "the drawing's item setter reports itself",
     'Buttons.AutoSize': "the item setter needs the caption's text width",
     'Buttons.Formula': 'Excel answers 1004 and changes nothing; the item setter is not measured',
+    **{f'{kind}.Formula': 'Excel links no item, answering 1004 on Arcs, Ovals and TextBoxes and nothing on Rectangles, by no rule found yet'
+       for kind in ('Arcs', 'Ovals', 'Rectangles', 'TextBoxes')},
     'Lines.ArrowHeadLength': "the line's item setter reports itself",
     'Lines.ArrowHeadStyle': "the line's item setter reports itself",
     'Lines.ArrowHeadWidth': "the line's item setter reports itself",
-    'Ovals.AutoScaleFont': "the drawing's item setter reports itself",
     'Ovals.AutoSize': "the drawing's item setter reports itself",
-    'Ovals.Formula': "the drawing's item setter reports itself",
     'Pictures.Formula': "the picture's item setter reports itself",
     'Pictures.Shadow': "the picture's item setter reports itself",
-    'Rectangles.AutoScaleFont': "the drawing's item setter reports itself",
     'Rectangles.AutoSize': "the drawing's item setter reports itself",
-    'Rectangles.Formula': "the drawing's item setter reports itself",
     'Rectangles.RoundedCorners': "the drawing's item setter reports itself",
-    'TextBoxes.AutoScaleFont': "the drawing's item setter reports itself",
     'TextBoxes.AutoSize': "the drawing's item setter reports itself",
     'TextBoxes.ReadingOrder': "the second text box's text is linked to a cell, which the model cannot write back yet",
-    'TextBoxes.Formula': "the drawing's item setter reports itself",
     'TextBoxes.HorizontalAlignment': "the drawing's item setter reports itself",
     'TextBoxes.Orientation': "the drawing's item setter reports itself",
     'TextBoxes.RoundedCorners': "the drawing's item setter reports itself",

@@ -8,10 +8,12 @@ drawing; setting those reports itself until what they write is measured.
 from __future__ import annotations
 
 import re
+import uuid
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
+from pyopenvba._xml import escape
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._old_controls import ListedControls, OldControls, OldObject, _object  # pyright: ignore[reportPrivateUsage]
 from pyopenvba.apps.excel._styles import Color
@@ -263,13 +265,18 @@ class _Texted(_Filled):
     def _whole(self) -> VBAObject:
         return _object(self._frame().vba_get('Characters', []))
 
+    def _words(self, value: object) -> None:
+        if self.shape.text_link_id:
+            raise VBAUnsupportedError("Setting the text of a drawing linked to a cell this session is not implemented")
+        self._whole().vba_set('Text', value)
+
     @member
     def Text(self) -> object:
         return self._whole().vba_get('Text', [])
 
     @setter('Text')
     def _text(self, value: object) -> None:
-        self._whole().vba_set('Text', value)
+        self._words(value)
 
     @member
     def Caption(self) -> object:
@@ -277,7 +284,7 @@ class _Texted(_Filled):
 
     @setter('Caption')
     def _caption(self, value: object) -> None:
-        self._whole().vba_set('Text', value)
+        self._words(value)
 
     @method
     def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:  # noqa: N803 - native named arguments
@@ -285,6 +292,10 @@ class _Texted(_Filled):
 
     @member
     def Font(self) -> object:
+        if self.shape.text_link_id:
+            # Excel reads a linked drawing's Font.Color as -2147483648 whatever its colours, by a rule not worked out yet
+            # (tests/fixtures/old_drawings.json).
+            raise VBAUnsupportedError("The Font of a drawing linked to a cell this session is not implemented")
         return self._whole().vba_get('Font', [])
 
     @member
@@ -341,6 +352,15 @@ class _Texted(_Filled):
         to_bool(value)
 
     @member
+    def AutoScaleFont(self) -> object:
+        return False
+
+    @setter('AutoScaleFont')
+    def _auto_scale_font(self, value: object) -> None:
+        # Taken and kept nowhere, on a new or loaded drawing (tests/fixtures/drawing_text_links.json).
+        to_bool(value)
+
+    @member
     def LockedText(self) -> object:
         return self.shape.locks_text
 
@@ -366,13 +386,88 @@ class _Texted(_Filled):
 
     @member
     def Formula(self) -> object:
-        # From a file Excel reads the link back with a space after it (tests/fixtures/old_collection_members.json).
-        found = re.search(r'\btextlink="([^"]+)"', self.shape.source)
-        return f'{found.group(1)} ' if found else ''
+        # The link reads back with a space after it, in the session as from a file (tests/fixtures/drawing_text_links.json,
+        # old_collection_members.json).
+        return f'{self.shape.text_link} ' if self.shape.text_link else ''
 
     @setter('Formula')
     def _formula(self, value: object) -> None:
-        raise VBAUnsupportedError("Linking a drawing's text to a cell is not implemented")
+        link_text(self.sheet, self.shape, to_text(value))
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        if self.shape.text_link_id:
+            follow_text_link(self.sheet, self.shape)
+        return super().vba_get(name, args, named)
+
+
+#: A link to one cell: an optional sheet, plain or quoted, and the cell (tests/fixtures/drawing_text_links.json).
+_LINKED_CELL = re.compile(r"=(?:(?:'([^']+)'|([A-Za-z_][A-Za-z0-9_.]*))!)?(\$?[A-Za-z]{1,3}\$?[0-9]{1,7})")
+_PLAIN_SHEET = re.compile(r'[A-Za-z_][A-Za-z0-9_.]*')
+
+
+def link_text(sheet: Worksheet, shape: Shape, formula: str) -> None:
+    """A drawing's Formula: its text linked to a cell, which it shows in the cell's font until the link is taken off, keeping the text."""
+    loaded = shape_as_loaded(shape)
+    if loaded is not None and loaded.text_link:
+        raise VBAUnsupportedError("Changing the link of a drawing whose file links its text is not implemented")
+    if formula == '' and shape.text_link:
+        # Taken off, the text stays as it was shown, in a plain run.
+        follow_text_link(sheet, shape)
+        shape.text_link = shape.text_link_id = shape.text_link_run = ''
+        sheet.drawing_changed()
+        return
+    found = _LINKED_CELL.fullmatch(formula)
+    if found is None:
+        raise VBAUnsupportedError("Linking a drawing's text to anything but one cell, or taking off a link it does not have, is not implemented")
+    named = found.group(1) or found.group(2)
+    if named is not None and (named.lower() != sheet.name.lower() or not _PLAIN_SHEET.fullmatch(sheet.name)):
+        raise VBAUnsupportedError("Linking a drawing's text to another sheet, or to a sheet whose name needs quotes, is not implemented")
+    body = '' if loaded is None else loaded.source
+    if ('\n' in shape.text or '\r' in shape.text or shape.text_marks or shape.text_paragraphs is not None
+            or len(re.findall(r'<a:r>|<a:fld\b|<a:br\b', body)) > 1 or len(re.findall(r'<a:p>', body)) > 1):
+        raise VBAUnsupportedError("Linking the text of a drawing that holds more than one run of text is not implemented")
+    shape.text_link = (f'{sheet.name}!' if named is not None else '') + found.group(3).upper()
+    shape.text_link_id = '{' + str(uuid.uuid4()).upper() + '}'
+    follow_text_link(sheet, shape)
+    sheet.drawing_changed()
+
+
+def follow_text_link(sheet: Worksheet, shape: Shape) -> bool:
+    """A linked drawing's text, the cell's as shown (a space for an empty one), and for a link made this session its run in the cell's
+    font; whether either changed."""
+    cell = _object(sheet.vba_get('Range', [shape.text_link.rsplit('!', 1)[-1]]))
+    text = to_text(cell.vba_get('Text', [])) or ' '
+    run = shape.text_link_run
+    if shape.text_link_id:
+        run = _linked_run(shape, _object(cell.vba_get('Font', [])))
+    changed = (text, run) != (shape.text, shape.text_link_run)
+    shape.text, shape.text_link_run = text, run
+    return changed
+
+
+def _linked_run(shape: Shape, font: VBAObject) -> str:
+    """The TxLink field's rPr: the run's lang and size, and the cell's bold, colour and font name. Italic, underline, strikethrough and a
+    size other than the run's are not measured."""
+    if to_bool(font.vba_get('Italic', [])) or int(to_number(font.vba_get('Underline', []))) != -4142 or to_bool(font.vba_get('Strikethrough', [])):
+        raise VBAUnsupportedError("Linking a drawing's text to a cell in italic, underlined or struck through is not implemented")
+    source = shape_as_loaded(shape)
+    found = re.search(r'<a:(?:rPr|endParaRPr)\b([^>]*?)/?>', '' if source is None else source.source)
+    lang = re.search(r'\blang="([^"]*)"', found.group(1)) if found else None
+    size = re.search(r'\bsz="([^"]*)"', found.group(1)) if found else None
+    sz = size.group(1) if size else '1100'
+    if round(float(to_number(font.vba_get('Size', []))) * 100) != int(sz):
+        raise VBAUnsupportedError("Linking a drawing's text to a cell whose font size differs from the text's is not implemented")
+    colour = int(to_number(font.vba_get('Color', [])))
+    rgb = f'{colour & 0xFF:02X}{(colour >> 8) & 0xFF:02X}{(colour >> 16) & 0xFF:02X}'
+    bold = 1 if to_bool(font.vba_get('Bold', [])) else 0
+    return (f'<a:rPr lang="{lang.group(1) if lang else "en-US"}" sz="{sz}" b="{bold}" i="0" u="none" strike="noStrike"><a:solidFill>'
+            f'<a:srgbClr val="{rgb}"/></a:solidFill><a:latin typeface="{escape(to_text(font.vba_get("Name", [])))}"/></a:rPr>')
+
+
+def follow_text_links(sheet: Worksheet) -> None:
+    """Before a save: each linked drawing shows its cell as it is now."""
+    if any([follow_text_link(sheet, shape) for shape in sheet.shapes_ if shape.text_link_id and shape.kind in ('shape', 'textBox')]):
+        sheet.drawing_changed()
 
 
 class _Shadowed(HeldPart):
@@ -591,8 +686,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'Text', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'Text', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -605,8 +700,8 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -614,16 +709,16 @@ class Rectangles(_BoxAdded):
 
 
 class Ovals(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
 
 
 class Arcs(_Drawings):
-    spread_reads = frozenset({'AddIndent', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Arcs'
     item = Arc
 

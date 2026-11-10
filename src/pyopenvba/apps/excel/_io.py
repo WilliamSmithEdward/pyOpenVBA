@@ -1199,9 +1199,12 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
         _charts_file.refresh(chart_sheet.sheet, package)
         if package.read(chart_sheet.part_name).decode("utf-8", errors="replace") != chart_sheet.saved_xml():
             package.write(chart_sheet.part_name, chart_sheet.saved_xml().encode("utf-8"))
+    from pyopenvba.apps.excel._old_drawings import follow_text_links
+
     for sheet in book.sheets_:
-        # Rows grown by their fonts move the shapes over them before they are written.
+        # Rows grown by their fonts move the shapes over them before they are written, and linked text shows its cell.
         sheet.dims.settle_shapes()
+        follow_text_links(sheet)
         _charts_file.refresh(sheet, package)
         if not sheet.drawing_dirty:
             continue

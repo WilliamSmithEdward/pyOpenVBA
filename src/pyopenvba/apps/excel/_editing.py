@@ -280,7 +280,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     validation = _validation.planned(sheet, shift, lambda owner: lambda text: rewrite_shift(text, owner, sheet.name, shift))
     _arrays.shift_admitted(sheet, area, region, delete=delete)
     _data_tables.shift_admitted(sheet, area, region, delete=delete)
-    _tables.refuse(sheet, region, "Shifting", allowing=through)
+    from pyopenvba.apps.excel import _table_shifts
+
+    tables_moving = _table_shifts.shifted(sheet, shift, region, through)
     caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
@@ -369,6 +371,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     follow()
     listed()
     sparklines()
+    tables_moving()
     _spills.restore(sheet, caches)
     sheet.shape_changed()
 

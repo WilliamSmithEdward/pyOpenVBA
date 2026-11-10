@@ -137,6 +137,52 @@ class Clip:
         return self.block.parts[0][0]
 
 
+#: Application.ClipboardFormats for each kind of copy, whatever was copied (tests/fixtures/clipboard_formats.json): cells copied
+#: or cut, a shape or chart object, a chart's chart area, and an empty clipboard.
+CELL_FORMATS = (0, 2, 4, 5, 6, 7, 8, 9, 11, 12, 14, 17, 19, 22, 23, 31, 32, 33, 44, 45, 50, 58, 63)
+SHAPE_FORMATS = (2, 9, 45, 51, 52, 53, 61, 62, 66, 71, 72)
+CHART_AREA_FORMATS = (2, 9, 14, 17, 19, 22, 23, 31, 32, 45, 51, 52, 53, 61, 62, 66, 71, 72)
+NO_FORMATS = (-1,)
+#: A picture's formats by who made it and its Appearance and Format, None standing for each default.
+PICTURE_FORMATS: dict[tuple[str, float | None, float | None], tuple[int, ...]] = {
+    ("Range", None, None): (2, 11), ("Range", 1.0, -4147.0): (2, 11), ("Range", 1.0, 2.0): (9, 11, 45), ("Range", 2.0, -4147.0): (2, 11),
+    ("Shape", None, None): (2,), ("ChartObject", None, None): (2,), ("Chart", None, None): (2,), ("Chart", 1.0, 2.0): (2,)}
+
+
+def hold_formats(application: Application, formats: tuple[int, ...] | None) -> None:
+    """What the clipboard now holds, other than cells, for as long as no cells are copied after: None for a kind not measured."""
+    application.held_formats = (formats, application.clipboard)
+
+
+#: What cells copied straight after leave on the clipboard at random: Excel's list stayed the picture's or the chart area's in
+#: some runs and became the cells' in others (tests/fixtures/clipboard_formats.json).
+_RACING = ((9, 11, 45), CHART_AREA_FORMATS)
+
+
+def cells_copied(application: Application, clip: Clip) -> None:
+    """Cells copied or cut onto the clipboard, ``clip``, which ends what was held there before."""
+    held = application.held_formats
+    racing = held is not None and held[1] is application.clipboard and held[0] in _RACING
+    application.racing_clip = clip if racing else None
+    application.clipboard = clip
+    application.held_formats = None
+
+
+def clipboard_formats(application: Application) -> tuple[int, ...]:
+    """Application.ClipboardFormats: cells while CutCopyMode says so, else what was last held, else nothing."""
+    if mode(application.clipboard) != 0:
+        if application.clipboard is application.racing_clip:
+            raise VBAUnsupportedError("ClipboardFormats just after a bitmap picture or a chart area was copied is not implemented: "
+                                      "Excel answers either list")
+        return CELL_FORMATS
+    held = application.held_formats
+    if held is None or held[1] is not application.clipboard:
+        return NO_FORMATS
+    if held[0] is None:
+        raise VBAUnsupportedError("ClipboardFormats after this kind of picture is not implemented")
+    return held[0]
+
+
 def picture_held(application: Application) -> bool:
     """Whether the clipboard still holds what CopyPicture put there: nothing copied since, cells or a chart."""
     held = application.copied_picture
@@ -154,7 +200,7 @@ def copy(target: Range) -> object:
     refuse_sparklines(target.sheet, "Copying from")
     source = visible(target)
     block_of(source.areas)
-    target.sheet.book.application.clipboard = Clip(source, cut=False)
+    cells_copied(target.sheet.book.application, Clip(source, cut=False))
     return True
 
 
@@ -287,7 +333,7 @@ def cut(target: Range, destination: object) -> object:
     if len(target.areas) != 1:
         raise error(1004, "That command cannot be used on multiple selections")
     if destination is MISSING:
-        target.sheet.book.application.clipboard = Clip(target, cut=True)
+        cells_copied(target.sheet.book.application, Clip(target, cut=True))
         return True
     if not isinstance(destination, Range):
         raise error(1004, "Cut needs a range to move to")

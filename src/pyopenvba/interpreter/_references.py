@@ -329,6 +329,12 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 if (actual[1] and not parameter.is_array and expected != 'Variant') or (
                         expected in primitives and actual_kind in primitives and expected != 'Variant' and expected != actual_kind):
                     fail('ByRef argument type mismatch', line)
+                # Object types pass among themselves, a Range to a Worksheet included; a Variant or another value to an object
+                # parameter, or an object to a value's, does not (tests/fixtures/vba_byref_objects.json).
+                expected_object = expected not in primitives and interpreter.record_type(parameter.declared, owner) is None
+                actual_object = actual_kind not in primitives and interpreter.record_type(actual[0], actual[2]) is None
+                if not parameter.is_array and not actual[1] and expected != 'Variant' and expected_object != actual_object:
+                    fail('ByRef argument type mismatch', line)
         for index, parameter in enumerate(params):
             if index not in assigned and not parameter.optional and parameter.default is None and not parameter.param_array:
                 fail('Argument not optional', line)

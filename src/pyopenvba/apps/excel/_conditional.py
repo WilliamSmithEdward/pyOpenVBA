@@ -8,6 +8,7 @@ This module describes rules; it does not claim to render DisplayFormat.
 # ruff: noqa: N803 -- Excel's public named arguments use these exact names.
 from __future__ import annotations
 
+import copy
 import re
 from collections.abc import Sequence
 from copy import deepcopy
@@ -63,6 +64,9 @@ class Rule:
     imported: bool = False
     color_slot: int | None = None
     loaded: bool = False
+    #: A macro set its number format: a code Excel refuses then takes it away, where it leaves one the file gave
+    #: (tests/fixtures/format_condition_font.json).
+    format_set: bool = False
     plain_load: bool | None = None
     child_order: int | None = None
     #: The rule's x14:cfRule in the worksheet's extension, as a file kept it (_conditional_extension).
@@ -703,6 +707,17 @@ class RuleObject(ExcelObject):
     def __init__(self, sheet: Worksheet, rule: Rule) -> None:
         self.sheet, self.rule = sheet, rule
 
+    def reached_elsewhere(self) -> bool:
+        """Whether a range's FormatConditions reached the rule through other cells than its own: the sheet's, a bigger
+        block's, one cell's or cells that only overlap them. Excel then sets a font style, or modifies the rule, while the
+        object goes on reading what it read, and one cell's splits the rule (tests/fixtures/format_condition_font.json).
+        The range that reached it counts as it stands now: held while rows go in above both, it is still the rule's own."""
+        if self.through is None:
+            return False
+        through = self.reached.areas if self.reached is not None else self.through
+        own = sorted((area.top, area.left, area.bottom, area.right) for area in projected_areas(self.rule))
+        return own != sorted((area.top, area.left, area.bottom, area.right) for area in through)
+
     def vba_member(self, name: str) -> MemberSpec | None:
         """Taken off the sheet, a rule still answers for what it was; with its cells gone too, nothing (tests/fixtures/held_objects.json)."""
         spec = super().vba_member(name)
@@ -936,7 +951,16 @@ class _ConditionalRule(RuleObject):
         from pyopenvba.apps.excel._differential import set_number_format
 
         guard(self.sheet)
-        set_number_format(self._dxf(), value, self.sheet.book.stylesheet)
+        dxf = self._dxf()
+        before = dxf.find(NS + 'numFmt')
+        kept = None if before is None or self.rule.format_set else (list(dxf).index(before), copy.deepcopy(before))
+        try:
+            set_number_format(dxf, value, self.sheet.book.stylesheet)
+        except VBARuntimeError:
+            if kept is not None and dxf.find(NS + 'numFmt') is None:
+                dxf.insert(*kept)
+            raise
+        self.rule.format_set = True
         self._style_changed()
 
 
@@ -1073,6 +1097,9 @@ class FormatCondition(_ConditionalRule):
             raise error(-2147417848, 'Automation error')
         if Type is MISSING:
             raise error(450)
+        if self.reached_elsewhere():
+            # FormatCondition round 56104: Formula2 then raised 1004, the rule's own cells reaching it read the change.
+            raise VBAUnsupportedError('Modify on a rule reached through other cells than its own is not implemented')
         kind = int(to_integer(Type, 'Long'))
         if kind == 9:
             if self.rule.root.get('type') not in TEXT_TYPES:

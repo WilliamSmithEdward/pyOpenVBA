@@ -110,6 +110,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     sheet, area = target.sheet, target.first
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
+    sheet.book.application.parameters_ready = True
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
     if not laid:
@@ -283,6 +284,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     from pyopenvba.apps.excel import _table_shifts
 
     tables_moving = _table_shifts.shifted(sheet, shift, region, through)
+    sheet.book.application.parameters_ready = True
     caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():

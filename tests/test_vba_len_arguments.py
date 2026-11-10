@@ -12,7 +12,7 @@ from pyopenvba.exceptions import VBACompileError
 
 RECORD = json.loads((Path(__file__).parent / 'fixtures/vba_len_arguments.json').read_text(encoding='utf-8'))
 ANSWERS: dict[str, str] = RECORD['answers']
-#: These answer the clock: the date's text is 9 characters on 11/8/2026 and 10 on 11/10/2026.
+#: These answer the clock: Len(Date) was 9 on the day it was measured and is 10 on a day such as 11/10/2026.
 BY_THE_CLOCK = ('Len(Now)', 'Len(Date)')
 
 
@@ -36,9 +36,11 @@ def test_it_answers_as_excel_did(line: str) -> None:
 
 
 @pytest.mark.parametrize('line', BY_THE_CLOCK)
-def test_the_clock_answers_a_long(line: str) -> None:
-    answer = _app(line).run('H.Probe')
-    assert isinstance(answer, str) and answer.startswith('0=Long:') and ANSWERS[line].startswith('0=Long:')
+def test_a_line_by_the_clock_answers_the_length_of_its_text(line: str) -> None:
+    """As Excel did on its day: a Long, the length of the clock's value as text, which CStr spells as Len reads it."""
+    spelled = line.replace('Len(', 'Len(CStr(') + ')'
+    assert _app(line).run('H.Probe') == _app(spelled).run('H.Probe')
+    assert str(_app(line).run('H.Probe')).startswith('0=Long:')
 
 
 def test_a_procedure_called_len_is_no_len() -> None:

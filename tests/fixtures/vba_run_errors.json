@@ -1,0 +1,117 @@
+{
+ "cases": [
+  {
+   "name": "direct resume",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Inner\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "direct goto",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Inner\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run resume",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Application.Run \"Inner\"\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run goto",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Application.Run \"Inner\"\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run bare",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    Application.Run \"Inner\"\n    Probe = \"no error\"\nEnd Function\n"
+  },
+  {
+   "name": "run fine",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Application.Run \"Fine\"\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run divide",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Application.Run \"Divide\"\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run function",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Probe = Application.Run(\"Twice\", 2): Exit Function\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run function raises",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Dim v As Variant: v = Application.Run(\"Twice\", -1)\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run handled",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Application.Run \"Handled\"\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run handled deeper",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Application.Run \"Outer\"\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run unhandled deeper",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Application.Run \"Unhandled\"\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run custom",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Application.Run \"Custom\"\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run in handler",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Application.Run \"InHandler\"\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run missing",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Application.Run \"Nowhere\"\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "run extra argument",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Application.Run \"Fine\", 1\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "direct unhandled deeper",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error GoTo h\n    Unhandled\n    Probe = \"no error\"\n    Exit Function\nh:\n    Probe = \"trapped \" & Err.Number\nEnd Function\n"
+  },
+  {
+   "name": "call run",
+   "source": "Public Sub Inner()\n    Err.Raise 5\nEnd Sub\nPublic Sub Fine()\nEnd Sub\nPublic Sub Divide()\n    Dim x As Double\n    x = 1 / 0\nEnd Sub\nPublic Function Twice(ByVal n As Long) As Long\n    If n < 0 Then Err.Raise 6\n    Twice = 2 * n\nEnd Function\nPublic Sub Handled()\n    On Error Resume Next\n    Err.Raise 5\nEnd Sub\nPublic Sub Deeper()\n    Err.Raise 7\nEnd Sub\nPublic Sub Outer()\n    On Error GoTo h\n    Deeper\n    Exit Sub\nh:\nEnd Sub\nPublic Sub Unhandled()\n    Deeper\nEnd Sub\nPublic Sub Custom()\n    Err.Raise vbObjectError + 513, \"Probe\", \"custom\"\nEnd Sub\nPublic Sub InHandler()\n    On Error GoTo h\n    Err.Raise 5\n    Exit Sub\nh:\n    Err.Raise 9\nEnd Sub\nFunction Probe() As String\n    On Error Resume Next\n    Call Application.Run(\"Inner\")\n    Probe = \"after \" & Err.Number\nEnd Function\n"
+  }
+ ],
+ "model": [
+  "after 5",
+  "trapped 5",
+  "after 5",
+  "trapped 5",
+  "error 5",
+  "no error",
+  "after 11",
+  "4",
+  "after 6",
+  "after 5",
+  "no error",
+  "after 7",
+  "trapped -2147220991",
+  "after 9",
+  "trapped 1004",
+  "after 450",
+  "trapped 7",
+  "after 5"
+ ],
+ "measured_at": "2026-11-08T05:35:12.154908+00:00",
+ "excel": [
+  "after 5",
+  "trapped 5",
+  "dialog 5",
+  "dialog 5",
+  "dialog 5",
+  "no error",
+  "dialog 11",
+  "4",
+  "dialog 6",
+  "after 5",
+  "no error",
+  "dialog 7",
+  "dialog -2147220991",
+  "dialog 9",
+  "trapped 1004",
+  "after 450",
+  "trapped 7",
+  "dialog 5"
+ ]
+}

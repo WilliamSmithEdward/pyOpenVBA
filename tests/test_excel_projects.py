@@ -67,9 +67,14 @@ def test_nested_project_error_restores_the_caller(tmp_path: Path) -> None:
     other = app.add_workbook()
     app.add_module('Public Function Fail() As Long\nErr.Raise 5\nEnd Function', name="Failing", workbook=other)
     other.SaveAs(str(tmp_path / "other.xlsm"), 52)
-    app.add_module('Public Function Probe() As String\nOn Error Resume Next\nApplication.Run "\'other.xlsm\'!Fail"\nProbe = CStr(Err.Number) & ":" & ThisWorkbook.Name & ":" & Application.ThisWorkbook.Name\nEnd Function', name="ProbeModule")
-    assert app.run("Probe") == "5:caller.xlsm:caller.xlsm"
+    app.add_module('Public Function Probe() As String\nOn Error Resume Next\nApplication.Run "\'other.xlsm\'!Fail"\nProbe = CStr(Err.Number) & ":" & ThisWorkbook.Name & ":" & Application.ThisWorkbook.Name\nEnd Function\n'
+                   'Public Function After() As String\nAfter = ThisWorkbook.Name & ":" & Application.ThisWorkbook.Name\nEnd Function', name="ProbeModule")
+    # The error goes past the caller's handler, as one inside Application.Run does (tests/fixtures/vba_run_errors.json).
+    with pytest.raises(VBARuntimeError) as caught:
+        app.run("Probe")
+    assert caught.value.number == 5 and caught.value.past_handlers
     assert not app.application.executing_projects
+    assert app.run("After") == "caller.xlsm:caller.xlsm"
 
 
 def test_invalid_project_opens_as_a_complete_editable_project(tmp_path: Path) -> None:

@@ -11,7 +11,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Application:True E0",
-   "model_typed": "Application:True E0"
+   "model_typed": "Application:True E0",
+   "late": "Application:True E0",
+   "typed": "Application:True E0"
   },
   {
    "cls": "PivotField",
@@ -21,7 +23,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Long:1480803660 E0",
-   "model_typed": "Long:1480803660 E0"
+   "model_typed": "Long:1480803660 E0",
+   "late": "Long:1480803660 E0",
+   "typed": "Long:1480803660 E0"
   },
   {
    "cls": "PivotField",
@@ -31,7 +35,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotTable:PT1 E0",
-   "model_typed": "PivotTable:PT1 E0"
+   "model_typed": "PivotTable:PT1 E0",
+   "late": "PivotTable:PT1 E0",
+   "typed": "PivotTable:PT1 E0"
   },
   {
    "cls": "PivotField",
@@ -41,7 +47,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -51,7 +59,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E13",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E13",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -61,7 +71,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -71,7 +83,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:-4158 E0",
-   "model_typed": "Long:-4158 E0"
+   "model_typed": "Long:-4158 E0",
+   "late": "Long:-4158 E0",
+   "typed": "Long:-4158 E0"
   },
   {
    "cls": "PivotField",
@@ -81,7 +95,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0"
   },
   {
    "cls": "PivotField",
@@ -91,7 +107,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "PivotField",
@@ -101,7 +119,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "PivotField",
@@ -111,7 +131,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -121,7 +143,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "PivotField",
@@ -131,7 +155,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "String:v E0",
-   "model_typed": "String:v E0"
+   "model_typed": "String:v E0",
+   "late": "String:v E0",
+   "typed": "String:v E0"
   },
   {
    "cls": "PivotField",
@@ -141,7 +167,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0"
   },
   {
    "cls": "PivotField",
@@ -151,7 +179,9 @@
    "edit": "",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -161,7 +191,9 @@
    "edit": "",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -171,7 +203,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -181,7 +215,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "PivotItems:? E0",
-   "model_typed": "PivotItems:? E0"
+   "model_typed": "PivotItems:? E0",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -191,7 +227,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -201,7 +239,9 @@
    "edit": "",
    "held": "False",
    "model_late": "PivotItem:9 E0",
-   "model_typed": "PivotItem:9 E0"
+   "model_typed": "PivotItem:9 E0",
+   "late": "PivotItem:9 E0",
+   "typed": "PivotItem:9 E0"
   },
   {
    "cls": "PivotField",
@@ -211,7 +251,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -221,7 +263,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -231,7 +275,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -241,7 +287,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:0 E0",
-   "model_typed": "Long:0 E0"
+   "model_typed": "Long:0 E0",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0"
   },
   {
    "cls": "PivotField",
@@ -251,7 +299,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Long:-4145 E0",
-   "model_typed": "Long:-4145 E0"
+   "model_typed": "Long:-4145 E0",
+   "late": "Long:-4145 E0",
+   "typed": "Long:-4145 E0"
   },
   {
    "cls": "PivotField",
@@ -261,7 +311,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:-4145 E0",
-   "model_typed": "Long:-4145 E0"
+   "model_typed": "Long:-4145 E0",
+   "late": "Long:-4145 E0",
+   "typed": "Long:-4145 E0"
   },
   {
    "cls": "PivotField",
@@ -271,7 +323,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Application:True E0",
-   "model_typed": "Application:True E0"
+   "model_typed": "Application:True E0",
+   "late": "Application:True E0",
+   "typed": "Application:True E0"
   },
   {
    "cls": "PivotField",
@@ -281,7 +335,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:?0 E0",
-   "model_typed": "PivotItems:?0 E0"
+   "model_typed": "PivotItems:?0 E0",
+   "late": "PivotItems:?0 E0",
+   "typed": "PivotItems:?0 E0"
   },
   {
    "cls": "PivotField",
@@ -291,7 +347,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotTable:PT1 E0",
-   "model_typed": "PivotTable:PT1 E0"
+   "model_typed": "PivotTable:PT1 E0",
+   "late": "PivotTable:PT1 E0",
+   "typed": "PivotTable:PT1 E0"
   },
   {
    "cls": "PivotField",
@@ -301,7 +359,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -311,7 +371,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:? E0",
-   "model_typed": "PivotItems:? E0"
+   "model_typed": "PivotItems:? E0",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -321,7 +383,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "PivotItem:a E0",
-   "model_typed": "PivotItem:a E0"
+   "model_typed": "PivotItem:a E0",
+   "late": "PivotItem:a E0",
+   "typed": "PivotItem:a E0"
   },
   {
    "cls": "PivotField",
@@ -331,7 +395,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -341,7 +407,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -351,7 +419,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:? E0",
-   "model_typed": "PivotItems:? E0"
+   "model_typed": "PivotItems:? E0",
+   "late": "PivotItems:? E0",
+   "typed": "PivotItems:? E0"
   },
   {
    "cls": "PivotField",
@@ -361,7 +431,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "PivotField",
@@ -371,7 +443,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:3 E0",
-   "model_typed": "Long:3 E0"
+   "model_typed": "Long:3 E0",
+   "late": "Double:3 E0",
+   "typed": "Long:3 E0"
   },
   {
    "cls": "PivotField",
@@ -381,7 +455,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:3 E0",
-   "model_typed": "Long:3 E0"
+   "model_typed": "Long:3 E0",
+   "late": "Double:3 E0",
+   "typed": "Long:3 E0"
   },
   {
    "cls": "PivotField",
@@ -391,7 +467,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItem:d E0",
-   "model_typed": "PivotItem:d E0"
+   "model_typed": "PivotItem:d E0",
+   "late": "PivotItem:d E0",
+   "typed": "PivotItem:d E0"
   },
   {
    "cls": "PivotField",
@@ -401,7 +479,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -411,7 +491,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -421,7 +503,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -431,7 +515,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -441,7 +527,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -451,7 +539,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -461,7 +551,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "PivotItems:?0 E0",
-   "model_typed": "PivotItems:?0 E0"
+   "model_typed": "PivotItems:?0 E0",
+   "late": "PivotItems:?0 E0",
+   "typed": "PivotItems:?0 E0"
   },
   {
    "cls": "PivotField",
@@ -471,7 +563,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "PivotItems:?3 E0",
-   "model_typed": "PivotItems:?3 E0"
+   "model_typed": "PivotItems:?3 E0",
+   "late": "PivotItems:?3 E0",
+   "typed": "PivotItems:?3 E0"
   },
   {
    "cls": "PivotField",
@@ -481,7 +575,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0"
   },
   {
    "cls": "PivotField",
@@ -491,7 +587,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "PivotField",
@@ -501,7 +599,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -511,7 +611,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -521,7 +623,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Long:3 E0",
-   "model_typed": "Long:3 E0"
+   "model_typed": "Long:3 E0",
+   "late": "Double:3 E0",
+   "typed": "Long:3 E0"
   },
   {
    "cls": "PivotField",
@@ -531,7 +635,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -541,7 +647,9 @@
    "edit": "",
    "held": "False",
    "model_late": "String:k E0",
-   "model_typed": "String:k E0"
+   "model_typed": "String:k E0",
+   "late": "String:k E0",
+   "typed": "String:k E0"
   },
   {
    "cls": "PivotField",
@@ -551,7 +659,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Application:True E0",
-   "model_typed": "Application:True E0"
+   "model_typed": "Application:True E0",
+   "late": "Application:True E0",
+   "typed": "Application:True E0"
   },
   {
    "cls": "PivotField",
@@ -561,7 +671,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -571,7 +683,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:?0 E0",
-   "model_typed": "PivotItems:?0 E0"
+   "model_typed": "PivotItems:?0 E0",
+   "late": "PivotItems:?0 E0",
+   "typed": "PivotItems:?0 E0"
   },
   {
    "cls": "PivotField",
@@ -581,7 +695,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E13",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E13",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -591,7 +707,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E424",
-   "model_typed": " E424"
+   "model_typed": " E424",
+   "late": " E424",
+   "typed": " E424"
   },
   {
    "cls": "PivotField",
@@ -601,7 +719,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:3 E0",
-   "model_typed": "Long:3 E0"
+   "model_typed": "Long:3 E0",
+   "late": "Double:3 E0",
+   "typed": "Long:3 E0"
   },
   {
    "cls": "PivotField",
@@ -611,7 +731,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "PivotField",
@@ -621,7 +743,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1480803660 E0",
-   "model_typed": "Long:1480803660 E0"
+   "model_typed": "Long:1480803660 E0",
+   "late": "Long:1480803660 E0",
+   "typed": "Long:1480803660 E0"
   },
   {
    "cls": "PivotField",
@@ -631,7 +755,9 @@
    "edit": "",
    "held": "True",
    "model_late": "Long:0 E0",
-   "model_typed": "Long:0 E0"
+   "model_typed": "Long:0 E0",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0"
   },
   {
    "cls": "PivotField",
@@ -641,7 +767,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "CalculatedItems:?0 E0",
-   "model_typed": "CalculatedItems:?0 E0"
+   "model_typed": "CalculatedItems:?0 E0",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -651,7 +779,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -661,7 +791,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1480803660 E0",
-   "model_typed": "Long:1480803660 E0"
+   "model_typed": "Long:1480803660 E0",
+   "late": "Long:1480803660 E0",
+   "typed": "Long:1480803660 E0"
   },
   {
    "cls": "PivotField",
@@ -671,7 +803,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:4 E0",
-   "model_typed": "Long:4 E0"
+   "model_typed": "Long:4 E0",
+   "late": "Double:4 E0",
+   "typed": "Long:4 E0"
   },
   {
    "cls": "PivotField",
@@ -681,7 +815,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -691,7 +827,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -701,7 +839,9 @@
    "edit": "",
    "held": "False",
    "model_late": "Long:0 E0",
-   "model_typed": "Long:0 E0"
+   "model_typed": "Long:0 E0",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0"
   },
   {
    "cls": "PivotField",
@@ -711,7 +851,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": " E424",
-   "model_typed": " E424"
+   "model_typed": " E424",
+   "late": " E424",
+   "typed": " E424"
   },
   {
    "cls": "PivotField",
@@ -721,7 +863,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "PivotField",
@@ -731,7 +875,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "CalculatedItems:?0 E0",
-   "model_typed": "CalculatedItems:?0 E0"
+   "model_typed": "CalculatedItems:?0 E0",
+   "late": "CalculatedItems:?0 E0",
+   "typed": "CalculatedItems:?0 E0"
   },
   {
    "cls": "PivotField",
@@ -741,7 +887,9 @@
    "edit": "",
    "held": "False",
    "model_late": " E13",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E13",
+   "typed": "late only E0"
   },
   {
    "cls": "PivotField",
@@ -751,7 +899,9 @@
    "edit": "",
    "held": "True",
    "model_late": "PivotItems:?1 E0",
-   "model_typed": "PivotItems:?1 E0"
+   "model_typed": "PivotItems:?1 E0",
+   "late": "PivotItems:?1 E0",
+   "typed": "PivotItems:?1 E0"
   },
   {
    "cls": "PivotField",
@@ -761,7 +911,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:3 E0",
-   "model_typed": "Long:3 E0"
+   "model_typed": "Long:3 E0",
+   "late": "Double:3 E0",
+   "typed": "Long:3 E0"
   },
   {
    "cls": "PivotField",
@@ -771,7 +923,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:?0 E0",
-   "model_typed": "PivotItems:?0 E0"
+   "model_typed": "PivotItems:?0 E0",
+   "late": "PivotItems:?0 E0",
+   "typed": "PivotItems:?0 E0"
   },
   {
    "cls": "PivotField",
@@ -781,7 +935,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:?3 E0",
-   "model_typed": "PivotItems:?3 E0"
+   "model_typed": "PivotItems:?3 E0",
+   "late": "PivotItems:?3 E0",
+   "typed": "PivotItems:?3 E0"
   },
   {
    "cls": "PivotField",
@@ -791,7 +947,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0"
   },
   {
    "cls": "PivotField",
@@ -801,7 +959,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -811,7 +971,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "PivotItems:?3 E0",
-   "model_typed": "PivotItems:?3 E0"
+   "model_typed": "PivotItems:?3 E0",
+   "late": "PivotItems:?3 E0",
+   "typed": "PivotItems:?3 E0"
   },
   {
    "cls": "PivotField",
@@ -821,7 +983,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "CalculatedItems:?0 E0",
-   "model_typed": "CalculatedItems:?0 E0"
+   "model_typed": "CalculatedItems:?0 E0",
+   "late": "CalculatedItems:?0 E0",
+   "typed": "CalculatedItems:?0 E0"
   },
   {
    "cls": "PivotField",
@@ -831,7 +995,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E424",
-   "model_typed": " E424"
+   "model_typed": " E424",
+   "late": " E424",
+   "typed": " E424"
   },
   {
    "cls": "PivotField",
@@ -841,7 +1007,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:4 E0",
-   "model_typed": "Long:4 E0"
+   "model_typed": "Long:4 E0",
+   "late": "Double:4 E0",
+   "typed": "Long:4 E0"
   },
   {
    "cls": "PivotField",
@@ -851,7 +1019,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -861,7 +1031,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -871,7 +1043,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Long:4 E0",
-   "model_typed": "Long:4 E0"
+   "model_typed": "Long:4 E0",
+   "late": "Double:4 E0",
+   "typed": "Long:4 E0"
   },
   {
    "cls": "PivotField",
@@ -881,7 +1055,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0"
   },
   {
    "cls": "PivotField",
@@ -891,7 +1067,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "True",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -901,7 +1079,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -911,7 +1091,9 @@
    "edit": "",
    "held": "True",
    "model_late": " E1004",
-   "model_typed": " E1004"
+   "model_typed": " E1004",
+   "late": " E1004",
+   "typed": " E1004"
   },
   {
    "cls": "PivotField",
@@ -921,7 +1103,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "True",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -931,7 +1115,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Long:1 E0",
-   "model_typed": "Long:1 E0"
+   "model_typed": "Long:1 E0",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0"
   },
   {
    "cls": "PivotField",
@@ -941,7 +1127,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": "PivotItems:? E0",
-   "model_typed": "PivotItems:? E0"
+   "model_typed": "PivotItems:? E0",
+   "late": "PivotItems:? E0",
+   "typed": "PivotItems:? E0"
   },
   {
    "cls": "PivotField",
@@ -951,7 +1139,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "PivotField",
@@ -961,7 +1151,9 @@
    "edit": "wsL.Rows(1).Insert",
    "held": "False",
    "model_late": " E5",
-   "model_typed": " E5"
+   "model_typed": " E5",
+   "late": " E5",
+   "typed": " E5"
   },
   {
    "cls": "PivotField",
@@ -971,7 +1163,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "Boolean:False E0",
-   "model_typed": "Boolean:False E0"
+   "model_typed": "Boolean:False E0",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0"
   },
   {
    "cls": "PivotField",
@@ -981,7 +1175,9 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": "Boolean:True E0",
-   "model_typed": "Boolean:True E0"
+   "model_typed": "Boolean:True E0",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0"
   },
   {
    "cls": "PivotField",
@@ -991,7 +1187,9 @@
    "edit": "ws.Columns(1).Insert",
    "held": "False",
    "model_late": "PivotItem:a E0",
-   "model_typed": "PivotItem:a E0"
+   "model_typed": "PivotItem:a E0",
+   "late": "PivotItem:a E0",
+   "typed": "PivotItem:a E0"
   },
   {
    "cls": "PivotField",
@@ -1001,7 +1199,10 @@
    "edit": "ws.Rows(1).Insert",
    "held": "False",
    "model_late": " E450",
-   "model_typed": "late only E0"
+   "model_typed": "late only E0",
+   "late": " E450",
+   "typed": "late only E0"
   }
- ]
+ ],
+ "measured_at": "2026-11-10T17:58:25.781864+00:00"
 }

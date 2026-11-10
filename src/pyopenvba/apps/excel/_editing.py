@@ -23,7 +23,7 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_num
 from pyopenvba._xml import attributes
 from pyopenvba.apps.excel import (_arrays, _data_tables, _hyperlinks, _merges, _shared, _spills, _tables, _validation,
                                   _windows)
-from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
 

@@ -14,14 +14,16 @@ The rivals, written before measuring:
   with Overwrite False or AppendOnImport it adds rows after (A1).
 - ExportXml writes tab-indented XML with standalone="yes" and the xsi namespace (E1), as the first look had it.
 
-    python scripts/measure_xml_maps.py
+    python scripts/measure_xml_maps.py [case ...]
 
-writes tests/fixtures/xml_maps.json, which tests/test_excel_xml_maps.py replays.
+measures every case, or only the cases named with the rest kept as they were measured, and writes
+tests/fixtures/xml_maps.json, which tests/test_excel_xml_maps.py replays.
 """
 from __future__ import annotations
 
 import json
 import re
+import sys
 import tempfile
 import zipfile
 from datetime import datetime, timezone
@@ -199,6 +201,9 @@ CASES += [
     S3 + S4 + ADD1 + 'r = wb.XmlMaps(1).Name & " " & wb.XmlMaps(2).Name & " " & wb.XmlMaps(3).Name & " " & wb.XmlMaps.Count',
     'Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range("A1:B2"), , xlYes): r = TypeName(lo.XmlMap) & " " & lo.ListColumns(1).XPath.Value & "|" & ws.Range("D4").XPath.Value',
     ADD1 + COLUMNS1 + IMPORT1 + 'ws.Range("B3").Value = "": r = m.ExportXml(s) & " " & s',
+    # An empty value imported into a mapped string column: predicted Empty, as an inferred map's is (xml_infer.json).
+    ADD1 + COLUMNS1 + 'r = m.ImportXml("<list><item><n>1</n><s></s><d>2024-01-02</d><b>true</b><x>1</x></item></list>") & " " & '
+                      'TypeName(ws.Range("B2").Value)',
 ]
 #: The cases whose saved workbooks are kept, for the model to open as Excel saved them.
 KEPT = (16, 17, 19, 22, 34, 44, 49)
@@ -284,26 +289,29 @@ def write_inputs(folder: Path) -> None:
 
 
 def main() -> None:
+    """Measure every case, or with case numbers given, only those, kept beside the rest of the fixture as it was measured."""
     source = probe()
-    answers: list[str] = []
-    saved: list[dict[str, str]] = []
+    wanted = [int(one) for one in sys.argv[1:]] or list(range(len(CASES)))
+    before = json.loads(OUT.read_text(encoding='utf-8'))['cases'] if sys.argv[1:] else []
+    answers: list[str] = [case[1] for case in before] + [''] * (len(CASES) - len(before))
+    saved: list[dict[str, str]] = [case[2] for case in before] + [{}] * (len(CASES) - len(before))
     with tempfile.TemporaryDirectory() as folder:
         write_inputs(Path(folder))
-        for index in range(len(CASES)):
+        for index in wanted:
             try:
                 with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
                     excel.new_document()
                     done = excel.run_vba(source, 'Probe', (folder, index), timeout=120.0, line_numbers=False)
-                    answers.append(str(done.value) if done.ok and not done.dialogs else f'STOPPED {done.outcome} {done.dialogs}')
+                    answer = str(done.value) if done.ok and not done.dialogs else f'STOPPED {done.outcome} {done.dialogs}'
             except HarnessError as failure:
-                answers.append(f'STOPPED {failure}')
+                answer = f'STOPPED {failure}'
             # The folder's name changes every run, and the data file's text is the probe's own.
-            answers[-1] = answers[-1].replace(folder, '<folder>')
-            saved.append({name: text.replace(folder, '<folder>') for name, text in parts(Path(folder) / f'c{index}.xlsx').items()})
+            answers[index] = answer.replace(folder, '<folder>')
+            saved[index] = {name: text.replace(folder, '<folder>') for name, text in parts(Path(folder) / f'c{index}.xlsx').items()}
             if index in KEPT and (Path(folder) / f'c{index}.xlsx').exists():
                 BOOKS.mkdir(exist_ok=True)
                 copy_saved(Path(folder) / f'c{index}.xlsx', BOOKS / f'c{index}.xlsx')
-            print(index, CASES[index][:100], '=>', answers[-1][:300])
+            print(index, CASES[index][:100], '=>', answers[index][:300])
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': source, 'schemas': SCHEMAS, 'data': DATA,
               'cases': [[statement, answer, part] for statement, answer, part in zip(CASES, answers, saved, strict=True)]}
     OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')

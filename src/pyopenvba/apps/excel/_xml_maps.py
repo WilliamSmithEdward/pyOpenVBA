@@ -394,7 +394,8 @@ def _fill_table(table: Table, state: MapState, tree: XmlElement, overwrite: bool
 def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
     from pyopenvba._a1 import Area
 
-    Range(sheet, [Area(row, column, row, column)]).vba_set("Value", value)
+    # An empty value leaves the cell empty, though a macro's "" stays text in a mapped column (tests/fixtures/xml_maps.json).
+    Range(sheet, [Area(row, column, row, column)]).vba_set("Value", EMPTY if value == "" else value)
 
 
 # --- exporting -----------------------------------------------------------------------------------------------------------

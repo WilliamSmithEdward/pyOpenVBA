@@ -2013,6 +2013,12 @@ def _identity(shape: Shape) -> str:
             "</a:ext>"
         )
     hidden = ' hidden="1"' if shape.hidden else ""
+    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(_saved_name(shape))}"{described}{titled}{hidden}>'
+            f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
+
+
+def _saved_name(shape: Shape) -> str:
+    """The name a shape is saved under, which for some of Excel's own names differs from the one it reads as."""
     name = shape.name
     if shape.kind == "freeform":
         # A freeform Excel named reads "Freeform 1" but is saved as "Freeform: Shape 1" (tests/fixtures/shape_polyline.json).
@@ -2020,10 +2026,10 @@ def _identity(shape: Shape) -> str:
     if shape.kind == "line":
         name = re.sub(r"^(Elbow|Curved) Connector (\d+)$", r"Connector: \1 \2", name)
     if shape.kind == "shape":
-        # So with a rounded rectangle, read as "Rounded Rectangle 1" (tests/fixtures/old_drawings.json).
+        # So with a rounded rectangle, read as "Rounded Rectangle 1", new or loaded (tests/fixtures/old_drawings.json,
+        # loaded_drawing_edits.json).
         name = re.sub(r"^Rounded Rectangle (\d+)$", r"Rectangle: Rounded Corners \1", name)
-    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(name)}"{described}{titled}{hidden}>'
-            f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
+    return name
 
 
 def _corner_markup(which: str, grid: SheetGrid, across: float, down: float) -> str:
@@ -2095,7 +2101,10 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
     if was is None:
         return markup
     if shape.name != was.name:
-        markup = dml.with_name(markup, shape.name)
+        markup = dml.with_name(markup, _saved_name(shape))
+    if shape.geometry != was.geometry and was.geometry:
+        # Only an old object's RoundedCorners changes a loaded shape's preset (tests/fixtures/loaded_drawing_edits.json).
+        markup = markup.replace(f'<a:prstGeom prst="{was.geometry}">', f'<a:prstGeom prst="{shape.geometry}">', 1)
     if (shape.left, shape.top, shape.width, shape.height) != (
         was.left,
         was.top,

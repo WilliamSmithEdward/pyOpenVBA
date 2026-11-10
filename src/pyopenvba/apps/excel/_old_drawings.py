@@ -512,7 +512,8 @@ def _loaded_shadow(shape: Shape) -> bool:
 
 
 class _Cornered(HeldPart):
-    """RoundedCorners, which only reads here: setting it renames a rectangle, by a rule measured once."""
+    """RoundedCorners: turned on, the preset becomes roundRect, and a rectangle that keeps Excel's name reads as "Rounded Rectangle", saved as
+    "Rectangle: Rounded Corners", new or loaded; a text box keeps its name (tests/fixtures/old_drawings.json, loaded_drawing_edits.json)."""
 
     vba_type_name = ''
 
@@ -522,7 +523,19 @@ class _Cornered(HeldPart):
 
     @setter('RoundedCorners')
     def _rounded_corners(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting RoundedCorners on a drawing's old object is not implemented")
+        shape: Shape = getattr(self, 'shape')
+        wanted = to_bool(value)
+        if wanted == (shape.geometry == 'roundRect'):
+            return
+        if not wanted or shape.geometry not in ('', 'rect') or shape.adjustments:
+            raise VBAUnsupportedError("Taking a drawing's rounded corners off, or rounding a shape other than a plain rectangle, is not implemented")
+        shape.geometry = 'roundRect'
+        if shape.kind == 'shape':
+            shape.auto_shape_type = 5
+            found = re.fullmatch(r'Rectangle (\d+)', shape.name)
+            if found is not None:
+                shape.name = f'Rounded Rectangle {found.group(1)}'
+        getattr(self, 'sheet').drawing_changed()
 
 
 class TextBox(_Shadowed, _Cornered, _Texted):
@@ -721,8 +734,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Shadow', 'Text', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'RoundedCorners', 'Shadow', 'Text', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -735,8 +748,8 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -818,7 +831,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'RoundedCorners', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

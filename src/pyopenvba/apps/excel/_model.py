@@ -4432,7 +4432,8 @@ class Worksheet(ExcelObject):
 
     @method
     def Activate(self) -> object:
-        before = self.book.active_sheet
+        # The sheet left is the active chart sheet, where one is (tests/fixtures/chart_sheet_members.json).
+        before = self.book.active_chart_sheet or self.book.active_sheet
         self.book.activate_sheet(self)
         self.book.application.activate_book(self.book)
         _events.activated(self.book, before, self)

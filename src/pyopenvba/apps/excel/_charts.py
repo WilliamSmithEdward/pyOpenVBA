@@ -6,7 +6,8 @@ from dataclasses import dataclass, field, replace
 from decimal import Decimal
 import math
 import re
-from typing import TYPE_CHECKING, Any, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel import _events
@@ -224,6 +225,8 @@ class ChartState:
     #: A loaded chart's manual layouts as its file spells them, the plot area's and the legend's; empty for none
     #: (see _charts_file.read_chart). The model places neither itself.
     plot_layout: str = ''
+    #: The PNG SetBackgroundPicture gave the chart area, tiled, written in xl/media at save (tests/fixtures/chart_templates.json).
+    background: bytes | None = None
     legend_layout: str = ''
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
@@ -2032,6 +2035,9 @@ class ChartObject(HeldPart):
 
 class Chart(ElementProperties, HeldPart):
     vba_type_name = 'Chart'
+    #: The events a chart sheet raises to WithEvents sinks (see _events.activated, tests/fixtures/chart_sheet_members.json);
+    #: Activate is also a method.
+    raised_events: ClassVar[frozenset[str]] = frozenset({'Activate', 'Deactivate'})
 
     held_free = frozenset({'application', 'creator'})
     held_past_sheet = True
@@ -2897,6 +2903,96 @@ class Chart(ElementProperties, HeldPart):
                 self.changed()
             self.state.holds_automatic_title(self.sheet)
         return ChartTitle(self)
+
+    @method
+    def SetBackgroundPicture(self, Filename: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The chart area filled with the picture, tiled, the PNG kept byte for byte (tests/fixtures/chart_templates.json).
+        Measured on a new chart with no style and no look of its chart area, with a PNG; the rest is refused."""
+        from pyopenvba.apps.excel._chart_styled import is_styled
+        from pyopenvba.interpreter._files import native_path
+
+        self.admit_read()
+        self.sheet.book.application.outside('Chart.SetBackgroundPicture')
+        if Filename is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        state = self.state
+        if state.original or state.style_part or is_styled(state.chart_style) or self.sheet.chart_sheet is not None:
+            raise VBAUnsupportedError('SetBackgroundPicture on this chart is not implemented')
+        if 'area' in state.element_looks or 'area' in state.element_fonts or state.shadow is not None:
+            raise VBAUnsupportedError("SetBackgroundPicture on a chart area with a look of its own is not implemented")
+        found = Path(native_path(to_text(Filename)))
+        if not found.is_file():
+            raise error(-2147024894, 'Automation error\nThe system cannot find the file specified.')
+        data = found.read_bytes()
+        if not data.startswith(b'\x89PNG\r\n\x1a\n'):
+            raise VBAUnsupportedError('SetBackgroundPicture with a picture other than a PNG is not implemented')
+        self.changed()
+        state.background = data
+        return EMPTY
+
+    @method
+    def Paste(self, Type: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Cells copied onto a chart plotted by rows: each row a new series, named by its first cell, its values the rest,
+        the chart's categories its own (tests/fixtures/chart_templates.json). Measured on a new chart whose series share
+        categories over the same columns; the rest is refused."""
+        self.admit_read()
+        if Type is not MISSING:
+            raise VBAUnsupportedError('Chart.Paste with a Type is not implemented')
+        clip = self.sheet.book.application.clipboard
+        if clip is None:
+            raise error(1004, 'Paste method of Chart class failed')
+        state = self.state
+        categories = {entry.category_reference for entry in state.series}
+        if (clip.cut or clip.orphaned or state.original or is_combo(state) or plot_by(state) != 1 or len(categories) != 1
+                or len(clip.source.areas) != 1):
+            raise VBAUnsupportedError('Chart.Paste of these cells onto this chart is not implemented')
+        block = clip.source.areas[0]
+        shown = parse_reference(next(iter(categories)))
+        if len(shown) != 1 or block.left + 1 != shown[0].left or block.right != shown[0].right or (
+                shown[0].sheet and shown[0].sheet != clip.source.sheet.name):
+            raise VBAUnsupportedError('Chart.Paste of cells not over the chart\'s categories is not implemented')
+        self.plot_admitted('Chart.Paste')
+        self.plot_changed('Chart.Paste')
+        sheet = clip.source.sheet
+        for row in range(block.top, block.bottom + 1):
+            used = {entry.series_id if entry.series_id >= 0 else index for index, entry in enumerate(state.series)}
+            series_id = 0
+            while series_id in used:
+                series_id += 1
+            entry = SeriesState(series_id=series_id, unique=state.next_unique, marker=default_marker(state))
+            entry.name_reference = reference(sheet, Area(row, block.left, row, block.left))
+            entry.value_reference = reference(sheet, Area(row, block.left + 1, row, block.right))
+            entry.category_reference = next(iter(categories))
+            state.next_unique += 1
+            state.series.append(entry)
+        _labelled(state)
+        return EMPTY
+
+    @member
+    def PrintedCommentPages(self) -> object:
+        """0, on a chart sheet and an embedded chart alike (tests/fixtures/chart_sheet_members.json)."""
+        self.admit_read()
+        return VBAInt(0, 'Long')
+
+    @method
+    def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
+               WriteResPassword: object = MISSING, ReadOnlyRecommended: object = MISSING,
+               CreateBackup: object = MISSING, AddToMru: object = MISSING, TextCodepage: object = MISSING,
+               TextVisualLayout: object = MISSING, Local: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        """A chart sheet's SaveAs is its workbook's; an embedded chart's raises 1004 and writes nothing
+        (tests/fixtures/chart_sheet_members.json)."""
+        from pyopenvba.apps.excel._model import refuse_save_options
+        from pyopenvba.apps.excel._text_files import text_writer
+
+        self.admit_read()
+        self.sheet.book.application.outside('Chart.SaveAs')
+        if self.sheet.chart_sheet is not self:
+            raise error(1004, 'SaveAs method of Chart class failed')
+        refuse_save_options(Password, WriteResPassword, ReadOnlyRecommended, CreateBackup)
+        if FileFormat is not MISSING and text_writer(int(to_integer(FileFormat, 'Long'))) is not None:
+            raise VBAUnsupportedError('Saving a chart sheet in a text format is not implemented')
+        self.sheet.book.save_as(Filename, FileFormat)
+        return EMPTY
 
     @member
     def PlotBy(self) -> object:

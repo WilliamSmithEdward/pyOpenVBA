@@ -26,7 +26,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Final
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_number, parse_reference
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_number, parse_reference, quote_sheet, split_sheet
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import has_dangling_reference, shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
@@ -459,6 +459,9 @@ class Application(ExcelObject):
         self.text_import = ImportSettings()
         #: Application.SheetsInNewWorkbook, Excel's own default until a macro sets it.
         self.sheets_in_new_workbook = 1
+        #: Whether a name's ValidWorkbookParameter can be True: not after Workbooks.Add or Open, of any book, until a book is
+        #: saved, has cells inserted, deleted or cut, or a sheet added (tests/fixtures/name_rename.json).
+        self.parameters_ready = False
         #: The custom lists a macro added, after Excel's own four (see _custom_lists).
         self.custom_lists: list[tuple[str, ...]] = []
 
@@ -1618,6 +1621,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
 
     @method
     def Add(self, Template: object = MISSING) -> object:
+        self.application.parameters_ready = False
         if isinstance(Template, str):
             return self._from_template(Path(self._not_found(Template)), added=True)
         if Template is not MISSING and Template != -4167:
@@ -1646,6 +1650,8 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
         opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json). A template makes a new book
         unless Editable is True (tests/fixtures/template_opens.json)."""
         from pyopenvba.apps.excel._text_files import is_text, remember_format
+
+        self.application.parameters_ready = False
 
         if Filename is MISSING:
             raise error(449)
@@ -2881,6 +2887,7 @@ class Workbook(ExcelObject):
             saved_as_text(self, file_format, sheet)
         # A text file holds one sheet, which leaves a workbook of more to save (tests/fixtures/text_saves.json).
         self.saved = not text or len(self.sheets_) == 1
+        self.application.parameters_ready = True
         # A file of its own is the workbook's to change (tests/fixtures/text_files.json, readonly_saveas_other).
         self.read_only = False
         _events.after_save(self, True)
@@ -3581,6 +3588,7 @@ class Sheets(VBACollection, ItemDefault, ExcelObject):
             self.book.activate_sheet(sheet)
             _events.new_sheet(self.book, sheet, left)
         self.book.activate_sheet(added[0])
+        self.book.application.parameters_ready = True
         return added[0]
 
     def _all(self) -> Any:
@@ -8362,7 +8370,10 @@ class DefinedName(HeldPart, ExcelObject):
 
     @setter("NameLocal")
     def _set_name_local(self, value: object) -> None:
-        self._renamed(value)
+        """As Name, but what Name leaves silently is 1004, and so is a sheet's own name taking a new one
+        (tests/fixtures/name_rename.json)."""
+        if self._renamed(value) and split_sheet(self.entry.name)[0]:
+            raise error(1004)
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
@@ -8375,14 +8386,36 @@ class DefinedName(HeldPart, ExcelObject):
             if failed.number != 1004:
                 raise
 
-    def _renamed(self, value: object) -> None:
-        from pyopenvba._a1 import split_sheet
+    def _renamed(self, value: object) -> bool:
+        """The name renamed to ``value``, and whether it changed (tests/fixtures/name_rename.json): a spelling equal to
+        its own, in any case, changes nothing; one Excel refuses, or another name's, is 1004. Text holding a ! names,
+        before it, the sheet in front for a workbook's name or the name's own sheet for a sheet's; Excel then takes the
+        whole text as the bare name, which reports itself."""
+        from pyopenvba.exceptions import VBAUnsupportedError
 
         book = self.entry.book
-        scope, _ = split_sheet(self.entry.name)
-        wanted = _names.canonical(book, to_text(value), book.sheet_named(scope) if scope else None)
+        scope, bare = split_sheet(self.entry.name)
+        own = book.sheet_named(scope) if scope else None
+        text = to_text(value)
+        if "!" in text:
+            qualifier, _, rest = text.partition("!")
+            if len(qualifier) >= 2 and qualifier[0] == qualifier[-1] == "'":
+                qualifier = qualifier[1:-1].replace("''", "'")
+            sheet = next((one for one in book.sheets_ if qualifier and _names.same_sheet_name(one.name, qualifier)), None)
+            if sheet is None or sheet is not (own if own is not None else book.active_sheet) or not _names.valid(rest):
+                raise error(1004)
+            # A sheet's own name given its own text changed nothing in one book and took the whole text in another
+            # (name_round 55101), so that reports itself too.
+            if own is None and _names.same_entry(rest, bare):
+                return False
+            raise VBAUnsupportedError("a name renamed to a text holding ! is not implemented")
+        if not _names.valid(text):
+            raise error(1004)
+        if _names.same_entry(text, bare):
+            return False
+        wanted = f"{quote_sheet(own.name)}!{text}" if own is not None else text
         if any(one is not self.entry and _names.same_entry(one.name, wanted) for one in book.names_.entries):
-            return  # Excel silently leaves the original name on collision.
+            raise error(1004)
         for sheet in book.sheets_:
             for cell in sheet.cells_.values():
                 if cell.formula:
@@ -8404,6 +8437,7 @@ class DefinedName(HeldPart, ExcelObject):
             entry.refers_to = _names.renamed_formula(entry.refers_to, owner, self.entry, wanted)
         before, self.entry.name = self.entry.name, wanted
         _names.changed(book, before, wanted)
+        return True
 
     @member
     def Visible(self) -> object:
@@ -8493,10 +8527,11 @@ class DefinedName(HeldPart, ExcelObject):
     @member
     def ValidWorkbookParameter(self) -> object:
         """True for a workbook's own name for one cell written all absolute, $A$1, once the workbook has been saved
-        (tests/fixtures/name_macro.json); never for a macro's name."""
+        (tests/fixtures/name_macro.json); never for a macro's name. A book just opened answers False until it is saved
+        or has cells inserted, deleted or cut, or a sheet added, as a new one does (tests/fixtures/name_rename.json)."""
         from pyopenvba._a1 import split_sheet
 
-        if not self.entry.book.path or split_sheet(self.entry.name)[0] or self.entry.macro_type:
+        if not self.entry.book.application.parameters_ready or split_sheet(self.entry.name)[0] or self.entry.macro_type:
             return False
         sheet, bare = split_sheet(self.entry.refers_to.lstrip("="))
         return bool(sheet) and re.fullmatch(r"\$[A-Za-z]{1,3}\$[0-9]+", bare) is not None

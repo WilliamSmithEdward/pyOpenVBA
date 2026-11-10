@@ -531,4 +531,6 @@ LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinneww
                           'listbox.listcount', 'listbox.listindex', 'listbox.value', 'controlformat.dropdownlines',
                           'controlformat.listcount', 'controlformat.listindex', 'controlformat.max', 'controlformat.min',
                           'controlformat.smallchange', 'pagesetup.order', 'pagesetup.orientation', 'pagesetup.papersize',
-                          'window.gridlinecolor', 'window.scrollcolumn', 'window.scrollrow', 'window.splitrow'})
+                          'window.gridlinecolor', 'window.scrollcolumn', 'window.scrollrow', 'window.splitrow',
+                          # tests/fixtures/data_field_members.json
+                          'pivotfield.orientation'})

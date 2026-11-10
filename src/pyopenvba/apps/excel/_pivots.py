@@ -1509,6 +1509,7 @@ class PivotField(HeldPart, ExcelObject):
     def CalculatedItems(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivot_items import CalculatedItems
 
+        self._not_data(1004)
         items = CalculatedItems(self)
         return items if Index is MISSING else items.Item(Index)
 
@@ -1540,6 +1541,7 @@ class PivotField(HeldPart, ExcelObject):
     def ParentItems(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivot_groups import parent_items
 
+        self._not_data(1004)
         collection = parent_items(self)
         return collection if Index is MISSING else collection.Item(Index)
 
@@ -1566,9 +1568,16 @@ class PivotField(HeldPart, ExcelObject):
 
     # -- tests/fixtures/pivot_reads.json
 
+    def _not_data(self, number: int) -> None:
+        """The data field refuses what only a field of items answers: ParentItems, ChildItems and CalculatedItems with 1004,
+        AllItemsVisible with 5; its PivotItems, VisibleItems and HiddenItems answer empty (tests/fixtures/data_field_members.json)."""
+        if self.data:
+            raise error(number)
+
     @member
     def AllItemsVisible(self) -> object:
         """False once an item is hidden by hand or a page chosen; a caption or value filter leaves it True."""
+        self._not_data(5)
         if any(item.get('h') == '1' for item in self.root.findall(f'{NS}items/{NS}item')):
             return False
         return not any(entry.get('fld') == str(self.index) and entry.get('item') is not None
@@ -1588,7 +1597,8 @@ class PivotField(HeldPart, ExcelObject):
 
     @member
     def ChildItems(self) -> object:
-        """Empty: a field over a list has no levels of items."""
+        """Empty: a field over a list has no levels of items; the data field refuses it."""
+        self._not_data(1004)
         return PivotItems(self, [])
 
     @method

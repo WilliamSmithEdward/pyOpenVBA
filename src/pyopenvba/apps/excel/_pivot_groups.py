@@ -1138,23 +1138,19 @@ def _family(fields: list[XmlElement], index: int) -> tuple[int, int]:
 
 def group_level(field: PivotField) -> object:
     """GroupLevel: 1 for a field nothing groups, one more for each field grouping it above (tests/fixtures/
-    pivot_grouping/ relations_levels, relations_date_levels)."""
-    from pyopenvba.interpreter._values import VBAInt
-
+    pivot_grouping/ relations_levels, relations_date_levels). A Double, typed or late bound (tests/fixtures/data_field_members.json)."""
     fields = _cache_fields(field)
     if field.data or not 0 <= field.index < len(fields):
-        return VBAInt(1, 'Long')
-    return VBAInt(_family(fields, field.index)[1], 'Long')
+        return 1.0
+    return float(_family(fields, field.index)[1])
 
 
 def total_levels(field: PivotField) -> object:
-    """TotalLevels: the fields a grouping makes with the field it groups, together."""
-    from pyopenvba.interpreter._values import VBAInt
-
+    """TotalLevels: the fields a grouping makes with the field it groups, together, as a Double."""
     fields = _cache_fields(field)
     if field.data or not 0 <= field.index < len(fields):
-        return VBAInt(1, 'Long')
-    return VBAInt(_family(fields, field.index)[0], 'Long')
+        return 1.0
+    return float(_family(fields, field.index)[0])
 
 
 def _children(item: PivotItem) -> list[int]:

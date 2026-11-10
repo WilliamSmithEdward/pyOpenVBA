@@ -1,7 +1,7 @@
 """FillFormat as live Excel answered four held-out rounds (scripts/measure_fill_format_round.py): the members the model has, the texture
 members on fills with no texture, PictureEffects, and the picture methods up to the picture itself. Each case runs alone in the model,
 typed and late, read by read, then saved, opened again and read once more, and its saved spPr is compared. A read or case the model
-refuses is allowed; one it answers must be Excel's."""
+refuses is allowed; one it answers must be Excel's. Round 6 compares the reads of the book opened again only."""
 from __future__ import annotations
 
 import importlib.util
@@ -41,6 +41,23 @@ def test_each_case_answers_as_excel_did(number: int, monkeypatch: pytest.MonkeyP
                        if mine not in (theirs, 'refused')]
             if got[1] != excel[1]:
                 differ.append((case, 'spPr', got[1], excel[1]))
+    assert differ == []
+
+
+def test_a_picture_fill_opened_again_answers_as_excel_did(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Round 6: the reads of the book opened again only, which hold nothing the display's DPI changes."""
+    record: dict[str, Any] = json.loads((ROOT / 'tests/fixtures/fill_format_round_6.json').read_text(encoding='utf-8'))
+    monkeypatch.setattr(PROBE, 'ROUND', 6)
+    monkeypatch.setattr(PROBE, 'READS', record['reads'])
+    differ: list[tuple[Any, ...]] = []
+    with tempfile.TemporaryDirectory() as folder:
+        PROBE.write_files(Path(folder))
+        for index, (case, excel) in enumerate(zip(record['cases'], record['excel'])):
+            got = PROBE.alone(case, index, Path(folder))
+            if got[0] == 'refused':
+                continue
+            differ += [(case, name, mine, theirs) for name, mine, theirs in zip(record['reads'], PROBE.reopened(got[0]), PROBE.reopened(excel[0]))
+                       if mine not in (theirs, 'refused')]
     assert differ == []
 
 

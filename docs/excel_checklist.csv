@@ -1261,25 +1261,25 @@ CustomProperty,Delete,method,Delete(),,PARTIAL,tests/fixtures/custom_properties.
 CustomProperty,Name,property,As String,,PARTIAL,tests/fixtures/custom_properties.json; tests/test_excel_custom_properties.py,Its name; renaming it to another's name or out of its place among the others reports unsupported.
 CustomProperty,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/custom_properties.json; tests/test_excel_custom_properties.py,"Worksheet, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 CustomProperty,Value,property,As Variant,,PARTIAL,tests/fixtures/custom_properties.json; tests/test_excel_custom_properties.py,Its text; set as Add keeps a value.
-CustomXMLPart,AddNode,method,"AddNode(Parent As CustomXMLNode, [Name As String], [NamespaceURI As String], [NextSibling As CustomXMLNode], [NodeType As MsoCustomXMLNodeType], [NodeValue As String])",,MISSING,,
+CustomXMLPart,AddNode,method,"AddNode(Parent As CustomXMLNode, [Name As String], [NamespaceURI As String], [NextSibling As CustomXMLNode], [NodeType As MsoCustomXMLNodeType], [NodeValue As String])",,UNASSESSED,,
 CustomXMLPart,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 CustomXMLPart,BuiltIn,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 CustomXMLPart,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 CustomXMLPart,Delete,method,Delete(),,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-CustomXMLPart,DocumentElement,"property, read-only",As CustomXMLNode,,MISSING,,
-CustomXMLPart,Errors,"property, read-only",As CustomXMLValidationErrors,,MISSING,,
+CustomXMLPart,DocumentElement,"property, read-only",As CustomXMLNode,,UNASSESSED,,
+CustomXMLPart,Errors,"property, read-only",As CustomXMLValidationErrors,,UNASSESSED,,
 CustomXMLPart,Id,"property, read-only",As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-CustomXMLPart,Load,method,Load(FilePath As String) As Boolean,,MISSING,,
-CustomXMLPart,LoadXML,method,LoadXML(XML As String) As Boolean,,MISSING,,
-CustomXMLPart,NamespaceManager,"property, read-only",As CustomXMLPrefixMappings,,MISSING,,
+CustomXMLPart,Load,method,Load(FilePath As String) As Boolean,,UNASSESSED,,
+CustomXMLPart,LoadXML,method,LoadXML(XML As String) As Boolean,,UNASSESSED,,
+CustomXMLPart,NamespaceManager,"property, read-only",As CustomXMLPrefixMappings,,UNASSESSED,,
 CustomXMLPart,NamespaceURI,"property, read-only",As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 CustomXMLPart,NodeAfterDelete,event,"NodeAfterDelete(OldNode As CustomXMLNode, OldParentNode As CustomXMLNode, OldNextSibling As CustomXMLNode, InUndoRedo As Boolean)",,MISSING,,
 CustomXMLPart,NodeAfterInsert,event,"NodeAfterInsert(NewNode As CustomXMLNode, InUndoRedo As Boolean)",,MISSING,,
 CustomXMLPart,NodeAfterReplace,event,"NodeAfterReplace(OldNode As CustomXMLNode, NewNode As CustomXMLNode, InUndoRedo As Boolean)",,MISSING,,
 CustomXMLPart,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-CustomXMLPart,SchemaCollection,property,As CustomXMLSchemaCollection,,MISSING,,
-CustomXMLPart,SelectNodes,method,SelectNodes(XPath As String) As CustomXMLNodes,,MISSING,,
-CustomXMLPart,SelectSingleNode,method,SelectSingleNode(XPath As String) As CustomXMLNode,,MISSING,,
+CustomXMLPart,SchemaCollection,property,As CustomXMLSchemaCollection,,UNASSESSED,,
+CustomXMLPart,SelectNodes,method,SelectNodes(XPath As String) As CustomXMLNodes,,UNASSESSED,,
+CustomXMLPart,SelectSingleNode,method,SelectSingleNode(XPath As String) As CustomXMLNode,,UNASSESSED,,
 CustomXMLPart,XML,"property, read-only",As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 CustomXMLParts,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 CustomXMLParts,Add,method,"Add([XML As String], [SchemaCollection As Variant]) As CustomXMLPart",,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."

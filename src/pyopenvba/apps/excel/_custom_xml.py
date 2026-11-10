@@ -69,15 +69,15 @@ def view(part: CustomXMLPart, node: Node | None) -> object:
 
 
 def mappings_for(document: Node | None) -> list[tuple[str, str]]:
-    """The prefixes a part's NamespaceManager starts with: ns0 for its element's default namespace, then xml."""
+    """The prefixes a part's NamespaceManager starts with: ns0 for its element's default namespace, then xml. A
+    default namespace an element inside declares gets none here, as was not measured (see _qualified)."""
     found: list[tuple[str, str]] = []
     root = document.root() if document is not None else None
     if root is not None:
         for node in [root, *_elements(root)]:
             for attribute in node.attributes:
-                if id(attribute) in node.declarations and (node is not root or attribute.name != 'xmlns'):
-                    raise VBAUnsupportedError('custom XML declaring namespaces other than its element\'s default '
-                                              'is not implemented')
+                if id(attribute) in node.declarations and attribute.name != 'xmlns':
+                    raise VBAUnsupportedError('custom XML declaring a namespace prefix is not implemented')
         if root.uri:
             found.append(('ns0', root.uri))
     found.append(('xml', XML_NAMESPACE))
@@ -166,7 +166,15 @@ class CustomXMLNode(_OfficeObject):
     def _set_node_value(self, value: object) -> None:
         if self.node.kind in (ELEMENT, DOCUMENT):
             raise VBAUnsupportedError("setting an element's NodeValue is not implemented")
-        self.node.value = to_text(value).replace('\r\n', '\n')
+        self._set_value(to_text(value).replace('\r\n', '\n'))
+
+    def _set_value(self, text: str) -> None:
+        """An attribute given a value goes last among its element's, as Excel puts it (tests/fixtures/custom_xml1.json)."""
+        node = self.node
+        node.value = text
+        if node.kind == ATTRIBUTE and node.parent is not None:
+            node.parent.attributes.remove(node)
+            node.parent.attributes.append(node)
         self.part.edited()
 
     @member
@@ -183,7 +191,8 @@ class CustomXMLNode(_OfficeObject):
         elif self.node.kind == DOCUMENT:
             raise VBAUnsupportedError("setting a document node's Text is not implemented")
         else:
-            self.node.value = text
+            self._set_value(text)
+            return
         self.part.edited()
 
     @member
@@ -196,9 +205,8 @@ class CustomXMLNode(_OfficeObject):
 
     @member
     def Attributes(self) -> object:
-        if self.node.kind != ELEMENT:
-            return NOTHING
-        return CustomXMLNodes(self.part, self.node.plain_attributes())
+        # A node that is not an element has none, but a collection all the same (tests/fixtures/custom_xml1.json).
+        return CustomXMLNodes(self.part, self.node.plain_attributes() if self.node.kind == ELEMENT else [])
 
     @member
     def ChildNodes(self) -> object:
@@ -390,6 +398,7 @@ def _graft(part: CustomXMLPart, parent: Node, text: str, before: Node | None) ->
     if document.declared or any(one.kind != ELEMENT for one in document.children):
         raise VBAUnsupportedError('a subtree with more than an element in it is not implemented')
     for node in document.children:
+        node.grafted = True
         parent.append(node, before)
     if mappings_for(document)[:-1]:
         raise VBAUnsupportedError('a subtree in a namespace is not implemented')
@@ -551,7 +560,7 @@ class CustomXMLSchemaCollection(VBACollection, _OfficeObject):
         self.part = part
 
     def vba_items(self) -> list[object]:
-        return [CustomXMLSchema(self, self.part.namespace)] if self.part.namespace else []
+        return [CustomXMLSchema(self, uri) for uri in self.part.schemas]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         place = int(to_integer(index, 'Long'))
@@ -580,13 +589,26 @@ class CustomXMLSchemaCollection(VBACollection, _OfficeObject):
 # --- saving ------------------------------------------------------------------------------------------------------
 
 
-def properties_part(identity: str, namespace: str, empty: bool) -> str:
-    """itemPropsN.xml: the part's ID, and its namespace as a schema reference."""
+def namespaces(document: Node | None) -> list[str]:
+    """The namespaces a document's elements are in when it is loaded, in the order they first come: the part's
+    schemas, and the schema references its properties name. Elements added later add none
+    (tests/fixtures/custom_xml_b.json, _d)."""
+    root = document.root() if document is not None else None
+    found: list[str] = []
+    for node in [root, *_elements(root)] if root is not None else []:
+        if node.uri and node.uri not in found:
+            found.append(node.uri)
+    return found
+
+
+def properties_part(identity: str, uris: list[str], empty: bool) -> str:
+    """itemPropsN.xml: the part's ID, and each of its namespaces as a schema reference."""
     head = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n'
     store = f'<ds:datastoreItem ds:itemID="{identity}" xmlns:ds="{_DATASTORE}"'
     if empty:
         return head + store + '/>'
-    refs = f'<ds:schemaRefs><ds:schemaRef ds:uri="{namespace}"/></ds:schemaRefs>' if namespace else '<ds:schemaRefs/>'
+    refs = ('<ds:schemaRefs>' + ''.join(f'<ds:schemaRef ds:uri="{uri}"/>' for uri in uris) + '</ds:schemaRefs>'
+            if uris else '<ds:schemaRefs/>')
     return head + store + '>' + refs + '</ds:datastoreItem>'
 
 
@@ -617,7 +639,7 @@ def write(book: Workbook, package: OpcFile) -> None:
         package.write(f'customXml/item{number}.xml',
                       ('' if part.document is None else serialized(part.document, in_file=True)).encode('utf-8'))
         package.write(f'customXml/itemProps{number}.xml',
-                      properties_part(part.identity, part.namespace, part.document is None).encode('utf-8'))
+                      properties_part(part.identity, part.schemas, part.document is None).encode('utf-8'))
         package.write(f'customXml/_rels/item{number}.xml.rels', item_relationships(number).encode('utf-8'))
         add_content_type(package, f'customXml/itemProps{number}.xml', PROPERTIES_TYPE)
         add_relationship(package, rels, ITEM_RELATIONSHIP, f'../customXml/item{number}.xml')

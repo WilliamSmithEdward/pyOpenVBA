@@ -217,13 +217,15 @@ class CustomXMLPart(_Owned):
 
     def __init__(self, owner: object, book: Workbook, text: str | None, built_in: bool, *, namespace: str = "",
                  identity: str = "") -> None:
-        from pyopenvba.apps.excel._custom_xml import mappings_for
+        from pyopenvba.apps.excel._custom_xml import mappings_for, namespaces
         from pyopenvba.apps.excel._custom_xml_tree import parsed
 
         super().__init__(owner, book)
         self.built_in, self.built_in_namespace = built_in, namespace
         self.document = parsed(text) if text else None
         self.mappings: list[tuple[str, str]] = [] if built_in else mappings_for(self.document)
+        #: The namespaces of the document as it was loaded, which its schemas follow (see _custom_xml.namespaces).
+        self.schemas: list[str] = namespaces(self.document)
         self.identity = identity or "{" + str(uuid.uuid4()).upper() + "}"
 
     @property
@@ -328,14 +330,14 @@ class CustomXMLPart(_Owned):
         return None
 
     def _loaded(self, text: str) -> object:
-        from pyopenvba.apps.excel._custom_xml import mappings_for
+        from pyopenvba.apps.excel._custom_xml import mappings_for, namespaces
         from pyopenvba.apps.excel._custom_xml_tree import parsed
 
         if self.document is not None:
             raise error(-536602616, "This custom XML part has already been loaded.")
         document = parsed(text)
         mappings = mappings_for(document)
-        self.document, self.mappings = document, mappings
+        self.document, self.mappings, self.schemas = document, mappings, namespaces(document)
         self.edited()
         return True
 

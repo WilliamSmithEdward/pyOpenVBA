@@ -18,8 +18,9 @@ from typing import Any
 import pytest
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('custom_xml', 'custom_xml_b', 'custom_xml_c', 'custom_xml1', 'custom_xml2',
-                                  'custom_xml3', 'custom_xml4')
+ROUNDS = tuple(stem for stem in ('custom_xml', 'custom_xml_b', 'custom_xml_c', 'custom_xml_d', 'custom_xml_e',
+                                  'custom_xml1', 'custom_xml2',
+                                  'custom_xml3', 'custom_xml4', 'custom_xml5')
                if (FIXTURES / f'{stem}.json').exists())
 GUID = re.compile(r'\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}')
 REFUSED = ('built in',)

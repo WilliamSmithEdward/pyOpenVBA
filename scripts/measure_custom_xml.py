@@ -197,6 +197,64 @@ CASES_B: list[tuple[str, list[str], list[str]]] = [
 ]
 
 
+def _text_case(name: str, xml: str, reads: list[str]) -> tuple[str, list[str], list[str]]:
+    quoted = xml.replace('"', '""')
+    return (name, [f'Set p = ActiveWorkbook.CustomXMLParts.Add("{quoted}")'],
+            [f'Replace(Replace({read}, vbCr, "~"), vbLf, "^")' if 'Text' in read or 'XML' in read else read
+             for read in reads])
+
+
+#: The fourth look: Text over mixed content, an attribute's value set, the XML of a nested element in a namespace,
+#: the Attributes of a node that is not an element.
+CASES_D: list[tuple[str, list[str], list[str]]] = [
+    _text_case('text a b c', '<r>a<b/>c</r>', ['p.DocumentElement.Text']),
+    _text_case('text a b', '<r>a<b/></r>', ['p.DocumentElement.Text']),
+    _text_case('text b a', '<r><b/>a</r>', ['p.DocumentElement.Text']),
+    _text_case('text nested mixed', '<r><x>a<b/></x><y>c</y></r>', ['p.DocumentElement.Text',
+                                                                   'p.DocumentElement.FirstChild.Text']),
+    _text_case('text nested mixed after', '<r><x>a<b/></x>c</r>', ['p.DocumentElement.Text']),
+    _text_case('text inner element', '<r>a<b>c</b>d</r>', ['p.DocumentElement.Text']),
+    _text_case('text comment', '<r>a<!--x-->b</r>', ['p.DocumentElement.Text']),
+    _text_case('text instruction', '<r>a<?p d?>b</r>', ['p.DocumentElement.Text']),
+    _text_case('text elements', '<r><x>a</x><y>b</y><z><w>c</w>d</z></r>', ['p.DocumentElement.Text']),
+    _text_case('text spaces', '<r> a <b> c </b> d </r>', ['p.DocumentElement.Text', 'p.DocumentElement.FirstChild.Text']),
+    _text_case('text deep', '<r><x>a<b><c>1</c>2</b>3</x><y>4</y></r>', ['p.DocumentElement.Text',
+                                                                         'p.DocumentElement.FirstChild.Text']),
+    _text_case('text empty elements', '<r><x>a<s/><t/></x><y>6</y>z</r>', ['p.DocumentElement.Text']),
+    ('attribute text set', [ADD_PLAIN, 'p.SelectSingleNode("//@lang").Text = "de"'], ['p.XML']),
+    ('attribute value set first of two', ['Set p = ActiveWorkbook.CustomXMLParts.Add("<r a=""1"" b=""2"" c=""3""/>")',
+                                          'p.SelectSingleNode("/r/@b").NodeValue = "9"'], ['p.XML']),
+    ('attribute value same', ['Set p = ActiveWorkbook.CustomXMLParts.Add("<r a=""1"" b=""2""/>")',
+                              'p.SelectSingleNode("/r/@a").NodeValue = "1"'], ['p.XML']),
+    ('nested namespaced xml', [ADD], ['p.DocumentElement.FirstChild.XML', 'p.SelectSingleNode("//ns0:x[2]").XML',
+                                      'p.DocumentElement.XML']),
+    ('nested other namespace xml', ['Set p = ActiveWorkbook.CustomXMLParts.Add("<r xmlns=""urn:a""><s xmlns=""urn:b""><t/></s></r>")'],
+     ['p.DocumentElement.FirstChild.XML', 'p.DocumentElement.FirstChild.FirstChild.XML']),
+    ('attributes of others', [ADD_MIXED], ['p.DocumentElement.ChildNodes(1).Attributes.Count',
+                                           'p.DocumentElement.ChildNodes(4).Attributes.Count',
+                                           'TypeName(p.DocumentElement.ChildNodes(2).Attributes)',
+                                           'p.DocumentElement.Attributes(1).Attributes.Count',
+                                           'TypeName(p.DocumentElement.ParentNode.Attributes)',
+                                           'TypeName(p.DocumentElement.ChildNodes(1).ChildNodes)']),
+]
+
+
+SHOWN = 'Replace(Replace(Replace({0}, " ", "_"), vbCr, "~"), vbLf, "^")'
+#: The fifth look: what AppendChildSubtree and its kin leave in an element's text.
+CASES_E: list[tuple[str, list[str], list[str]]] = [
+    (name, ['Set p = ActiveWorkbook.CustomXMLParts.Add("<r><d>a b</d><e>6</e></r>")',
+            'Set n = p.SelectSingleNode("/r/d")', edit],
+     [SHOWN.format('p.DocumentElement.Text'), SHOWN.format('n.Text'), SHOWN.format('p.XML'), 'n.ChildNodes.Count',
+      'n.LastChild.NodeType', SHOWN.format('n.ChildNodes(1).NodeValue'), SHOWN.format('n.LastChild.XML')])
+    for name, edit in (('subtree', 'n.AppendChildSubtree "<s><u/></s>"'), ('subtree text', 'n.AppendChildSubtree "<s>q</s>"'),
+                       ('child node', 'n.AppendChildNode "s"'), ('child node text', 'n.AppendChildNode "s", "", 1, "q"'),
+                       ('subtree before', 'n.InsertSubtreeBefore "<s/>", n.FirstChild'),
+                       ('subtree replace', 'n.ReplaceChildSubtree "<s/>", n.FirstChild'),
+                       ('subtree empty element', 'p.SelectSingleNode("/r/e").AppendChildSubtree "<s/>"'),
+                       ('add node', 'p.AddNode n, "s"'))
+]
+
+
 #: A class whose WithEvents variables log each event a case's statements raise.
 SINK = '''Public WithEvents p As CustomXMLPart
 Public WithEvents ps As CustomXMLParts
@@ -322,7 +380,7 @@ def main() -> None:
     stem = 'custom_xml' + (sys.argv[1] if len(sys.argv) > 1 else '')
     predicted = FIXTURES / f'{stem}_predictions.json'
     cases = ([tuple(case['call']) for case in json.loads(predicted.read_text('utf-8'))['cases']]
-             if predicted.exists() else {'_b': CASES_B, '_c': CASES_C}.get(stem[len('custom_xml'):], CASES))
+             if predicted.exists() else {'_b': CASES_B, '_c': CASES_C, '_d': CASES_D, '_e': CASES_E}.get(stem[len('custom_xml'):], CASES))
     text = source(cases)  # type: ignore[arg-type]
     answers: list[str] = []
     files: list[dict[str, str]] = []

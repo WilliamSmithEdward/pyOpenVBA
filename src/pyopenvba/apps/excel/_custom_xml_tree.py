@@ -24,7 +24,7 @@ class Node:
     """One node: an element, an attribute, text, a comment, a processing instruction or the document."""
 
     __slots__ = ('kind', 'name', 'uri', 'value', 'parent', 'children', 'attributes', 'declarations', 'declared',
-                 'view', '__weakref__')
+                 'view', 'grafted', '__weakref__')
 
     def __init__(self, kind: int, name: str = '', value: str = '', uri: str = '') -> None:
         self.kind, self.name, self.value, self.uri = kind, name, value, uri
@@ -38,6 +38,8 @@ class Node:
         self.declared = False
         #: The CustomXMLNode a macro holds for it, so the same node reads as the same object.
         self.view: object = None
+        #: Whether AppendChildSubtree and its kin put it in, which an element's Text above it notices.
+        self.grafted = False
 
     @property
     def local(self) -> str:
@@ -55,10 +57,30 @@ class Node:
         return next((one for one in self.children if one.kind == ELEMENT), None)
 
     def text(self) -> str:
-        """Its text: an element's, every text node in it joined."""
-        if self.kind in (ELEMENT, DOCUMENT):
-            return ''.join(one.text() for one in self.children if one.kind in (ELEMENT, TEXT))
-        return self.value
+        """Its text: an element's, every text node in it joined. An element below it holding text and ending in a
+        subtree a macro appended is followed by a space where more text comes after it, as Excel's Text reads it
+        (tests/fixtures/custom_xml_e.json, from five cases)."""
+        if self.kind not in (ELEMENT, DOCUMENT):
+            return self.value
+        pieces: list[str | None] = []
+        self._pieces(pieces)
+        found = ''
+        for place, piece in enumerate(pieces):
+            if piece is None:
+                if found and any(pieces[place + 1:]):
+                    found += ' ' if not found.endswith(' ') or pieces[place - 1] is not None else ''
+            else:
+                found += piece
+        return found
+
+    def _pieces(self, pieces: list[str | None]) -> None:
+        for child in self.children:
+            if child.kind == TEXT:
+                pieces.append(child.value)
+            elif child.kind == ELEMENT:
+                child._pieces(pieces)
+                if child.children and child.children[-1].grafted and child.text():
+                    pieces.append(None)
 
     def append(self, child: Node, before: Node | None = None) -> None:
         child.parent = self
@@ -157,8 +179,13 @@ def _escaped(text: str, attribute: bool) -> str:
 
 
 def serialized(node: Node, *, in_file: bool = False) -> str:
-    """The node as XML reads it, or with ``in_file`` the document as a save writes it."""
-    return _serialized(node, in_file).replace('\n', '\r\n')
+    """The node as XML reads it, or with ``in_file`` the document as a save writes it. An element in a default
+    namespace an element above it declares says so itself, first (tests/fixtures/custom_xml1.json)."""
+    text = _serialized(node, in_file)
+    if node.kind == ELEMENT and node.uri and not node.prefix and not any(
+            id(one) in node.declarations and one.name == 'xmlns' for one in node.attributes):
+        text = f'<{node.name} xmlns="{_escaped(node.uri, True)}"' + text[len(node.name) + 1:]
+    return text.replace('\n', '\r\n')
 
 
 def _serialized(node: Node, in_file: bool) -> str:

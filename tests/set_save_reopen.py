@@ -89,7 +89,10 @@ def outcome(case: Case, folder: Path) -> tuple[str, str]:
     except (VBAUnsupportedError, VBARuntimeError) as refused:
         return 'no claim', str(refused)[:100]
     saved = folder / 'saved.xlsx'
-    app.save(saved)
+    try:
+        app.save(saved)
+    except VBAUnsupportedError as refused:
+        return 'no claim', f'the set stood at {before}; the save reports {str(refused)[:80]}'
     again = ExcelApplication.open(saved, with_vba=False)
     again.add_module(_reader(target.find, '', case.path), name='Sweep')
     try:

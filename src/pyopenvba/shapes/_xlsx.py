@@ -687,7 +687,7 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
     )
     alternative = f' alt="{escape(shape.description)}"' if shape.description else ""
     locks = ' aspectratio="t"' if shape.lock_aspect else ""
-    return _vml_state((
+    return _new_control_settings(_vml_state((
         f'<v:shape id="{_vml_id(shape.name)}" o:spid="_x0000_s{shape.shape_id}"'
         f' type="#_x0000_t201"{alternative}'
         f" style='position:absolute;margin-left:{shape.left:g}pt;margin-top:{shape.top:g}pt;"
@@ -705,7 +705,24 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
         "<x:TextVAlign>Center</x:TextVAlign>"
         "</x:ClientData>"
         "</v:shape>"
-    ), shape)
+    ), shape), shape)
+
+
+def _new_control_settings(markup: str, shape: Shape) -> str:
+    """A new control's VML with what Excel writes there for it (tests/fixtures/new_control_edits.json): a button's flags set this
+    session, Display3DShading off as NoThreeD or NoThreeD2, as on every new check box, option button, list and drop-down, and a button's
+    text frame setting."""
+    control = shape.control
+    if control is None:
+        return markup
+    kind = CONTROL_KINDS.get(control.kind, control.kind)
+    for flag in sorted(control.button_flags):
+        markup = _ordered_child(markup, flag, f"<x:{flag}/>")
+    if kind in ("Drop", "List"):
+        markup = _ordered_child(markup, "NoThreeD2", "" if control.three_d else "<x:NoThreeD2/>")
+    elif kind in ("Checkbox", "Radio"):
+        markup = _ordered_child(markup, "NoThreeD", "" if control.three_d else "<x:NoThreeD/>")
+    return with_vml_text_frame(markup, shape)
 
 
 def _vml_settings(kind: str, control: ControlInfo | None) -> str:

@@ -411,10 +411,6 @@ def admit_part(chart: Chart, entry: SeriesState, part: str, member: str) -> None
         if member.startswith(('DataLabel.', 'Point.')) and entry.data_labels and entry.label_look != LabelLook():
             # Excel gives such a point its series' place and the value alone, which the model does not.
             raise VBAUnsupportedError("Changing a point's label on an imported chart whose series' labels have a look is not implemented")
-    if member.startswith(('Point.', 'DataLabel.')) and any(one.trendlines for one in chart.state.series):
-        # Excel numbered the points and labels it added from 1 on the one book measured with a trendline, from 0 on the others
-        # (tests/fixtures/loaded_chart_label_edits.json); the rule is not known.
-        raise VBAUnsupportedError("Changing a point of an imported chart with a trendline is not implemented")
     if part == POINTS and member.startswith('Point.') and entry.format_look is not None:
         # Excel gives such a point the series' look beside what is set, its transparency too, which the model does not.
         raise VBAUnsupportedError("Changing a point's look on an imported chart whose series has a look is not implemented")

@@ -241,6 +241,15 @@ def load_project(book: Workbook) -> list[str]:
             return [entry.name for entry in editable.components.entries]
 
 
+def _names_a_cell(macro: str) -> bool:
+    """Whether a macro's name is also a cell's, as Sum3 and AB12 are, which Application.Run does not run
+    (tests/fixtures/run2.json)."""
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_number
+
+    found = re.fullmatch(r"([A-Za-z]{1,3})([1-9][0-9]{0,6})", macro)
+    return found is not None and column_number(found.group(1)) <= MAX_COLUMNS and int(found.group(2)) <= MAX_ROWS
+
+
 def run_macro(application: Application, macro: str, args: list[object]) -> object:
     """Qualified names choose a workbook; VBA unqualified names use the caller."""
     project: Interpreter | None = None
@@ -257,7 +266,7 @@ def run_macro(application: Application, macro: str, args: list[object]) -> objec
         project = application.active_book.project_runtime
     else:
         project = application.interpreter
-    if project is None:
+    if project is None or _names_a_cell(macro):
         raise error(1004, f"Cannot run macro {macro!r}")
     project.initialise()
     module_name, _, _ = macro.rpartition(".")

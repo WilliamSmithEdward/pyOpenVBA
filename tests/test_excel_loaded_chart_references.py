@@ -13,7 +13,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/loaded_chart_references.json').read_text(encoding='utf-8'))
@@ -99,12 +98,15 @@ def test_a_second_save_keeps_the_rewritten_references(tmp_path: Path) -> None:
     assert 'Data!$B$4:$B$7' in str(_parts(tmp_path / 'twice.xlsx'))
 
 
-def test_taking_away_the_cells_a_loaded_chart_reads_is_refused(tmp_path: Path) -> None:
-    with pytest.raises(VBAUnsupportedError, match='Taking away the cells a chart from a file'):
-        _opened(_built(tmp_path), 'd.Columns(3).Delete')
+def test_taking_away_the_cells_a_loaded_chart_reads_keeps_its_cache(tmp_path: Path) -> None:
+    """The reference reads #REF! in the part and its cached points stay, as Excel keeps them
+    (tests/fixtures/chart_shift_losses.json)."""
+    _opened(_built(tmp_path), f'd.Columns(3).Delete: wb.SaveAs "{tmp_path / "lost.xlsx"}"')
+    assert ['Data!#REF!', ['5', '6', '7', '8']] in _parts(tmp_path / 'lost.xlsx')[0]
 
 
-def test_moving_cells_between_a_loaded_charts_points_is_refused(tmp_path: Path) -> None:
+def test_moving_cells_between_a_loaded_charts_points_keeps_their_numbers(tmp_path: Path) -> None:
+    """Excel keeps the numbers the part gives its points (tests/fixtures/chart_shift_losses.json)."""
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['build'] + '''
@@ -116,6 +118,7 @@ End Sub
     app.run('Builder.Paint')
     path = tmp_path / 'painted.xlsx'
     app.save(path)
-    with pytest.raises(VBAUnsupportedError, match='between the points'):
-        _opened(path, 'd.Rows(3).Insert')
-    _opened(path, 'd.Rows(1).Insert')
+    _opened(path, f'd.Rows(3).Insert: wb.SaveAs "{tmp_path / "moved.xlsx"}"')
+    with zipfile.ZipFile(tmp_path / 'moved.xlsx') as package:
+        chart = package.read('xl/charts/chart1.xml').decode('utf-8')
+    assert re.findall(r'<c:dPt><c:idx val="(\d+)"/>', chart) == ['1']

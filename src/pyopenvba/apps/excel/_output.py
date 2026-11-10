@@ -260,9 +260,13 @@ def copy_picture(target: object, owner: str, book: Workbook, given: dict[str, ob
     application.clipboard = None
     application.copied_chart = None
     application.copied_picture = None
+    application.held_formats = None
     if shown:
         call(application, hook, 'CopyPicture', owner, target, book, given)
         application.copied_picture = (application.clipboard,)
+        from pyopenvba.apps.excel._clipboard import PICTURE_FORMATS, hold_formats
+
+        hold_formats(application, PICTURE_FORMATS.get((owner, appearance, picture_format)))
     return True if owner == 'Range' and BINDING.late else EMPTY
 
 

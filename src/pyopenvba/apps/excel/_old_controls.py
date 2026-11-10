@@ -180,17 +180,33 @@ def _new_control(name: str, value: object) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-def _taken_on_loaded(name: str, value: object, values: tuple[int, ...] | None = None) -> MemberSpec:
-    """A setting a control loaded from a file takes and keeps nothing of, reading ``value`` before and after, as Excel's does
-    (tests/fixtures/button_text.json); on a new control what a set writes is not measured, and it is refused."""
+def _taken_on_new(name: str, value: object) -> MemberSpec:
+    """A setting a new control takes and keeps nothing of, reading ``value`` before and after and writing nothing
+    (tests/fixtures/new_control_edits.json); on a control loaded from a file what a set writes is not measured, and it is refused."""
 
     def get(item: OldControl) -> object:
         del item
         return value
 
     def put(item: OldControl, wanted: object) -> None:
-        if item.shape.control is None or not item.shape.source:
-            raise VBAUnsupportedError(f'Setting {name} on a new form control is not implemented')
+        if item.shape.control is None or item.shape.source:
+            raise VBAUnsupportedError(f'Setting {name} on a form control in a file is not implemented')
+        to_bool(wanted)
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
+def _taken_on_loaded(name: str, value: object, values: tuple[int, ...] | None = None) -> MemberSpec:
+    """A setting a control takes and keeps nothing of, reading ``value`` before and after and writing nothing, as Excel's does on a
+    control loaded from a file and on a new one (tests/fixtures/button_text.json, new_control_edits.json)."""
+
+    def get(item: OldControl) -> object:
+        del item
+        return value
+
+    def put(item: OldControl, wanted: object) -> None:
+        if item.shape.control is None:
+            raise VBAUnsupportedError(f'Setting {name} on this form control is not implemented')
         if values is None:
             to_text(wanted)
         elif int(to_number(wanted)) not in values:
@@ -331,9 +347,9 @@ _BUTTON_FLAGS = {'AddIndent': 'JustLastX', 'DefaultButton': 'Default', 'CancelBu
 
 
 def _button_flag(name: str) -> MemberSpec:
-    """One of a button's flags. Set on a button loaded from a file, it reads True for the session but AddIndent, which reads False, and its VML
-    gets it as Excel's does; Excel reads none back from a file (tests/fixtures/loaded_control_edits.json, button_flags.json). On a new button
-    what a set writes is not measured, and it is refused."""
+    """One of a button's flags. Set on a button loaded from a file or a new one, it reads True for the session but AddIndent, which reads
+    False, and its VML gets it as Excel's does; Excel reads none back from a file (tests/fixtures/loaded_control_edits.json,
+    button_flags.json, new_control_edits.json)."""
     element = _BUTTON_FLAGS[name]
 
     def get(item: OldControl) -> object:
@@ -344,8 +360,8 @@ def _button_flag(name: str) -> MemberSpec:
         from pyopenvba.apps.excel._protection import guard_drawing
 
         control = item.shape.control
-        if control is None or not item.shape.source:
-            raise VBAUnsupportedError(f'Setting {name} on a new form control is not implemented')
+        if control is None:
+            raise VBAUnsupportedError(f'Setting {name} on this form control is not implemented')
         guard_drawing(item.sheet, 'ControlFormat')
         flags = set(control.button_flags)
         if to_bool(wanted):
@@ -370,8 +386,9 @@ _SOLE_ROLES = frozenset({'Default', 'Cancel', 'Help'})
 
 def _text_frame(name: str) -> MemberSpec:
     """A button's HorizontalAlignment, VerticalAlignment or Orientation: what its DrawingML holds, or what it was set to this session. Set
-    on a button loaded from a file whose text is laid out as the one measured, it is written as Excel writes it, one of the three at
-    a time (tests/fixtures/button_text.json); anything else is refused, as what it writes is not measured."""
+    on a new button, or on one loaded from a file whose text is laid out as the one measured, it is written as Excel writes it, one of
+    the three at a time (tests/fixtures/button_text.json, new_control_edits.json); anything else is refused, as what it writes is not
+    measured."""
     from pyopenvba.shapes._xlsx import TEXT_FRAME_VALUES, control_text_frame, text_frame_measured
 
     def get(item: OldControl) -> object:
@@ -384,12 +401,13 @@ def _text_frame(name: str) -> MemberSpec:
         from pyopenvba.apps.excel._protection import guard_drawing
 
         control = item.shape.control
-        if control is None or not item.shape.source:
-            raise VBAUnsupportedError(f'Setting {name} on a new form control is not implemented')
+        if control is None:
+            raise VBAUnsupportedError(f'Setting {name} on this form control is not implemented')
         value = int(to_number(wanted))
         if value not in TEXT_FRAME_VALUES[name]:
             raise VBAUnsupportedError(f'Setting {name} to {value} on a form control is not implemented')
-        if control.text_frame is not None and control.text_frame[0] != name or not text_frame_measured(item.shape.source):
+        # A new button is laid out as the one measured (tests/fixtures/new_control_edits.json).
+        if control.text_frame is not None and control.text_frame[0] != name or item.shape.source and not text_frame_measured(item.shape.source):
             raise VBAUnsupportedError(f'Setting {name} on a button laid out otherwise than the one measured is not implemented')
         guard_drawing(item.sheet, 'ControlFormat')
         control.text_frame = (name, value)
@@ -398,7 +416,7 @@ def _text_frame(name: str) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-for _spec in (*(_new_control(_name, False) for _name in ('AutoSize', 'AutoScaleFont')), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
+for _spec in (_new_control('AutoSize', False), _taken_on_new('AutoScaleFont', False), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
               *(_text_frame(_name) for _name in ('HorizontalAlignment', 'VerticalAlignment', 'Orientation')),
               _taken_on_loaded('ReadingOrder', VBAInt(27, 'Long'), (-5004, -5003, -5002)), _new_control('Formula', '')):
     Button.vba_add_member(_spec)
@@ -422,8 +440,8 @@ class _Valued(OldControl):
 
 
 def _three_d() -> MemberSpec:
-    """Display3DShading as the control's part holds it. Set on a control loaded from a file, it is written where Excel writes it
-    (tests/fixtures/loaded_control_edits.json); on a new one, what it writes is not measured, and setting it is refused."""
+    """Display3DShading as the control's part holds it. Set on a control loaded from a file or a new one, it is written where Excel writes
+    it (tests/fixtures/loaded_control_edits.json, new_control_edits.json)."""
 
     def get(item: OldControl) -> object:
         control = item.shape.control
@@ -433,8 +451,8 @@ def _three_d() -> MemberSpec:
         from pyopenvba.apps.excel._protection import guard_drawing
 
         control = item.shape.control
-        if control is None or not item.shape.source:
-            raise VBAUnsupportedError('Setting Display3DShading on a new form control is not implemented')
+        if control is None:
+            raise VBAUnsupportedError('Setting Display3DShading on this form control is not implemented')
         guard_drawing(item.sheet, 'ControlFormat')
         control.three_d = to_bool(wanted)
         item.sheet.drawing_changed()
@@ -847,8 +865,8 @@ class OldControls(VBACollection, Created):
 class Buttons(OldControls):
     vba_type_name = 'Buttons'
     kind = 'Button'
-    spread_reads = frozenset({'Accelerator', 'Caption', 'Characters', 'Enabled', 'Font', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Text', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'AddIndent', 'CancelButton', 'Caption', 'DefaultButton', 'DismissButton', 'Enabled', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
     parts = frozenset({'Characters', 'Font'})
     several = {'visible': True, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
     lost_sets = frozenset({'autoscalefont'})
@@ -857,16 +875,16 @@ class Buttons(OldControls):
 class CheckBoxes(OldControls):
     vba_type_name = 'CheckBoxes'
     kind = 'CheckBox'
-    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Enabled', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'Caption', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Display3DShading', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
 
 
 class OptionButtons(OldControls):
     vba_type_name = 'OptionButtons'
     kind = 'Radio'
-    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Enabled', 'GroupBox', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'Caption', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'GroupBox', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Display3DShading', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
     several = {'visible': True, 'groupbox': NOTHING}
 
@@ -901,16 +919,16 @@ class ListedControls(OldControls):
 class DropDowns(ListedControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
-    spread_reads = frozenset({'Caption', 'Characters', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Caption', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
+    spread_reads = frozenset({'Caption', 'Characters', 'Display3DShading', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Caption', 'Display3DShading', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
     parts = frozenset({'Characters'})
 
 
 class ListBoxes(ListedControls):
     vba_type_name = 'ListBoxes'
     kind = 'List'
-    spread_reads = frozenset({'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Value', 'Visible'})
+    spread_reads = frozenset({'Display3DShading', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Display3DShading', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Value', 'Visible'})
 
 
 def collection(sheet: Worksheet, kind: type[OldControls], index: object) -> Any:

@@ -414,6 +414,10 @@ class Application(ExcelObject):
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
         #: What CopyPicture put on the clipboard, for as long as the clipboard holds it: the clipboard as it was left (see _output).
         self.copied_picture: tuple[object] | None = None
+        #: What the clipboard holds other than cells, and the clipboard then, which it lasts as long as (see _clipboard.clipboard_formats).
+        self.held_formats: tuple[tuple[int, ...] | None, object] | None = None
+        #: Cells copied straight after a kind of copy that Excel answers ClipboardFormats for at random (see _clipboard).
+        self.racing_clip: object = None
         self.user_name = "pyOpenVBA"
         #: What Shape.PickUp kept for Shape.Apply, which outlives the workbook.
         self.picked_up_shape: object = None
@@ -775,6 +779,21 @@ class Application(ExcelObject):
     def _set_status_bar(self, value: object) -> None:
         """Empty text, Empty and Null give the bar back to Excel, and it reads False (tests/fixtures/settable_audit.json)."""
         self.status_bar = None if value is EMPTY or value is NULL or value == "" else value
+
+    @member
+    def ClipboardFormats(self, Index: object = MISSING) -> object:
+        """The formats the clipboard holds, as Doubles from 1: one list for any cells copied or cut, one for a shape or chart
+        object, one for a chart area, one for each kind of picture, and -1 alone for nothing (tests/fixtures/clipboard_formats.json)."""
+        from pyopenvba.apps.excel._clipboard import clipboard_formats
+        from pyopenvba.interpreter._values import VBAArray
+
+        formats: list[object] = [float(number) for number in clipboard_formats(self)]
+        if Index is MISSING:
+            return VBAArray([(1, len(formats))], items=formats)
+        place = int(to_integer(Index, "Long"))
+        if not 1 <= place <= len(formats):
+            raise VBAUnsupportedError("ClipboardFormats with an Index past its formats is not implemented")
+        return formats[place - 1]
 
     @member
     def CutCopyMode(self) -> object:
@@ -1325,9 +1344,47 @@ class Application(ExcelObject):
 
     @method
     def Run(self, Macro: object = MISSING, *args: object) -> object:
+        """No macro is error 5, a number #VALUE!, and a name that is also a cell's, Sum3, 1004 (tests/fixtures/run2.json)."""
         from pyopenvba.apps.excel._projects import run_macro
 
+        if Macro is MISSING:
+            raise error(5, "Invalid procedure call or argument")
+        if isinstance(Macro, (int, float)) and not isinstance(Macro, bool):
+            return VBAErrorValue(2015)
         return run_macro(self, to_text(Macro), list(args))
+
+    @method(name="_Run2")
+    def Run2(self, Macro: object = MISSING, *args: object) -> object:
+        """The hidden twin of Run, whose values cross as a worksheet function's do (tests/fixtures/run2.json): numbers and Empty
+        go in as Doubles and a date as its text; an Integer or Byte comes back a Long and every other number or date a Double; a flat array comes back
+        from 1, and an empty or nested one, an object, no macro or the wrong arguments as #VALUE!."""
+        from pyopenvba.interpreter._values import VBAArray, VBADate
+
+        from pyopenvba.interpreter._values import VBACurrency
+
+        if Macro is MISSING:
+            return VBAErrorValue(2015)
+        if any(isinstance(one, VBACurrency) for one in args):
+            # It arrives as the text the machine's currency format gives it, $1.50 with a space after.
+            raise VBAUnsupportedError("Application._Run2 with a Currency argument is not implemented")
+        given = [0.0 if one is EMPTY else _date_text(one) if isinstance(one, VBADate) else
+                 float(one) if isinstance(one, (int, float, Decimal)) and not isinstance(one, bool) else one for one in args]
+        try:
+            found = self.Run(Macro, *given)
+        except VBARuntimeError as failed:
+            if failed.number in (449, 450):
+                return VBAErrorValue(2015)
+            raise
+        if isinstance(found, VBAObject):
+            return VBAErrorValue(2015)
+        if isinstance(found, VBAArray):
+            if len(found.bounds) != 1:
+                raise VBAUnsupportedError("Application._Run2 answering an array of more than one dimension is not implemented")
+            items = list(found.items)
+            if not items or any(isinstance(one, (VBAArray, VBAObject)) for one in items):
+                return VBAErrorValue(2015)
+            return VBAArray([(1, len(items))], items=items)
+        return _crossed(found)
 
     @method
     def Intersect(self, Arg1: object = MISSING, Arg2: object = MISSING, *rest: object) -> object:
@@ -6882,9 +6939,18 @@ class Range(ExcelObject):
             if which not in (-4162, -4159, 1, 2) and not lines:
                 raise error(1004, refusal)
             up = which in (-4162, 2)
+        tabled = None
+        if len(self.areas) == 1 and not lines:
+            from pyopenvba.apps.excel._table_shifts import carried
+
+            # Cells of a table go as table rows or columns (_table_shifts).
+            tabled = carried(self.sheet, self.first, delete=True, vertical=up, auto=shift is MISSING,
+                             refusal="Delete method of Range class failed")
         # Whatever cells it deletes, and on any sheet, it ends Copy and Cut (tests/fixtures/range_audit.json).
         self.sheet.book.application.clipboard = None
-        if filtered:
+        if tabled is not None:
+            tabled()
+        elif filtered:
             self._delete_filtered(up)
         elif all(area.whole_rows for area in self.areas) or all(area.whole_columns for area in self.areas):
             self._delete_lines()
@@ -7062,6 +7128,14 @@ class Range(ExcelObject):
             if which not in (-4121, -4161, 1, 2):
                 raise error(1004, refusal)
             down = which in (-4121, 2)
+        from pyopenvba.apps.excel._table_shifts import carried
+
+        # Cells put in a table go in as table rows or columns (_table_shifts).
+        tabled = carried(self.sheet, area, delete=False, vertical=down, auto=Shift is MISSING, refusal=refusal)
+        if tabled is not None:
+            tabled()
+            _events.after_edit(where, calculate_first=False)
+            return True
         from pyopenvba.apps.excel._autofilter import insert_admitted
 
         insert_admitted(self.sheet, area, down=down)
@@ -8883,6 +8957,36 @@ def sheets_to_add(count: object) -> int:
     if not 1 <= wanted < 256:
         raise error(1004, "Add method of Sheets class failed")
     return int(wanted)
+
+
+def _date_text(value: object) -> str:
+    """A date as it arrives through Application._Run2: the text VBA gives it, with two spaces between a day and a time of day
+    (tests/fixtures/run2.json)."""
+    from pyopenvba.interpreter._values import VBADate
+
+    text = to_text(value)
+    assert isinstance(value, VBADate)
+    serial = float(value.serial)
+    if int(serial) != 0 and serial != int(serial):
+        day, _, time = text.partition(" ")
+        return f"{day}  {time}"
+    return text
+
+
+def _crossed(value: object) -> object:
+    """A macro's answer as it comes back through Application._Run2: an Integer or Byte as a Long, every other number and a
+    date as a Double, the rest as it was (tests/fixtures/run2.json)."""
+    from pyopenvba.interpreter._values import VBADate
+
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, VBAInt) and value.kind in ("Integer", "Byte"):
+        return VBAInt(int(value), "Long")
+    if isinstance(value, VBADate):
+        return float(value.serial)
+    if isinstance(value, (int, float, Decimal)):
+        return float(value)
+    return value
 
 
 def _value_data_type(kind: object) -> None:

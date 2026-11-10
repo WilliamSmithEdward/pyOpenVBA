@@ -1,0 +1,172 @@
+{
+ "cases": [
+  {
+   "book": "file",
+   "edit": "",
+   "list": "True",
+   "excel": "edit 0 list 0 5 True close 0",
+   "model": "edit 0 list 0 5 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "",
+   "list": "False",
+   "excel": "edit 0 list 0 4 True close 0",
+   "model": "edit 0 list 0 4 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "ws.Columns(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list 0 5 True close 0",
+   "model": "edit 0 list 0 5 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "ws.Columns(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 4 True close 0",
+   "model": "edit 0 list 0 4 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "ws.Rows(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list 0 5 True close 0",
+   "model": "edit 0 list 0 5 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "ws.Rows(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 4 True close 0",
+   "model": "edit 0 list 0 4 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "ws2.Columns(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list 0 5 True close 0",
+   "model": "edit 0 list 0 5 True close 0"
+  },
+  {
+   "book": "file",
+   "edit": "ws2.Columns(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 4 True close 0",
+   "model": "edit 0 list 0 4 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "",
+   "list": "True",
+   "excel": "edit 0 list 0 3 True close 0",
+   "model": "edit 0 list 0 3 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "",
+   "list": "False",
+   "excel": "edit 0 list 0 2 True close 0",
+   "model": "edit 0 list 0 2 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "ws.Columns(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list 0 3 True close 0",
+   "model": "edit 0 list 0 3 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "ws.Columns(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 2 True close 0",
+   "model": "edit 0 list 0 2 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "ws.Rows(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list 0 3 True close 0",
+   "model": "edit 0 list 0 3 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "ws.Rows(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 2 True close 0",
+   "model": "edit 0 list 0 2 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "ws2.Columns(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list 0 3 True close 0",
+   "model": "edit 0 list 0 3 True close 0"
+  },
+  {
+   "book": "new",
+   "edit": "ws2.Columns(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 2 True close 0",
+   "model": "edit 0 list 0 2 True close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "",
+   "list": "True",
+   "excel": "edit 0 list -2147417848 5 False other 1 0 close -2147417848",
+   "model": "edit 0 list 1004 5 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "",
+   "list": "False",
+   "excel": "edit 0 list 0 4 False other 1 0 close 0",
+   "model": "edit 0 list 0 4 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "ws.Columns(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list -2147417848 5 False other 1 0 close -2147417848",
+   "model": "edit 0 list 1004 5 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "ws.Columns(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 4 False other 1 0 close 0",
+   "model": "edit 0 list 0 4 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "ws.Rows(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list -2147417848 5 False other 1 0 close -2147417848",
+   "model": "edit 0 list 1004 5 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "ws.Rows(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 4 False other 1 0 close 0",
+   "model": "edit 0 list 0 4 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "ws2.Columns(1).Insert",
+   "list": "True",
+   "excel": "edit 0 list -2147417848 5 False other 1 0 close -2147417848",
+   "model": "edit 0 list 1004 5 False other 1 0 close 0"
+  },
+  {
+   "book": "file, another in front",
+   "edit": "ws2.Columns(1).Insert",
+   "list": "False",
+   "excel": "edit 0 list 0 4 False other 1 0 close 0",
+   "model": "edit 0 list 0 4 False other 1 0 close 0"
+  }
+ ]
+}

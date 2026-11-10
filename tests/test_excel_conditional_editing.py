@@ -108,8 +108,9 @@ Set g=Range("D1:D3").FormatConditions.Add(xlCellValue,xlGreater,5)
 g.Font.Italic=True
 g.Interior.Color=vbGreen'''
     app, _ = prepare(rules, action)
+    # Through its own cells: set through one of them, Excel splits the rule (tests/fixtures/format_condition_font.json).
     app.add_module('''Sub ChangeSource()
-Range("A1").FormatConditions(1).Font.Bold=False
+Range("A1:A5").FormatConditions(1).Font.Bold=False
 End Sub
 Function InspectTransfer() As String
 Dim f As Object,g As Object,h As Object

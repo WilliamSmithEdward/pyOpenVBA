@@ -32,10 +32,6 @@ NOT_YET: dict[str, str] = {
     'Pictures.Shadow': "the picture's item setter reports itself",
     'Rectangles.AutoSize': "the drawing's item setter reports itself",
     'TextBoxes.AutoSize': "the drawing's item setter reports itself",
-    'TextBoxes.ReadingOrder': "the second text box's text is linked to a cell, which the model cannot write back yet",
-    'TextBoxes.HorizontalAlignment': "the drawing's item setter reports itself",
-    'TextBoxes.Orientation': "the drawing's item setter reports itself",
-    'TextBoxes.VerticalAlignment': "the drawing's item setter reports itself",
 }
 CASES = [case for case in RECORD['cases'] if case['collection'] != 'DrawingObjects']
 REPLAYED = [case for case in CASES if f"{case['collection']}.{case['member']}" not in NOT_YET]

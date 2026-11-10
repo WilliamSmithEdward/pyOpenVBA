@@ -272,6 +272,9 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
     shape.locks_text = head is None or re.search(r'\bfLocksText="(?:0|false)"', head.group(1)) is None
     linked = None if head is None else re.search(r'\btextlink="([^"]*)"', head.group(1))
     shape.text_link = "" if linked is None else unescape(linked.group(1))
+    field = re.search(r'<a:fld id="([^"]*)" type="TxLink">(<a:rPr\b[^>]*/>|<a:rPr\b.*?</a:rPr>)', markup, re.DOTALL) if shape.text_link else None
+    if field is not None:
+        shape.text_link_id, shape.text_link_run = field.group(1), field.group(2)
     # A form control's drawing is hidden for its own reasons; Visible reads only a shape's own hidden.
     link = _LINK.search(markup[: markup.find("</xdr:cNvPr>") if "</xdr:cNvPr>" in markup else 0])
     if link is not None:
@@ -2126,7 +2129,7 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
                 markup = markup[:properties.end()] + OLD_SHADOW + markup[properties.end():]
     # Excel-authored controls can also carry a hidden DrawingML
     # caption. Excel prefers it to VML when both exist.
-    linked = shape.text_link_id and shape.kind in ("shape", "textBox")
+    linked = shape.text_link_made and shape.kind in ("shape", "textBox")
     markup = _with_loaded_link(markup, shape, was) if linked else _with_loaded_text(markup, shape, was)
     if shape.kind == "formControl" and shape.control is not None:
         markup = with_text_frame(markup, shape.control)

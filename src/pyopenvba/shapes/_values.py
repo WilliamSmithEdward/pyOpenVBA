@@ -522,11 +522,12 @@ class Shape:
     #: Excel: a loaded drawing given a shadow through its old object, which Excel writes as a new drawing's effectLst
     #: (tests/fixtures/loaded_drawing_edits.json).
     shadow_added: bool = False
-    #: Excel: the cell a drawing's text is linked to, as the file's textlink holds it, and for a link made this session the
-    #: TxLink field's id and its rPr, which carry the cell's font (tests/fixtures/drawing_text_links.json).
+    #: Excel: the cell a drawing's text is linked to, as the file's textlink holds it, the TxLink field's id and its rPr, which
+    #: carry the cell's font, and whether the link was made this session, which follows its cell (tests/fixtures/drawing_text_links.json).
     text_link: str = ""
     text_link_id: str = ""
     text_link_run: str = ""
+    text_link_made: bool = False
     #: Excel: a new picture's image file, the extension its part takes, and what PictureFormat set: brightness and contrast
     #: as the file's lum values (None until either is set), its ColorType, the colour made transparent as RRGGBB, and
     #: whether TransparentBackground is on (tests/fixtures/shape_picture_formats.json).

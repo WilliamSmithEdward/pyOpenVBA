@@ -266,7 +266,7 @@ class _Texted(_Filled):
         return _object(self._frame().vba_get('Characters', []))
 
     def _words(self, value: object) -> None:
-        if self.shape.text_link_id:
+        if self.shape.text_link_made:
             raise VBAUnsupportedError("Setting the text of a drawing linked to a cell this session is not implemented")
         self._whole().vba_set('Text', value)
 
@@ -292,7 +292,7 @@ class _Texted(_Filled):
 
     @member
     def Font(self) -> object:
-        if self.shape.text_link_id:
+        if self.shape.text_link_made:
             # Excel reads a linked drawing's Font.Color as -2147483648 whatever its colours, by a rule not worked out yet
             # (tests/fixtures/old_drawings.json).
             raise VBAUnsupportedError("The Font of a drawing linked to a cell this session is not implemented")
@@ -395,7 +395,7 @@ class _Texted(_Filled):
         link_text(self.sheet, self.shape, to_text(value))
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
-        if self.shape.text_link_id:
+        if self.shape.text_link_made:
             follow_text_link(self.sheet, self.shape)
         return super().vba_get(name, args, named)
 
@@ -414,6 +414,7 @@ def link_text(sheet: Worksheet, shape: Shape, formula: str) -> None:
         # Taken off, the text stays as it was shown, in a plain run.
         follow_text_link(sheet, shape)
         shape.text_link = shape.text_link_id = shape.text_link_run = ''
+        shape.text_link_made = False
         sheet.drawing_changed()
         return
     found = _LINKED_CELL.fullmatch(formula)
@@ -428,6 +429,7 @@ def link_text(sheet: Worksheet, shape: Shape, formula: str) -> None:
         raise VBAUnsupportedError("Linking the text of a drawing that holds more than one run of text is not implemented")
     shape.text_link = (f'{sheet.name}!' if named is not None else '') + found.group(3).upper()
     shape.text_link_id = '{' + str(uuid.uuid4()).upper() + '}'
+    shape.text_link_made = True
     follow_text_link(sheet, shape)
     sheet.drawing_changed()
 
@@ -438,7 +440,7 @@ def follow_text_link(sheet: Worksheet, shape: Shape) -> bool:
     cell = _object(sheet.vba_get('Range', [shape.text_link.rsplit('!', 1)[-1]]))
     text = to_text(cell.vba_get('Text', [])) or ' '
     run = shape.text_link_run
-    if shape.text_link_id:
+    if shape.text_link_made:
         run = _linked_run(shape, _object(cell.vba_get('Font', [])))
     changed = (text, run) != (shape.text, shape.text_link_run)
     shape.text, shape.text_link_run = text, run
@@ -466,7 +468,7 @@ def _linked_run(shape: Shape, font: VBAObject) -> str:
 
 def follow_text_links(sheet: Worksheet) -> None:
     """Before a save: each linked drawing shows its cell as it is now."""
-    if any([follow_text_link(sheet, shape) for shape in sheet.shapes_ if shape.text_link_id and shape.kind in ('shape', 'textBox')]):
+    if any([follow_text_link(sheet, shape) for shape in sheet.shapes_ if shape.text_link_made and shape.kind in ('shape', 'textBox')]):
         sheet.drawing_changed()
 
 
@@ -734,8 +736,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Interior', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Locked', 'LockedText', 'Placement', 'PrintObject', 'RoundedCorners', 'Shadow', 'Text', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -831,7 +833,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'RoundedCorners', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'VerticalAlignment', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest

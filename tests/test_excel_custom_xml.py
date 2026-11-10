@@ -18,7 +18,7 @@ from typing import Any
 import pytest
 
 FIXTURES = Path(__file__).parent / 'fixtures'
-ROUNDS = tuple(stem for stem in ('custom_xml', 'custom_xml_b', 'custom_xml_c', 'custom_xml_d', 'custom_xml_e',
+ROUNDS = tuple(stem for stem in ('custom_xml', 'custom_xml_b', 'custom_xml_c', 'custom_xml_d', 'custom_xml_e', 'custom_xml_f',
                                   'custom_xml1', 'custom_xml2',
                                   'custom_xml3', 'custom_xml4', 'custom_xml5')
                if (FIXTURES / f'{stem}.json').exists())
@@ -57,6 +57,12 @@ def _files(found: dict[str, str]) -> dict[str, str]:
     return {key: GUID.sub('{ID}', value) for key, value in found.items()}
 
 
+@pytest.fixture(autouse=True)
+def own_temp(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Cases write and read files under %TEMP%, which a Linux runner does not set: each test gets its own folder."""
+    monkeypatch.setenv('TEMP', str(tmp_path))
+
+
 @pytest.mark.parametrize('stem, number, case', CASES, ids=[f'{one[0]}-{one[2][0]}' for one in CASES])
 def test_each_case_as_excel_answered_and_saved(stem: str, number: int, case: list[Any], tmp_path: Path) -> None:
     record = json.loads((FIXTURES / f'{stem}.json').read_text('utf-8'))
@@ -74,3 +80,28 @@ def test_each_held_out_round_was_predicted_before_excel_answered(stem: str) -> N
     record = json.loads((FIXTURES / f'{stem}.json').read_text('utf-8'))
     predicted = json.loads((FIXTURES / f'{stem}_predictions.json').read_text('utf-8'))
     assert [case['call'] for case in predicted['cases']] == [one[:3] for one in record['cases']]
+
+
+@pytest.mark.parametrize('text', [
+    '<!DOCTYPE r [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;"><!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;">]>'
+    '<r>&c;</r>',
+    '<!DOCTYPE r SYSTEM "http://example.invalid/r.dtd"><r/>',
+    '<!DOCTYPE r [<!ENTITY e SYSTEM "file:///etc/passwd">]><r>&e;</r>',
+    '<!DOCTYPE r [<!ENTITY % p SYSTEM "http://example.invalid/p.dtd"> %p;]><r/>',
+])
+@pytest.mark.parametrize('how', ['Add', 'LoadXML'])
+def test_a_doctype_is_refused_before_anything_in_it_is_read(text: str, how: str) -> None:
+    """Expanding entities, an external DTD, an external entity and a parameter entity: each is Excel's "DTD is
+    prohibited." where the DOCTYPE starts, so no entity is expanded and nothing is fetched."""
+    from pyopenvba.apps.excel import ExcelApplication
+
+    quoted = text.replace('"', '""')
+    statement = (f'Set p = ActiveWorkbook.CustomXMLParts.Add("{quoted}")' if how == 'Add' else
+                 f'Set p = ActiveWorkbook.CustomXMLParts.Add(): b = p.LoadXML("{quoted}")')
+    app = ExcelApplication(sandbox=False)
+    app.add_workbook()
+    app.add_module('Function Go() As String\n    Dim p As Object, b As Variant\n    On Error Resume Next\n'
+                   f'    {statement}\n'
+                   '    Go = Err.Number & ":" & Err.Description & "|" & ActiveWorkbook.CustomXMLParts.Count\nEnd Function\n',
+                   name='P')
+    assert app.run('P.Go') == f'-2147467259:DTD is prohibited.\n|{3 if how == "Add" else 4}'

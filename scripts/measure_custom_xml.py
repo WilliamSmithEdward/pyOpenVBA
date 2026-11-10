@@ -255,6 +255,24 @@ CASES_E: list[tuple[str, list[str], list[str]]] = [
 ]
 
 
+def _quoted(text: str) -> str:
+    return text.replace('"', '""')
+
+
+#: The sixth look: a document with a DOCTYPE, given to Add and to LoadXML. Only internal subsets with one short
+#: entity, and a bare DOCTYPE; no external identifier, so nothing is fetched.
+DTDS = (('bare', '<!DOCTYPE r><r>x</r>'), ('empty subset', '<!DOCTYPE r []><r>x</r>'),
+        ('entity', '<!DOCTYPE r [<!ENTITY a "y">]><r>&a;</r>'),
+        ('element decl', '<!DOCTYPE r [<!ELEMENT r (#PCDATA)>]><r>x</r>'))
+CASES_F: list[tuple[str, list[str], list[str]]] = [
+    case for name, text in DTDS for case in (
+        (f'add {name}', [f'Set p = ActiveWorkbook.CustomXMLParts.Add("{_quoted(text)}")'],
+         ['TypeName(p)', 'ActiveWorkbook.CustomXMLParts.Count', 'p.XML', 'p.DocumentElement.Text']),
+        (f'loadxml {name}', ['Set p = ActiveWorkbook.CustomXMLParts.Add()', f'b = p.LoadXML("{_quoted(text)}")'],
+         ['b', 'ActiveWorkbook.CustomXMLParts.Count', 'p.XML', 'p.DocumentElement.Text']))
+]
+
+
 #: A class whose WithEvents variables log each event a case's statements raise.
 SINK = '''Public WithEvents p As CustomXMLPart
 Public WithEvents ps As CustomXMLParts
@@ -380,7 +398,7 @@ def main() -> None:
     stem = 'custom_xml' + (sys.argv[1] if len(sys.argv) > 1 else '')
     predicted = FIXTURES / f'{stem}_predictions.json'
     cases = ([tuple(case['call']) for case in json.loads(predicted.read_text('utf-8'))['cases']]
-             if predicted.exists() else {'_b': CASES_B, '_c': CASES_C, '_d': CASES_D, '_e': CASES_E}.get(stem[len('custom_xml'):], CASES))
+             if predicted.exists() else {'_b': CASES_B, '_c': CASES_C, '_d': CASES_D, '_e': CASES_E, '_f': CASES_F}.get(stem[len('custom_xml'):], CASES))
     text = source(cases)  # type: ignore[arg-type]
     answers: list[str] = []
     files: list[dict[str, str]] = []

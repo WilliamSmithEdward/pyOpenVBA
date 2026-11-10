@@ -10,6 +10,7 @@ tests/fixtures/custom_xml*.json).
 """
 from __future__ import annotations
 
+from typing import NoReturn
 from xml.parsers import expat
 
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -104,12 +105,26 @@ class Node:
         return XML_NAMESPACE if prefix == 'xml' else ''
 
 
+class _Prohibited(Exception):
+    """A DOCTYPE, met before its internal subset is read."""
+
+
+def _prohibit(*_args: object) -> NoReturn:
+    raise _Prohibited
+
+
 def parsed(text: str) -> Node:
-    """The document ``text`` holds, or error -2147467259."""
+    """The document ``text`` holds, or error -2147467259. A macro's text is untrusted, so a DOCTYPE stops the parse
+    where it starts, before any entity it declares is read or expanded, and nothing external is ever fetched: MSXML
+    in Excel answers "DTD is prohibited." for every one (tests/fixtures/custom_xml_f.json)."""
     document = Node(DOCUMENT)
     open_tags: list[Node] = [document]
     parser = expat.ParserCreate()
     parser.ordered_attributes = True
+    parser.StartDoctypeDeclHandler = _prohibit
+    parser.EntityDeclHandler = _prohibit
+    parser.ExternalEntityRefHandler = _prohibit
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
 
     def start(name: str, attributes: list[str]) -> None:
         element = Node(ELEMENT, name)
@@ -152,6 +167,8 @@ def parsed(text: str) -> Node:
     parser.XmlDeclHandler = declaration
     try:
         parser.Parse(text, True)
+    except _Prohibited:
+        raise error(FAILED, 'DTD is prohibited.\n') from None
     except expat.ExpatError as failure:
         raise _failure(failure, text, open_tags) from None
     return document

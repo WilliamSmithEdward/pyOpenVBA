@@ -36,6 +36,8 @@ class _Shape:
     #: Whether its children come in one order everywhere it occurs; where they do not, Excel declares them in an xsd:all
     #: (tests/fixtures/xml_infer.json).
     ordered: bool = True
+    #: The children its first occurrence had.
+    first: set[str] | None = None
 
 
 def _split(tag: str) -> tuple[str, str]:
@@ -69,9 +71,13 @@ def _merge(shape: _Shape, node: XmlElement, namespaces: set[str]) -> None:
     for name, count in counts.items():
         shape.children[name].most = max(shape.children[name].most, count)
     known = list(shape.children)
-    places = [known.index(name) for name in dict.fromkeys(_split(child.tag)[1] for child in elements)]
-    if places != sorted(places):
+    names = list(dict.fromkeys(_split(child.tag)[1] for child in elements))
+    places = [known.index(name) for name in names]
+    # Children in another order, or one the first occurrence did not have, make an xsd:all (tests/fixtures/xml_infer.json).
+    if places != sorted(places) or (shape.first is not None and any(name not in shape.first for name in names)):
         shape.ordered = False
+    if shape.first is None:
+        shape.first = set(names)
 
 
 # --- types --------------------------------------------------------------------------------------------------------------

@@ -102,6 +102,8 @@ class SingleMapping:
     #: The uniqueName a save writes: 1 for a cell mapped with SetValue, the leaf's name for one an import with no map laid out
     #: (tests/fixtures/xml_maps.json, xml_infer.json).
     unique: str = "1"
+    #: Its id in the part, from the counter tables take theirs from, in the order they were made (tests/fixtures/xml_infer.json).
+    number: int = 0
 
 
 # --- reading a schema --------------------------------------------------------------------------------------------------
@@ -264,7 +266,7 @@ def _typed(text: str, kind: str) -> tuple[object, bool]:
     if kind in ("integer", "decimal"):
         pattern = r"[+-]?\d+" if kind == "integer" else r"[+-]?(\d+(\.\d*)?|\.\d+)"
         if re.fullmatch(pattern, text.strip()):
-            return float(text), True
+            return float(text) + 0.0, True  # -0 is 0 (tests/fixtures/xml_infer.json)
         return text, False
     if kind == "boolean":
         # true and false are Booleans, but 1 and 0 the numbers they spell (tests/fixtures/xml_maps.json).
@@ -285,7 +287,7 @@ def _typed(text: str, kind: str) -> tuple[object, bool]:
     if kind == "double":
         # NaN and INF are doubles the schema takes, kept in the cell as their text (tests/fixtures/xml_infer.json).
         if re.fullmatch(r"[+-]?\d+(\.\d*)?([eE][+-]?\d+)?", text.strip()):
-            return float(text), True
+            return float(text) + 0.0, True
         return text, text.strip() in ("NaN", "INF", "-INF")
     if kind in ("dateTime", "time"):
         from pyopenvba.apps.excel._xml_infer import _takes
@@ -410,6 +412,12 @@ def _fill_table(table: Table, state: MapState, tree: XmlElement, overwrite: bool
         raise VBAUnsupportedError("importing XML into a table with a totals row or no header row is not implemented")
     start = data.top if overwrite else data.bottom + 1
     rows = max(len(items), 1) if overwrite else len(items)
+    if items:
+        table.xml_emptied = False
+    elif overwrite and data.bottom > data.top:
+        # An import that empties a table of rows marks it insertRow; one into a table already empty does not
+        # (tests/fixtures/xml_infer.json, xml_maps.json).
+        table.xml_emptied = True
     bottom = start + rows - 1 if rows else data.bottom
     if bottom < table.area.bottom:
         # Fewer rows than the table had: it shrinks, and the rows it gives up are emptied (tests/fixtures/xml_maps.json).
@@ -1042,7 +1050,7 @@ class XPath(ExcelObject):
     @method
     def SetValue(self, Map: object = MISSING, XPath: object = MISSING, SelectionNamespace: object = MISSING,  # noqa: N803
                  Repeating: object = MISSING) -> object:
-        from pyopenvba.apps.excel._tables import guid, table_at
+        from pyopenvba.apps.excel._tables import guid, next_part_id, table_at
 
         if Map is MISSING or XPath is MISSING:
             raise error(449, "Argument not optional")
@@ -1058,7 +1066,7 @@ class XPath(ExcelObject):
         elif self.area.rows == 1 and self.area.columns == 1:
             if table_at(self.sheet, self.area.top, self.area.left) is not None:
                 raise VBAUnsupportedError("mapping a cell of a table through Range.XPath is not implemented")
-            self.sheet.xml_cells[(self.area.top, self.area.left)] = SingleMapping(state, leaf, guid(), guid())
+            self.sheet.xml_cells[(self.area.top, self.area.left)] = SingleMapping(state, leaf, guid(), guid(), number=next_part_id(self.sheet))
         elif self.area.columns == 1 and leaf.repeating and not leaf.repeats_again:
             self._block_table(state, leaf)
         else:
@@ -1157,7 +1165,7 @@ def workbook_import(book: Workbook, data: str, import_map: object, overwrite: ob
 
 def _import_inferred(book: Workbook, data: str, import_map: object, overwrite: object, destination: object, url: str) -> object:
     """An import with no map: a map of the schema Excel infers, its table or cells laid out at Destination, then the import."""
-    from pyopenvba.apps.excel._tables import add, guid
+    from pyopenvba.apps.excel._tables import add, guid, next_part_id
     from pyopenvba.apps.excel._xml_infer import schema_text
 
     if destination is MISSING:
@@ -1200,7 +1208,7 @@ def _import_inferred(book: Workbook, data: str, import_map: object, overwrite: o
         table.changed = True
     else:
         for place, leaf in enumerate(_leaves_of(state, cells)):
-            sheet.xml_cells[(top, left + place)] = SingleMapping(state, leaf, guid(), guid(), _named(leaf))
+            sheet.xml_cells[(top, left + place)] = SingleMapping(state, leaf, guid(), guid(), _named(leaf), next_part_id(sheet))
     book.xml_maps_changed = True
     sheet.touched()
     made = XmlMap(book, state)
@@ -1280,13 +1288,11 @@ def maps_xml(book: Workbook) -> str:
 
 def singles_xml(sheet: Worksheet) -> str:
     cells: list[str] = []
-    # Their ids go on from the workbook's table ids (tests/fixtures/xml_infer.json).
-    after = max((table.id for one in sheet.book.sheets_ for table in one.tables), default=0)
-    for number, ((row, column), single) in enumerate(sorted(sheet.xml_cells.items(), key=lambda item: (item[0][0], item[0][1])), after + 1):
+    for (row, column), single in sorted(sheet.xml_cells.items(), key=lambda item: (item[0][0], item[0][1])):
         from pyopenvba._a1 import Area
 
         where = Area(row, column, row, column).address(absolute=False)
-        cells.append(f'<singleXmlCell id="{number}" xr6:uid="{single.uid}" r="{where}" connectionId="0"><xmlCellPr id="1" '
+        cells.append(f'<singleXmlCell id="{single.number}" xr6:uid="{single.uid}" r="{where}" connectionId="0"><xmlCellPr id="1" '
                      f'xr6:uid="{single.cell_uid}" uniqueName="{escape(single.unique)}"><xmlPr mapId="{single.map.id}" xpath="{escape(single.leaf.path)}" '
                      f'xmlDataType="{single.leaf.kind}"/></xmlCellPr></singleXmlCell>')
     return f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<singleXmlCells {_SINGLES_NAMESPACES}>{"".join(cells)}</singleXmlCells>'
@@ -1393,12 +1399,12 @@ def _read_parts(book: Workbook, package: Any) -> None:
             from pyopenvba._a1 import parse_area
 
             text = package.read(part).decode("utf-8")
-            for cell in re.finditer(r'<singleXmlCell\b[^>]*\bxr6:uid="([^"]*)"[^>]*\br="([^"]+)".*?<xmlCellPr\b[^>]*\bxr6:uid="([^"]*)"'
+            for cell in re.finditer(r'<singleXmlCell\b[^>]*\bid="(\d+)"[^>]*\bxr6:uid="([^"]*)"[^>]*\br="([^"]+)".*?<xmlCellPr\b[^>]*\bxr6:uid="([^"]*)"'
                                     r'[^>]*\buniqueName="([^"]*)".*?<xmlPr mapId="(\d+)" xpath="([^"]*)"', text, re.DOTALL):
-                state = by_id[int(cell.group(5))]
-                at = parse_area(cell.group(2))
-                sheet.xml_cells[(at.top, at.left)] = SingleMapping(state, _leaf_at(state.schema, cell.group(6)), cell.group(1), cell.group(3),
-                                                                   unescape(cell.group(4)))
+                state = by_id[int(cell.group(6))]
+                at = parse_area(cell.group(3))
+                sheet.xml_cells[(at.top, at.left)] = SingleMapping(state, _leaf_at(state.schema, cell.group(7)), cell.group(2), cell.group(4),
+                                                                   unescape(cell.group(5)), int(cell.group(1)))
     book.xml_maps_changed = False
 
 

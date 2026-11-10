@@ -135,6 +135,23 @@ CASES: list[str] = [
     imported('<list><item><n>1</n><s>a</s></item><item><n>2</n><s>b</s></item><item><n>3</n><s>c</s></item></list>', 'ws.Range("A1")')
     + 'r = r & " " & m.ImportXml("<list><item><n>9</n><s>z</s></item></list>") & " " & ws.ListObjects(1).Range.Address',
     imported('<v>2024-01-02</v>') + 'r = r & " " & TypeName(ws.Range("B2").Value) & " " & ws.Range("B2").NumberFormat',
+    # Held-out round C, predicted before it ran. Single cells mapped before a table: their ids go on from the table's (R1) or
+    # run in the order they were made (R2).
+    imported('<doc><t>x</t></doc>') + 'Set m = Nothing: r = r & " " & wb.XmlImportXml(' + _vba(DATA['d.xml']) + ', m, True, ws.Range("B5"))',
+    imported('<list><item><n>1</n></item><item></item><item><n>3</n></item></list>'),
+    imported(DATA['d.xml']) + 'ws.Range("B4").ClearContents: r = r & " " & m.ExportXml(s) & " " & s',
+    imported('<doc><title>Hi</title><count>3</count></doc>') + 'ws.Range("B2").ClearContents: r = r & " " & m.ExportXml(s) & " " & s',
+    typed('5', '-0'),
+    typed('2024-01-02', ''),
+    imported('<list><item><a>1</a></item><item><b>2</b></item></list>'),
+    # Held-out round D, predicted before it ran.
+    'ws.ListObjects.Add xlSrcRange, ws.Range("H1:H2"), , xlYes: ' + imported('<doc><t>x</t></doc>'),
+    typed('3.0e1', '1'),
+    imported('<list><item><n>1</n><s>a</s></item><item><n>2</n><s></s></item><item><n>3</n><s>c</s></item></list>')
+    + 'r = r & " " & m.ExportXml(s) & " " & s',
+    imported('<list><item><n>1</n></item><item> </item></list>'),
+    imported(DATA['d.xml'], 'ws.Range("A1")') + 'r = r & " " & m.ImportXml("<list/>") & " " & ws.ListObjects(1).Range.Address',
+    typed('-1.5', '2'),
 ]
 #: The cases whose saved workbooks are kept, for the model to open as Excel saved them.
 KEPT = (39, 37, 38, 26)

@@ -402,7 +402,9 @@ def _fill_table(table: Table, state: MapState, tree: XmlElement, overwrite: bool
 
     schema = state.schema
     depth = len(schema.repeat_steps)
-    items = _items(tree, schema)
+    mapped = [column.xml[1] for column in table.columns if column.xml is not None and column.xml[0] is state]
+    # An item holding none of the mapped values makes no row (tests/fixtures/xml_infer.json).
+    items = [item for item in _items(tree, schema) if any(_value_under(item, _steps(leaf.path)[depth:]) is not None for leaf in mapped)]
     data = table.data
     if table.totals or not table.headers or data is None:
         raise VBAUnsupportedError("importing XML into a table with a totals row or no header row is not implemented")
@@ -488,6 +490,10 @@ def export_text(book: Workbook, state: MapState, *, file: bool) -> tuple[str, in
 
     def element(leaf: Leaf, value: object, indent: str) -> None:
         nonlocal failed
+        if not leaf.required and (value is EMPTY or value == ""):
+            # An empty cell of a leaf the schema lets be left out is left out; a required one is written empty
+            # (tests/fixtures/xml_infer.json, xml_maps.json).
+            return
         text, good = _written(value, leaf.kind)
         failed |= not good
         lines.append(f"{indent}<{leaf.name}/>" if text == "" else f"{indent}<{leaf.name}>{escape(text)}</{leaf.name}>")
@@ -1274,7 +1280,9 @@ def maps_xml(book: Workbook) -> str:
 
 def singles_xml(sheet: Worksheet) -> str:
     cells: list[str] = []
-    for number, ((row, column), single) in enumerate(sorted(sheet.xml_cells.items(), key=lambda item: (item[0][0], item[0][1])), 1):
+    # Their ids go on from the workbook's table ids (tests/fixtures/xml_infer.json).
+    after = max((table.id for one in sheet.book.sheets_ for table in one.tables), default=0)
+    for number, ((row, column), single) in enumerate(sorted(sheet.xml_cells.items(), key=lambda item: (item[0][0], item[0][1])), after + 1):
         from pyopenvba._a1 import Area
 
         where = Area(row, column, row, column).address(absolute=False)

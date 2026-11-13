@@ -1,0 +1,207 @@
+{
+ "measured_at": "2026-11-10T16:24:53.355306+00:00",
+ "source": "Public Function Go(ByVal which As Long, ByVal path As String) As String\n    Dim wb As Workbook, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    On Error Resume Next\n    Select Case which\n    Case 0: s = Case0(wb)\n    Case 1: s = Case1(wb)\n    Case 2: s = Case2(wb)\n    Case 3: s = Case3(wb)\n    Case 4: s = Case4(wb)\n    Case 5: s = Case5(wb)\n    Case 6: s = Case6(wb)\n    Case 7: s = Case7(wb)\n    End Select\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    s = s & \" save=\" & Err.Number\n    Application.DisplayAlerts = True\n    wb.Close False\n    Go = s\nEnd Function\n\nPrivate Function Case0(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    n.AppendChildSubtree \"<s><u/></s>\"\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case0 = s\nEnd Function\n\nPrivate Function Case1(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    n.AppendChildSubtree \"<s>q</s>\"\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case1 = s\nEnd Function\n\nPrivate Function Case2(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    n.AppendChildNode \"s\"\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case2 = s\nEnd Function\n\nPrivate Function Case3(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    n.AppendChildNode \"s\", \"\", 1, \"q\"\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case3 = s\nEnd Function\n\nPrivate Function Case4(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    n.InsertSubtreeBefore \"<s/>\", n.FirstChild\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case4 = s\nEnd Function\n\nPrivate Function Case5(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    n.ReplaceChildSubtree \"<s/>\", n.FirstChild\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case5 = s\nEnd Function\n\nPrivate Function Case6(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    p.SelectSingleNode(\"/r/e\").AppendChildSubtree \"<s/>\"\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case6 = s\nEnd Function\n\nPrivate Function Case7(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    Set n = p.SelectSingleNode(\"/r/d\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    p.AddNode n, \"s\"\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.ChildNodes.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = n.LastChild.NodeType\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case7 = s\nEnd Function\n",
+ "sink": "Public WithEvents p As CustomXMLPart\nPublic WithEvents ps As CustomXMLParts\nPublic log As String\n\nPrivate Function Nm(n As Object) As String\n    On Error Resume Next\n    Nm = \"?\"\n    If n Is Nothing Then Nm = \"-\" Else Nm = n.BaseName & \":\" & n.NodeType\nEnd Function\n\nPrivate Sub p_NodeAfterDelete(ByVal OldNode As CustomXMLNode, ByVal OldParentNode As CustomXMLNode, ByVal OldNextSibling As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"D(\" & Nm(OldNode) & \",\" & Nm(OldParentNode) & \",\" & Nm(OldNextSibling) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub p_NodeAfterInsert(ByVal NewNode As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"I(\" & Nm(NewNode) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub p_NodeAfterReplace(ByVal OldNode As CustomXMLNode, ByVal NewNode As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"R(\" & Nm(OldNode) & \",\" & Nm(NewNode) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub ps_PartAfterAdd(ByVal NewPart As CustomXMLPart)\n    log = log & \"A(\" & NewPart.NamespaceURI & \")\"\nEnd Sub\n\nPrivate Sub ps_PartAfterLoad(ByVal Part As CustomXMLPart)\n    log = log & \"L(\" & Part.NamespaceURI & \")\"\nEnd Sub\n\nPrivate Sub ps_PartBeforeDelete(ByVal OldPart As CustomXMLPart)\n    log = log & \"B(\" & OldPart.NamespaceURI & \")\"\nEnd Sub\n",
+ "cases": [
+  [
+   "subtree",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "n.AppendChildSubtree \"<s><u/></s>\""
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:a_b_6|String:a_b|String:<r><d>a_b<s><u/></s></d><e>6</e></r>|Long:2|Long:1|String:a_b|String:<s><u/></s> save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d>a b<s><u/></s></d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{133CF88E-7290-4A3E-A162-5A2AFF6F9F77}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "subtree text",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "n.AppendChildSubtree \"<s>q</s>\""
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:a_bq_6|String:a_bq|String:<r><d>a_b<s>q</s></d><e>6</e></r>|Long:2|Long:1|String:a_b|String:<s>q</s> save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d>a b<s>q</s></d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{D3167BC3-4EFC-433C-A419-628D761353FF}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "child node",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "n.AppendChildNode \"s\""
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:a_b6|String:a_b|String:<r><d>a_b<s/></d><e>6</e></r>|Long:2|Long:1|String:a_b|String:<s/> save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d>a b<s/></d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{4B7B53BB-EC41-4DF2-977C-2948E8E7F27B}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "child node text",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "n.AppendChildNode \"s\", \"\", 1, \"q\""
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:a_bq6|String:a_bq|String:<r><d>a_b<s>q</s></d><e>6</e></r>|Long:2|Long:1|String:a_b|String:<s>q</s> save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d>a b<s>q</s></d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{40DEED75-4B0A-4A43-966E-D058CF1EC566}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "subtree before",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "n.InsertSubtreeBefore \"<s/>\", n.FirstChild"
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:a_b6|String:a_b|String:<r><d><s/>a_b</d><e>6</e></r>|Long:2|Long:3|String:<s/>|String:a_b save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d><s/>a b</d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{593794E9-B04F-4F02-B07B-AEAA1BC614E7}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "subtree replace",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "n.ReplaceChildSubtree \"<s/>\", n.FirstChild"
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:6|String:|String:<r><d><s/></d><e>6</e></r>|Long:1|Long:1|String:<s/>|String:<s/> save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d><s/></d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{063E07B1-EC87-437C-B250-A2C499A96651}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "subtree empty element",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "p.SelectSingleNode(\"/r/e\").AppendChildSubtree \"<s/>\""
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "|String:a_b6|String:a_b|String:<r><d>a_b</d><e>6<s/></e></r>|Long:1|Long:3|String:a_b|String:a_b save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d>a b</d><e>6<s/></e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{7A9D4B0F-F39E-425D-B360-75445DAE0191}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "add node",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d>a b</d><e>6</e></r>\")",
+    "Set n = p.SelectSingleNode(\"/r/d\")",
+    "p.AddNode n, \"s\""
+   ],
+   [
+    "Replace(Replace(Replace(p.DocumentElement.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.Text, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(p.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "n.ChildNodes.Count",
+    "n.LastChild.NodeType",
+    "Replace(Replace(Replace(n.ChildNodes(1).NodeValue, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")",
+    "Replace(Replace(Replace(n.LastChild.XML, \" \", \"_\"), vbCr, \"~\"), vbLf, \"^\")"
+   ],
+   "[13:Type mismatch]|String:a_b6|String:a_b|String:<r><d>a_b</d><e>6</e></r>|Long:1|Long:3|String:a_b|String:a_b save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "<r><d>a b</d><e>6</e></r>",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{FB2CE498-BFCC-4A58-BC83-4662F671FA54}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ]
+ ]
+}

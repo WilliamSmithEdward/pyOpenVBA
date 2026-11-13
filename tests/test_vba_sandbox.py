@@ -49,6 +49,7 @@ WRITES_OR_READS = [
     'Workbooks.CheckOut folder & "/there.xlsx"',
     'Workbooks.OpenXML folder & "/there.xlsx"',
     'Workbooks.OpenDatabase folder & "/there.xlsx"',
+    'b = ActiveWorkbook.CustomXMLParts.Add().Load(folder & "/there.csv")',
 ]
 NOT_YET = [
     'x = Shell("cmd")',

@@ -1,0 +1,2255 @@
+{
+"cases": [
+{
+"call": [
+"held 0",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a k=\"\"3\"\">x&amp;y</a><b q=\"\"0\"\">x&amp;y</b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\"",
+"tn.RemoveChild tn.LastChild"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//b\").Count",
+"p.SelectNodes(\"//*[b]\").Count",
+"TypeName(p.SelectSingleNode(\"//@*\"))",
+"TypeName(p.SelectSingleNode(\"//@*\")) & \"|\" & p.SelectSingleNode(\"//@*\").BaseName & \"|\" & p.SelectSingleNode(\"//@*\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//@*\").NodeType & \"|\" & p.SelectSingleNode(\"//@*\").Text & \"|\" & p.SelectSingleNode(\"//@*\").XPath",
+"p.SelectSingleNode(\"//@*\").XML",
+"p.SelectSingleNode(\"//@*\").NodeValue",
+"p.SelectSingleNode(\"//@*\").ChildNodes.Count",
+"p.SelectSingleNode(\"//@*\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//@*\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><e>first</e><a k=\"3\">x&amp;y</a></r>|String:|Long:1|Long:0|Long:1|Long:1|Long:0|Long:0|String:CustomXMLNode|String:CustomXMLNode|k||2|3|/r[1]/a[1]/@k|String:k=\"3\"|String:3|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:Nothing|String:/r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><e>first</e><a k=\"3\">x&amp;y</a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{5D9C6EE2-5B50-4CFF-B210-0D1B7DDA3785}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 1",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><b><d k=\"\"1\"\" q=\"\"1\"\"><b>x&amp;y</b></d><c m=\"\"1\"\" k=\"\"3\"\"><a k=\"\"1\"\" m=\"\"3\"\">a b</a><a k=\"\"2\"\" m=\"\"0\"\">6</a></c></b><c m=\"\"1\"\" q=\"\"2\"\">a b</c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/r/*[1]/following-sibling::*\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"//a[@q]\").Count",
+"TypeName(p.SelectSingleNode(\"//*[2]\"))",
+"TypeName(p.SelectSingleNode(\"//*[2]\")) & \"|\" & p.SelectSingleNode(\"//*[2]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[2]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[2]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[2]\").Text & \"|\" & p.SelectSingleNode(\"//*[2]\").XPath",
+"p.SelectSingleNode(\"//*[2]\").XML",
+"p.SelectSingleNode(\"//*[2]\").NodeValue",
+"p.SelectSingleNode(\"//*[2]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[2]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[2]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><b><d k=\"1\" q=\"1\"><b>x&amp;y</b></d><c m=\"1\" k=\"3\"><a k=\"1\" m=\"3\">a b</a><a k=\"2\" m=\"0\">6</a></c></b><c m=\"1\" q=\"2\">a b</c></r>|String:|Long:1|Long:1|Long:10|Long:3|Long:12|Long:0|String:CustomXMLNode|String:CustomXMLNode|c||1|a b6|/r[1]/b[1]/c[1]|String:<c m=\"1\" k=\"3\"><a k=\"1\" m=\"3\">a b</a><a k=\"2\" m=\"0\">6</a></c>|String:<c m=\"1\" k=\"3\"><a k=\"1\" m=\"3\">a b</a><a k=\"2\" m=\"0\">6</a></c>|Long:2|Long:2|String:Nothing|String:/r[1]/c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><b><d k=\"1\" q=\"1\"><b>x&amp;y</b></d><c m=\"1\" k=\"3\"><a k=\"1\" m=\"3\">a b</a><a k=\"2\" m=\"0\">6</a></c></b><c m=\"1\" q=\"2\">a b</c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{CA9941F7-CAFC-46AA-A8B6-F644F6A93491}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 2",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a m=\"\"2\"\"><a k=\"\"2\"\">w</a><c k=\"\"0\"\"><b m=\"\"1\"\" q=\"\"1\"\">7</b></c><d k=\"\"3\"\">3</d></a><b q=\"\"3\"\" k=\"\"3\"\"><b q=\"\"3\"\" m=\"\"2\"\">w</b><b><d>a b</d><a q=\"\"3\"\"/><a m=\"\"2\"\" q=\"\"1\"\">2</a></b><a>w</a></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//d\").AppendChildSubtree \"<s><u/></s>\"",
+"tp.SelectSingleNode(\"//d\").AppendChildSubtree \"<s><u/></s>\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"/r/*\").Count",
+"p.SelectNodes(\"//d[\").Count",
+"p.SelectNodes(\"//d | //c\").Count",
+"TypeName(p.SelectSingleNode(\"/r/*\"))",
+"TypeName(p.SelectSingleNode(\"/r/*\")) & \"|\" & p.SelectSingleNode(\"/r/*\").BaseName & \"|\" & p.SelectSingleNode(\"/r/*\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/r/*\").NodeType & \"|\" & p.SelectSingleNode(\"/r/*\").Text & \"|\" & p.SelectSingleNode(\"/r/*\").XPath",
+"p.SelectSingleNode(\"/r/*\").XML",
+"p.SelectSingleNode(\"/r/*\").NodeValue",
+"p.SelectSingleNode(\"/r/*\").ChildNodes.Count",
+"p.SelectSingleNode(\"/r/*\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/r/*\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><a m=\"2\"><a k=\"2\">w</a><c k=\"0\"><b m=\"1\" q=\"1\">7</b></c><d k=\"3\">3<s><u/></s><s><u/></s></d></a><b q=\"3\" k=\"3\"><b q=\"3\" m=\"2\">w</b><b><d>a b</d><a q=\"3\"/><a m=\"2\" q=\"1\">2</a></b><a>w</a></b></r>|String:|Long:1|Long:5|Long:1|Long:2|E-2147467259:Expression expected.\n\n//d[<--|Long:3|String:CustomXMLNode|String:CustomXMLNode|a||1|w73|/r[1]/a[1]|String:<a m=\"2\"><a k=\"2\">w</a><c k=\"0\"><b m=\"1\" q=\"1\">7</b></c><d k=\"3\">3<s><u/></s><s><u/></s></d></a>|String:<a m=\"2\"><a k=\"2\">w</a><c k=\"0\"><b m=\"1\" q=\"1\">7</b></c><d k=\"3\">3<s><u/></s><s><u/></s></d></a>|Long:3|Long:1|String:CustomXMLNode|String:/r[1]/b[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><a m=\"2\"><a k=\"2\">w</a><c k=\"0\"><b m=\"1\" q=\"1\">7</b></c><d k=\"3\">3<s><u/></s><s><u/></s></d></a><b q=\"3\" k=\"3\"><b q=\"3\" m=\"2\">w</b><b><d>a b</d><a q=\"3\"/><a m=\"2\" q=\"1\">2</a></b><a>w</a></b></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{5BADF8C2-4546-4FD4-A93B-AA9BEF8862BE}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 3",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><a m=\"\"3\"\"><a m=\"\"0\"\"/></a><a m=\"\"0\"\"><c q=\"\"1\"\"><d/></c><a><b m=\"\"2\"\">x&amp;y</b><c m=\"\"1\"\">5</c><a m=\"\"1\"\">w</a></a></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"pi\", \"\", , msoCustomXMLNodeProcessingInstruction, \"d\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//ns0:d[\").Count",
+"p.SelectNodes(\"//ns0:*[contains(., '1')]\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\")) & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").XPath",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").XML",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><a m=\"3\"><a m=\"0\"/></a><a m=\"0\"><c q=\"1\"><d/></c><a><b m=\"2\">x&amp;y</b><c m=\"1\">5</c><a m=\"1\">w</a></a></a><?pi d?></r>|String:urn:h|Long:2|Long:1|Long:1|Long:0|E-2147467259:Expression expected.\n\n//ns0:d[<--|Long:0|String:CustomXMLNode|String:CustomXMLNode|a|urn:h|1|x&y5w|/ns0:r[1]/ns0:a[2]|String:<a m=\"0\"><c q=\"1\"><d/></c><a><b m=\"2\">x&amp;y</b><c m=\"1\">5</c><a m=\"1\">w</a></a></a>|String:<a m=\"0\"><c q=\"1\"><d/></c><a><b m=\"2\">x&amp;y</b><c m=\"1\">5</c><a m=\"1\">w</a></a></a>|Long:2|Long:1|String:CustomXMLNode|String:/ns0:r[1]/processing-instruction('pi')[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><a m=\"3\"><a m=\"0\"/></a><a m=\"0\"><c q=\"1\"><d/></c><a><b m=\"2\">x&amp;y</b><c m=\"1\">5</c><a m=\"1\">w</a></a></a><?pi d?></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{7AC61F78-9FBB-46AD-9E6A-9082CD8B604D}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 4",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d q=\"\"1\"\">w</d><d q=\"\"3\"\">7</d><b k=\"\"3\"\"><a m=\"\"0\"\" k=\"\"3\"\"><d>7</d><a>4</a><d k=\"\"3\"\">x&amp;y</d></a><b k=\"\"0\"\" q=\"\"2\"\"><a m=\"\"2\"\">a b</a><c>x&amp;y</c></b><b><c>w</c></b></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\"",
+"tp.AddNode tn, \"z5\", \"\", , msoCustomXMLNodeAttribute, \"7\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"p.SelectNodes(\"//ns0:*[ns0:d]\").Count",
+"TypeName(p.SelectSingleNode(\"//comment()\"))",
+"TypeName(p.SelectSingleNode(\"//comment()\")) & \"|\" & p.SelectSingleNode(\"//comment()\").BaseName & \"|\" & p.SelectSingleNode(\"//comment()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//comment()\").NodeType & \"|\" & p.SelectSingleNode(\"//comment()\").Text & \"|\" & p.SelectSingleNode(\"//comment()\").XPath",
+"p.SelectSingleNode(\"//comment()\").XML",
+"p.SelectSingleNode(\"//comment()\").NodeValue",
+"p.SelectSingleNode(\"//comment()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//comment()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//comment()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\" z5=\"7\"><e xmlns=\"\">first</e><d q=\"1\">w</d><d q=\"3\">7</d><b k=\"3\"><a m=\"0\" k=\"3\"><d>7</d><a>4</a><d k=\"3\">x&amp;y</d></a><b k=\"0\" q=\"2\"><a m=\"2\">a b</a><c>x&amp;y</c></b><b><c>w</c></b></b></r>|String:urn:h|Long:2|Long:0|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|Long:1|Long:3|Long:2|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/ns0:b[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\" z5=\"7\"><e xmlns=\"\">first</e><d q=\"1\">w</d><d q=\"3\">7</d><b k=\"3\"><a m=\"0\" k=\"3\"><d>7</d><a>4</a><d k=\"3\">x&amp;y</d></a><b k=\"0\" q=\"2\"><a m=\"2\">a b</a><c>x&amp;y</c></b><b><c>w</c></b></b></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{F7222819-9884-4106-9948-5120FC77F775}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 5",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><b>7</b><a q=\"\"1\"\" k=\"\"1\"\"><d m=\"\"0\"\"><b m=\"\"3\"\" q=\"\"3\"\">a b</b><c>x&amp;y</c></d><b m=\"\"1\"\" k=\"\"0\"\"><a m=\"\"1\"\">5</a><d q=\"\"2\"\">x&amp;y</d><c>a b</c></b><b q=\"\"1\"\">x&amp;y</b></a><c m=\"\"0\"\"><d m=\"\"2\"\"><c k=\"\"1\"\">x&amp;y</c><b k=\"\"0\"\">a b</b><b m=\"\"0\"\">w</b></d></c><d q=\"\"2\"\"><c>9</c><a q=\"\"0\"\" k=\"\"2\"\"><c m=\"\"0\"\">x&amp;y</c><a m=\"\"3\"\" k=\"\"2\"\">x&amp;y</a><d q=\"\"3\"\">a b</d></a></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//d\").Text = \"t3\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"p.SelectNodes(\"count(//*)\").Count",
+"p.SelectNodes(\"//text()\").Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"TypeName(p.SelectSingleNode(\"count(//*)\"))",
+"TypeName(p.SelectSingleNode(\"count(//*)\")) & \"|\" & p.SelectSingleNode(\"count(//*)\").BaseName & \"|\" & p.SelectSingleNode(\"count(//*)\").NamespaceURI & \"|\" & p.SelectSingleNode(\"count(//*)\").NodeType & \"|\" & p.SelectSingleNode(\"count(//*)\").Text & \"|\" & p.SelectSingleNode(\"count(//*)\").XPath",
+"p.SelectSingleNode(\"count(//*)\").XML",
+"p.SelectSingleNode(\"count(//*)\").NodeValue",
+"p.SelectSingleNode(\"count(//*)\").ChildNodes.Count",
+"p.SelectSingleNode(\"count(//*)\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"count(//*)\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><b>7</b><a q=\"1\" k=\"1\"><d m=\"0\">t3</d><b m=\"1\" k=\"0\"><a m=\"1\">5</a><d q=\"2\">x&amp;y</d><c>a b</c></b><b q=\"1\">x&amp;y</b></a><c m=\"0\"><d m=\"2\"><c k=\"1\">x&amp;y</c><b k=\"0\">a b</b><b m=\"0\">w</b></d></c><d q=\"2\"><c>9</c><a q=\"0\" k=\"2\"><c m=\"0\">x&amp;y</c><a m=\"3\" k=\"2\">x&amp;y</a><d q=\"3\">a b</d></a></d></r>|String:|Long:1|Long:0|Long:1|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|Long:13|Long:1|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|String:/r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><b>7</b><a q=\"1\" k=\"1\"><d m=\"0\">t3</d><b m=\"1\" k=\"0\"><a m=\"1\">5</a><d q=\"2\">x&amp;y</d><c>a b</c></b><b q=\"1\">x&amp;y</b></a><c m=\"0\"><d m=\"2\"><c k=\"1\">x&amp;y</c><b k=\"0\">a b</b><b m=\"0\">w</b></d></c><d q=\"2\"><c>9</c><a q=\"0\" k=\"2\"><c m=\"0\">x&amp;y</c><a m=\"3\" k=\"2\">x&amp;y</a><d q=\"3\">a b</d></a></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{49F5CB1B-8CDF-47BF-95A2-88644E025CA3}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 6",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d m=\"\"3\"\" k=\"\"0\"\"><a><d>7</d><d>a b</d></a><d m=\"\"0\"\">7</d></d><b>5</b><a q=\"\"2\"\"><c q=\"\"3\"\"/><b>a b</b></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.RemoveChild tn.LastChild"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:*[2]\").Count",
+"p.SelectNodes(\"//ns0:d[\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//ns0:b[position()>1]\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"TypeName(p.SelectSingleNode(\"/r\"))",
+"TypeName(p.SelectSingleNode(\"/r\")) & \"|\" & p.SelectSingleNode(\"/r\").BaseName & \"|\" & p.SelectSingleNode(\"/r\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/r\").NodeType & \"|\" & p.SelectSingleNode(\"/r\").Text & \"|\" & p.SelectSingleNode(\"/r\").XPath",
+"p.SelectSingleNode(\"/r\").XML",
+"p.SelectSingleNode(\"/r\").NodeValue",
+"p.SelectSingleNode(\"/r\").ChildNodes.Count",
+"p.SelectSingleNode(\"/r\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/r\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d m=\"3\" k=\"0\"><a><d>7</d><d>a b</d></a><d m=\"0\">7</d></d><b>5</b></r>|String:urn:h|Long:2|Long:3|E-2147467259:Expression expected.\n\n//ns0:d[<--|Long:0|Long:0|Long:3|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/ns0:b[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d m=\"3\" k=\"0\"><a><d>7</d><d>a b</d></a><d m=\"0\">7</d></d><b>5</b></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{85942EBD-B296-480B-9F45-58DFB7A4A6AA}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 7",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d><b>8</b><a m=\"\"1\"\">1</a></d><d><a>0</a></d><d m=\"\"3\"\"/><c m=\"\"0\"\" k=\"\"3\"\"><b k=\"\"1\"\"><b/></b></c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:d\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tn.InsertNodeBefore \"w\", \"urn:h\", 1, \"9\", tn.LastChild"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//ns0:c[@k]\").Count",
+"p.SelectNodes(\"//ns0:c[position()>1]\").Count",
+"p.SelectNodes(\"//ns0:c[\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c[@k]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:c[@k]\")) & \"|\" & p.SelectSingleNode(\"//ns0:c[@k]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:c[@k]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:c[@k]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:c[@k]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:c[@k]\").XPath",
+"p.SelectSingleNode(\"//ns0:c[@k]\").XML",
+"p.SelectSingleNode(\"//ns0:c[@k]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:c[@k]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:c[@k]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c[@k]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d><b>8</b><a m=\"1\">1</a><n>c</n></d><d><a>0</a></d><d m=\"3\"/><w>9</w><c m=\"0\" k=\"3\"><b k=\"1\"><b/></b></c></r>|String:urn:h|Long:2|Long:0|Long:1|Long:0|E-2147467259:Expression expected.\n\n//ns0:c[<--|Long:2|String:CustomXMLNode|String:CustomXMLNode|c|urn:h|1||/ns0:r[1]/ns0:c[1]|String:<c m=\"0\" k=\"3\"><b k=\"1\"><b/></b></c>|String:<c m=\"0\" k=\"3\"><b k=\"1\"><b/></b></c>|Long:1|Long:2|String:Nothing|String:/ns0:r[1]/ns0:c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d><b>8</b><a m=\"1\">1</a><n>c</n></d><d><a>0</a></d><d m=\"3\"/><w>9</w><c m=\"0\" k=\"3\"><b k=\"1\"><b/></b></c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{DD9ED93F-6B3D-4A1F-B298-DE7939BFB04F}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 8",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d k=\"\"1\"\"><a k=\"\"3\"\"><a q=\"\"1\"\">x&amp;y</a><d m=\"\"2\"\" k=\"\"1\"\">0</d><d m=\"\"1\"\">3</d></a><b m=\"\"2\"\" q=\"\"3\"\">w</b><a k=\"\"3\"\"><d k=\"\"3\"\" q=\"\"1\"\">a b</d></a></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"a\", \"\", , msoCustomXMLNodeElement, \"v\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"//b | //a\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"count(//*)\").Count",
+"TypeName(p.SelectSingleNode(\"//b | //a\"))",
+"TypeName(p.SelectSingleNode(\"//b | //a\")) & \"|\" & p.SelectSingleNode(\"//b | //a\").BaseName & \"|\" & p.SelectSingleNode(\"//b | //a\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//b | //a\").NodeType & \"|\" & p.SelectSingleNode(\"//b | //a\").Text & \"|\" & p.SelectSingleNode(\"//b | //a\").XPath",
+"p.SelectSingleNode(\"//b | //a\").XML",
+"p.SelectSingleNode(\"//b | //a\").NodeValue",
+"p.SelectSingleNode(\"//b | //a\").ChildNodes.Count",
+"p.SelectSingleNode(\"//b | //a\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//b | //a\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><d k=\"1\"><a k=\"3\"><a q=\"1\">x&amp;y</a><d m=\"2\" k=\"1\">0</d><d m=\"1\">3</d></a><b m=\"2\" q=\"3\">w</b><a k=\"3\"><d k=\"3\" q=\"1\">a b</d></a></d><a>v</a></r>|String:|Long:1|Long:6|Long:5|Long:1|Long:1|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|String:CustomXMLNode|String:CustomXMLNode|a||1|x&y03|/r[1]/d[1]/a[1]|String:<a k=\"3\"><a q=\"1\">x&amp;y</a><d m=\"2\" k=\"1\">0</d><d m=\"1\">3</d></a>|String:<a k=\"3\"><a q=\"1\">x&amp;y</a><d m=\"2\" k=\"1\">0</d><d m=\"1\">3</d></a>|Long:3|Long:1|String:CustomXMLNode|String:/r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><d k=\"1\"><a k=\"3\"><a q=\"1\">x&amp;y</a><d m=\"2\" k=\"1\">0</d><d m=\"1\">3</d></a><b m=\"2\" q=\"3\">w</b><a k=\"3\"><d k=\"3\" q=\"1\">a b</d></a></d><a>v</a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{7C79E11C-8DF3-4394-AB4E-A22F5F93E869}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 9",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><c><c><b m=\"\"1\"\" k=\"\"1\"\">a b</b><b k=\"\"2\"\">a b</b></c><c>x&amp;y</c></c><d><b q=\"\"0\"\"><b/><c k=\"\"0\"\">w</c></b><d q=\"\"3\"\" m=\"\"3\"\"><c q=\"\"2\"\">x&amp;y</c></d></d><b><c k=\"\"2\"\"><a/><d q=\"\"0\"\" m=\"\"3\"\">a b</d></c></b><b m=\"\"2\"\" q=\"\"2\"\"><b><a q=\"\"2\"\" m=\"\"3\"\">6</a><d k=\"\"0\"\">w</d></b></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//@*\").NodeValue = \"5\"",
+"tn.Text = \"flat\"",
+"tp.AddNode tn, \"pi\", \"\", , msoCustomXMLNodeProcessingInstruction, \"d\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"/ns0:r/*\").Count",
+"p.SelectNodes(\"//ns0:*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//ns0:*[not(*)]\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[1]/following-sibling::*\").Count",
+"TypeName(p.SelectSingleNode(\"//@*\"))",
+"TypeName(p.SelectSingleNode(\"//@*\")) & \"|\" & p.SelectSingleNode(\"//@*\").BaseName & \"|\" & p.SelectSingleNode(\"//@*\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//@*\").NodeType & \"|\" & p.SelectSingleNode(\"//@*\").Text & \"|\" & p.SelectSingleNode(\"//@*\").XPath",
+"p.SelectSingleNode(\"//@*\").XML",
+"p.SelectSingleNode(\"//@*\").NodeValue",
+"p.SelectSingleNode(\"//@*\").ChildNodes.Count",
+"p.SelectSingleNode(\"//@*\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//@*\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\">flat<?pi d?></r>|String:urn:h|Long:2|Long:0|Long:0|Long:0|Long:1|Long:0|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/processing-instruction('pi')[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\">flat<?pi d?></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{99D86647-AF11-44FA-B7DF-CC3EF2B320A1}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 10",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><c q=\"\"2\"\">7</c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"/r\").Count",
+"TypeName(p.SelectSingleNode(\"//processing-instruction()\"))",
+"TypeName(p.SelectSingleNode(\"//processing-instruction()\")) & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").BaseName & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").NodeType & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").Text & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").XPath",
+"p.SelectSingleNode(\"//processing-instruction()\").XML",
+"p.SelectSingleNode(\"//processing-instruction()\").NodeValue",
+"p.SelectSingleNode(\"//processing-instruction()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//processing-instruction()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//processing-instruction()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><c q=\"2\">7</c><!--note--></r>|String:|Long:1|Long:1|Long:0|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:1|Long:1|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/r[1]/comment()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><c q=\"2\">7</c><!--note--></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{42D7955F-E163-49CF-AAB3-7ACDA77B6A2E}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 11",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d q=\"\"0\"\"><a k=\"\"1\"\"><b>w</b><c>x&amp;y</c><c q=\"\"1\"\" k=\"\"0\"\">w</c></a></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//c\").AppendChildNode \"n\", \"\", 1, \"c\"",
+"tp.SelectSingleNode(\"//c\").Delete"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//a[1]\").Count",
+"p.SelectNodes(\"//text()\").Count",
+"p.SelectNodes(\"//*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//c[@k]\").Count",
+"TypeName(p.SelectSingleNode(\"//text()\"))",
+"TypeName(p.SelectSingleNode(\"//text()\")) & \"|\" & p.SelectSingleNode(\"//text()\").BaseName & \"|\" & p.SelectSingleNode(\"//text()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//text()\").NodeType & \"|\" & p.SelectSingleNode(\"//text()\").Text & \"|\" & p.SelectSingleNode(\"//text()\").XPath",
+"p.SelectSingleNode(\"//text()\").XML",
+"p.SelectSingleNode(\"//text()\").NodeValue",
+"p.SelectSingleNode(\"//text()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//text()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//text()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><d q=\"0\"><a k=\"1\"><b>w</b><c q=\"1\" k=\"0\">w</c></a></d></r>|String:|Long:1|Long:1|Long:2|Long:0|Long:1|Long:1|String:CustomXMLNode|String:CustomXMLNode|#text||3|w|/r[1]/d[1]/a[1]/b[1]/text()[1]|String:w|String:w|Long:0|E91:Object variable or With block variable not set|String:Nothing|String:/r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><d q=\"0\"><a k=\"1\"><b>w</b><c q=\"1\" k=\"0\">w</c></a></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{B4548FA0-C370-4365-A85D-8577B2B9A4EE}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 12",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><a><b q=\"\"3\"\" k=\"\"2\"\"><d k=\"\"1\"\">2</d><b>w</b></b><b q=\"\"1\"\" m=\"\"2\"\"><d>w</d></b><b><b>6</b><a m=\"\"2\"\">a b</a></b></a><b>0</b><c k=\"\"2\"\" m=\"\"1\"\"><a m=\"\"0\"\"><d k=\"\"3\"\" m=\"\"3\"\">a b</d><b>a b</b></a><c>4</c><a/></c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\"",
+"tp.SelectSingleNode(\"//ns0:d\").Delete"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//text()\").Count",
+"p.SelectNodes(\"//ns0:c[@q]\").Count",
+"p.SelectNodes(\"//ns0:*[text()='w']\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"TypeName(p.SelectSingleNode(\"//text()\"))",
+"TypeName(p.SelectSingleNode(\"//text()\")) & \"|\" & p.SelectSingleNode(\"//text()\").BaseName & \"|\" & p.SelectSingleNode(\"//text()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//text()\").NodeType & \"|\" & p.SelectSingleNode(\"//text()\").Text & \"|\" & p.SelectSingleNode(\"//text()\").XPath",
+"p.SelectSingleNode(\"//text()\").XML",
+"p.SelectSingleNode(\"//text()\").NodeValue",
+"p.SelectSingleNode(\"//text()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//text()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//text()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><e xmlns=\"\">first</e><a><b q=\"3\" k=\"2\"><b>w</b></b><b q=\"1\" m=\"2\"><d>w</d></b><b><b>6</b><a m=\"2\">a b</a></b></a><b>0</b><c k=\"2\" m=\"1\"><a m=\"0\"><d k=\"3\" m=\"3\">a b</d><b>a b</b></a><c>4</c><a/></c></r>|String:urn:h|Long:2|Long:9|Long:0|Long:2|Long:2|Long:26|String:CustomXMLNode|String:CustomXMLNode|#text||3|first|/ns0:r[1]/e[1]/text()[1]|String:first|String:first|Long:0|E91:Object variable or With block variable not set|String:Nothing|String:/ns0:r[1]/ns0:c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><e xmlns=\"\">first</e><a><b q=\"3\" k=\"2\"><b>w</b></b><b q=\"1\" m=\"2\"><d>w</d></b><b><b>6</b><a m=\"2\">a b</a></b></a><b>0</b><c k=\"2\" m=\"1\"><a m=\"0\"><d k=\"3\" m=\"3\">a b</d><b>a b</b></a><c>4</c><a/></c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{C9A95071-7860-48A3-9C94-28F1BEC8E284}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 13",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(): b = p.LoadXML(\"<r><c k=\"\"1\"\" q=\"\"3\"\"><b m=\"\"0\"\"><d>9</d><b/><b/></b></c><c k=\"\"1\"\"><d m=\"\"1\"\" q=\"\"0\"\"><b m=\"\"0\"\" k=\"\"2\"\">w</b><a>w</a></d></c><a><d q=\"\"2\"\"><b k=\"\"1\"\">8</b></d><a k=\"\"0\"\">w</a><c q=\"\"0\"\"/></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"descendant::c\").Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//b[@k='0']\").Count",
+"p.SelectNodes(\"//b[1]\").Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\"))",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\")) & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").Text & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").XPath",
+"p.SelectSingleNode(\"//*[not(*)]\").XML",
+"p.SelectSingleNode(\"//*[not(*)]\").NodeValue",
+"p.SelectSingleNode(\"//*[not(*)]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[not(*)]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><e>first</e><c k=\"1\" q=\"3\"><b m=\"0\"><d>9</d><b/><b/></b></c><c k=\"1\"><d m=\"1\" q=\"0\"><b m=\"0\" k=\"2\">w</b><a>w</a></d></c><a><d q=\"2\"><b k=\"1\">8</b></d><a k=\"0\">w</a><c q=\"0\"/></a></r>|String:|Long:1|Long:3|Long:9|Long:1|Long:0|Long:4|String:CustomXMLNode|String:CustomXMLNode|e||1|first|/r[1]/e[1]|String:<e>first</e>|String:<e>first</e>|Long:1|Long:0|String:CustomXMLNode|String:/r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><e>first</e><c k=\"1\" q=\"3\"><b m=\"0\"><d>9</d><b/><b/></b></c><c k=\"1\"><d m=\"1\" q=\"0\"><b m=\"0\" k=\"2\">w</b><a>w</a></d></c><a><d q=\"2\"><b k=\"1\">8</b></d><a k=\"0\">w</a><c q=\"0\"/></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{20C8D58C-A6B1-4BAA-810E-A7B5170296EE}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 14",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a m=\"\"0\"\"><c><b q=\"\"1\"\" m=\"\"2\"\">w</b><b m=\"\"1\"\" q=\"\"1\"\">a b</b><c k=\"\"2\"\" q=\"\"0\"\">5</c></c><d><a k=\"\"0\"\">a b</a><d q=\"\"1\"\">x&amp;y</d><b k=\"\"3\"\" m=\"\"2\"\">a b</b></d><d><d k=\"\"2\"\">w</d></d></a><d><d q=\"\"1\"\" k=\"\"2\"\"><a>w</a></d><a q=\"\"0\"\" k=\"\"2\"\"><c k=\"\"3\"\">w</c><d q=\"\"2\"\" k=\"\"3\"\">9</d></a><c q=\"\"2\"\"><b m=\"\"0\"\" k=\"\"0\"\">x&amp;y</b></c></d><b k=\"\"0\"\" m=\"\"0\"\"><d>x&amp;y</d><b m=\"\"0\"\" q=\"\"2\"\"><c>w</c><d k=\"\"3\"\" q=\"\"2\"\">2</d></b><d m=\"\"1\"\" q=\"\"0\"\"><b>x&amp;y</b><a>w</a><c m=\"\"3\"\">x&amp;y</c></d></b><a q=\"\"0\"\" k=\"\"0\"\">2</a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//*[b]\").Count",
+"p.SelectNodes(\"//c[1]\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"count(//*)\").Count",
+"TypeName(p.SelectSingleNode(\"//c[1]\"))",
+"TypeName(p.SelectSingleNode(\"//c[1]\")) & \"|\" & p.SelectSingleNode(\"//c[1]\").BaseName & \"|\" & p.SelectSingleNode(\"//c[1]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//c[1]\").NodeType & \"|\" & p.SelectSingleNode(\"//c[1]\").Text & \"|\" & p.SelectSingleNode(\"//c[1]\").XPath",
+"p.SelectSingleNode(\"//c[1]\").XML",
+"p.SelectSingleNode(\"//c[1]\").NodeValue",
+"p.SelectSingleNode(\"//c[1]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//c[1]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//c[1]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><a m=\"0\"><c><b q=\"1\" m=\"2\">w</b><b m=\"1\" q=\"1\">a b</b><c k=\"2\" q=\"0\">5</c></c><d><a k=\"0\">a b</a><d q=\"1\">x&amp;y</d><b k=\"3\" m=\"2\">a b</b></d><d><d k=\"2\">w</d></d></a><d><d q=\"1\" k=\"2\"><a>w</a></d><a q=\"0\" k=\"2\"><c k=\"3\">w</c><d q=\"2\" k=\"3\">9</d></a><c q=\"2\"><b m=\"0\" k=\"0\">x&amp;y</b></c></d><b k=\"0\" m=\"0\"><d>x&amp;y</d><b m=\"0\" q=\"2\"><c>w</c><d k=\"3\" q=\"2\">2</d></b><d m=\"1\" q=\"0\"><b>x&amp;y</b><a>w</a><c m=\"3\">x&amp;y</c></d></b><a q=\"0\" k=\"0\">2</a></r>|String:|Long:1|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:6|Long:6|Long:9|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|String:CustomXMLNode|String:CustomXMLNode|c||1|wa b5|/r[1]/a[1]/c[1]|String:<c><b q=\"1\" m=\"2\">w</b><b m=\"1\" q=\"1\">a b</b><c k=\"2\" q=\"0\">5</c></c>|String:<c><b q=\"1\" m=\"2\">w</b><b m=\"1\" q=\"1\">a b</b><c k=\"2\" q=\"0\">5</c></c>|Long:3|Long:0|String:CustomXMLNode|String:/r[1]/a[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><a m=\"0\"><c><b q=\"1\" m=\"2\">w</b><b m=\"1\" q=\"1\">a b</b><c k=\"2\" q=\"0\">5</c></c><d><a k=\"0\">a b</a><d q=\"1\">x&amp;y</d><b k=\"3\" m=\"2\">a b</b></d><d><d k=\"2\">w</d></d></a><d><d q=\"1\" k=\"2\"><a>w</a></d><a q=\"0\" k=\"2\"><c k=\"3\">w</c><d q=\"2\" k=\"3\">9</d></a><c q=\"2\"><b m=\"0\" k=\"0\">x&amp;y</b></c></d><b k=\"0\" m=\"0\"><d>x&amp;y</d><b m=\"0\" q=\"2\"><c>w</c><d k=\"3\" q=\"2\">2</d></b><d m=\"1\" q=\"0\"><b>x&amp;y</b><a>w</a><c m=\"3\">x&amp;y</c></d></b><a q=\"0\" k=\"0\">2</a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{7711A0D5-66A6-4D27-9393-8464AC43B510}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 15",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(): b = p.LoadXML(\"<r><a><a q=\"\"0\"\" k=\"\"2\"\">w</a><a k=\"\"3\"\" m=\"\"2\"\">w</a><c q=\"\"0\"\"/></a><c m=\"\"2\"\" k=\"\"3\"\"><d m=\"\"2\"\" q=\"\"1\"\"><d k=\"\"3\"\">6</d><d k=\"\"0\"\" m=\"\"3\"\">4</d></d></c><a m=\"\"2\"\" q=\"\"3\"\"><c m=\"\"1\"\" k=\"\"1\"\">x&amp;y</c><a q=\"\"2\"\" m=\"\"2\"\">a b</a></a><a><d k=\"\"1\"\"><a m=\"\"1\"\" q=\"\"0\"\">x&amp;y</a><d m=\"\"1\"\"/></d></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/r/*\").Count",
+"p.SelectNodes(\"//a[@m]\").Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"descendant::b\").Count",
+"p.SelectNodes(\"//c[@k='3']\").Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\"))",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\")) & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").Text & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").XPath",
+"p.SelectSingleNode(\"//*[not(*)]\").XML",
+"p.SelectSingleNode(\"//*[not(*)]\").NodeValue",
+"p.SelectSingleNode(\"//*[not(*)]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[not(*)]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><a><a q=\"0\" k=\"2\">w</a><a k=\"3\" m=\"2\">w</a><c q=\"0\"/></a><c m=\"2\" k=\"3\"><d m=\"2\" q=\"1\"><d k=\"3\">6</d><d k=\"0\" m=\"3\">4</d></d></c><a m=\"2\" q=\"3\"><c m=\"1\" k=\"1\">x&amp;y</c><a q=\"2\" m=\"2\">a b</a></a><a><d k=\"1\"><a m=\"1\" q=\"0\">x&amp;y</a><d m=\"1\"/></d></a></r>|String:|Long:1|Long:4|Long:4|Long:9|Long:0|Long:1|String:CustomXMLNode|String:CustomXMLNode|a||1|w|/r[1]/a[1]/a[1]|String:<a q=\"0\" k=\"2\">w</a>|String:<a q=\"0\" k=\"2\">w</a>|Long:1|Long:2|String:CustomXMLNode|String:/r[1]/a[3] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><a><a q=\"0\" k=\"2\">w</a><a k=\"3\" m=\"2\">w</a><c q=\"0\"/></a><c m=\"2\" k=\"3\"><d m=\"2\" q=\"1\"><d k=\"3\">6</d><d k=\"0\" m=\"3\">4</d></d></c><a m=\"2\" q=\"3\"><c m=\"1\" k=\"1\">x&amp;y</c><a q=\"2\" m=\"2\">a b</a></a><a><d k=\"1\"><a m=\"1\" q=\"0\">x&amp;y</a><d m=\"1\"/></d></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{5F5ABCD3-370F-48CC-838E-F1CBEB044008}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 16",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><c q=\"\"3\"\"><b k=\"\"1\"\" m=\"\"3\"\"><d k=\"\"3\"\" q=\"\"0\"\">x&amp;y</d></b><c k=\"\"0\"\" m=\"\"3\"\"><a q=\"\"3\"\"/></c><a q=\"\"3\"\"><c q=\"\"2\"\" m=\"\"3\"\">x&amp;y</c><a>9</a><a m=\"\"3\"\" k=\"\"2\"\">a b</a></a></c><b><d m=\"\"0\"\" k=\"\"2\"\"><d m=\"\"2\"\" q=\"\"3\"\">x&amp;y</d><c>3</c><b m=\"\"3\"\">a b</b></d><c k=\"\"0\"\">1</c><a k=\"\"3\"\"><b m=\"\"0\"\" k=\"\"1\"\"/><b m=\"\"2\"\" q=\"\"0\"\">a b</b></a></b><d k=\"\"0\"\"><c m=\"\"3\"\"><a q=\"\"0\"\" k=\"\"2\"\">5</a></c><b q=\"\"2\"\"><c q=\"\"3\"\" m=\"\"3\"\">x&amp;y</c><c>w</c></b><a>8</a></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"z3\", \"\", , msoCustomXMLNodeAttribute, \"1\"",
+"tn.Text = \"flat\"",
+"tp.SelectSingleNode(\"//ns0:d\").Text = \"t4\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//ns0:c | //ns0:b\").Count",
+"p.SelectNodes(\"descendant::ns0:d\").Count",
+"p.SelectNodes(\"//ns0:d[\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[1]/following-sibling::*\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:b\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:b\")) & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").Text & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").XPath",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").XML",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").NodeValue",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:b\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "[91:Object variable or With block variable not set]|String:<r xmlns=\"urn:h\" z3=\"1\">flat</r>|String:urn:h|Long:2|Long:1|Long:0|Long:0|E-2147467259:Expression expected.\n\n//ns0:d[<--|Long:0|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/text()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\" z3=\"1\">flat</r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{640C6202-4491-482D-88E9-0AAFCC48C971}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 17",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d q=\"\"0\"\" m=\"\"2\"\"><c k=\"\"0\"\" q=\"\"1\"\"><b>a b</b><d q=\"\"2\"\" k=\"\"0\"\"/><a k=\"\"3\"\">a b</a></c><c><a m=\"\"0\"\" q=\"\"1\"\">w</a><b q=\"\"3\"\" m=\"\"0\"\"/><a/></c><d k=\"\"1\"\" q=\"\"1\"\"><b k=\"\"2\"\">w</b><a>w</a></d></d><c q=\"\"3\"\"><d>1</d><a q=\"\"3\"\"><b q=\"\"1\"\">x&amp;y</b><b>3</b><a m=\"\"2\"\" q=\"\"0\"\">w</a></a></c><b k=\"\"0\"\" q=\"\"1\"\">x&amp;y</b><d k=\"\"1\"\">9</d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//c[@k='2']\").Count",
+"p.SelectNodes(\"//b[1]\").Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//c[@m]\").Count",
+"p.SelectNodes(\"//a | //c\").Count",
+"TypeName(p.SelectSingleNode(\"//b[1]\"))",
+"TypeName(p.SelectSingleNode(\"//b[1]\")) & \"|\" & p.SelectSingleNode(\"//b[1]\").BaseName & \"|\" & p.SelectSingleNode(\"//b[1]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//b[1]\").NodeType & \"|\" & p.SelectSingleNode(\"//b[1]\").Text & \"|\" & p.SelectSingleNode(\"//b[1]\").XPath",
+"p.SelectSingleNode(\"//b[1]\").XML",
+"p.SelectSingleNode(\"//b[1]\").NodeValue",
+"p.SelectSingleNode(\"//b[1]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//b[1]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//b[1]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><d q=\"0\" m=\"2\"><c k=\"0\" q=\"1\"><b>a b</b><d q=\"2\" k=\"0\"/><a k=\"3\">a b</a></c><c><a m=\"0\" q=\"1\">w</a><b q=\"3\" m=\"0\"/><a/></c><d k=\"1\" q=\"1\"><b k=\"2\">w</b><a>w</a></d></d><c q=\"3\"><d>1</d><a q=\"3\"><b q=\"1\">x&amp;y</b><b>3</b><a m=\"2\" q=\"0\">w</a></a></c><b k=\"0\" q=\"1\">x&amp;y</b><d k=\"1\">9</d></r>|String:|Long:1|Long:0|Long:5|Long:0|Long:0|Long:9|String:CustomXMLNode|String:CustomXMLNode|b||1|a b|/r[1]/d[1]/c[1]/b[1]|String:<b>a b</b>|String:<b>a b</b>|Long:1|Long:0|String:CustomXMLNode|String:/r[1]/d[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><d q=\"0\" m=\"2\"><c k=\"0\" q=\"1\"><b>a b</b><d q=\"2\" k=\"0\"/><a k=\"3\">a b</a></c><c><a m=\"0\" q=\"1\">w</a><b q=\"3\" m=\"0\"/><a/></c><d k=\"1\" q=\"1\"><b k=\"2\">w</b><a>w</a></d></d><c q=\"3\"><d>1</d><a q=\"3\"><b q=\"1\">x&amp;y</b><b>3</b><a m=\"2\" q=\"0\">w</a></a></c><b k=\"0\" q=\"1\">x&amp;y</b><d k=\"1\">9</d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{74633984-C8C3-4586-A71A-75223E8BDF3C}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 18",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><b m=\"\"2\"\" q=\"\"0\"\"><c q=\"\"1\"\"><d q=\"\"0\"\" k=\"\"0\"\">5</d><b>a b</b><d m=\"\"0\"\" k=\"\"3\"\">x&amp;y</d></c><c m=\"\"2\"\" q=\"\"2\"\"><a k=\"\"0\"\">a b</a><a k=\"\"2\"\" q=\"\"0\"\"/><d>x&amp;y</d></c></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"pi\", \"\", , msoCustomXMLNodeProcessingInstruction, \"d\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//ns0:a[\").Count",
+"p.SelectNodes(\"//ns0:c | //ns0:b\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"//ns0:d\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:b\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:b\")) & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").Text & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:b\").XPath",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").XML",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").NodeValue",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:c | //ns0:b\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:b\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><b m=\"2\" q=\"0\"><c q=\"1\"><d q=\"0\" k=\"0\">5</d><b>a b</b><d m=\"0\" k=\"3\">x&amp;y</d></c><c m=\"2\" q=\"2\"><a k=\"0\">a b</a><a k=\"2\" q=\"0\"/><d>x&amp;y</d></c></b><?pi d?></r>|String:urn:h|Long:2|Long:1|E-2147467259:Expression expected.\n\n//ns0:a[<--|Long:4|Long:1|Long:3|String:CustomXMLNode|String:CustomXMLNode|b|urn:h|1|5a bx&ya bx&y|/ns0:r[1]/ns0:b[1]|String:<b m=\"2\" q=\"0\"><c q=\"1\"><d q=\"0\" k=\"0\">5</d><b>a b</b><d m=\"0\" k=\"3\">x&amp;y</d></c><c m=\"2\" q=\"2\"><a k=\"0\">a b</a><a k=\"2\" q=\"0\"/><d>x&amp;y</d></c></b>|String:<b m=\"2\" q=\"0\"><c q=\"1\"><d q=\"0\" k=\"0\">5</d><b>a b</b><d m=\"0\" k=\"3\">x&amp;y</d></c><c m=\"2\" q=\"2\"><a k=\"0\">a b</a><a k=\"2\" q=\"0\"/><d>x&amp;y</d></c></b>|Long:2|Long:2|String:CustomXMLNode|String:/ns0:r[1]/processing-instruction('pi')[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><b m=\"2\" q=\"0\"><c q=\"1\"><d q=\"0\" k=\"0\">5</d><b>a b</b><d m=\"0\" k=\"3\">x&amp;y</d></c><c m=\"2\" q=\"2\"><a k=\"0\">a b</a><a k=\"2\" q=\"0\"/><d>x&amp;y</d></c></b><?pi d?></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{461EC0B6-EAD3-4D3A-87F2-7A5ECB679336}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 19",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a q=\"\"0\"\" k=\"\"0\"\"><b k=\"\"0\"\" m=\"\"2\"\"><c>a b</c><b>9</b><d m=\"\"1\"\" q=\"\"2\"\">a b</d></b><b>8</b><b><a k=\"\"1\"\"/><d k=\"\"2\"\" q=\"\"0\"\">w</d><d k=\"\"3\"\"/></b></a><a><b k=\"\"0\"\" q=\"\"3\"\">a b</b><a q=\"\"0\"\" k=\"\"0\"\"><b/></a></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//c[1]\").Count",
+"p.SelectNodes(\"//a[\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//d/..\").Count",
+"TypeName(p.SelectSingleNode(\"//c[1]\"))",
+"TypeName(p.SelectSingleNode(\"//c[1]\")) & \"|\" & p.SelectSingleNode(\"//c[1]\").BaseName & \"|\" & p.SelectSingleNode(\"//c[1]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//c[1]\").NodeType & \"|\" & p.SelectSingleNode(\"//c[1]\").Text & \"|\" & p.SelectSingleNode(\"//c[1]\").XPath",
+"p.SelectSingleNode(\"//c[1]\").XML",
+"p.SelectSingleNode(\"//c[1]\").NodeValue",
+"p.SelectSingleNode(\"//c[1]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//c[1]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//c[1]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><e>first</e><a q=\"0\" k=\"0\"><b k=\"0\" m=\"2\"><c>a b</c><b>9</b><d m=\"1\" q=\"2\">a b</d></b><b>8</b><b><a k=\"1\"/><d k=\"2\" q=\"0\">w</d><d k=\"3\"/></b></a><a><b k=\"0\" q=\"3\">a b</b><a q=\"0\" k=\"0\"><b/></a></a></r>|String:|Long:1|Long:1|E-2147467259:Expression expected.\n\n//a[<--|Long:1|Long:5|Long:2|String:CustomXMLNode|String:CustomXMLNode|c||1|a b|/r[1]/a[1]/b[1]/c[1]|String:<c>a b</c>|String:<c>a b</c>|Long:1|Long:0|String:CustomXMLNode|String:/r[1]/a[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><e>first</e><a q=\"0\" k=\"0\"><b k=\"0\" m=\"2\"><c>a b</c><b>9</b><d m=\"1\" q=\"2\">a b</d></b><b>8</b><b><a k=\"1\"/><d k=\"2\" q=\"0\">w</d><d k=\"3\"/></b></a><a><b k=\"0\" q=\"3\">a b</b><a q=\"0\" k=\"0\"><b/></a></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{DDA8F131-7EAE-4AC0-83D0-8181C3A3C189}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 20",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><c k=\"\"3\"\" m=\"\"1\"\"><a q=\"\"2\"\" k=\"\"0\"\"><c q=\"\"1\"\">w</c><a>w</a></a><a><b>w</b><b>0</b><b m=\"\"1\"\">w</b></a></c><b q=\"\"1\"\"><c q=\"\"1\"\" m=\"\"2\"\"/><d><d>a b</d></d></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:c\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tp.AddNode tn, \"pi\", \"\", , msoCustomXMLNodeProcessingInstruction, \"d\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:a[position()>1]\").Count",
+"p.SelectNodes(\"//ns0:*[2]\").Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//ns0:*[ns0:d]\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r\")) & \"|\" & p.SelectSingleNode(\"/ns0:r\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r\").XPath",
+"p.SelectSingleNode(\"/ns0:r\").XML",
+"p.SelectSingleNode(\"/ns0:r\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><c k=\"3\" m=\"1\"><a q=\"2\" k=\"0\"><c q=\"1\">w</c><a>w</a></a><a><b>w</b><b>0</b><b m=\"1\">w</b></a><n>c</n></c><b q=\"1\"><c q=\"1\" m=\"2\"/><d><d>a b</d></d></b><?pi d?></r>|String:urn:h|Long:2|Long:1|Long:5|Long:1|Long:2|Long:0|String:CustomXMLNode|String:CustomXMLNode|r|urn:h|1|www0wca b|/ns0:r[1]|String:<r xmlns=\"urn:h\"><c k=\"3\" m=\"1\"><a q=\"2\" k=\"0\"><c q=\"1\">w</c><a>w</a></a><a><b>w</b><b>0</b><b m=\"1\">w</b></a><n>c</n></c><b q=\"1\"><c q=\"1\" m=\"2\"/><d><d>a b</d></d></b><?pi d?></r>|String:<r xmlns=\"urn:h\"><c k=\"3\" m=\"1\"><a q=\"2\" k=\"0\"><c q=\"1\">w</c><a>w</a></a><a><b>w</b><b>0</b><b m=\"1\">w</b></a><n>c</n></c><b q=\"1\"><c q=\"1\" m=\"2\"/><d><d>a b</d></d></b><?pi d?></r>|Long:3|Long:0|String:Nothing|String:/ns0:r[1]/processing-instruction('pi')[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><c k=\"3\" m=\"1\"><a q=\"2\" k=\"0\"><c q=\"1\">w</c><a>w</a></a><a><b>w</b><b>0</b><b m=\"1\">w</b></a><n>c</n></c><b q=\"1\"><c q=\"1\" m=\"2\"/><d><d>a b</d></d></b><?pi d?></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{9F112E89-5C48-4807-A00A-5A0D66E2ABFA}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 21",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><b q=\"\"2\"\" k=\"\"1\"\"><c k=\"\"1\"\" m=\"\"0\"\"><d k=\"\"3\"\" m=\"\"3\"\">x&amp;y</d><d m=\"\"2\"\">a b</d><b>8</b></c><c q=\"\"3\"\" m=\"\"0\"\"><b q=\"\"2\"\" m=\"\"3\"\">w</b><a q=\"\"0\"\">a b</a><d>a b</d></c><c><c>1</c><b m=\"\"0\"\">x&amp;y</b><b k=\"\"2\"\">4</b></c></b><a q=\"\"3\"\" m=\"\"1\"\"><a><b k=\"\"1\"\">a b</b></a><c q=\"\"3\"\"><c m=\"\"1\"\">a b</c><d k=\"\"1\"\" q=\"\"0\"\"/></c><c q=\"\"0\"\" m=\"\"1\"\"><a m=\"\"0\"\" q=\"\"0\"\"/><c m=\"\"1\"\" k=\"\"2\"\">8</c></c></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:b\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tp.AddNode tn, \"c\", \"\", , msoCustomXMLNodeElement, \"1\"",
+"tp.SelectSingleNode(\"//@*\").NodeValue = \"5\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//ns0:*[contains(., '1')]\").Count",
+"TypeName(p.SelectSingleNode(\"count(//ns0:*)\"))",
+"TypeName(p.SelectSingleNode(\"count(//ns0:*)\")) & \"|\" & p.SelectSingleNode(\"count(//ns0:*)\").BaseName & \"|\" & p.SelectSingleNode(\"count(//ns0:*)\").NamespaceURI & \"|\" & p.SelectSingleNode(\"count(//ns0:*)\").NodeType & \"|\" & p.SelectSingleNode(\"count(//ns0:*)\").Text & \"|\" & p.SelectSingleNode(\"count(//ns0:*)\").XPath",
+"p.SelectSingleNode(\"count(//ns0:*)\").XML",
+"p.SelectSingleNode(\"count(//ns0:*)\").NodeValue",
+"p.SelectSingleNode(\"count(//ns0:*)\").ChildNodes.Count",
+"p.SelectSingleNode(\"count(//ns0:*)\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"count(//ns0:*)\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><b q=\"5\" k=\"1\"><c k=\"1\" m=\"0\"><d k=\"3\" m=\"3\">x&amp;y</d><d m=\"2\">a b</d><b>8</b></c><c q=\"3\" m=\"0\"><b q=\"2\" m=\"3\">w</b><a q=\"0\">a b</a><d>a b</d></c><c><c>1</c><b m=\"0\">x&amp;y</b><b k=\"2\">4</b></c><n>c</n></b><a q=\"3\" m=\"1\"><a><b k=\"1\">a b</b></a><c q=\"3\"><c m=\"1\">a b</c><d k=\"1\" q=\"0\"/></c><c q=\"0\" m=\"1\"><a m=\"0\" q=\"0\"/><c m=\"1\" k=\"2\">8</c></c></a><c xmlns=\"\">1</c></r>|String:urn:h|Long:2|Long:0|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:1|Long:4|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|String:/ns0:r[1]/c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><b q=\"5\" k=\"1\"><c k=\"1\" m=\"0\"><d k=\"3\" m=\"3\">x&amp;y</d><d m=\"2\">a b</d><b>8</b></c><c q=\"3\" m=\"0\"><b q=\"2\" m=\"3\">w</b><a q=\"0\">a b</a><d>a b</d></c><c><c>1</c><b m=\"0\">x&amp;y</b><b k=\"2\">4</b></c><n>c</n></b><a q=\"3\" m=\"1\"><a><b k=\"1\">a b</b></a><c q=\"3\"><c m=\"1\">a b</c><d k=\"1\" q=\"0\"/></c><c q=\"0\" m=\"1\"><a m=\"0\" q=\"0\"/><c m=\"1\" k=\"2\">8</c></c></a><c xmlns=\"\">1</c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{EA536A83-84E3-4A66-89AF-48615230E397}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 22",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><c q=\"\"0\"\" k=\"\"2\"\">x&amp;y</c><b>4</b><d><b m=\"\"2\"\" q=\"\"0\"\"><c q=\"\"2\"\" k=\"\"1\"\">6</c><b k=\"\"0\"\">a b</b><c q=\"\"3\"\" k=\"\"0\"\">w</c></b><c k=\"\"1\"\" q=\"\"3\"\"><b q=\"\"3\"\">w</b><d>a b</d><c>a b</c></c><b k=\"\"2\"\" m=\"\"2\"\">w</b></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.ReplaceChildNode tn.FirstChild, \"y\", \"\" , 1, \"8\"",
+"tp.AddNode tn, \"pi\", \"\", , msoCustomXMLNodeProcessingInstruction, \"d\"",
+"tp.AddNode tn, \"z2\", \"\", , msoCustomXMLNodeAttribute, \"8\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//c[@k]\").Count",
+"p.SelectNodes(\"//*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"count(//*)\").Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"TypeName(p.SelectSingleNode(\"//c[@k]\"))",
+"TypeName(p.SelectSingleNode(\"//c[@k]\")) & \"|\" & p.SelectSingleNode(\"//c[@k]\").BaseName & \"|\" & p.SelectSingleNode(\"//c[@k]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//c[@k]\").NodeType & \"|\" & p.SelectSingleNode(\"//c[@k]\").Text & \"|\" & p.SelectSingleNode(\"//c[@k]\").XPath",
+"p.SelectSingleNode(\"//c[@k]\").XML",
+"p.SelectSingleNode(\"//c[@k]\").NodeValue",
+"p.SelectSingleNode(\"//c[@k]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//c[@k]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//c[@k]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r z2=\"8\"><y>8</y><b>4</b><d><b m=\"2\" q=\"0\"><c q=\"2\" k=\"1\">6</c><b k=\"0\">a b</b><c q=\"3\" k=\"0\">w</c></b><c k=\"1\" q=\"3\"><b q=\"3\">w</b><d>a b</d><c>a b</c></c><b k=\"2\" m=\"2\">w</b></d><?pi d?></r>|String:|Long:1|Long:3|Long:0|Long:13|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|Long:1|String:CustomXMLNode|String:CustomXMLNode|c||1|6|/r[1]/d[1]/b[1]/c[1]|String:<c q=\"2\" k=\"1\">6</c>|String:<c q=\"2\" k=\"1\">6</c>|Long:1|Long:2|String:CustomXMLNode|String:/r[1]/processing-instruction('pi')[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r z2=\"8\"><y>8</y><b>4</b><d><b m=\"2\" q=\"0\"><c q=\"2\" k=\"1\">6</c><b k=\"0\">a b</b><c q=\"3\" k=\"0\">w</c></b><c k=\"1\" q=\"3\"><b q=\"3\">w</b><d>a b</d><c>a b</c></c><b k=\"2\" m=\"2\">w</b></d><?pi d?></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{5CDDA3C8-57D1-4BB7-A996-BEFF8A3A1173}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 23",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(): b = p.LoadXML(\"<r><c><c q=\"\"1\"\"><d>w</d><d q=\"\"2\"\" k=\"\"1\"\">w</d><d>w</d></c><a><c>w</c></a></c><b>w</b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.RemoveChild tn.LastChild"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//d[1]\").Count",
+"p.SelectNodes(\"descendant::b\").Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"/r/*[1]/following-sibling::*\").Count",
+"TypeName(p.SelectSingleNode(\"/r/*[last()]\"))",
+"TypeName(p.SelectSingleNode(\"/r/*[last()]\")) & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").BaseName & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").NodeType & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").Text & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").XPath",
+"p.SelectSingleNode(\"/r/*[last()]\").XML",
+"p.SelectSingleNode(\"/r/*[last()]\").NodeValue",
+"p.SelectSingleNode(\"/r/*[last()]\").ChildNodes.Count",
+"p.SelectSingleNode(\"/r/*[last()]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/r/*[last()]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><c><c q=\"1\"><d>w</d><d q=\"2\" k=\"1\">w</d><d>w</d></c><a><c>w</c></a></c></r>|String:|Long:1|Long:1|Long:0|Long:1|Long:12|Long:0|String:CustomXMLNode|String:CustomXMLNode|c||1|wwww|/r[1]/c[1]|String:<c><c q=\"1\"><d>w</d><d q=\"2\" k=\"1\">w</d><d>w</d></c><a><c>w</c></a></c>|String:<c><c q=\"1\"><d>w</d><d q=\"2\" k=\"1\">w</d><d>w</d></c><a><c>w</c></a></c>|Long:2|Long:0|String:Nothing|String:/r[1]/c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><c><c q=\"1\"><d>w</d><d q=\"2\" k=\"1\">w</d><d>w</d></c><a><c>w</c></a></c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{70C788D3-FA42-4D9E-B90B-212EC319B5AD}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 24",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d><c k=\"\"1\"\"><d>x&amp;y</d><b>a b</b></c></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"//ns0:d\").Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//ns0:a[@k]\").Count",
+"p.SelectNodes(\"/r\").Count",
+"TypeName(p.SelectSingleNode(\"//node()\"))",
+"TypeName(p.SelectSingleNode(\"//node()\")) & \"|\" & p.SelectSingleNode(\"//node()\").BaseName & \"|\" & p.SelectSingleNode(\"//node()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//node()\").NodeType & \"|\" & p.SelectSingleNode(\"//node()\").Text & \"|\" & p.SelectSingleNode(\"//node()\").XPath",
+"p.SelectSingleNode(\"//node()\").XML",
+"p.SelectSingleNode(\"//node()\").NodeValue",
+"p.SelectSingleNode(\"//node()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//node()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//node()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d><c k=\"1\"><d>x&amp;y</d><b>a b</b></c></d></r>|String:urn:h|Long:2|Long:7|Long:2|Long:0|Long:0|Long:0|String:CustomXMLNode|String:CustomXMLNode|r|urn:h|1|x&ya b|/ns0:r[1]|String:<r xmlns=\"urn:h\"><d><c k=\"1\"><d>x&amp;y</d><b>a b</b></c></d></r>|String:<r xmlns=\"urn:h\"><d><c k=\"1\"><d>x&amp;y</d><b>a b</b></c></d></r>|Long:1|Long:0|String:Nothing|String:/ns0:r[1]/ns0:d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d><c k=\"1\"><d>x&amp;y</d><b>a b</b></c></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{C0D2991F-3D17-4B52-8F33-1464065F557E}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 25",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d k=\"\"0\"\">a b</d><a k=\"\"3\"\" m=\"\"3\"\"/></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\"",
+"tn.RemoveChild tn.LastChild"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"p.SelectNodes(\"//ns0:b/..\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[number(.)>2]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:*[number(.)>2]\")) & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").XPath",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").XML",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d k=\"0\">a b</d><a k=\"3\" m=\"3\"/></r>|String:urn:h|Long:2|Long:0|Long:0|Long:4|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|Long:3|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/ns0:a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d k=\"0\">a b</d><a k=\"3\" m=\"3\"/></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{E305AEE0-8069-49C2-9819-6EC0E8332F67}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 26",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(): b = p.LoadXML(\"<r><a q=\"\"0\"\" k=\"\"3\"\"><d k=\"\"3\"\"><c/><d>a b</d><b/></d><b m=\"\"0\"\" k=\"\"0\"\"><c q=\"\"2\"\">5</c></b><c m=\"\"0\"\" k=\"\"0\"\"><d k=\"\"1\"\">x&amp;y</d></c></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\"",
+"tn.ReplaceChildNode tn.FirstChild, \"y\", \"\" , 1, \"8\"",
+"tp.SelectSingleNode(\"//d\").AppendChildSubtree \"<s><u/></s>\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//d[\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//*[c]\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"descendant::c\").Count",
+"TypeName(p.SelectSingleNode(\"//d[\"))",
+"TypeName(p.SelectSingleNode(\"//d[\")) & \"|\" & p.SelectSingleNode(\"//d[\").BaseName & \"|\" & p.SelectSingleNode(\"//d[\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//d[\").NodeType & \"|\" & p.SelectSingleNode(\"//d[\").Text & \"|\" & p.SelectSingleNode(\"//d[\").XPath",
+"p.SelectSingleNode(\"//d[\").XML",
+"p.SelectSingleNode(\"//d[\").NodeValue",
+"p.SelectSingleNode(\"//d[\").ChildNodes.Count",
+"p.SelectSingleNode(\"//d[\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//d[\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "[91:Object variable or With block variable not set]|String:<r><y>8</y><!--note--></r>|String:|Long:1|E-2147467259:Expression expected.\n\n//d[<--|Long:1|Long:0|Long:1|Long:0|E-2147467259:Expression expected.\n\n//d[<--|E-2147467259:Expression expected.\n\n//d[<--|E-2147467259:Expression expected.\n\n//d[<--|E-2147467259:Expression expected.\n\n//d[<--|E-2147467259:Expression expected.\n\n//d[<--|E-2147467259:Expression expected.\n\n//d[<--|E-2147467259:Expression expected.\n\n//d[<--|String:/r[1]/comment()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><y>8</y><!--note--></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{D6F7708D-FC04-4B10-A08F-A22449A308C9}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 27",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d k=\"\"3\"\"><a k=\"\"3\"\"><d q=\"\"3\"\">7</d></a></d><d k=\"\"0\"\">w</d><c k=\"\"3\"\" m=\"\"1\"\"><c k=\"\"2\"\">3</c><c><d>w</d><d k=\"\"1\"\" m=\"\"1\"\">x&amp;y</d><a k=\"\"3\"\">w</a></c></c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"z6\", \"\", , msoCustomXMLNodeAttribute, \"7\"",
+"tp.AddNode tn, \"a\", \"\", , msoCustomXMLNodeElement, \"1\"",
+"tp.SelectSingleNode(\"//@*\").NodeValue = \"5\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"/ns0:r/*\").Count",
+"p.SelectNodes(\"//ns0:a | //ns0:d\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[number(.)>2]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:*[number(.)>2]\")) & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:*[number(.)>2]\").XPath",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").XML",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:*[number(.)>2]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[number(.)>2]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\" z6=\"5\"><d k=\"3\"><a k=\"3\"><d q=\"3\">7</d></a></d><d k=\"0\">w</d><c k=\"3\" m=\"1\"><c k=\"2\">3</c><c><d>w</d><d k=\"1\" m=\"1\">x&amp;y</d><a k=\"3\">w</a></c></c><a xmlns=\"\">1</a></r>|String:urn:h|Long:2|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|Long:4|Long:1|Long:4|Long:7|String:CustomXMLNode|String:CustomXMLNode|d|urn:h|1|7|/ns0:r[1]/ns0:d[1]|String:<d k=\"3\"><a k=\"3\"><d q=\"3\">7</d></a></d>|String:<d k=\"3\"><a k=\"3\"><d q=\"3\">7</d></a></d>|Long:1|Long:1|String:CustomXMLNode|String:/ns0:r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\" z6=\"5\"><d k=\"3\"><a k=\"3\"><d q=\"3\">7</d></a></d><d k=\"0\">w</d><c k=\"3\" m=\"1\"><c k=\"2\">3</c><c><d>w</d><d k=\"1\" m=\"1\">x&amp;y</d><a k=\"3\">w</a></c></c><a xmlns=\"\">1</a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{E446F16D-7AAD-4D15-A040-87653939DAC5}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 28",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><b k=\"\"1\"\"><b k=\"\"3\"\" q=\"\"2\"\"><d q=\"\"2\"\" m=\"\"2\"\">4</d></b><b q=\"\"1\"\" m=\"\"0\"\"><b>9</b><d q=\"\"0\"\"/></b><d><d q=\"\"3\"\">x&amp;y</d></d></b><c k=\"\"0\"\" m=\"\"0\"\"><a m=\"\"0\"\" k=\"\"0\"\"><a>x&amp;y</a></a><a>a b</a></c><b k=\"\"1\"\"><b m=\"\"3\"\">a b</b><d k=\"\"2\"\" m=\"\"0\"\"><a q=\"\"2\"\">9</a><a q=\"\"2\"\" m=\"\"0\"\">x&amp;y</a></d></b><d k=\"\"1\"\" q=\"\"0\"\"><d><b m=\"\"2\"\">a b</b><c>w</c></d><b q=\"\"3\"\" m=\"\"3\"\"><a>9</a><d>w</d><d q=\"\"2\"\">6</d></b></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.InsertNodeBefore \"w\", \"urn:h\", 1, \"9\", tn.LastChild",
+"tn.Text = \"flat\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"//ns0:a | //ns0:c\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//ns0:c[@m]\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\")) & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").XPath",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").XML",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\">flat</r>|String:urn:h|Long:2|Long:0|Long:0|Long:0|Long:0|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/text()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\">flat</r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{89271BF3-5BC5-4DB9-8BDC-00FC62855F00}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 29",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d><c k=\"\"0\"\" q=\"\"3\"\"/><a q=\"\"2\"\">0</a><c m=\"\"2\"\" k=\"\"3\"\"><c k=\"\"0\"\">w</c><c m=\"\"3\"\" q=\"\"2\"\"/><d>w</d></c></d><a k=\"\"0\"\"><a q=\"\"1\"\" m=\"\"2\"\"><d k=\"\"3\"\"/></a></a><c k=\"\"1\"\"><c m=\"\"2\"\" k=\"\"1\"\"><a k=\"\"2\"\" m=\"\"0\"\">a b</a><d m=\"\"3\"\" q=\"\"0\"\">w</d><b k=\"\"0\"\" q=\"\"0\"\"/></c><b><b>a b</b><d m=\"\"0\"\" q=\"\"2\"\">w</d><b m=\"\"1\"\">7</b></b><a k=\"\"0\"\"/></c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//c\").Text = \"t4\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"p.SelectNodes(\"count(//*)\").Count",
+"TypeName(p.SelectSingleNode(\"//h:*\"))",
+"TypeName(p.SelectSingleNode(\"//h:*\")) & \"|\" & p.SelectSingleNode(\"//h:*\").BaseName & \"|\" & p.SelectSingleNode(\"//h:*\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//h:*\").NodeType & \"|\" & p.SelectSingleNode(\"//h:*\").Text & \"|\" & p.SelectSingleNode(\"//h:*\").XPath",
+"p.SelectSingleNode(\"//h:*\").XML",
+"p.SelectSingleNode(\"//h:*\").NodeValue",
+"p.SelectSingleNode(\"//h:*\").ChildNodes.Count",
+"p.SelectSingleNode(\"//h:*\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//h:*\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><d><c k=\"0\" q=\"3\">t4</c><a q=\"2\">0</a><c m=\"2\" k=\"3\"><c k=\"0\">w</c><c m=\"3\" q=\"2\"/><d>w</d></c></d><a k=\"0\"><a q=\"1\" m=\"2\"><d k=\"3\"/></a></a><c k=\"1\"><c m=\"2\" k=\"1\"><a k=\"2\" m=\"0\">a b</a><d m=\"3\" q=\"0\">w</d><b k=\"0\" q=\"0\"/></c><b><b>a b</b><d m=\"0\" q=\"2\">w</d><b m=\"1\">7</b></b><a k=\"0\"/></c></r>|String:|Long:1|Long:30|Long:1|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:4|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|String:/r[1]/c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><d><c k=\"0\" q=\"3\">t4</c><a q=\"2\">0</a><c m=\"2\" k=\"3\"><c k=\"0\">w</c><c m=\"3\" q=\"2\"/><d>w</d></c></d><a k=\"0\"><a q=\"1\" m=\"2\"><d k=\"3\"/></a></a><c k=\"1\"><c m=\"2\" k=\"1\"><a k=\"2\" m=\"0\">a b</a><d m=\"3\" q=\"0\">w</d><b k=\"0\" q=\"0\"/></c><b><b>a b</b><d m=\"0\" q=\"2\">w</d><b m=\"1\">7</b></b><a k=\"0\"/></c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{F86E7C51-46A8-4877-BDD8-1CE5CE78E7B2}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 30",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><c><b>x&amp;y</b><b q=\"\"1\"\">w</b></c><c m=\"\"3\"\"><d><c>w</c><b q=\"\"3\"\">x&amp;y</b></d></c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//d\").Delete",
+"tp.SelectSingleNode(\"//d\").AppendChildSubtree \"<s><u/></s>\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//d[position()>1]\").Count",
+"p.SelectNodes(\"/r/*\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"TypeName(p.SelectSingleNode(\"//*[2]\"))",
+"TypeName(p.SelectSingleNode(\"//*[2]\")) & \"|\" & p.SelectSingleNode(\"//*[2]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[2]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[2]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[2]\").Text & \"|\" & p.SelectSingleNode(\"//*[2]\").XPath",
+"p.SelectSingleNode(\"//*[2]\").XML",
+"p.SelectSingleNode(\"//*[2]\").NodeValue",
+"p.SelectSingleNode(\"//*[2]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[2]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[2]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "[91:Object variable or With block variable not set]|String:<r><c><b>x&amp;y</b><b q=\"1\">w</b></c><c m=\"3\"/></r>|String:|Long:1|Long:3|Long:2|Long:0|Long:2|Long:1|String:CustomXMLNode|String:CustomXMLNode|b||1|w|/r[1]/c[1]/b[2]|String:<b q=\"1\">w</b>|String:<b q=\"1\">w</b>|Long:1|Long:1|String:Nothing|String:/r[1]/c[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><c><b>x&amp;y</b><b q=\"1\">w</b></c><c m=\"3\"/></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{EECB5341-A671-4435-949B-8303D7D3E994}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 31",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d m=\"\"0\"\" k=\"\"2\"\"><c><a q=\"\"1\"\">8</a><d m=\"\"3\"\" q=\"\"3\"\">x&amp;y</d><d>0</d></c><b q=\"\"1\"\"><c>w</c><b q=\"\"2\"\" k=\"\"3\"\">w</b></b></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//d[position()>1]\").Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\"))",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\")) & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").Text & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").XPath",
+"p.SelectSingleNode(\"//*[not(*)]\").XML",
+"p.SelectSingleNode(\"//*[not(*)]\").NodeValue",
+"p.SelectSingleNode(\"//*[not(*)]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[not(*)]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><e>first</e><d m=\"0\" k=\"2\"><c><a q=\"1\">8</a><d m=\"3\" q=\"3\">x&amp;y</d><d>0</d></c><b q=\"1\"><c>w</c><b q=\"2\" k=\"3\">w</b></b></d></r>|String:|Long:1|Long:6|Long:1|Long:1|Long:4|Long:1|String:CustomXMLNode|String:CustomXMLNode|e||1|first|/r[1]/e[1]|String:<e>first</e>|String:<e>first</e>|Long:1|Long:0|String:CustomXMLNode|String:/r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><e>first</e><d m=\"0\" k=\"2\"><c><a q=\"1\">8</a><d m=\"3\" q=\"3\">x&amp;y</d><d>0</d></c><b q=\"1\"><c>w</c><b q=\"2\" k=\"3\">w</b></b></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{0FD12058-38B8-4221-A069-57686A38FD69}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 32",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d q=\"\"0\"\" m=\"\"1\"\"><a m=\"\"3\"\" k=\"\"2\"\"/></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.ReplaceChildNode tn.FirstChild, \"y\", \"\" , 1, \"8\"",
+"tp.SelectSingleNode(\"//b\").AppendChildSubtree \"<s><u/></s>\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"//c[@k='1']\").Count",
+"p.SelectNodes(\"descendant::d\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"TypeName(p.SelectSingleNode(\"//node()\"))",
+"TypeName(p.SelectSingleNode(\"//node()\")) & \"|\" & p.SelectSingleNode(\"//node()\").BaseName & \"|\" & p.SelectSingleNode(\"//node()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//node()\").NodeType & \"|\" & p.SelectSingleNode(\"//node()\").Text & \"|\" & p.SelectSingleNode(\"//node()\").XPath",
+"p.SelectSingleNode(\"//node()\").XML",
+"p.SelectSingleNode(\"//node()\").NodeValue",
+"p.SelectSingleNode(\"//node()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//node()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//node()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "[91:Object variable or With block variable not set]|String:<r><y>8</y></r>|String:|Long:1|Long:3|Long:1|Long:0|Long:0|Long:0|String:CustomXMLNode|String:CustomXMLNode|r||1|8|/r[1]|String:<r><y>8</y></r>|String:<r><y>8</y></r>|Long:1|Long:0|String:Nothing|String:/r[1]/y[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><y>8</y></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{54C07871-668F-42F6-BF68-FF208F91FB27}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 33",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><b>7</b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"b\", \"\", , msoCustomXMLNodeElement, \"1\"",
+"tn.InsertNodeBefore \"w\", \"\", 1, \"9\", tn.LastChild",
+"tn.ReplaceChildNode tn.FirstChild, \"y\", \"\" , 1, \"8\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//text()\").Count",
+"p.SelectNodes(\"//c | //c\").Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"p.SelectNodes(\"descendant::c\").Count",
+"p.SelectNodes(\"//c[@k]\").Count",
+"TypeName(p.SelectSingleNode(\"/r/*[last()]\"))",
+"TypeName(p.SelectSingleNode(\"/r/*[last()]\")) & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").BaseName & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").NodeType & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").Text & \"|\" & p.SelectSingleNode(\"/r/*[last()]\").XPath",
+"p.SelectSingleNode(\"/r/*[last()]\").XML",
+"p.SelectSingleNode(\"/r/*[last()]\").NodeValue",
+"p.SelectSingleNode(\"/r/*[last()]\").ChildNodes.Count",
+"p.SelectSingleNode(\"/r/*[last()]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/r/*[last()]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><y>8</y><w>9</w><b>1</b></r>|String:|Long:1|Long:3|Long:0|Long:1|Long:0|Long:0|String:CustomXMLNode|String:CustomXMLNode|b||1|1|/r[1]/b[1]|String:<b>1</b>|String:<b>1</b>|Long:1|Long:0|String:Nothing|String:/r[1]/b[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><y>8</y><w>9</w><b>1</b></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{35378F02-DD5E-4960-A796-90CFBE3DF64B}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 34",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a><d>w</d><b><a k=\"\"2\"\" m=\"\"0\"\">a b</a><c>a b</c></b></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.InsertNodeBefore \"w\", \"\", 1, \"9\", tn.LastChild",
+"tp.SelectSingleNode(\"//d\").AppendChildNode \"n\", \"\", 1, \"c\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"descendant::b\").Count",
+"p.SelectNodes(\"//*[2]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//*[d]\").Count",
+"p.SelectNodes(\"//*[number(.)>2]\").Count",
+"TypeName(p.SelectSingleNode(\"descendant::b\"))",
+"TypeName(p.SelectSingleNode(\"descendant::b\")) & \"|\" & p.SelectSingleNode(\"descendant::b\").BaseName & \"|\" & p.SelectSingleNode(\"descendant::b\").NamespaceURI & \"|\" & p.SelectSingleNode(\"descendant::b\").NodeType & \"|\" & p.SelectSingleNode(\"descendant::b\").Text & \"|\" & p.SelectSingleNode(\"descendant::b\").XPath",
+"p.SelectSingleNode(\"descendant::b\").XML",
+"p.SelectSingleNode(\"descendant::b\").NodeValue",
+"p.SelectSingleNode(\"descendant::b\").ChildNodes.Count",
+"p.SelectSingleNode(\"descendant::b\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"descendant::b\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><w>9</w><a><d>w<n>c</n></d><b><a k=\"2\" m=\"0\">a b</a><c>a b</c></b></a></r>|String:|Long:1|Long:1|Long:3|Long:0|Long:1|Long:1|String:CustomXMLNode|String:CustomXMLNode|b||1|a ba b|/r[1]/a[1]/b[1]|String:<b><a k=\"2\" m=\"0\">a b</a><c>a b</c></b>|String:<b><a k=\"2\" m=\"0\">a b</a><c>a b</c></b>|Long:2|Long:0|String:Nothing|String:/r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><w>9</w><a><d>w<n>c</n></d><b><a k=\"2\" m=\"0\">a b</a><c>a b</c></b></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{D0441286-4362-4F0B-9944-3F535EE28757}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 35",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(): b = p.LoadXML(\"<r xmlns=\"\"urn:h\"\"><a><d k=\"\"1\"\" m=\"\"2\"\"><c m=\"\"2\"\" k=\"\"0\"\">w</c><b k=\"\"2\"\"/><d m=\"\"2\"\"/></d><b k=\"\"0\"\" q=\"\"3\"\"><c m=\"\"0\"\">a b</c><b q=\"\"2\"\" m=\"\"0\"\">a b</b></b></a><a><c k=\"\"2\"\"><c q=\"\"1\"\" k=\"\"2\"\">w</c></c><d k=\"\"0\"\" q=\"\"3\"\">w</d><a m=\"\"2\"\" q=\"\"1\"\"><b>9</b><b q=\"\"3\"\" m=\"\"0\"\">w</b></a></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:b\").Delete",
+"tn.Text = \"flat\"",
+"tp.AddNode tn, \"d\", \"\", , msoCustomXMLNodeElement, \"1\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"//ns0:*[not(*)]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[not(*)]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:*[not(*)]\")) & \"|\" & p.SelectSingleNode(\"//ns0:*[not(*)]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:*[not(*)]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:*[not(*)]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:*[not(*)]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:*[not(*)]\").XPath",
+"p.SelectSingleNode(\"//ns0:*[not(*)]\").XML",
+"p.SelectSingleNode(\"//ns0:*[not(*)]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:*[not(*)]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:*[not(*)]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[not(*)]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\">flat<d xmlns=\"\">1</d></r>|String:urn:h|Long:2|Long:4|Long:0|Long:0|Long:0|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\">flat<d xmlns=\"\">1</d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{3713A559-2CF9-45CD-90CB-45C0A2D922F4}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 36",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d k=\"\"0\"\" q=\"\"2\"\"/></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:c[1]\").Count",
+"p.SelectNodes(\"//ns0:*[ns0:c]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//ns0:b | //ns0:c\").Count",
+"p.SelectNodes(\"descendant::ns0:b\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c[1]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:c[1]\")) & \"|\" & p.SelectSingleNode(\"//ns0:c[1]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:c[1]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:c[1]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:c[1]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:c[1]\").XPath",
+"p.SelectSingleNode(\"//ns0:c[1]\").XML",
+"p.SelectSingleNode(\"//ns0:c[1]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:c[1]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:c[1]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c[1]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d k=\"0\" q=\"2\"/></r>|String:urn:h|Long:2|Long:0|Long:0|Long:0|Long:0|Long:0|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/ns0:d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d k=\"0\" q=\"2\"/></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{420B0994-4441-4CD1-8DD3-E58B01A1D5C3}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 37",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d k=\"\"2\"\" m=\"\"1\"\">x&amp;y</d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//@*\").NodeValue = \"5\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//d/..\").Count",
+"TypeName(p.SelectSingleNode(\"//comment()\"))",
+"TypeName(p.SelectSingleNode(\"//comment()\")) & \"|\" & p.SelectSingleNode(\"//comment()\").BaseName & \"|\" & p.SelectSingleNode(\"//comment()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//comment()\").NodeType & \"|\" & p.SelectSingleNode(\"//comment()\").Text & \"|\" & p.SelectSingleNode(\"//comment()\").XPath",
+"p.SelectSingleNode(\"//comment()\").XML",
+"p.SelectSingleNode(\"//comment()\").NodeValue",
+"p.SelectSingleNode(\"//comment()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//comment()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//comment()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><d k=\"5\" m=\"1\">x&amp;y</d></r>|String:|Long:1|Long:2|Long:0|Long:0|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:1|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><d k=\"5\" m=\"1\">x&amp;y</d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{7F40E54C-E598-43B3-B34B-3616F605BDF3}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 38",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><a m=\"\"1\"\"><a><c/><b q=\"\"1\"\" m=\"\"2\"\">5</b></a><d q=\"\"2\"\" k=\"\"3\"\">7</d><c m=\"\"0\"\" q=\"\"2\"\"><c m=\"\"0\"\">2</c><d>a b</d></c></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"pi\", \"\", , msoCustomXMLNodeProcessingInstruction, \"d\"",
+"tp.SelectSingleNode(\"//ns0:a\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tp.SelectSingleNode(\"//ns0:a\").AppendChildNode \"n\", \"urn:h\", 1, \"c\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/ns0:r/*\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//ns0:a[@k='0']\").Count",
+"p.SelectNodes(\"//ns0:c\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:a[@k='0']\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:a[@k='0']\")) & \"|\" & p.SelectSingleNode(\"//ns0:a[@k='0']\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:a[@k='0']\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:a[@k='0']\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:a[@k='0']\").Text & \"|\" & p.SelectSingleNode(\"//ns0:a[@k='0']\").XPath",
+"p.SelectSingleNode(\"//ns0:a[@k='0']\").XML",
+"p.SelectSingleNode(\"//ns0:a[@k='0']\").NodeValue",
+"p.SelectSingleNode(\"//ns0:a[@k='0']\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:a[@k='0']\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:a[@k='0']\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><a m=\"1\"><a><c/><b q=\"1\" m=\"2\">5</b></a><d q=\"2\" k=\"3\">7</d><c m=\"0\" q=\"2\"><c m=\"0\">2</c><d>a b</d></c><n>c</n><n>c</n></a><?pi d?></r>|String:urn:h|Long:2|Long:1|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:0|Long:3|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/processing-instruction('pi')[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><a m=\"1\"><a><c/><b q=\"1\" m=\"2\">5</b></a><d q=\"2\" k=\"3\">7</d><c m=\"0\" q=\"2\"><c m=\"0\">2</c><d>a b</d></c><n>c</n><n>c</n></a><?pi d?></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{71E53DBB-55C2-42C6-B544-44AD5021D199}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 39",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><b><d q=\"\"3\"\"><b k=\"\"2\"\" q=\"\"0\"\">x&amp;y</b><b q=\"\"1\"\" m=\"\"3\"\">1</b></d></b><d m=\"\"0\"\" q=\"\"1\"\"><a q=\"\"1\"\" k=\"\"3\"\">w</a><c m=\"\"0\"\" q=\"\"0\"\"><d>x&amp;y</d></c></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"z9\", \"\", , msoCustomXMLNodeAttribute, \"6\"",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\"",
+"tp.AddNode tn, \"a\", \"\", , msoCustomXMLNodeElement, \"1\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"//ns0:b[position()>1]\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//ns0:*[ns0:d]\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\")) & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").XPath",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").XML",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r/ns0:*[last()]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\" z9=\"6\"><b><d q=\"3\"><b k=\"2\" q=\"0\">x&amp;y</b><b q=\"1\" m=\"3\">1</b></d></b><d m=\"0\" q=\"1\"><a q=\"1\" k=\"3\">w</a><c m=\"0\" q=\"0\"><d>x&amp;y</d></c></d><!--note--><a xmlns=\"\">1</a></r>|String:urn:h|Long:2|Long:1|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|Long:1|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:3|String:CustomXMLNode|String:CustomXMLNode|d|urn:h|1|wx&y|/ns0:r[1]/ns0:d[1]|String:<d m=\"0\" q=\"1\"><a q=\"1\" k=\"3\">w</a><c m=\"0\" q=\"0\"><d>x&amp;y</d></c></d>|String:<d m=\"0\" q=\"1\"><a q=\"1\" k=\"3\">w</a><c m=\"0\" q=\"0\"><d>x&amp;y</d></c></d>|Long:2|Long:2|String:CustomXMLNode|String:/ns0:r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\" z9=\"6\"><b><d q=\"3\"><b k=\"2\" q=\"0\">x&amp;y</b><b q=\"1\" m=\"3\">1</b></d></b><d m=\"0\" q=\"1\"><a q=\"1\" k=\"3\">w</a><c m=\"0\" q=\"0\"><d>x&amp;y</d></c></d><!--note--><a xmlns=\"\">1</a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{89629264-07B9-47DF-B5B0-1225357A8719}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 40",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d>9</d><c>x&amp;y</c><a k=\"\"1\"\" q=\"\"3\"\"><a k=\"\"2\"\" q=\"\"0\"\"><b/></a></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:d\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tp.SelectSingleNode(\"//ns0:d\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tp.SelectSingleNode(\"//@*\").NodeValue = \"5\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//text()\").Count",
+"p.SelectNodes(\"//ns0:a/..\").Count",
+"p.SelectNodes(\"//ns0:d[position()>1]\").Count",
+"p.SelectNodes(\"//ns0:d[\").Count",
+"p.SelectNodes(\"//ns0:*[2]\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:a/..\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:a/..\")) & \"|\" & p.SelectSingleNode(\"//ns0:a/..\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:a/..\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:a/..\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:a/..\").Text & \"|\" & p.SelectSingleNode(\"//ns0:a/..\").XPath",
+"p.SelectSingleNode(\"//ns0:a/..\").XML",
+"p.SelectSingleNode(\"//ns0:a/..\").NodeValue",
+"p.SelectSingleNode(\"//ns0:a/..\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:a/..\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:a/..\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d>9<n>c</n><n>c</n></d><c>x&amp;y</c><a k=\"5\" q=\"3\"><a k=\"2\" q=\"0\"><b/></a></a></r>|String:urn:h|Long:2|Long:4|Long:2|Long:0|E-2147467259:Expression expected.\n\n//ns0:d[<--|Long:2|String:CustomXMLNode|String:CustomXMLNode|r|urn:h|1|9ccx&y|/ns0:r[1]|String:<r xmlns=\"urn:h\"><d>9<n>c</n><n>c</n></d><c>x&amp;y</c><a k=\"5\" q=\"3\"><a k=\"2\" q=\"0\"><b/></a></a></r>|String:<r xmlns=\"urn:h\"><d>9<n>c</n><n>c</n></d><c>x&amp;y</c><a k=\"5\" q=\"3\"><a k=\"2\" q=\"0\"><b/></a></a></r>|Long:3|Long:0|String:Nothing|String:/ns0:r[1]/ns0:a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d>9<n>c</n><n>c</n></d><c>x&amp;y</c><a k=\"5\" q=\"3\"><a k=\"2\" q=\"0\"><b/></a></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{AA5D47F1-48A9-4BC6-A8C8-EC9D192CBECA}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 41",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><a k=\"\"0\"\" m=\"\"0\"\"/><c><a><d>5</d><b m=\"\"3\"\">w</b></a><b q=\"\"1\"\" m=\"\"0\"\">a b</b><c/></c><d m=\"\"3\"\" k=\"\"2\"\"><c k=\"\"3\"\"><d q=\"\"1\"\" m=\"\"0\"\">x&amp;y</d><b q=\"\"2\"\" m=\"\"2\"\"/><c m=\"\"1\"\" q=\"\"3\"\">4</c></c><b m=\"\"0\"\" q=\"\"0\"\">a b</b></d><c>x&amp;y</c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:b/..\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"descendant::ns0:d\").Count",
+"p.SelectNodes(\"//ns0:*[text()='w']\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:b/..\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:b/..\")) & \"|\" & p.SelectSingleNode(\"//ns0:b/..\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:b/..\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:b/..\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:b/..\").Text & \"|\" & p.SelectSingleNode(\"//ns0:b/..\").XPath",
+"p.SelectSingleNode(\"//ns0:b/..\").XML",
+"p.SelectSingleNode(\"//ns0:b/..\").NodeValue",
+"p.SelectSingleNode(\"//ns0:b/..\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:b/..\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:b/..\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><a k=\"0\" m=\"0\"/><c><a><d>5</d><b m=\"3\">w</b></a><b q=\"1\" m=\"0\">a b</b><c/></c><d m=\"3\" k=\"2\"><c k=\"3\"><d q=\"1\" m=\"0\">x&amp;y</d><b q=\"2\" m=\"2\"/><c m=\"1\" q=\"3\">4</c></c><b m=\"0\" q=\"0\">a b</b></d><c>x&amp;y</c></r>|String:urn:h|Long:2|Long:4|Long:22|Long:3|Long:1|Long:1|String:CustomXMLNode|String:CustomXMLNode|c|urn:h|1|5wa b|/ns0:r[1]/ns0:c[1]|String:<c><a><d>5</d><b m=\"3\">w</b></a><b q=\"1\" m=\"0\">a b</b><c/></c>|String:<c><a><d>5</d><b m=\"3\">w</b></a><b q=\"1\" m=\"0\">a b</b><c/></c>|Long:3|Long:0|String:CustomXMLNode|String:/ns0:r[1]/ns0:c[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><a k=\"0\" m=\"0\"/><c><a><d>5</d><b m=\"3\">w</b></a><b q=\"1\" m=\"0\">a b</b><c/></c><d m=\"3\" k=\"2\"><c k=\"3\"><d q=\"1\" m=\"0\">x&amp;y</d><b q=\"2\" m=\"2\"/><c m=\"1\" q=\"3\">4</c></c><b m=\"0\" q=\"0\">a b</b></d><c>x&amp;y</c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{CDA689E6-8EC5-466C-AB0E-F214131DE118}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 42",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><c><d q=\"\"2\"\">w</d></c><c>5</c><d m=\"\"2\"\"><c><b q=\"\"2\"\">a b</b></c><d k=\"\"0\"\" q=\"\"3\"\"><b m=\"\"1\"\" q=\"\"1\"\">x&amp;y</b><d m=\"\"3\"\"/><a q=\"\"2\"\">w</a></d></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\"",
+"tp.SelectSingleNode(\"//ns0:d\").Delete"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//ns0:*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//ns0:d[\").Count",
+"p.SelectNodes(\"//ns0:d[position()>1]\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[contains(., '1')]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:*[contains(., '1')]\")) & \"|\" & p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").XPath",
+"p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").XML",
+"p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[contains(., '1')]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><c/><c>5</c><d m=\"2\"><c><b q=\"2\">a b</b></c><d k=\"0\" q=\"3\"><b m=\"1\" q=\"1\">x&amp;y</b><d m=\"3\"/><a q=\"2\">w</a></d></d><!--note--></r>|String:urn:h|Long:2|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:0|E-2147467259:Expression expected.\n\n//ns0:d[<--|Long:0|Long:8|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/comment()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><c/><c>5</c><d m=\"2\"><c><b q=\"2\">a b</b></c><d k=\"0\" q=\"3\"><b m=\"1\" q=\"1\">x&amp;y</b><d m=\"3\"/><a q=\"2\">w</a></d></d><!--note--></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{BE451D7B-B694-454E-8918-BB3D61888DA1}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 43",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><c><c m=\"\"1\"\" k=\"\"3\"\">w</c><c q=\"\"2\"\"><d>w</d><c q=\"\"0\"\">x&amp;y</c></c><a q=\"\"0\"\" m=\"\"3\"\">x&amp;y</a></c><d q=\"\"2\"\" m=\"\"1\"\">x&amp;y</d><c><b>a b</b><c q=\"\"2\"\"><d>a b</d></c><c k=\"\"1\"\"><a q=\"\"0\"\" m=\"\"2\"\">6</a><a>3</a></c></c><c>w</c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[number(.)>2]\").Count",
+"p.SelectNodes(\"//a[@q]\").Count",
+"p.SelectNodes(\"/r\").Count",
+"p.SelectNodes(\"//c | //a\").Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"TypeName(p.SelectSingleNode(\"//*[number(.)>2]\"))",
+"TypeName(p.SelectSingleNode(\"//*[number(.)>2]\")) & \"|\" & p.SelectSingleNode(\"//*[number(.)>2]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[number(.)>2]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[number(.)>2]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[number(.)>2]\").Text & \"|\" & p.SelectSingleNode(\"//*[number(.)>2]\").XPath",
+"p.SelectSingleNode(\"//*[number(.)>2]\").XML",
+"p.SelectSingleNode(\"//*[number(.)>2]\").NodeValue",
+"p.SelectSingleNode(\"//*[number(.)>2]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[number(.)>2]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[number(.)>2]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><c><c m=\"1\" k=\"3\">w</c><c q=\"2\"><d>w</d><c q=\"0\">x&amp;y</c></c><a q=\"0\" m=\"3\">x&amp;y</a></c><d q=\"2\" m=\"1\">x&amp;y</d><c><b>a b</b><c q=\"2\"><d>a b</d></c><c k=\"1\"><a q=\"0\" m=\"2\">6</a><a>3</a></c></c><c>w</c></r>|String:|Long:1|Long:3|Long:2|Long:1|Long:11|Long:10|String:CustomXMLNode|String:CustomXMLNode|c||1|63|/r[1]/c[2]/c[2]|String:<c k=\"1\"><a q=\"0\" m=\"2\">6</a><a>3</a></c>|String:<c k=\"1\"><a q=\"0\" m=\"2\">6</a><a>3</a></c>|Long:2|Long:1|String:Nothing|String:/r[1]/c[3] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><c><c m=\"1\" k=\"3\">w</c><c q=\"2\"><d>w</d><c q=\"0\">x&amp;y</c></c><a q=\"0\" m=\"3\">x&amp;y</a></c><d q=\"2\" m=\"1\">x&amp;y</d><c><b>a b</b><c q=\"2\"><d>a b</d></c><c k=\"1\"><a q=\"0\" m=\"2\">6</a><a>3</a></c></c><c>w</c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{D0FCA815-DF69-4DC3-8D87-AD8F1DBEA9DF}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 44",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a k=\"\"2\"\"><d><a q=\"\"1\"\">a b</a></d><a>w</a><a><d>w</d></a></a><b m=\"\"3\"\" k=\"\"3\"\"><b q=\"\"1\"\" k=\"\"3\"\"><c k=\"\"0\"\" q=\"\"1\"\">a b</c></b></b><c q=\"\"0\"\" k=\"\"2\"\">w</c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"descendant::c\").Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//*[number(.)>2]\").Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"p.SelectNodes(\"//c[\").Count",
+"TypeName(p.SelectSingleNode(\"//processing-instruction()\"))",
+"TypeName(p.SelectSingleNode(\"//processing-instruction()\")) & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").BaseName & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").NodeType & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").Text & \"|\" & p.SelectSingleNode(\"//processing-instruction()\").XPath",
+"p.SelectSingleNode(\"//processing-instruction()\").XML",
+"p.SelectSingleNode(\"//processing-instruction()\").NodeValue",
+"p.SelectSingleNode(\"//processing-instruction()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//processing-instruction()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//processing-instruction()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><a k=\"2\"><d><a q=\"1\">a b</a></d><a>w</a><a><d>w</d></a></a><b m=\"3\" k=\"3\"><b q=\"1\" k=\"3\"><c k=\"0\" q=\"1\">a b</c></b></b><c q=\"0\" k=\"2\">w</c></r>|String:|Long:1|Long:2|Long:0|Long:0|Long:1|E-2147467259:Expression expected.\n\n//c[<--|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/r[1]/c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><a k=\"2\"><d><a q=\"1\">a b</a></d><a>w</a><a><d>w</d></a></a><b m=\"3\" k=\"3\"><b q=\"1\" k=\"3\"><c k=\"0\" q=\"1\">a b</c></b></b><c q=\"0\" k=\"2\">w</c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{701AA103-36E9-4420-8574-79C5673FE8E1}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 45",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><a q=\"\"2\"\"><d q=\"\"3\"\" m=\"\"1\"\"><c m=\"\"0\"\"/></d></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"z1\", \"\", , msoCustomXMLNodeAttribute, \"5\"",
+"tp.SelectSingleNode(\"//ns0:d\").Delete",
+"tp.SelectSingleNode(\"//ns0:d\").Delete"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//ns0:*[text()='w']\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//ns0:a | //ns0:b\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r\")) & \"|\" & p.SelectSingleNode(\"/ns0:r\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r\").XPath",
+"p.SelectSingleNode(\"/ns0:r\").XML",
+"p.SelectSingleNode(\"/ns0:r\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "[91:Object variable or With block variable not set]|String:<r xmlns=\"urn:h\" z1=\"5\"><a q=\"2\"/></r>|String:urn:h|Long:2|Long:1|Long:0|Long:2|Long:0|Long:1|String:CustomXMLNode|String:CustomXMLNode|r|urn:h|1||/ns0:r[1]|String:<r xmlns=\"urn:h\" z1=\"5\"><a q=\"2\"/></r>|String:<r xmlns=\"urn:h\" z1=\"5\"><a q=\"2\"/></r>|Long:1|Long:1|String:Nothing|String:/ns0:r[1]/ns0:a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\" z1=\"5\"><a q=\"2\"/></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{405725F1-A651-4B95-804A-9D3C1F7EECDD}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 46",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a>6</a><b>8</b><d m=\"\"2\"\"><d k=\"\"0\"\" m=\"\"2\"\"><c k=\"\"1\"\">a b</c><a q=\"\"2\"\">x&amp;y</a><b>5</b></d></d><d>w</d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.InsertNodeBefore \"w\", \"\", 1, \"9\", tn.LastChild"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//b[1]\").Count",
+"p.SelectNodes(\"//@*\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//a\").Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"TypeName(p.SelectSingleNode(\"//b[1]\"))",
+"TypeName(p.SelectSingleNode(\"//b[1]\")) & \"|\" & p.SelectSingleNode(\"//b[1]\").BaseName & \"|\" & p.SelectSingleNode(\"//b[1]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//b[1]\").NodeType & \"|\" & p.SelectSingleNode(\"//b[1]\").Text & \"|\" & p.SelectSingleNode(\"//b[1]\").XPath",
+"p.SelectSingleNode(\"//b[1]\").XML",
+"p.SelectSingleNode(\"//b[1]\").NodeValue",
+"p.SelectSingleNode(\"//b[1]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//b[1]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//b[1]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><a>6</a><b>8</b><d m=\"2\"><d k=\"0\" m=\"2\"><c k=\"1\">a b</c><a q=\"2\">x&amp;y</a><b>5</b></d></d><w>9</w><d>w</d></r>|String:|Long:1|Long:2|Long:5|Long:0|Long:2|Long:7|String:CustomXMLNode|String:CustomXMLNode|b||1|8|/r[1]/b[1]|String:<b>8</b>|String:<b>8</b>|Long:1|Long:0|String:CustomXMLNode|String:/r[1]/d[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><a>6</a><b>8</b><d m=\"2\"><d k=\"0\" m=\"2\"><c k=\"1\">a b</c><a q=\"2\">x&amp;y</a><b>5</b></d></d><w>9</w><d>w</d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{AEF6D8FB-F571-4482-8A9D-D4393ADBFAA3}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 47",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d k=\"\"2\"\"><d k=\"\"3\"\" q=\"\"1\"\"><b>w</b><a k=\"\"3\"\">a b</a><c k=\"\"3\"\" m=\"\"3\"\">x&amp;y</c></d><b>a b</b></d><d><b m=\"\"2\"\">x&amp;y</b></d><a><d q=\"\"1\"\"><a k=\"\"3\"\">w</a></d><d m=\"\"0\"\"><b/><a>x&amp;y</a></d></a><b q=\"\"1\"\"><a>w</a></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\"",
+"tp.AddNode tn, \"z3\", \"\", , msoCustomXMLNodeAttribute, \"2\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[1]/following-sibling::*\").Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"descendant::ns0:b\").Count",
+"p.SelectNodes(\"/ns0:r/*\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r\")) & \"|\" & p.SelectSingleNode(\"/ns0:r\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r\").XPath",
+"p.SelectSingleNode(\"/ns0:r\").XML",
+"p.SelectSingleNode(\"/ns0:r\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\" z3=\"2\"><d k=\"2\"><d k=\"3\" q=\"1\"><b>w</b><a k=\"3\">a b</a><c k=\"3\" m=\"3\">x&amp;y</c></d><b>a b</b></d><d><b m=\"2\">x&amp;y</b></d><a><d q=\"1\"><a k=\"3\">w</a></d><d m=\"0\"><b/><a>x&amp;y</a></d></a><b q=\"1\"><a>w</a></b><!--note--></r>|String:urn:h|Long:2|Long:0|Long:3|Long:1|Long:5|Long:4|String:CustomXMLNode|String:CustomXMLNode|r|urn:h|1|wa bx&ya bx&ywx&yw|/ns0:r[1]|String:<r xmlns=\"urn:h\" z3=\"2\"><d k=\"2\"><d k=\"3\" q=\"1\"><b>w</b><a k=\"3\">a b</a><c k=\"3\" m=\"3\">x&amp;y</c></d><b>a b</b></d><d><b m=\"2\">x&amp;y</b></d><a><d q=\"1\"><a k=\"3\">w</a></d><d m=\"0\"><b/><a>x&amp;y</a></d></a><b q=\"1\"><a>w</a></b><!--note--></r>|String:<r xmlns=\"urn:h\" z3=\"2\"><d k=\"2\"><d k=\"3\" q=\"1\"><b>w</b><a k=\"3\">a b</a><c k=\"3\" m=\"3\">x&amp;y</c></d><b>a b</b></d><d><b m=\"2\">x&amp;y</b></d><a><d q=\"1\"><a k=\"3\">w</a></d><d m=\"0\"><b/><a>x&amp;y</a></d></a><b q=\"1\"><a>w</a></b><!--note--></r>|Long:5|Long:1|String:Nothing|String:/ns0:r[1]/comment()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\" z3=\"2\"><d k=\"2\"><d k=\"3\" q=\"1\"><b>w</b><a k=\"3\">a b</a><c k=\"3\" m=\"3\">x&amp;y</c></d><b>a b</b></d><d><b m=\"2\">x&amp;y</b></d><a><d q=\"1\"><a k=\"3\">w</a></d><d m=\"0\"><b/><a>x&amp;y</a></d></a><b q=\"1\"><a>w</a></b><!--note--></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{B9275E10-31BB-4C7B-8221-404823B61AFC}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 48",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a m=\"\"0\"\"><b>a b</b><d m=\"\"3\"\"><a k=\"\"1\"\" q=\"\"3\"\">7</a></d></a><a q=\"\"0\"\" m=\"\"2\"\"><c k=\"\"3\"\"><b m=\"\"1\"\" q=\"\"2\"\">a b</b><d k=\"\"1\"\" m=\"\"0\"\"/><c m=\"\"1\"\" k=\"\"0\"\">a b</c></c></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//*[text()='w']\").Count",
+"p.SelectNodes(\"//b | //b\").Count",
+"p.SelectNodes(\"//d[@k='1']\").Count",
+"p.SelectNodes(\"//b\").Count",
+"TypeName(p.SelectSingleNode(\"//b | //b\"))",
+"TypeName(p.SelectSingleNode(\"//b | //b\")) & \"|\" & p.SelectSingleNode(\"//b | //b\").BaseName & \"|\" & p.SelectSingleNode(\"//b | //b\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//b | //b\").NodeType & \"|\" & p.SelectSingleNode(\"//b | //b\").Text & \"|\" & p.SelectSingleNode(\"//b | //b\").XPath",
+"p.SelectSingleNode(\"//b | //b\").XML",
+"p.SelectSingleNode(\"//b | //b\").NodeValue",
+"p.SelectSingleNode(\"//b | //b\").ChildNodes.Count",
+"p.SelectSingleNode(\"//b | //b\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//b | //b\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><a m=\"0\"><b>a b</b><d m=\"3\"><a k=\"1\" q=\"3\">7</a></d></a><a q=\"0\" m=\"2\"><c k=\"3\"><b m=\"1\" q=\"2\">a b</b><d k=\"1\" m=\"0\"/><c m=\"1\" k=\"0\">a b</c></c></a></r>|String:|Long:1|Long:0|Long:0|Long:2|Long:1|Long:2|String:CustomXMLNode|String:CustomXMLNode|b||1|a b|/r[1]/a[1]/b[1]|String:<b>a b</b>|String:<b>a b</b>|Long:1|Long:0|String:CustomXMLNode|String:/r[1]/a[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><a m=\"0\"><b>a b</b><d m=\"3\"><a k=\"1\" q=\"3\">7</a></d></a><a q=\"0\" m=\"2\"><c k=\"3\"><b m=\"1\" q=\"2\">a b</b><d k=\"1\" m=\"0\"/><c m=\"1\" k=\"0\">a b</c></c></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{D3332435-4F1D-4D2B-A49D-737FA9F505EF}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 49",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d><d>9</d></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:b\").Delete",
+"tp.SelectSingleNode(\"//ns0:b\").AppendChildNode \"n\", \"urn:h\", 1, \"c\"",
+"tp.SelectSingleNode(\"//ns0:b\").Delete"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:b | //ns0:b\").Count",
+"p.SelectNodes(\"//ns0:*[ns0:a]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//ns0:c[@k='3']\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[1]/following-sibling::*\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[ns0:a]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:*[ns0:a]\")) & \"|\" & p.SelectSingleNode(\"//ns0:*[ns0:a]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:*[ns0:a]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:*[ns0:a]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:*[ns0:a]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:*[ns0:a]\").XPath",
+"p.SelectSingleNode(\"//ns0:*[ns0:a]\").XML",
+"p.SelectSingleNode(\"//ns0:*[ns0:a]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:*[ns0:a]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:*[ns0:a]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[ns0:a]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "[91:Object variable or With block variable not set][91:Object variable or With block variable not set][91:Object variable or With block variable not set]|String:<r xmlns=\"urn:h\"><d><d>9</d></d></r>|String:urn:h|Long:2|Long:0|Long:0|Long:0|Long:0|Long:0|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/ns0:d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d><d>9</d></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{468FA043-C034-4C64-8D38-FD7BB1B593C3}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 50",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><a><a q=\"\"3\"\"><a m=\"\"2\"\" q=\"\"0\"\"/><d>x&amp;y</d></a><b><c k=\"\"2\"\">x&amp;y</c><c/><c k=\"\"0\"\" m=\"\"2\"\">w</c></b><d m=\"\"2\"\"><d m=\"\"3\"\"/><d k=\"\"3\"\" q=\"\"1\"\">x&amp;y</d></d></a><d k=\"\"3\"\">0</d><b k=\"\"3\"\"><a><d m=\"\"3\"\" q=\"\"3\"\">a b</d><b k=\"\"3\"\">1</b><a>x&amp;y</a></a><c q=\"\"3\"\" m=\"\"3\"\"><d m=\"\"0\"\" k=\"\"2\"\">a b</d><b m=\"\"3\"\">0</b></c></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tn.ReplaceChildNode tn.FirstChild, \"y\", \"\" , 1, \"8\"",
+"tp.SelectSingleNode(\"//c\").Text = \"t3\"",
+"tp.SelectSingleNode(\"//c\").AppendChildSubtree \"<s><u/></s>\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//*[contains(., '1')]\").Count",
+"p.SelectNodes(\"//h:*\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//processing-instruction()\").Count",
+"p.SelectNodes(\"//b/..\").Count",
+"TypeName(p.SelectSingleNode(\"//*[contains(., '1')]\"))",
+"TypeName(p.SelectSingleNode(\"//*[contains(., '1')]\")) & \"|\" & p.SelectSingleNode(\"//*[contains(., '1')]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[contains(., '1')]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[contains(., '1')]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[contains(., '1')]\").Text & \"|\" & p.SelectSingleNode(\"//*[contains(., '1')]\").XPath",
+"p.SelectSingleNode(\"//*[contains(., '1')]\").XML",
+"p.SelectSingleNode(\"//*[contains(., '1')]\").NodeValue",
+"p.SelectSingleNode(\"//*[contains(., '1')]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[contains(., '1')]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[contains(., '1')]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><y>8</y><d k=\"3\">0</d><b k=\"3\"><a><d m=\"3\" q=\"3\">a b</d><b k=\"3\">1</b><a>x&amp;y</a></a><c q=\"3\" m=\"3\">t3<s><u/></s></c></b></r>|String:|Long:1|Long:4|E-2147467259:Reference to undeclared namespace prefix: 'h'.\n|Long:0|Long:0|Long:2|String:CustomXMLNode|String:CustomXMLNode|r||1|80a b1x&yt3|/r[1]|String:<r><y>8</y><d k=\"3\">0</d><b k=\"3\"><a><d m=\"3\" q=\"3\">a b</d><b k=\"3\">1</b><a>x&amp;y</a></a><c q=\"3\" m=\"3\">t3<s><u/></s></c></b></r>|String:<r><y>8</y><d k=\"3\">0</d><b k=\"3\"><a><d m=\"3\" q=\"3\">a b</d><b k=\"3\">1</b><a>x&amp;y</a></a><c q=\"3\" m=\"3\">t3<s><u/></s></c></b></r>|Long:3|Long:0|String:Nothing|String:/r[1]/b[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><y>8</y><d k=\"3\">0</d><b k=\"3\"><a><d m=\"3\" q=\"3\">a b</d><b k=\"3\">1</b><a>x&amp;y</a></a><c q=\"3\" m=\"3\">t3<s><u/></s></c></b></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{337D02C3-DBAF-4A33-9B57-E92212BFD08E}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 51",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d m=\"\"0\"\" q=\"\"2\"\"><c><c m=\"\"1\"\">a b</c><b>1</b></c><b/></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:c/..\").Count",
+"p.SelectNodes(\"//ns0:*[2]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//ns0:*[number(.)>2]\").Count",
+"TypeName(p.SelectSingleNode(\"//comment()\"))",
+"TypeName(p.SelectSingleNode(\"//comment()\")) & \"|\" & p.SelectSingleNode(\"//comment()\").BaseName & \"|\" & p.SelectSingleNode(\"//comment()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//comment()\").NodeType & \"|\" & p.SelectSingleNode(\"//comment()\").Text & \"|\" & p.SelectSingleNode(\"//comment()\").XPath",
+"p.SelectSingleNode(\"//comment()\").XML",
+"p.SelectSingleNode(\"//comment()\").NodeValue",
+"p.SelectSingleNode(\"//comment()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//comment()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//comment()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d m=\"0\" q=\"2\"><c><c m=\"1\">a b</c><b>1</b></c><b/></d></r>|String:urn:h|Long:2|Long:2|Long:2|Long:0|Long:1|Long:0|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/ns0:r[1]/ns0:d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d m=\"0\" q=\"2\"><c><c m=\"1\">a b</c><b>1</b></c><b/></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{B953AB2D-4233-4352-8A2A-D6B526DF683D}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 52",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><d><a q=\"\"1\"\">w</a></d></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//c[position()>1]\").Count",
+"p.SelectNodes(\"//b\").Count",
+"p.SelectNodes(\"//*[number(.)>2]\").Count",
+"p.SelectNodes(\"descendant::c\").Count",
+"p.SelectNodes(\"//*[b]\").Count",
+"TypeName(p.SelectSingleNode(\"//c[position()>1]\"))",
+"TypeName(p.SelectSingleNode(\"//c[position()>1]\")) & \"|\" & p.SelectSingleNode(\"//c[position()>1]\").BaseName & \"|\" & p.SelectSingleNode(\"//c[position()>1]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//c[position()>1]\").NodeType & \"|\" & p.SelectSingleNode(\"//c[position()>1]\").Text & \"|\" & p.SelectSingleNode(\"//c[position()>1]\").XPath",
+"p.SelectSingleNode(\"//c[position()>1]\").XML",
+"p.SelectSingleNode(\"//c[position()>1]\").NodeValue",
+"p.SelectSingleNode(\"//c[position()>1]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//c[position()>1]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//c[position()>1]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><d><a q=\"1\">w</a></d></r>|String:|Long:1|Long:0|Long:0|Long:0|Long:0|Long:0|String:Nothing|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set|String:/r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><d><a q=\"1\">w</a></d></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{FC7F6EA7-BC05-4476-9A26-87703A1F1F6A}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 53",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><a k=\"\"3\"\" q=\"\"2\"\"><a k=\"\"1\"\"><a q=\"\"3\"\">1</a><b k=\"\"2\"\" q=\"\"2\"\">a b</b></a><d><d/><c k=\"\"2\"\" m=\"\"3\"\">a b</c></d><c k=\"\"0\"\" q=\"\"0\"\"><d>x&amp;y</d><c>6</c><a m=\"\"2\"\" k=\"\"3\"\">a b</a></c></a><c><d k=\"\"3\"\" m=\"\"1\"\"><d/><a k=\"\"3\"\">a b</a></d></c><a q=\"\"3\"\" k=\"\"2\"\"><c k=\"\"2\"\" m=\"\"3\"\"><c k=\"\"2\"\" q=\"\"3\"\">x&amp;y</c><c k=\"\"3\"\">a b</c></c><a><d q=\"\"0\"\">w</d><d/><c m=\"\"2\"\">0</c></a><a q=\"\"0\"\" k=\"\"2\"\"><d m=\"\"3\"\" q=\"\"2\"\">x&amp;y</d><c/></a></a><a>4</a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"b\", \"\", , msoCustomXMLNodeElement, \"v\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//text()\").Count",
+"p.SelectNodes(\"//ns0:a | //ns0:a\").Count",
+"p.SelectNodes(\"/ns0:r/*\").Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\"))",
+"TypeName(p.SelectSingleNode(\"/ns0:r\")) & \"|\" & p.SelectSingleNode(\"/ns0:r\").BaseName & \"|\" & p.SelectSingleNode(\"/ns0:r\").NamespaceURI & \"|\" & p.SelectSingleNode(\"/ns0:r\").NodeType & \"|\" & p.SelectSingleNode(\"/ns0:r\").Text & \"|\" & p.SelectSingleNode(\"/ns0:r\").XPath",
+"p.SelectSingleNode(\"/ns0:r\").XML",
+"p.SelectSingleNode(\"/ns0:r\").NodeValue",
+"p.SelectSingleNode(\"/ns0:r\").ChildNodes.Count",
+"p.SelectSingleNode(\"/ns0:r\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"/ns0:r\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><a k=\"3\" q=\"2\"><a k=\"1\"><a q=\"3\">1</a><b k=\"2\" q=\"2\">a b</b></a><d><d/><c k=\"2\" m=\"3\">a b</c></d><c k=\"0\" q=\"0\"><d>x&amp;y</d><c>6</c><a m=\"2\" k=\"3\">a b</a></c></a><c><d k=\"3\" m=\"1\"><d/><a k=\"3\">a b</a></d></c><a q=\"3\" k=\"2\"><c k=\"2\" m=\"3\"><c k=\"2\" q=\"3\">x&amp;y</c><c k=\"3\">a b</c></c><a><d q=\"0\">w</d><d/><c m=\"2\">0</c></a><a q=\"0\" k=\"2\"><d m=\"3\" q=\"2\">x&amp;y</d><c/></a></a><a>4</a><b xmlns=\"\">v</b></r>|String:urn:h|Long:2|Long:1|Long:1|Long:14|Long:9|Long:5|String:CustomXMLNode|String:CustomXMLNode|r|urn:h|1|1a ba bx&y6a ba bx&ya bw0x&y4v|/ns0:r[1]|String:<r xmlns=\"urn:h\"><a k=\"3\" q=\"2\"><a k=\"1\"><a q=\"3\">1</a><b k=\"2\" q=\"2\">a b</b></a><d><d/><c k=\"2\" m=\"3\">a b</c></d><c k=\"0\" q=\"0\"><d>x&amp;y</d><c>6</c><a m=\"2\" k=\"3\">a b</a></c></a><c><d k=\"3\" m=\"1\"><d/><a k=\"3\">a b</a></d></c><a q=\"3\" k=\"2\"><c k=\"2\" m=\"3\"><c k=\"2\" q=\"3\">x&amp;y</c><c k=\"3\">a b</c></c><a><d q=\"0\">w</d><d/><c m=\"2\">0</c></a><a q=\"0\" k=\"2\"><d m=\"3\" q=\"2\">x&amp;y</d><c/></a></a><a>4</a><b xmlns=\"\">v</b></r>|String:<r xmlns=\"urn:h\"><a k=\"3\" q=\"2\"><a k=\"1\"><a q=\"3\">1</a><b k=\"2\" q=\"2\">a b</b></a><d><d/><c k=\"2\" m=\"3\">a b</c></d><c k=\"0\" q=\"0\"><d>x&amp;y</d><c>6</c><a m=\"2\" k=\"3\">a b</a></c></a><c><d k=\"3\" m=\"1\"><d/><a k=\"3\">a b</a></d></c><a q=\"3\" k=\"2\"><c k=\"2\" m=\"3\"><c k=\"2\" q=\"3\">x&amp;y</c><c k=\"3\">a b</c></c><a><d q=\"0\">w</d><d/><c m=\"2\">0</c></a><a q=\"0\" k=\"2\"><d m=\"3\" q=\"2\">x&amp;y</d><c/></a></a><a>4</a><b xmlns=\"\">v</b></r>|Long:5|Long:0|String:Nothing|String:/ns0:r[1]/b[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><a k=\"3\" q=\"2\"><a k=\"1\"><a q=\"3\">1</a><b k=\"2\" q=\"2\">a b</b></a><d><d/><c k=\"2\" m=\"3\">a b</c></d><c k=\"0\" q=\"0\"><d>x&amp;y</d><c>6</c><a m=\"2\" k=\"3\">a b</a></c></a><c><d k=\"3\" m=\"1\"><d/><a k=\"3\">a b</a></d></c><a q=\"3\" k=\"2\"><c k=\"2\" m=\"3\"><c k=\"2\" q=\"3\">x&amp;y</c><c k=\"3\">a b</c></c><a><d q=\"0\">w</d><d/><c m=\"2\">0</c></a><a q=\"0\" k=\"2\"><d m=\"3\" q=\"2\">x&amp;y</d><c/></a></a><a>4</a><b xmlns=\"\">v</b></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{CCC32F3B-2F69-49B9-ADDE-1E21FAB9A88C}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 54",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><d/><b q=\"\"2\"\"><d m=\"\"1\"\"><d>5</d></d></b><d m=\"\"3\"\"><c><d>a b</d></c><b><c m=\"\"3\"\" q=\"\"0\"\">a b</c></b></d><a><d q=\"\"3\"\" m=\"\"1\"\">x&amp;y</d><b k=\"\"3\"\"><b m=\"\"0\"\">9</b></b><d q=\"\"1\"\"><c>x&amp;y</c></d></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"\", \"\", , msoCustomXMLNodeComment, \"note\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:d/..\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"//ns0:c | //ns0:a\").Count",
+"p.SelectNodes(\"//ns0:*[ns0:a]\").Count",
+"p.SelectNodes(\"/ns0:r/*\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:a\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:a\")) & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:a\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:a\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:a\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:a\").Text & \"|\" & p.SelectSingleNode(\"//ns0:c | //ns0:a\").XPath",
+"p.SelectSingleNode(\"//ns0:c | //ns0:a\").XML",
+"p.SelectSingleNode(\"//ns0:c | //ns0:a\").NodeValue",
+"p.SelectSingleNode(\"//ns0:c | //ns0:a\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:c | //ns0:a\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:c | //ns0:a\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><d/><b q=\"2\"><d m=\"1\"><d>5</d></d></b><d m=\"3\"><c><d>a b</d></c><b><c m=\"3\" q=\"0\">a b</c></b></d><a><d q=\"3\" m=\"1\">x&amp;y</d><b k=\"3\"><b m=\"0\">9</b></b><d q=\"1\"><c>x&amp;y</c></d></a><!--note--></r>|String:urn:h|Long:2|Long:5|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|Long:4|Long:1|Long:4|String:CustomXMLNode|String:CustomXMLNode|c|urn:h|1|a b|/ns0:r[1]/ns0:d[2]/ns0:c[1]|String:<c><d>a b</d></c>|String:<c><d>a b</d></c>|Long:1|Long:0|String:CustomXMLNode|String:/ns0:r[1]/comment()[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><d/><b q=\"2\"><d m=\"1\"><d>5</d></d></b><d m=\"3\"><c><d>a b</d></c><b><c m=\"3\" q=\"0\">a b</c></b></d><a><d q=\"3\" m=\"1\">x&amp;y</d><b k=\"3\"><b m=\"0\">9</b></b><d q=\"1\"><c>x&amp;y</c></d></a><!--note--></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{D9D9E57C-59A1-4A0A-9F1D-602465FB87C4}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 55",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><c q=\"\"1\"\"><a><b>6</b><d m=\"\"2\"\">4</d><b>a b</b></a><d k=\"\"2\"\" m=\"\"1\"\"><b k=\"\"1\"\">w</b></d><d m=\"\"2\"\" q=\"\"2\"\">3</d></c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//ns0:d\").Text = \"t7\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"//ns0:*[2]\").Count",
+"p.SelectNodes(\"//ns0:b[@m]\").Count",
+"p.SelectNodes(\"//ns0:b[@k='0']\").Count",
+"p.SelectNodes(\"//ns0:*[text()='w']\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[2]\"))",
+"TypeName(p.SelectSingleNode(\"//ns0:*[2]\")) & \"|\" & p.SelectSingleNode(\"//ns0:*[2]\").BaseName & \"|\" & p.SelectSingleNode(\"//ns0:*[2]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//ns0:*[2]\").NodeType & \"|\" & p.SelectSingleNode(\"//ns0:*[2]\").Text & \"|\" & p.SelectSingleNode(\"//ns0:*[2]\").XPath",
+"p.SelectSingleNode(\"//ns0:*[2]\").XML",
+"p.SelectSingleNode(\"//ns0:*[2]\").NodeValue",
+"p.SelectSingleNode(\"//ns0:*[2]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//ns0:*[2]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//ns0:*[2]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><c q=\"1\"><a><b>6</b><d m=\"2\">t7</d><b>a b</b></a><d k=\"2\" m=\"1\"><b k=\"1\">w</b></d><d m=\"2\" q=\"2\">3</d></c></r>|String:urn:h|Long:2|Long:2|Long:0|Long:0|Long:1|Long:1|String:CustomXMLNode|String:CustomXMLNode|d|urn:h|1|t7|/ns0:r[1]/ns0:c[1]/ns0:a[1]/ns0:d[1]|String:<d m=\"2\">t7</d>|String:<d m=\"2\">t7</d>|Long:1|Long:1|String:CustomXMLNode|String:/ns0:r[1]/ns0:c[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><c q=\"1\"><a><b>6</b><d m=\"2\">t7</d><b>a b</b></a><d k=\"2\" m=\"1\"><b k=\"1\">w</b></d><d m=\"2\" q=\"2\">3</d></c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{6AC380CF-7CD3-48BA-BB03-9C484AABC5A4}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 56",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><b><c><a k=\"\"1\"\"/></c><c k=\"\"3\"\">x&amp;y</c></b><a m=\"\"3\"\">8</a><c q=\"\"3\"\">a b</c><a m=\"\"1\"\" q=\"\"2\"\"><a k=\"\"0\"\" q=\"\"3\"\"><b k=\"\"0\"\" m=\"\"1\"\">x&amp;y</b><c q=\"\"0\"\">x&amp;y</c></a><d><c>8</c></d><d><b q=\"\"2\"\" m=\"\"0\"\">4</b><b k=\"\"1\"\">a b</b></d></a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//a\").Text = \"t4\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/r/*\").Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"p.SelectNodes(\"descendant::b\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"//text()\").Count",
+"TypeName(p.SelectSingleNode(\"descendant::b\"))",
+"TypeName(p.SelectSingleNode(\"descendant::b\")) & \"|\" & p.SelectSingleNode(\"descendant::b\").BaseName & \"|\" & p.SelectSingleNode(\"descendant::b\").NamespaceURI & \"|\" & p.SelectSingleNode(\"descendant::b\").NodeType & \"|\" & p.SelectSingleNode(\"descendant::b\").Text & \"|\" & p.SelectSingleNode(\"descendant::b\").XPath",
+"p.SelectSingleNode(\"descendant::b\").XML",
+"p.SelectSingleNode(\"descendant::b\").NodeValue",
+"p.SelectSingleNode(\"descendant::b\").ChildNodes.Count",
+"p.SelectSingleNode(\"descendant::b\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"descendant::b\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><b><c><a k=\"1\">t4</a></c><c k=\"3\">x&amp;y</c></b><a m=\"3\">8</a><c q=\"3\">a b</c><a m=\"1\" q=\"2\"><a k=\"0\" q=\"3\"><b k=\"0\" m=\"1\">x&amp;y</b><c q=\"0\">x&amp;y</c></a><d><c>8</c></d><d><b q=\"2\" m=\"0\">4</b><b k=\"1\">a b</b></d></a></r>|String:|Long:1|Long:4|Long:1|Long:4|Long:25|Long:9|String:CustomXMLNode|String:CustomXMLNode|b||1|t4x&y|/r[1]/b[1]|String:<b><c><a k=\"1\">t4</a></c><c k=\"3\">x&amp;y</c></b>|String:<b><c><a k=\"1\">t4</a></c><c k=\"3\">x&amp;y</c></b>|Long:2|Long:0|String:CustomXMLNode|String:/r[1]/a[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><b><c><a k=\"1\">t4</a></c><c k=\"3\">x&amp;y</c></b><a m=\"3\">8</a><c q=\"3\">a b</c><a m=\"1\" q=\"2\"><a k=\"0\" q=\"3\"><b k=\"0\" m=\"1\">x&amp;y</b><c q=\"0\">x&amp;y</c></a><d><c>8</c></d><d><b q=\"2\" m=\"0\">4</b><b k=\"1\">a b</b></d></a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{22249B55-C373-4F2A-86D6-9A7A430254B2}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 57",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><c k=\"\"3\"\"/><b><d k=\"\"3\"\" q=\"\"2\"\"><a k=\"\"0\"\"/><c>a b</c></d><d m=\"\"2\"\"><c>w</c><b k=\"\"3\"\" m=\"\"0\"\">9</b></d><a q=\"\"2\"\" k=\"\"0\"\"><a q=\"\"1\"\">a b</a><c>a b</c><d>a b</d></a></b><b>a b</b><c>w</c></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement"
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"/r/*[last()]\").Count",
+"p.SelectNodes(\"//*[not(*)]\").Count",
+"p.SelectNodes(\"//comment()\").Count",
+"p.SelectNodes(\"//a[@m]\").Count",
+"p.SelectNodes(\"//text()\").Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\"))",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\")) & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").BaseName & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").NodeType & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").Text & \"|\" & p.SelectSingleNode(\"//*[not(*)]\").XPath",
+"p.SelectSingleNode(\"//*[not(*)]\").XML",
+"p.SelectSingleNode(\"//*[not(*)]\").NodeValue",
+"p.SelectSingleNode(\"//*[not(*)]\").ChildNodes.Count",
+"p.SelectSingleNode(\"//*[not(*)]\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//*[not(*)]\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r><c k=\"3\"/><b><d k=\"3\" q=\"2\"><a k=\"0\"/><c>a b</c></d><d m=\"2\"><c>w</c><b k=\"3\" m=\"0\">9</b></d><a q=\"2\" k=\"0\"><a q=\"1\">a b</a><c>a b</c><d>a b</d></a></b><b>a b</b><c>w</c></r>|String:|Long:1|Long:1|Long:10|Long:0|Long:0|Long:8|String:CustomXMLNode|String:CustomXMLNode|c||1||/r[1]/c[1]|String:<c k=\"3\"/>|String:<c k=\"3\"/>|Long:0|Long:1|String:CustomXMLNode|String:/r[1]/c[2] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r><c k=\"3\"/><b><d k=\"3\" q=\"2\"><a k=\"0\"/><c>a b</c></d><d m=\"2\"><c>w</c><b k=\"3\" m=\"0\">9</b></d><a q=\"2\" k=\"0\"><a q=\"1\">a b</a><c>a b</c><d>a b</d></a></b><b>a b</b><c>w</c></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{135BFC26-D107-4F3B-A501-5F586F760EDB}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 58",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r xmlns=\"\"urn:h\"\"><c q=\"\"0\"\"><d><d k=\"\"3\"\">a b</d><c k=\"\"0\"\">x&amp;y</c><a>w</a></d></c><c m=\"\"2\"\" k=\"\"1\"\"><a m=\"\"1\"\"><c k=\"\"0\"\">w</c><a>x&amp;y</a><a k=\"\"2\"\"/></a></c><c q=\"\"1\"\"><b m=\"\"1\"\"><d m=\"\"3\"\" q=\"\"0\"\">8</d><b>w</b><c>8</c></b></c><b m=\"\"2\"\" q=\"\"3\"\"><c q=\"\"0\"\" m=\"\"3\"\"><b>w</b><b/></c><d m=\"\"1\"\">a b</d><b>3</b></b></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.AddNode tn, \"d\", \"\", , msoCustomXMLNodeElement, \"\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"descendant::ns0:b\").Count",
+"p.SelectNodes(\"/ns0:r/ns0:*[last()]\").Count",
+"p.SelectNodes(\"count(//ns0:*)\").Count",
+"p.SelectNodes(\"/ns0:r\").Count",
+"p.SelectNodes(\"//ns0:c\").Count",
+"TypeName(p.SelectSingleNode(\"descendant::ns0:b\"))",
+"TypeName(p.SelectSingleNode(\"descendant::ns0:b\")) & \"|\" & p.SelectSingleNode(\"descendant::ns0:b\").BaseName & \"|\" & p.SelectSingleNode(\"descendant::ns0:b\").NamespaceURI & \"|\" & p.SelectSingleNode(\"descendant::ns0:b\").NodeType & \"|\" & p.SelectSingleNode(\"descendant::ns0:b\").Text & \"|\" & p.SelectSingleNode(\"descendant::ns0:b\").XPath",
+"p.SelectSingleNode(\"descendant::ns0:b\").XML",
+"p.SelectSingleNode(\"descendant::ns0:b\").NodeValue",
+"p.SelectSingleNode(\"descendant::ns0:b\").ChildNodes.Count",
+"p.SelectSingleNode(\"descendant::ns0:b\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"descendant::ns0:b\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r xmlns=\"urn:h\"><c q=\"0\"><d><d k=\"3\">a b</d><c k=\"0\">x&amp;y</c><a>w</a></d></c><c m=\"2\" k=\"1\"><a m=\"1\"><c k=\"0\">w</c><a>x&amp;y</a><a k=\"2\"/></a></c><c q=\"1\"><b m=\"1\"><d m=\"3\" q=\"0\">8</d><b>w</b><c>8</c></b></c><b m=\"2\" q=\"3\"><c q=\"0\" m=\"3\"><b>w</b><b/></c><d m=\"1\">a b</d><b>3</b></b><d xmlns=\"\"/></r>|String:urn:h|Long:2|Long:6|Long:1|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//ns0:*)<--|Long:1|Long:7|String:CustomXMLNode|String:CustomXMLNode|b|urn:h|1|8w8|/ns0:r[1]/ns0:c[3]/ns0:b[1]|String:<b m=\"1\"><d m=\"3\" q=\"0\">8</d><b>w</b><c>8</c></b>|String:<b m=\"1\"><d m=\"3\" q=\"0\">8</d><b>w</b><c>8</c></b>|Long:3|Long:1|String:Nothing|String:/ns0:r[1]/d[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r xmlns=\"urn:h\"><c q=\"0\"><d><d k=\"3\">a b</d><c k=\"0\">x&amp;y</c><a>w</a></d></c><c m=\"2\" k=\"1\"><a m=\"1\"><c k=\"0\">w</c><a>x&amp;y</a><a k=\"2\"/></a></c><c q=\"1\"><b m=\"1\"><d m=\"3\" q=\"0\">8</d><b>w</b><c>8</c></b></c><b m=\"2\" q=\"3\"><c q=\"0\" m=\"3\"><b>w</b><b/></c><d m=\"1\">a b</d><b>3</b></b><d xmlns=\"\"/></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{A984DCCC-5D95-475E-A200-6937C0D6E12B}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs><ds:schemaRef ds:uri=\"urn:h\"/></ds:schemaRefs></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+},
+{
+"call": [
+"held 59",
+[
+"Set p = ActiveWorkbook.CustomXMLParts.Add(\"<r><c><c>1</c><a k=\"\"2\"\"><d m=\"\"0\"\">a b</d></a><a m=\"\"2\"\" k=\"\"2\"\"><b/></a></c><c q=\"\"3\"\" m=\"\"1\"\"><c k=\"\"1\"\" m=\"\"2\"\"><b k=\"\"3\"\" q=\"\"2\"\">6</b><d q=\"\"0\"\">4</d></c><c><b>w</b><a m=\"\"3\"\" k=\"\"0\"\">w</a><d>a b</d></c><b>8</b></c><c><b><c q=\"\"2\"\">3</c><d q=\"\"2\"\" k=\"\"0\"\">3</d></b><b k=\"\"0\"\">8</b></c><a m=\"\"3\"\" k=\"\"2\"\">x&amp;y</a></r>\")",
+"Set tp = p",
+"Set tn = tp.DocumentElement",
+"tp.SelectSingleNode(\"//d\").AppendChildSubtree \"<s><u/></s>\"",
+"tp.AddNode tn, \"e\", \"\", tn.FirstChild, msoCustomXMLNodeElement, \"first\"",
+"tp.AddNode tn, \"z5\", \"\", , msoCustomXMLNodeAttribute, \"1\""
+],
+[
+"p.XML",
+"p.NamespaceURI",
+"p.NamespaceManager.Count",
+"p.SelectNodes(\"count(//*)\").Count",
+"p.SelectNodes(\"//a[position()>1]\").Count",
+"p.SelectNodes(\"//node()\").Count",
+"p.SelectNodes(\"descendant::d\").Count",
+"p.SelectNodes(\"//*[contains(., '1')]\").Count",
+"TypeName(p.SelectSingleNode(\"//node()\"))",
+"TypeName(p.SelectSingleNode(\"//node()\")) & \"|\" & p.SelectSingleNode(\"//node()\").BaseName & \"|\" & p.SelectSingleNode(\"//node()\").NamespaceURI & \"|\" & p.SelectSingleNode(\"//node()\").NodeType & \"|\" & p.SelectSingleNode(\"//node()\").Text & \"|\" & p.SelectSingleNode(\"//node()\").XPath",
+"p.SelectSingleNode(\"//node()\").XML",
+"p.SelectSingleNode(\"//node()\").NodeValue",
+"p.SelectSingleNode(\"//node()\").ChildNodes.Count",
+"p.SelectSingleNode(\"//node()\").Attributes.Count",
+"TypeName(p.SelectSingleNode(\"//node()\").NextSibling)",
+"p.DocumentElement.LastChild.XPath"
+]
+],
+"model": "|String:<r z5=\"1\"><e>first</e><c><c>1</c><a k=\"2\"><d m=\"0\">a b<s><u/></s></d></a><a m=\"2\" k=\"2\"><b/></a></c><c q=\"3\" m=\"1\"><c k=\"1\" m=\"2\"><b k=\"3\" q=\"2\">6</b><d q=\"0\">4</d></c><c><b>w</b><a m=\"3\" k=\"0\">w</a><d>a b</d></c><b>8</b></c><c><b><c q=\"2\">3</c><d q=\"2\" k=\"0\">3</d></b><b k=\"0\">8</b></c><a m=\"3\" k=\"2\">x&amp;y</a></r>|String:|Long:1|E-2147467259:Expression must evaluate to a node-set.\n\n-->count(//*)<--|Long:1|Long:38|Long:4|Long:3|String:CustomXMLNode|String:CustomXMLNode|r||1|first1a b64wwa b8338x&y|/r[1]|String:<r z5=\"1\"><e>first</e><c><c>1</c><a k=\"2\"><d m=\"0\">a b<s><u/></s></d></a><a m=\"2\" k=\"2\"><b/></a></c><c q=\"3\" m=\"1\"><c k=\"1\" m=\"2\"><b k=\"3\" q=\"2\">6</b><d q=\"0\">4</d></c><c><b>w</b><a m=\"3\" k=\"0\">w</a><d>a b</d></c><b>8</b></c><c><b><c q=\"2\">3</c><d q=\"2\" k=\"0\">3</d></b><b k=\"0\">8</b></c><a m=\"3\" k=\"2\">x&amp;y</a></r>|String:<r z5=\"1\"><e>first</e><c><c>1</c><a k=\"2\"><d m=\"0\">a b<s><u/></s></d></a><a m=\"2\" k=\"2\"><b/></a></c><c q=\"3\" m=\"1\"><c k=\"1\" m=\"2\"><b k=\"3\" q=\"2\">6</b><d q=\"0\">4</d></c><c><b>w</b><a m=\"3\" k=\"0\">w</a><d>a b</d></c><b>8</b></c><c><b><c q=\"2\">3</c><d q=\"2\" k=\"0\">3</d></b><b k=\"0\">8</b></c><a m=\"3\" k=\"2\">x&amp;y</a></r>|Long:5|Long:1|String:Nothing|String:/r[1]/a[1] save=0",
+"files": {
+"customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+"customXml/item1.xml": "<r z5=\"1\"><e>first</e><c><c>1</c><a k=\"2\"><d m=\"0\">a b<s><u/></s></d></a><a m=\"2\" k=\"2\"><b/></a></c><c q=\"3\" m=\"1\"><c k=\"1\" m=\"2\"><b k=\"3\" q=\"2\">6</b><d q=\"0\">4</d></c><c><b>w</b><a m=\"3\" k=\"0\">w</a><d>a b</d></c><b>8</b></c><c><b><c q=\"2\">3</c><d q=\"2\" k=\"0\">3</d></b><b k=\"0\">8</b></c><a m=\"3\" k=\"2\">x&amp;y</a></r>",
+"customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{BC1FE08A-6624-4A26-AFDA-E0B8453508DB}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"><ds:schemaRefs/></ds:datastoreItem>",
+"workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+"content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+}
+}
+]
+}

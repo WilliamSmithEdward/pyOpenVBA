@@ -49,6 +49,10 @@ WRITES_OR_READS = [
     'Workbooks.CheckOut folder & "/there.xlsx"',
     'Workbooks.OpenXML folder & "/there.xlsx"',
     'Workbooks.OpenDatabase folder & "/there.xlsx"',
+    # An XML map's schema, the data it imports, and the files it exports (see _xml_maps).
+    'ActiveWorkbook.XmlMaps.Add folder & "/there.xsd", "list"',
+    'Dim m As XmlMap: ActiveWorkbook.XmlImport folder & "/there.xml", m, True',
+    'Dim m As XmlMap: ActiveWorkbook.SaveAsXMLData folder & "/out.xml", m',
 ]
 NOT_YET = [
     'x = Shell("cmd")',

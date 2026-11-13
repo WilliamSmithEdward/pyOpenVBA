@@ -1,5 +1,5 @@
-"""Collections the model holds nothing in: QueryTables, OLEObjects and NamedSheetViews of a sheet, and XmlMaps,
-XmlNamespaces, CustomViews, PublishObjects, SlicerCaches, Charts and the Excel 4 macro sheets of a workbook, as a new
+"""Collections the model holds nothing in: QueryTables, OLEObjects and NamedSheetViews of a sheet, and
+CustomViews, PublishObjects, SlicerCaches, Charts and the Excel 4 macro sheets of a workbook, as a new
 workbook has them (scripts/measure_empty_collections.py, tests/fixtures/empty_collections.json).
 
 Each counts nothing, and asking for an item is the error Excel gives, which differs between them and between a
@@ -36,8 +36,6 @@ KINDS = {
     'QueryTables': Kind('QueryTables', 9, 9, frozenset({'queryTable'})),
     'OLEObjects': Kind('OLEObjects', 1004, 1004, frozenset({'oleObject', 'package', 'oleObjects', 'control'})),
     'NamedSheetViews': Kind('NamedSheetViewCollection', 438, 438, frozenset({'namedSheetView'})),
-    'XmlMaps': Kind('XmlMaps', 9, 9, frozenset({'xmlMaps'})),
-    'XmlNamespaces': Kind('XmlNamespaces', 9, 9, frozenset({'xmlMaps'})),
     'CustomViews': Kind('CustomViews', 5, 5, frozenset({'customWorkbookViews'})),
     'PublishObjects': Kind('PublishObjects', 9, 1004, frozenset({'webPublishObjects', 'webPublishItems'})),
     'SlicerCaches': Kind('SlicerCaches', 9, 5, frozenset({'slicerCache', 'timelineCache'})),

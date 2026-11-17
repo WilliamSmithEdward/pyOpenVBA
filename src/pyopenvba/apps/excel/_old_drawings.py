@@ -638,11 +638,16 @@ class Picture(_Filled):
 
     @member
     def Shadow(self) -> object:
-        return False
+        return _loaded_shadow(self.shape) if self.shape.source else self.shape.shadow_added
 
     @setter('Shadow')
     def _shadow(self, value: object) -> None:
-        raise VBAUnsupportedError("Setting a picture's Shadow through its old object is not implemented")
+        # The effectLst a drawing's gets, new or loaded (tests/fixtures/old_collection_leftovers.json).
+        if not to_bool(value):
+            raise VBAUnsupportedError("Taking a picture's Shadow off through its old object is not implemented")
+        if not self.Shadow():
+            self.shape.shadow_added = True
+            self.sheet.drawing_changed()
 
     @member
     def Formula(self) -> object:
@@ -795,8 +800,8 @@ class Lines(_Drawings):
 
 
 class Pictures(_Drawings):
-    spread_reads = frozenset({'Border', 'Enabled', 'Interior', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
+    spread_reads = frozenset({'Border', 'Enabled', 'Interior', 'Locked', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Shadow', 'Visible'})
     vba_type_name = 'Pictures'
     parts = frozenset({'Border', 'Interior'})
     several = {}
@@ -833,7 +838,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'VerticalAlignment', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'VerticalAlignment', 'Visible', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest
@@ -848,7 +853,11 @@ class DrawingObjects(_Drawings, ValueDefault, ListedControls):
         if lower == 'readingorder' and self.vba_items():
             return VBAInt(27, 'Long')
         if lower == 'visible':
-            raise VBAUnsupportedError('DrawingObjects.Visible, which follows no one item, is not implemented')
+            # The sheet's first form control's, whatever comes before it, typed and late (tests/fixtures/old_collection_leftovers.json).
+            first = next((one for one in self.vba_items() if getattr(getattr(one, 'shape', None), 'kind', '') == 'formControl'), None)
+            if first is None:
+                raise VBAUnsupportedError('DrawingObjects.Visible on a sheet with no form control is not implemented')
+            return getattr(first, 'vba_get')('Visible', [])
         raise error(*_NOT_THERE)
 
     """All of a sheet's drawings and controls, each as its old object."""

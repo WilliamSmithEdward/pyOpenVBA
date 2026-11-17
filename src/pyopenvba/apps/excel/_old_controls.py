@@ -180,17 +180,17 @@ def _new_control(name: str, value: object) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-def _taken_on_new(name: str, value: object) -> MemberSpec:
-    """A setting a new control takes and keeps nothing of, reading ``value`` before and after and writing nothing
-    (tests/fixtures/new_control_edits.json); on a control loaded from a file what a set writes is not measured, and it is refused."""
+def _taken_as_flag(name: str, value: object) -> MemberSpec:
+    """A Boolean setting a control takes and keeps nothing of, reading ``value`` before and after and writing nothing, new or loaded
+    from a file (tests/fixtures/new_control_edits.json, old_collection_leftovers.json)."""
 
     def get(item: OldControl) -> object:
         del item
         return value
 
     def put(item: OldControl, wanted: object) -> None:
-        if item.shape.control is None or item.shape.source:
-            raise VBAUnsupportedError(f'Setting {name} on a form control in a file is not implemented')
+        if item.shape.control is None:
+            raise VBAUnsupportedError(f'Setting {name} on this form control is not implemented')
         to_bool(wanted)
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
@@ -416,7 +416,7 @@ def _text_frame(name: str) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-for _spec in (_new_control('AutoSize', False), _taken_on_new('AutoScaleFont', False), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
+for _spec in (_new_control('AutoSize', False), _taken_as_flag('AutoScaleFont', False), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
               *(_text_frame(_name) for _name in ('HorizontalAlignment', 'VerticalAlignment', 'Orientation')),
               _taken_on_loaded('ReadingOrder', VBAInt(27, 'Long'), (-5004, -5003, -5002)), _new_control('Formula', '')):
     Button.vba_add_member(_spec)
@@ -865,8 +865,8 @@ class OldControls(VBACollection, Created):
 class Buttons(OldControls):
     vba_type_name = 'Buttons'
     kind = 'Button'
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'AddIndent', 'CancelButton', 'Caption', 'DefaultButton', 'DismissButton', 'Enabled', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'AutoScaleFont', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'AddIndent', 'AutoScaleFont', 'CancelButton', 'Caption', 'DefaultButton', 'DismissButton', 'Enabled', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
     parts = frozenset({'Characters', 'Font'})
     several = {'visible': True, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
     lost_sets = frozenset({'autoscalefont'})

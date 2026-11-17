@@ -29,7 +29,6 @@ NOT_YET: dict[str, str] = {
        for kind in ('Arcs', 'Ovals', 'Rectangles', 'TextBoxes')},
     'Ovals.AutoSize': "the drawing's item setter reports itself",
     'Pictures.Formula': "the picture's item setter reports itself",
-    'Pictures.Shadow': "the picture's item setter reports itself",
     'Rectangles.AutoSize': "the drawing's item setter reports itself",
     'TextBoxes.AutoSize': "the drawing's item setter reports itself",
 }

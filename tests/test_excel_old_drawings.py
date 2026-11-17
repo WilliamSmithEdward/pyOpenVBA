@@ -23,7 +23,7 @@ READS: list[str] = RECORD['reads']
 #: test_excel_line_arrowheads.py).
 UNBUILT = ('ws.Buttons.Add', 'h.Copy', 'h.Cut', 'h.Formula =', 'h.ArrowHeadStyle = xlArrowHeadStyleTriangle', 'h.AutoSize = True', 'ws.DrawingObjects.Left', 'h.Characters(1, 2).Font',
            'Set h = ws.Lines.Add(10, 10, 110, 50): Set o = h.Duplicate', 'Set h = ws.Arcs.Add(10, 10, 110, 50): Set o = h.Duplicate')
-PICTURE_UNBUILT = ('h.Interior', 'h.Border', 'Set o = h.Duplicate', 'h.Shadow')
+PICTURE_UNBUILT = ('h.Interior', 'h.Border', 'Set o = h.Duplicate')
 #: Reading these goes through the display, whose scale here snaps them to a pixel after some reads, and neither Interior.ColorIndex nor Enabled gives more.
 SNAPPED = {'h.Left', 'h.Top', 'h.Width', 'h.Height'}
 #: A text box's own colours and dash go through what a shape's Line refuses on one.

@@ -82,6 +82,17 @@ def indexes() -> dict[str, int]:
             if number in (450, 451)}
 
 
+def pivot_field_doubles() -> list[str]:
+    """The PivotField members tests/fixtures/data_field_members.json read as a Double late bound and a Long typed, on every
+    field and book it asked them."""
+    record = json.loads((FIXTURES / 'data_field_members.json').read_text(encoding='utf-8'))
+    answers: dict[str, set[tuple[str, str]]] = {}
+    for case in record['cases']:
+        if '.' not in case['read']:
+            answers.setdefault(case['read'], set()).add((case['late'].split(':')[0], case['typed'].split(':')[0]))
+    return sorted(f'pivotfield.{read.lower()}' for read, seen in answers.items() if seen == {('Double', 'Long')})
+
+
 def main() -> None:
     lines = ['"""What a call bound late answers where it differs from typed, measured per class.member.', '',
              'Written by scripts/build_late_lets.py.  Do not edit by hand.', '',
@@ -97,13 +108,14 @@ def main() -> None:
     lines += [f'    {key!r}: {numbered[key]!r},' for key in sorted(numbered)]
     lines += ['}', '', '#: Read through an Object these are Doubles, where the library declares them Long (tests/fixtures/member_audit.json,',
               '#: tests/fixtures/excel_everyday_16.json, tests/fixtures/old_collection_members.json, tests/fixtures/typed_answers/late_types_ControlFormat.json,',
-              '#: tests/fixtures/tool_books/tool_books.json).',
+              '#: tests/fixtures/tool_books/tool_books.json, tests/fixtures/data_field_members.json).',
               "LATE_DOUBLES = frozenset({'application.maxiterations', 'application.sheetsinnewworkbook', 'workbook.fileformat',",
               "                          'dropdown.listcount', 'dropdown.listindex', 'dropdown.value', 'dropdown.dropdownlines',",
               "                          'listbox.listcount', 'listbox.listindex', 'listbox.value', 'controlformat.dropdownlines',",
               "                          'controlformat.listcount', 'controlformat.listindex', 'controlformat.max', 'controlformat.min',",
               "                          'controlformat.smallchange', 'pagesetup.order', 'pagesetup.orientation', 'pagesetup.papersize',",
-              "                          'window.gridlinecolor', 'window.scrollcolumn', 'window.scrollrow', 'window.splitrow'})", '']
+              "                          'window.gridlinecolor', 'window.scrollcolumn', 'window.scrollrow', 'window.splitrow',",
+              f"                          {', '.join(repr(name) for name in pivot_field_doubles())}}})", '']
     OUT.write_text('\n'.join(lines), encoding='utf-8', newline='\n')
     print(len(built), 'properties,', len(made), 'methods')
 

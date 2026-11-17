@@ -119,6 +119,26 @@ CASES = [
     WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("k").Orientation = xlRowField: '
     'pt.PivotFields("g").Orientation = xlColumnField',
     WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.AddDataField pt.PivotFields("v")',
+    # Held-out round A, predicted by the model before it ran.
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("H3")): pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("k").Orientation = xlColumnField: '
+    'pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1"), RowGrand:=False): ' + FIELDS + 'r = pt.RowGrand',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.AddDataField pt.PivotFields("v"): '
+    'pt.PivotFields("k").Orientation = xlRowField',
+    'ws.Range("C3").Select: ' + WIZARD + '): r = pt.SourceData',
+    # Held-out round B, predicted by the model before it ran.
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1"), "T1"): pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlColumnField: pt.AddDataField pt.PivotFields("v"), , xlCount',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1"), ColumnGrand:=False): '
+    'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.PivotFields("g").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): ' + FIELDS + 'pt.EnableDataValueEditing = True: '
+    'Log = "": ws.Range("F3").Value = 50: r = ws.Range("H3").Value',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): ' + FIELDS + 'ws.Range("C2").Value = 9: Log = "": '
+    'pt.RefreshTable: r = pt.TableRange2.Address(False, False)',
 ]
 PROBE = '''Private Function Digest(wb As Workbook) As String
     Dim s As String, sh As Worksheet, pt As PivotTable, cell As Range

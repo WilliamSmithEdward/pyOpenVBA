@@ -1867,5 +1867,1714 @@
     []
    ]
   ]
+ ],
+ "standard_height": [
+  "14.5",
+  "14.5"
+ ],
+ "files": {
+  "p.png": [
+   105,
+   "d9f490ae2ec27551"
+  ],
+  "png_named.jpg": [
+   105,
+   "d9f490ae2ec27551"
+  ],
+  "p.bmp": [
+   102,
+   "3b11e39dcfdd1915"
+  ],
+  "text.png": [
+   15,
+   "f9c75a3212e91ebc"
+  ],
+  "big.png": [
+   12588868,
+   "0de1b50c1529b6b7"
+  ],
+  "p.jpg": [
+   675,
+   "7ab5219276ec2616"
+  ],
+  "p.jpeg": [
+   675,
+   "7ab5219276ec2616"
+  ],
+  "p.gif": [
+   96,
+   "208121cba03a184e"
+  ],
+  "jpg_named.png": [
+   675,
+   "7ab5219276ec2616"
+  ],
+  "gif_named.png": [
+   96,
+   "208121cba03a184e"
+  ],
+  "png_named.gif": [
+   105,
+   "d9f490ae2ec27551"
+  ]
+ },
+ "measured_at": "2026-11-17T19:24:17.278179+00:00",
+ "excel": [
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1.5|rSingle:0|rSingle:-4|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:4|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1.5|rSingle:0|rSingle:-4|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:4|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1.5|rSingle:0|rSingle:-4|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:4|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1.5|rSingle:0|rSingle:-4|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:4|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1.5|rSingle:0|rSingle:-4|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:4|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpeg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpeg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1.5|Single:0|Single:-4|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1.5|rSingle:0|rSingle:-4|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"-50800\" sx=\"100000\" sy=\"150000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:4|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:4|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"xy\" algn=\"ctr\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.png",
+      105,
+      "d9f490ae2ec27551"
+     ]
+    ],
+    [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill dpi=\"0\" rotWithShape=\"1\"><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:1|Long:197121|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:0|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:-1|rLong:1|rLong:197121|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:0|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:4|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:0|Single:1|Single:1|Single:0|Single:0|Long:-1|e70|Long:-2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:4|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:0|rSingle:1|rSingle:1|rSingle:0|rSingle:0|rLong:-1|re70|rLong:-2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:tile tx=\"0\" ty=\"0\" sx=\"100000\" sy=\"100000\" flip=\"none\" algn=\"tl\"/></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.jpg",
+      675,
+      "7ab5219276ec2616"
+     ]
+    ],
+    [
+     "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.jpg\"/>"
+    ]
+   ]
+  ],
+  [
+   "e0|Long:-1|Long:6|Long:16777215|Long:16777215|Single:0|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-1|e-2147024809|Long:-2|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Single:-2.147484E+09|Long:0|e70|Long:2|Long:-2|Long:0|String:PictureEffects|rLong:-1|rLong:6|rLong:16777215|rLong:16777215|rSingle:0|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-1|re-2147024809|rLong:-2|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rSingle:-2.147484E+09|rLong:0|re70|rLong:2|rLong:-2|rLong:0|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"rId1\"/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>",
+   [
+    [
+     [
+      "xl/media/image1.gif",
+      96,
+      "208121cba03a184e"
+     ]
+    ],
+    [
+     "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"
+    ],
+    [
+     "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.gif\"/>"
+    ]
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ],
+  [
+   "e-2147024809|Long:0|Long:-2|Long:0|Long:0|Single:1|Long:-2|Long:-2|Long:0|Long:-2|e-2147467259|Long:-2|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e-2147024809|e70|Long:-2|Long:-2|e-2147024809|String:PictureEffects|rLong:0|rLong:-2|rLong:0|rLong:0|rSingle:1|rLong:-2|rLong:-2|rLong:0|rLong:-2|re-2147467259|rLong:-2|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re-2147024809|re70|rLong:-2|rLong:-2|re-2147024809|rString:PictureEffects",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>",
+   [
+    [],
+    [],
+    []
+   ]
+  ]
  ]
 }

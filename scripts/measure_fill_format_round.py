@@ -277,8 +277,11 @@ def measure() -> None:
     record: dict[str, Any] = json.loads(out().read_text(encoding='utf-8'))
     every: list[list[Any]] = record['cases']
     answers: list[list[str]] = []
+    height = 'Function H() As String\n    H = CStr(ActiveSheet.StandardHeight)\nEnd Function\n'
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel, tempfile.TemporaryDirectory() as folder:
         excel.new_document()
+        # The display's scale, at both ends of the run: an spPr's xfrm follows it (StandardHeight 15 is 96 DPI).
+        record['standard_height'] = [str(excel.run_vba(height, 'H', line_numbers=False).value)]
         write_files(Path(folder))
         record['files'] = {name: [len(data), hashlib.sha256(data).hexdigest()[:16]] for name, data in files().items()}
         for typed in (False, True):
@@ -290,6 +293,8 @@ def measure() -> None:
                     answers.append([value] if ROUND >= REOPENED_ONLY else
                                    [value, shape_xml(Path(folder), index), *([package(Path(folder), index)] if ROUND >= 2 else [])])
                 print(typed, at + 24, flush=True)
+        record['standard_height'].append(str(excel.run_vba(height, 'H', line_numbers=False).value))
+    print('StandardHeight', record['standard_height'], flush=True)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
     out().write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     if ROUND >= REOPENED_ONLY:

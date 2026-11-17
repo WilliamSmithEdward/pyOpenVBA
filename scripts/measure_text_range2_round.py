@@ -163,6 +163,28 @@ STATEMENTS_10 = ['tr.Characters(1, 3).Copy: Set p = tr.Characters(3, 0).Paste: v
                  'tr.Characters(1, 3).Copy: ws.Range("C3").Value = 1: ws.Range("C3").PasteSpecial xlPasteValues: v = ws.Range("C3").Formula']
 ROUNDS[10] = ([('"red fox. blue jay" & vbCr & "green owl"', (5, 3)), ('"solo"', None)], [], STATEMENTS_10,
               OUT.with_name('text_range2_round_10.json'))
+#: Round 11, held out on the text clipboard rounds 9 and 10 built: new texts and places, and round 8's paste just before a bold run,
+#: which answered nothing there with no clipboard set first.
+STATEMENTS_11 = ['tr.Characters(1, 2).Copy: Set p = tr.Characters(4, 0).Paste: v = p.Text & "|" & p.Start & "|" & p.Font.Bold',
+                 'tr.Characters(2, 2).Copy: Set p = tr.Characters(5, 0).Paste: v = p.Text & "|" & p.Start',
+                 'tr.Characters(4, 2).Copy: Set p = tr.Characters(2, 0).Paste: v = p.Font.Bold & "|" & p.Length',
+                 'tr.Characters(1, 1).Copy: Set p = tr.Characters(2, 3).Paste: v = p.Text & "|" & p.Start',
+                 'tr.Characters(3, 2).Cut: Set p = tr.Characters(tr.Length + 1, 0).Paste: v = p.Text & "|" & p.Start',
+                 'tr.Characters(2, 2).Copy: Set p = tr.Characters(3, 0).PasteSpecial(msoClipboardFormatPlainText): v = p.Text & "|" & p.Font.Bold',
+                 'tr.Characters(1, 2).Copy: Application.CutCopyMode = False: v = tr.Characters(tr.Length + 1, 0).Paste.Text',
+                 'tr.Characters(1, 2).Copy: ws.Range("A1").Value = 1: ws.Range("A1").Copy ws.Range("B1"): v = tr.Characters(2, 0).Paste.Text',
+                 'tr.Characters(1, 2).Copy: f = Application.ClipboardFormats: v = f(1) & "," & f(UBound(f)) & "," & UBound(f)',
+                 'tr.Characters(1, 2).Cut: v = Application.CutCopyMode & "|" & tr.Text',
+                 'tr.Characters(1, 2).Copy: ws.Paste ws.Range("B2"): v = ws.Range("B2").Formula & "|" & ws.Range("B2").Font.Bold',
+                 'tr.Characters(4, 2).Copy: ws.Range("B2").Select: ws.Paste: v = ws.Range("B2").Formula & "|" & ws.Range("B2").Font.Bold',
+                 'tr.Characters(1, 2).Copy: Set p = tr.Characters(3, 0).Paste: v = tr.Characters(1, 4).Font.Bold',
+                 'ws.Range("A1").Value = 1: ws.Range("A1").Copy: tr.Characters(1, 2).Copy: v = Application.CutCopyMode']
+ROUNDS[11] = ([('"ab cdef gh" & vbCr & "ij kl"', (4, 2)), ('"wxyz"', (1, 1)), ('"red fox. blue jay" & vbCr & "green owl"', (5, 3))], [],
+              STATEMENTS_11, OUT.with_name('text_range2_round_11.json'))
+#: Round 11's markup.
+MARKUP_11 = ['tr.Characters(2, 2).Copy: tr.Characters(6, 0).Paste', 'tr.Characters(6, 2).Copy: tr.Characters(2, 0).Paste',
+             'tr.Characters(1, 3).Copy: tr.Characters(5, 3).Paste', 'tr.Characters(5, 2).Copy: tr.Characters(tr.Length + 1, 0).Paste',
+             'tr.Characters(2, 3).Copy: tr.Characters(3, 0).PasteSpecial msoClipboardFormatPlainText', 'tr.Characters(1, 2).Cut']
 #: Round 10's markup: what a paste writes to the file.
 MARKUP_10 = ['tr.Characters(1, 3).Copy: tr.Characters(5, 0).Paste', 'tr.Characters(5, 3).Copy: tr.Characters(1, 3).Paste',
              'tr.Characters(1, 3).Copy: tr.Characters(tr.Length + 1, 0).Paste',
@@ -248,8 +270,8 @@ MARKUP = ['', 'tr.RtlRun', 'tr.LtrRun', 'tr.Paragraphs(1).RtlRun', 'tr.ChangeCas
 
 
 def markups() -> list[str]:
-    """The statements whose markup the round records: round 10 has its own."""
-    return MARKUP_10 if ROUND >= 10 else MARKUP
+    """The statements whose markup the round records: rounds 10 and 11 have their own."""
+    return MARKUP_11 if ROUND >= 11 else MARKUP_10 if ROUND >= 10 else MARKUP
 
 
 def markup_macro() -> str:
@@ -274,6 +296,31 @@ def text_bodies(folder: Path) -> list[list[str]]:
     return bodies
 
 
+def model_markup_each(folder: Path) -> list[list[str] | str]:
+    """The model's markup for each of the round's statements run by itself: its txBodies, or "refused" where it refuses."""
+    from pyopenvba.apps.excel import ExcelApplication
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    global MARKUP, MARKUP_10, MARKUP_11
+    kept = (MARKUP, MARKUP_10, MARKUP_11)
+    found: list[list[str] | str] = []
+    try:
+        for statement in list(markups()):
+            MARKUP = MARKUP_10 = MARKUP_11 = [statement]
+            app = ExcelApplication(sandbox=False)
+            app.add_workbook()
+            app.add_module(markup_macro(), name='M')
+            try:
+                app.run('M.Marks', str(folder))
+            except VBAUnsupportedError:
+                found.append('refused')
+                continue
+            found.append(text_bodies(folder)[0])
+    finally:
+        MARKUP, MARKUP_10, MARKUP_11 = kept
+    return found
+
+
 def model_markup(folder: Path) -> list[list[str]] | str:
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBAUnsupportedError
@@ -296,7 +343,8 @@ def predict() -> None:
     record: dict[str, Any] = {'cases': every, 'model': [alone(case) for case in every]}
     if ROUND >= 4:
         with tempfile.TemporaryDirectory() as folder:
-            record['model_markup'] = model_markup(Path(folder))
+            # From round 11, each statement alone, so one refused leaves the others' markup to compare.
+            record['model_markup'] = model_markup_each(Path(folder)) if ROUND >= 11 else model_markup(Path(folder))
     text = json.dumps(record, indent=1) + '\n'
     ROUNDS[ROUND][3].write_text(text, encoding='utf-8', newline='\n')
     print(len(every), 'cases; predictions sha256', hashlib.sha256(text.encode('utf-8')).hexdigest())

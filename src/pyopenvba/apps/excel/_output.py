@@ -260,6 +260,7 @@ def copy_picture(target: object, owner: str, book: Workbook, given: dict[str, ob
     application.clipboard = None
     application.copied_chart = None
     application.copied_picture = None
+    application.copied_text = None
     application.held_formats = None
     if shown:
         call(application, hook, 'CopyPicture', owner, target, book, given)

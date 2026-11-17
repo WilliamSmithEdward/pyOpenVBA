@@ -257,6 +257,8 @@ class TextLook:
     font_ea: str | None = None
     font_cs: str | None = None
     font_sym: str | None = None
+    #: Text TextRange2.Paste put there, which Excel writes with every setting spelled out (tests/fixtures/text_range2_round_10.json).
+    font_pasted: bool = False
     font_effects: str | None = None
     font_highlight: str | None = None
     font_underline_line: str | None = None

@@ -3427,6 +3427,8 @@ class _ShapeFontBase(HeldPart):
         return _RunLook(base, shape.text_marks[at] if shape.text_marks and count else {}, [], False)
 
     def changed(self) -> TextLook:
+        if any(self._pasted_marks()[1]):
+            raise _unsupported("changing the font of text TextRange2.Paste put there")
         base = self.frame._changed()  # pyright: ignore[reportPrivateUsage]
         shape = self.characters.owner.shape
         at, count = self.characters.span()
@@ -3438,6 +3440,27 @@ class _ShapeFontBase(HeldPart):
         if not shape.text_marks:
             shape.text_marks = [{} for _ in shape.text]
         return _RunLook(base, shape.text_marks[at], shape.text_marks[at:at + count], False)
+
+    def _pasted_marks(self) -> tuple[list[dict[str, object]], list[bool]]:
+        shape = self.characters.owner.shape
+        at, count = self.characters.span()
+        marks = shape.text_marks[at:at + count] if shape.text_marks and count else []
+        return marks, [bool(mark.get("font_pasted")) for mark in marks]
+
+    def _pasted_read(self, member: str) -> object | None:
+        """A read over text TextRange2.Paste put there: TextRange2's Font answers it alone as any text; with other text, Bold
+        is mixed where that text has no bold of its own, as Excel has a setting spelled out against one left out
+        (tests/fixtures/text_range2_round_9.json, text_range2_round_10.json)."""
+        marks, pasted = self._pasted_marks()
+        if not any(pasted) or member in ("Parent", "Application", "Creator"):
+            return None
+        if not isinstance(self, ShapeFont2):
+            raise _unsupported(f"Characters.Font.{member} of text TextRange2.Paste put there")
+        if all(pasted):
+            return None
+        if member == "Bold" and any("font_bold" not in mark for mark, one in zip(marks, pasted) if not one):
+            return VBAInt(-2, "Long")
+        raise _unsupported(f"Font2.{member} over text TextRange2.Paste put there and other text together")
 
     def values(self, names: tuple[str, ...]) -> list[tuple[object, ...]]:
         """These settings of each character in the range."""
@@ -3455,6 +3478,9 @@ class _ShapeFontBase(HeldPart):
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         spec = self.vba_member(name)
+        pasted = self._pasted_read(spec.name if spec is not None else name)
+        if pasted is not None:
+            return pasted
         rule = self.mixed.get(spec.name) if spec is not None else None
         if rule is not None and len(set(self.values(rule[0]))) > 1:
             return rule[1](self)
@@ -4462,6 +4488,85 @@ class TextRange2(_ShapeText):
         self.owner.sheet.drawing_changed()
         return TextRange2(self.owner, at, 1)
 
+    # -- the clipboard, as live Excel answered it (tests/fixtures/text_range2_round_9.json, text_range2_round_10.json)
+
+    def _copied(self, member: str) -> tuple[int, int]:
+        from pyopenvba.apps.excel._clipboard import TextClip, text_copied
+
+        at, count = self.span()
+        shape = self.owner.shape
+        if not count:
+            raise _unsupported(f"TextRange2.{member} of no text")
+        if self.at is not None and count == len(shape.text):
+            raise _unsupported(f"TextRange2.{member} of all the text through Characters")
+        marks = tuple(dict(mark) for mark in shape.text_marks[at:at + count]) if shape.text_marks else tuple({} for _ in range(count))
+        text_copied(self.owner.sheet.book.application, TextClip(shape.text[at:at + count], marks, self.at is None))
+        return at, count
+
+    @method
+    def Copy(self) -> object:
+        """The text on the clipboard with its settings, all of it bringing its paragraph's end. CutCopyMode stays 0."""
+        self._copied("Copy")
+        return EMPTY
+
+    @method
+    def Cut(self) -> object:
+        """The text on the clipboard, then gone."""
+        at, count = self._copied("Cut")
+        _edit_text(self.owner, at, count, "")
+        return EMPTY
+
+    @method
+    def Paste(self) -> object:
+        return self._pasted(None)
+
+    @method
+    def PasteSpecial(self, Format: object = MISSING) -> object:
+        return self._pasted(int(to_number(Format)) if Format is not MISSING else None)
+
+    def _pasted(self, format_number: int | None) -> object:
+        """The copied text in place of the range: a range of no length takes it where it stands, at the end too. Paste writes each
+        character with every setting spelled out; PasteSpecial's plain text joins the run before it. Nothing copied is error
+        -2147024809."""
+        from pyopenvba.apps.excel._clipboard import held_text
+        from pyopenvba.shapes._xlsx import _font_markup  # pyright: ignore[reportPrivateUsage]
+
+        application = self.owner.sheet.book.application
+        clip = held_text(application)
+        if clip is None:
+            if application.clipboard is not None:
+                raise _unsupported("pasting copied cells into a shape's text")
+            held = application.held_formats
+            if application.copied_chart is not None or (held is not None and held[1] is application.clipboard):
+                raise _unsupported("pasting a chart or picture into a shape's text")
+            raise error(-2147024809, "The parameter is incorrect.")
+        if format_number not in (None, 4):
+            raise _unsupported(f"TextRange2.PasteSpecial in format {format_number}")
+        if clip.whole:
+            raise _unsupported("pasting all of a shape's text, which brings its paragraph's settings")
+        shape = self.owner.shape
+        if shape.kind != "shape" or shape.source:
+            raise _unsupported("pasting into the text of a shape other than a new AutoShape")
+        if _font_markup(shape.text_look or TextLook()) != _font_markup(TextLook()):
+            raise _unsupported("pasting into a shape's text whose font has settings of its own")
+        at, count = self.span()
+        if self.at is not None and not count and at == 0:
+            raise _unsupported("pasting at the start of a shape's text, which Excel answers without putting the text there")
+        plain = format_number == 4
+        if not plain and any(set(mark) - {"font_bold"} for mark in clip.marks):
+            raise _unsupported("pasting text with settings other than bold")
+        ending = not count and at == len(shape.text)
+        _edit_text(self.owner, at, count, clip.text)
+        if not plain:
+            if not shape.text_marks:
+                shape.text_marks = [{} for _ in shape.text]
+            for offset, mark in enumerate(clip.marks):
+                shape.text_marks[at + offset] = {"font_pasted": True, **({"font_bold": True} if mark.get("font_bold") else {})}
+            if ending and shape.text_end is None:
+                # Its paragraph's end is written, plain, after the pasted run.
+                shape.text_end = {}
+        return TextRange2(self.owner, at, len(clip.text))
+
     @method
     def InsertChartField(self, ChartFieldType: object = MISSING, Formula: object = MISSING, Position: object = MISSING) -> object:
         """A chart field belongs in a chart's text: in a shape's, any field is the parameter error (tests/fixtures/text_range2_round_8.json)."""
@@ -4892,6 +4997,7 @@ def chart_copied(sheet: Worksheet, shape: Shape) -> None:
     application = sheet.book.application
     # It ends a copy of cells (tests/fixtures/clipboard_formats.json).
     application.clipboard = None
+    application.copied_text = None
     application.copied_chart = (deepcopy(shape), deepcopy(chart), application.clipboard)
     from pyopenvba.apps.excel._clipboard import SHAPE_FORMATS, hold_formats
 

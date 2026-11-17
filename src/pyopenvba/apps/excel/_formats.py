@@ -1402,13 +1402,14 @@ class Border(ExcelObject):
                 return NULL
         first = self.target.first
         along_whole = self.index in EDGES and _row_formats.whole(first) and not self.side().style
-        inside = self.index in (11, 12) and not _row_formats.whole(first) and first.rows * first.columns > 2
+        inside = (self.index in (11, 12) and not _row_formats.whole(first) and first.rows * first.columns > 2
+                  and not self.side().style)
         # The automatic colour is one colour however it is spelled (see S.same_automatic).
         shown = {S.Side(side.style, S.FOREGROUND) if side.color is not None and side.color.kind == "auto" else side
                  for side in self.sides()}
         if (along_whole or inside) and len(shown) > 1:
-            # Along whole rows or columns whose lines differ, where the first shows none, and an inside border whose lines
-            # differ (tests/fixtures/border_gaps.json).
+            # Along whole rows or columns, or an inside border, whose lines differ, where the first shows none
+            # (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
             answers: dict[str, object] = {"LineStyle": VBAInt(-4142, "Long"), "Weight": VBAInt(2, "Long"), "Color": 0.0, "ColorIndex": VBAInt(-4142, "Long")}
             return answers.get(what, NULL)
         return side_answer(_colors(self.target), self.side(), what)

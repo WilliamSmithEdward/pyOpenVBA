@@ -520,14 +520,14 @@ def holds_content(sheet: Worksheet, area: Area) -> bool:
 
 def refuse_wide_border(sheet: Worksheet, areas: Iterable[Area], index: int, *, alone: bool) -> None:
     """Refuse a border set on more than half the sheet's columns where Excel's lines are not yet worked out
-    (tests/fixtures/border_rounds.json, rounds 16001 and 16002): a top or bottom edge on such whole columns short of
+    (tests/fixtures/border_rounds.json, rounds 16001 and 16002): a top edge on such whole columns short of
     B:XFD's shape, which Excel draws over A:XFC and not over B:XFD; and, set alone to the last column over cells or columns
     formatted apart, an inside border or a right edge, or a left edge while a cell stands in the last row. BorderAround's
     edges there are measured (tests/fixtures/used_range.json)."""
     for area in areas:
         whole_wide = area.top == 1 and area.bottom == MAX_ROWS and area.columns > MAX_COLUMNS // 2
-        if whole_wide and index in (8, 9) and area.columns < MAX_COLUMNS and not wide_columns(area):
-            raise VBAUnsupportedError("a top or bottom edge on more than half the columns, short of the whole sheet, "
+        if whole_wide and index == 8 and area.columns < MAX_COLUMNS and not wide_columns(area):
+            raise VBAUnsupportedError("a top edge on more than half the columns, short of the whole sheet, "
                                       "is not implemented")
         if not alone or not wide_columns(area) or not holds_content(sheet, area):
             continue

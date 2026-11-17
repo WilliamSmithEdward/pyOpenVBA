@@ -10927,7 +10927,7 @@
 "{folder}/135.xlsx"
 ],
 "excel": "0,0,0,0,$A$1:$XFC$3/$XFC$3/$B$1048576/$XFD$2/$B$1/$A$1:$XFC$3;0;$A$1:$XFC$3/$XFC$3/$B$1048576/$XFD$2/$B$1/$A$1:$XFC$3;0",
-"refused": "a\\ top\\ or\\ bottom\\ edge\\ on\\ more\\ than\\ half\\ the\\ columns,\\ short\\ of"
+"refused": "a\\ top\\ edge\\ on\\ more\\ than\\ half\\ the\\ columns,\\ short\\ of\\ the\\ whole"
 },
 {
 "middle": [

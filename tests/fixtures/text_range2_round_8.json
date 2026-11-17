@@ -414,5 +414,94 @@
   [
    "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
   ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "standard_height": [
+  "14.5",
+  "14.5"
+ ],
+ "measured_at": "2026-11-17T20:03:01.577396+00:00",
+ "excel": [
+  "e0=String:1:red fox. blue jay<LF>green owl/|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:27:r/e/d/ /f/o/x/./ /b/l/u/e/ /j/a/y/<LF>/g/r/e/e/n/ /o/w/l/|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:7:red /fox/. /blue /jay/green /owl/|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:3:red /fox/. blue jay<LF>green owl/|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:2:TextRange2/TextRange2/|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Single:107.2|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Single:53.6|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Single:71.06|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Single:26.86|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Single:14.4|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Single:13.43|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:107.2,53.6,121.6,53.6,121.6,67.03,107.2,67.03|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=Long:5|String:red redx. blue jay<LF>green owl|Long:28|Long:4|Long:2",
+  "e0=Long:28|String:rred fox. blue jay<LF>green owl<LF>ed fox. blue jay<LF>green owl|Long:55|Long:7|Long:4",
+  "e0=String:red |String:fred ox. blue jay<LF>green owl|Long:27|Long:4|Long:2",
+  "e0=Empty:|String:fox. blue jay<LF>green owl|Long:23|Long:2|Long:2",
+  "e0=String:fox|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:fox|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:cell |String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e-2147024809=e-2147024809|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e-2147024809=e-2147024809|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2",
+  "e0=String:1:solo/|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:4:s/o/l/o/|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:1:solo/|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:1:solo/|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:1:TextRange2/|String:solo|Long:4|Long:1|Long:1",
+  "e0=Single:107.2|String:solo|Long:4|Long:1|Long:1",
+  "e0=Single:53.6|String:solo|Long:4|Long:1|Long:1",
+  "e0=Single:20.70504|String:solo|Long:4|Long:1|Long:1",
+  "e0=Single:13.43|String:solo|Long:4|Long:1|Long:1",
+  "e0=Single:13.1|String:solo|Long:4|Long:1|Long:1",
+  "e0=Single:13.43|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:107.2,53.6,120.3,53.6,120.3,67.03,107.2,67.03|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:sol|String:solosol|Long:7|Long:2|Long:1",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1",
+  "e0=Long:5|String:ssolo<LF>olo|Long:9|Long:3|Long:2",
+  "e-2147024809=e-2147024809|String:|Long:0|Long:0|Long:0",
+  "e0=Empty:|String:|Long:0|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1",
+  "e0=String:cell |String:solo|Long:4|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1"
  ]
 }

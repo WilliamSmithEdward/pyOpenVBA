@@ -3947,7 +3947,7 @@ ShapeRange,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/c
 ShapeRange,Left,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."
 ShapeRange,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_range_fill_line.json; tests/test_excel_shape_range_fill_line.py,What all its shapes share; each takes a change as it would alone.
 ShapeRange,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared value; a set reaches every shape. Differing values are refused.
-ShapeRange,Model3D,"property, read-only",As Model3DFormat,,MISSING,,Exclusion candidate for William: it needs a 3D model file.
+ShapeRange,Model3D,"property, read-only",As Model3DFormat,,EXCLUDED,,"Excluded with William's approval: it needs a 3D model file."
 ShapeRange,Name,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"One shape's name; several shapes raise -2147024891. A set raises -2147024809 for one shape and -2147024891 for several, as in Excel."
 ShapeRange,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"One shape's are its own; over several, Count reads 0."
 ShapeRange,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"Worksheet, by the way it is reached; Set o.Parent is the error set_parent_error gives."

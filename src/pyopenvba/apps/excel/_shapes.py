@@ -4499,7 +4499,8 @@ class TextRange2(_ShapeText):
             raise _unsupported(f"TextRange2.{member} of no text")
         if self.at is not None and count == len(shape.text):
             raise _unsupported(f"TextRange2.{member} of all the text through Characters")
-        marks = tuple(dict(mark) for mark in shape.text_marks[at:at + count]) if shape.text_marks else tuple({} for _ in range(count))
+        empty: dict[str, object] = {}
+        marks = tuple(dict(mark) for mark in shape.text_marks[at:at + count]) if shape.text_marks else tuple(dict(empty) for _ in range(count))
         text_copied(self.owner.sheet.book.application, TextClip(shape.text[at:at + count], marks, self.at is None))
         return at, count
 

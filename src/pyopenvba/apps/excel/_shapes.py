@@ -4555,7 +4555,8 @@ class TextRange2(_ShapeText):
         plain = format_number == 4
         if not plain and any(set(mark) - {"font_bold"} for mark in clip.marks):
             raise _unsupported("pasting text with settings other than bold")
-        ending = not count and at == len(shape.text)
+        # A paste that reaches the text's end writes its paragraph's end after it (tests/fixtures/text_range2_round_11.json).
+        ending = at + count == len(shape.text)
         _edit_text(self.owner, at, count, clip.text)
         if not plain:
             if not shape.text_marks:

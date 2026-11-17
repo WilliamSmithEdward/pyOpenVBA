@@ -460,8 +460,8 @@ def _text_pasted(destination: Range, copied: TextClip) -> object:
     if any(len(line) > 1 and line[0] == "0" and line[1].isdigit() for line in lines):
         # "007" pasted as 7 once and failed with 1004 once (tests/fixtures/text_range2_round_10.json).
         raise VBAUnsupportedError("Worksheet.Paste of a shape's text that starts with a zero is not implemented")
-    boldness = {bool(mark.get("bold")) for mark in copied.marks}
-    if len(boldness) > 1 or any(set(mark) - {"bold"} for mark in copied.marks):
+    boldness = {bool(mark.get("font_bold")) for mark in copied.marks}
+    if len(boldness) > 1 or any(set(mark) - {"font_bold"} for mark in copied.marks):
         raise VBAUnsupportedError("Worksheet.Paste of a shape's text with settings other than bold all through is not implemented")
     if not admit_write(destination.sheet):
         return False

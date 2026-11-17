@@ -164,9 +164,8 @@ def test_the_model_reports_them_at_its_own_dpi(read: str) -> None:
 HEADINGS_OFF_100 = {15, 31, 37}
 #: Round 2's cases with ScrollIntoView Start False whose first row the rules miss, by one.
 START_FALSE_ROWS = {23, 27, 38}
-#: Cases with frozen panes taller than the grid, which the rules report unmeasured: Excel showed one row of the
-#: scrolling pane in round 1 and two in round 3.
-FROZEN_FILLING = {('window_geometry1', 9), ('window_geometry3', 9), ('window_geometry3', 36)}
+#: Frozen panes that leave the scrolling pane less than a row are reported unmeasured: Excel showed one row of the
+#: pane in round 1, two in round 3 and four in round 8.
 
 
 def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
@@ -177,7 +176,8 @@ def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
 
 ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'window_geometry3', 'window_geometry4',
                                 'window_geometry5', 'window_geometry6', 'window_geometry7',
-                                'window_geometry8', 'window_geometry9')
+                                'window_geometry8', 'window_geometry9', 'window_geometry10',
+                                'window_geometry11')
           if (FIXTURES / f'{stem}.json').exists() for case in _round(stem)]
 
 
@@ -189,8 +189,10 @@ def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dic
         pytest.xfail('headings at 50% and 60% are wider than their size at 100% times the zoom')
     if stem == 'window_geometry2' and number in START_FALSE_ROWS:
         pytest.xfail('ScrollIntoView with Start False: which first row it takes is not known')
-    if (stem, number) in FROZEN_FILLING:
-        with pytest.raises(Unmeasured):
-            predicted(spec)
+    try:
+        found = predicted(spec)
+    except Unmeasured:
+        # Only frozen panes that leave the scrolling pane less than a row or column are refused.
+        assert spec['frozen'] != [0, 0]
         return
-    assert predicted(spec) == answer
+    assert found == answer

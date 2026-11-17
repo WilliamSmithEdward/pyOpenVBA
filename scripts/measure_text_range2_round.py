@@ -181,6 +181,10 @@ STATEMENTS_11 = ['tr.Characters(1, 2).Copy: Set p = tr.Characters(4, 0).Paste: v
                  'ws.Range("A1").Value = 1: ws.Range("A1").Copy: tr.Characters(1, 2).Copy: v = Application.CutCopyMode']
 ROUNDS[11] = ([('"ab cdef gh" & vbCr & "ij kl"', (4, 2)), ('"wxyz"', (1, 1)), ('"red fox. blue jay" & vbCr & "green owl"', (5, 3))], [],
               STATEMENTS_11, OUT.with_name('text_range2_round_11.json'))
+#: Round 12, held out again on the build after round 11's two misses, on new texts; round 11's third text met a clipboard held by
+#: another program, which round 12's measure runs again.
+ROUNDS[12] = ([('"pq rs tuv" & vbCr & "wx"', (4, 2)), ('"mnop qr"', (6, 2)), ('"big cat. tiny ant" & vbCr & "slow"', (1, 3))], [],
+              STATEMENTS_11, OUT.with_name('text_range2_round_12.json'))
 #: Round 11's markup.
 MARKUP_11 = ['tr.Characters(2, 2).Copy: tr.Characters(6, 0).Paste', 'tr.Characters(6, 2).Copy: tr.Characters(2, 0).Paste',
              'tr.Characters(1, 3).Copy: tr.Characters(5, 3).Paste', 'tr.Characters(5, 2).Copy: tr.Characters(tr.Length + 1, 0).Paste',
@@ -361,11 +365,22 @@ def measure() -> None:
         excel.new_document()
         # From round 8, the display's scale at both ends of the run, which the bounds follow (StandardHeight 15 is 96 DPI).
         heights = [str(excel.run_vba(height, 'H', line_numbers=False).value)] if ROUND >= 8 else []
-        for at in range(0, len(every), 60):
-            result = excel.run_vba(macro(every[at:at + 60]), 'Probe', (), timeout=600, line_numbers=False)
-            assert result.ok, (at, result.error, [one.message for one in result.dialogs])
-            answers += str(result.value).split(SEPARATOR)
-            print(at + 60, 'cases', flush=True)
+        # From round 12, a text's cases at a time, run again, up to three times, while Excel could not open the clipboard
+        # (CLIPBRD_E_CANT_OPEN, -2147221040): another program held it, as Remote Desktop's clipboard does after each copy.
+        step = len(ROUNDS[ROUND][2]) if ROUND >= 12 else 60
+        tries: list[int] = []
+        for at in range(0, len(every), step):
+            for attempt in range(1, 4):
+                result = excel.run_vba(macro(every[at:at + step]), 'Probe', (), timeout=600, line_numbers=False)
+                assert result.ok, (at, result.error, [one.message for one in result.dialogs])
+                got = str(result.value).split(SEPARATOR)
+                if ROUND < 12 or not any('-2147221040' in one for one in got):
+                    break
+            tries.append(attempt)
+            answers += got
+            print(at + step, 'cases', flush=True)
+        if ROUND >= 12:
+            record['tries'] = tries
         if ROUND >= 4:
             import tempfile
 

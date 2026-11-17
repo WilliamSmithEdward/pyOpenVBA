@@ -20,9 +20,12 @@ to 6 alone.
 
 from __future__ import annotations
 
+import hashlib
+import threading
 import zlib
+from collections import OrderedDict
 from dataclasses import dataclass, field
-from functools import lru_cache
+
 
 MIN_MATCH = 3
 MAX_MATCH = 258
@@ -678,24 +681,38 @@ def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
 
     This is what a ZIP entry carries.  The defaults are what Excel uses
     for the parts of a Power Query package.  The same bytes always deflate
-    the same way, so a large part saved again, such as a picture, is
-    deflated once: this port takes seconds a megabyte.
+    the same way, and this port takes seconds a megabyte, so what it gives
+    is kept, by the input's digest, for a part saved again: a picture, or
+    the theme and styles every save writes.
     """
-    if len(data) >= _LARGE:
-        return _large_raw_compress(data, level, memlevel)
-    return _small_raw_compress(data, level, memlevel)
+    key = (hashlib.sha256(data).digest(), level, memlevel)
+    with _CACHE_LOCK:
+        found = _CACHE.get(key)
+        if found is not None:
+            _CACHE.move_to_end(key)
+            return found
+    body = compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+    _keep(key, body)
+    return body
 
 
-#: What counts as large. Small parts, the theme and styles every save writes, have a cache of their own, so they do not push
-#: a picture out of its one.
-_LARGE = 1 << 16
+#: The most deflated bytes kept, oldest used going first. Only what deflate gave is kept, never the input, and nothing larger
+#: than this, so a workbook's pictures are not held once it is saved and closed.
+CACHE_LIMIT = 32 << 20
+_CACHE: OrderedDict[tuple[bytes, int, int], bytes] = OrderedDict()
+_CACHE_LOCK = threading.Lock()
 
 
-@lru_cache(maxsize=4)
-def _large_raw_compress(data: bytes, level: int, memlevel: int) -> bytes:
-    return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+def _keep(key: tuple[bytes, int, int], body: bytes) -> None:
+    if len(body) > CACHE_LIMIT:
+        return
+    with _CACHE_LOCK:
+        _CACHE[key] = body
+        _CACHE.move_to_end(key)
+        while cached_bytes() > CACHE_LIMIT:
+            _CACHE.popitem(last=False)
 
 
-@lru_cache(maxsize=256)
-def _small_raw_compress(data: bytes, level: int, memlevel: int) -> bytes:
-    return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+def cached_bytes() -> int:
+    """The deflated bytes the cache holds now."""
+    return sum(len(body) for body in _CACHE.values())

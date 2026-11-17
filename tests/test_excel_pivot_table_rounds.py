@@ -24,10 +24,9 @@ USED_UP = {57101: 'ChangeConnection given Nothing raised 13 where Excel raises 1
            57102: 'a row inserted above the table left it in place where Excel moves it, and ListFormulas with another book in '
                   'front closed its book, where Excel cannot (tests/test_excel_pivot_shift_refusal.py, list_formulas_close.json)'}
 CASES = [(record['seed'], at, case) for record in RECORDS for at, case in enumerate(record['cases'])]
-#: What the model reports where Excel's answer is one it does not copy: a table moved by a row inserted above it, and the
-#: book ListFormulas leaves unclosable with another book in front.
-REPORTED = {'ws2.Rows(1).Insert': 'model VBAUnsupportedError: Inserting or deleting cells that would move a pivot table',
-            'o.ListFormulas': 'model VBAUnsupportedError: PivotTable.ListFormulas with another workbook in front'}
+#: What the model reports where Excel's answer is one it does not copy: the book ListFormulas leaves unclosable with another
+#: book in front. A table a row inserted above moves as Excel moves it (tests/test_excel_pivot_shifts.py).
+REPORTED = {'o.ListFormulas': 'model VBAUnsupportedError: PivotTable.ListFormulas with another workbook in front'}
 
 
 def _as_answered(model: str, excel: str, case: dict[str, str]) -> bool:

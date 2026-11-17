@@ -3,8 +3,7 @@ AllItemsVisible, CalculatedItems, ChildField, ChildItems, DataType, DrillTo, Gro
 LayoutPageBreak, ParentField, ParentItems, PivotItems, ShowingInAxis, SourceCaption, SourceName, TotalLevels and VisibleItems.
 Each is read, set and read back where it sets, on a row field, the first field and the data field.
 
-No row or column goes in on the table's sheet: the model reports an edit that would move a pivot table
-(tests/test_excel_pivot_shift_refusal.py).
+No row or column goes in on the table's sheet; tests/test_excel_pivot_shifts.py measures how a table moves.
 
 The book is the table rounds' (scripts/measure_table_pivot_rounds.py): a new book whose second sheet holds a pivot table of the
 first sheet's keys and values, the same saved and reopened, or the pivot table Excel saved in tests/fixtures/dxf_table/made.xlsx.

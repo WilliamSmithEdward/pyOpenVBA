@@ -4,7 +4,7 @@ table answers (AllocateChanges, ChangeConnection, CommitChanges, ConvertToFormul
 which a range's table refuses. Each is read, set and read back where it sets.
 
 RefreshDate is read for its type only: Excel answers the moment the table was refreshed, which no prediction can know. No
-row goes in above the table: the model reports an edit that would move it (tests/test_excel_pivot_shift_refusal.py).
+row goes in above the table; tests/test_excel_pivot_shifts.py measures how a table moves.
 
 The book is the table rounds' (scripts/measure_table_pivot_rounds.py): a new book whose second sheet holds a pivot table of the
 first sheet's keys and values, the same saved and reopened, or the pivot table Excel saved in tests/fixtures/dxf_table/made.xlsx.

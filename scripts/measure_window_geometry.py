@@ -4,9 +4,9 @@ LargeScroll, ScrollIntoView, PointsToScreenPixelsX/Y and RangeFromPoint, read wi
 Each case runs on a new workbook. Excel is shown with ScreenUpdating on, the application window is set normal at
 800 by 600 points at (20, 20) and the workbook's window normal at 700 by 500 at (0, 0); then the case's statements
 run and the reads are taken. Afterwards the window state, size and place, DisplayFormulaBar and DisplayStatusBar
-are put back exactly as they were, through ActiveWindow: Application.Top reads a point less than the window's Top
-while setting it sets the window's, so a restore through Application moves the window up a point each time, because Excel saves its window placement when it exits and the
-next session opens with it. StandardHeight is read at the start and end of every case: geometry depends on the
+are put back exactly as they were, because Excel saves its window placement when it exits and the next session opens
+with it. They are put back through ActiveWindow: Application.Top reads a point less than the window's Top, while
+setting it sets the window's, so a restore through Application moves the window up a point each time. StandardHeight is read at the start and end of every case: geometry depends on the
 display's DPI, and a case whose two readings differ is not to be trusted.
 
     python scripts/measure_window_geometry.py [_a]   # a development look

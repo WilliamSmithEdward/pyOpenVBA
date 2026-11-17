@@ -394,6 +394,11 @@ class ReflectionFormat(_Effect):
     vba_type_name = 'ReflectionFormat'
 
     @member
+    def Parent(self) -> object:
+        # As a glow's and a soft edge's (tests/fixtures/shape_format_rows.json).
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
     def Type(self) -> object:
         return VBAInt(self.held().reflection_type, 'Long')
 

@@ -477,6 +477,10 @@ class Graphic(ExcelObject):
         return self.page_setup
 
     @member
+    def Application(self) -> object:
+        return self.page_setup.sheet.book.application
+
+    @member
     def Filename(self) -> object:
         raise app_defined()
 
@@ -499,6 +503,64 @@ class Graphic(ExcelObject):
 
     @member
     def LockAspectRatio(self) -> object:
+        raise app_defined()
+
+    # A picture's looks, which a header or footer with no picture has none of: read or set, 1004
+    # (tests/fixtures/shape_format_rows.json). A header picture itself is not modelled (Filename above).
+    @member
+    def Brightness(self) -> object:
+        raise app_defined()
+
+    @setter("Brightness")
+    def _brightness(self, value: object) -> None:
+        raise app_defined()
+
+    @member
+    def ColorType(self) -> object:
+        raise app_defined()
+
+    @setter("ColorType")
+    def _color_type(self, value: object) -> None:
+        raise app_defined()
+
+    @member
+    def Contrast(self) -> object:
+        raise app_defined()
+
+    @setter("Contrast")
+    def _contrast(self, value: object) -> None:
+        raise app_defined()
+
+    @member
+    def CropBottom(self) -> object:
+        raise app_defined()
+
+    @setter("CropBottom")
+    def _crop_bottom(self, value: object) -> None:
+        raise app_defined()
+
+    @member
+    def CropLeft(self) -> object:
+        raise app_defined()
+
+    @setter("CropLeft")
+    def _crop_left(self, value: object) -> None:
+        raise app_defined()
+
+    @member
+    def CropRight(self) -> object:
+        raise app_defined()
+
+    @setter("CropRight")
+    def _crop_right(self, value: object) -> None:
+        raise app_defined()
+
+    @member
+    def CropTop(self) -> object:
+        raise app_defined()
+
+    @setter("CropTop")
+    def _crop_top(self, value: object) -> None:
         raise app_defined()
 
 

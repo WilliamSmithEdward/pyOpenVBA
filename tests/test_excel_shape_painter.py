@@ -69,7 +69,8 @@ def test_a_freeforms_nodes_as_excel_answered(run: tuple[list[str], Path], index:
     'Set a = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40): a.TextFrame.MarginLeft = 3: a.PickUp',
     'Set a = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40): a.Apply',
     'Set a = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40): v = a.Nodes.Count',
-    'Set a = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40): v = a.Vertices',
+    # An AutoShape's Vertices read Empty (tests/fixtures/shape_format_rows.json); its nodes are still not drawn.
+    'Set a = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40): v = a.Nodes(1).SegmentType',
 ])
 def test_what_was_not_built_reports_itself(statements: str) -> None:
     app = ExcelApplication(sandbox=False)

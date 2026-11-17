@@ -629,6 +629,33 @@ class ShapeRange(VBACollection, HeldPart):
 
         return RangeReflection(self)
 
+    @method(name="_Default")
+    def hidden_default(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Item, bound early; bound late Excel raises 438 (tests/fixtures/shape_format_rows.json)."""
+        if BINDING.late:
+            raise error(438, "Object doesn't support this property or method")
+        return self.vba_lookup(Index, self.vba_items())
+
+    # One shape's PictureFormat, Callout, Nodes and Vertices are its own; several shapes' are below
+    # (tests/fixtures/shape_format_rows.json).
+    @member
+    def PictureFormat(self) -> object:
+        return self.shapes[0].vba_get("PictureFormat") if len(self.shapes) == 1 else RangePictureFormat(self)
+
+    @member
+    def Callout(self) -> object:
+        return self.shapes[0].vba_get("Callout") if len(self.shapes) == 1 else RangeCallout(self)
+
+    @member
+    def Nodes(self) -> object:
+        return self.shapes[0].vba_get("Nodes") if len(self.shapes) == 1 else RangeNodes(self)
+
+    @member
+    def Vertices(self) -> object:
+        if len(self.shapes) == 1:
+            return self.shapes[0].vba_get("Vertices")
+        raise _no_vertices("ShapeRange")
+
     @method
     def PickUp(self) -> object:
         """One shape's look; a range of more is out of range (tests/fixtures/shape_painter.json)."""
@@ -1236,6 +1263,11 @@ class ShapeObject(_Drawn):
 
     @member
     def Vertices(self) -> object:
+        # A new AutoShape has none and reads Empty; a picture's fail (tests/fixtures/shape_format_rows.json).
+        if not self.shape.source and self.shape.kind == "shape":
+            return EMPTY
+        if not self.shape.source and self.shape.kind == "picture":
+            raise _no_vertices("Shape")
         return _vba_points(_freeform_points(self))
 
     @member
@@ -2539,6 +2571,11 @@ def _freeform_points(owner: ShapeObject) -> list[tuple[int, tuple[float, float]]
     return found
 
 
+def _no_vertices(owner: str) -> VBARuntimeError:
+    """Vertices where there are none to give: a picture's, or a range of several shapes'."""
+    return error(-2147467259, f"Method 'Vertices' of object '{owner}' failed")
+
+
 def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
     """Points as Excel gives them: Singles, n rows of x and y from 1."""
     made = VBAArray([(1, len(points)), (1, 2)], element_type="Single")
@@ -2566,6 +2603,9 @@ class ShapeNodes(HeldPart):
 
     @member
     def Count(self) -> object:
+        # A new picture has no nodes (tests/fixtures/shape_format_rows.json).
+        if not self.owner.shape.source and self.owner.shape.kind == "picture":
+            return VBAInt(0, "Long")
         return VBAInt(len(_freeform_points(self.owner)), "Long")
 
     @member(default=True, kind="method")
@@ -2635,6 +2675,86 @@ class RangeAdjustments(Created):
     def _item(self, Index: object, value: object) -> None:
         for part in self.parts():
             part.vba_set("Item", value, (Index,))
+
+
+class _RangeFormat(Created):
+    """A format of a ShapeRange of several shapes (tests/fixtures/shape_format_rows.json): a read raises what the first
+    shape that raises gives, and otherwise answers what every shape reads. A measure the shapes do not share reads
+    Excel's mixed Single; any other value they do not share is refused, not measured."""
+
+    vba_type_name = ""
+    #: The member of each shape that gives its own format.
+    format_name = ""
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    def shared(self, name: str, measure: bool = False) -> object:
+        values = [cast(HeldPart, one.vba_get(self.format_name)).vba_get(name) for one in self.range.shapes]
+        if all(value == values[0] for value in values[1:]):
+            return values[0]
+        if measure:
+            return VBASingle(-2147483648.0)
+        raise _unsupported(f"{self.vba_type_name}.{name} of shapes that differ")
+
+
+class RangePictureFormat(_RangeFormat):
+    vba_type_name = "PictureFormat"
+    format_name = "PictureFormat"
+
+    @member
+    def Brightness(self) -> object:
+        return self.shared("Brightness", measure=True)
+
+    @member
+    def Contrast(self) -> object:
+        return self.shared("Contrast", measure=True)
+
+    @member
+    def CropLeft(self) -> object:
+        return self.shared("CropLeft", measure=True)
+
+    @member
+    def CropRight(self) -> object:
+        return self.shared("CropRight", measure=True)
+
+    @member
+    def CropTop(self) -> object:
+        return self.shared("CropTop", measure=True)
+
+    @member
+    def CropBottom(self) -> object:
+        return self.shared("CropBottom", measure=True)
+
+    @member
+    def ColorType(self) -> object:
+        return self.shared("ColorType")
+
+
+class RangeCallout(_RangeFormat):
+    vba_type_name = "CalloutFormat"
+    format_name = "Callout"
+
+    @member
+    def Type(self) -> object:
+        return self.shared("Type")
+
+    @member
+    def AutoAttach(self) -> object:
+        return self.shared("AutoAttach")
+
+
+class RangeNodes(Created):
+    """A ShapeRange's nodes over several shapes: none (tests/fixtures/shape_format_rows.json)."""
+
+    vba_type_name = "ShapeNodes"
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(0, "Long")
 
 
 class RangeConnector(Created):

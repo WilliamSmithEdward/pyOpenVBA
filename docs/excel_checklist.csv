@@ -1890,7 +1890,7 @@ FullSeriesCollection,Extend,not in the type library,,,PARTIAL,tests/fixtures/una
 FullSeriesCollection,Item,method,Item(Index As Variant) As Series,,PARTIAL,tests/fixtures/unassessed_charts.json; tests/test_excel_unassessed_charts.py,"By number; out of range or by name, 1004"
 FullSeriesCollection,NewSeries,not in the type library,,,PARTIAL,tests/fixtures/unassessed_charts.json; tests/test_excel_unassessed_charts.py,Error 438
 FullSeriesCollection,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py,"Chart, by the way it is reached; Set o.Parent is the error set_parent_error gives."
-GlowFormat,Application,"property, read-only",As Object,,UNASSESSED,,
+GlowFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,Application itself; assigning to it is 450.
 GlowFormat,Color,"property, read-only",As ColorFormat,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,A ColorFormat that sets and reads
 GlowFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,xlCreatorCode
 GlowFormat,Parent,not in the type library,,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,Error 438
@@ -1910,15 +1910,15 @@ GradientStops,Insert,method,"Insert(RGB As MsoRGBType, Position As Single, [Tran
 GradientStops,Insert2,method,"Insert2(RGB As MsoRGBType, Position As Single, [Transparency As Single], [Index As Long], [Brightness As Single])",,PARTIAL,tests/fixtures/shape_gradient_stops.json; tests/test_excel_shape_gradient_stops.py,A stop with both a transparency and a brightness reports itself.
 GradientStops,Item,"property, read-only",As GradientStop,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
 GradientStops,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_fill_gradients.json; tests/test_excel_shape_fill_gradients.py,"Stops stay in file order. Insert appends by default; two stops cannot go below two. Parent is 438, as in Excel."
-Graphic,Application,"property, read-only",As Application,,MISSING,,
-Graphic,Brightness,property,As Single,,MISSING,,
-Graphic,ColorType,property,As MsoPictureColorType,,MISSING,,
-Graphic,Contrast,property,As Single,,MISSING,,
+Graphic,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,Application itself; assigning to it is 450.
+Graphic,Brightness,property,As Single,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
+Graphic,ColorType,property,As MsoPictureColorType,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
+Graphic,Contrast,property,As Single,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
 Graphic,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
-Graphic,CropBottom,property,As Single,,MISSING,,
-Graphic,CropLeft,property,As Single,,MISSING,,
-Graphic,CropRight,property,As Single,,MISSING,,
-Graphic,CropTop,property,As Single,,MISSING,,
+Graphic,CropBottom,property,As Single,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
+Graphic,CropLeft,property,As Single,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
+Graphic,CropRight,property,As Single,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
+Graphic,CropTop,property,As Single,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"On a sheet with no header picture, reading or setting it is 1004. A header picture itself is not modelled."
 Graphic,Filename,property,As String,,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Graphic,Height,property,As Single,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
 Graphic,LockAspectRatio,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/workbook_members.json; tests/test_excel_workbook_members.py,"Answers as Excel does over the measured cases, on a workbook with nothing of the kind."
@@ -3678,10 +3678,11 @@ RectangularGradient,RectangleBottom,property,As Double,,PARTIAL,tests/fixtures/i
 RectangularGradient,RectangleLeft,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"0 to 1 or error 1004, written only when not 0."
 RectangularGradient,RectangleRight,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"0 to 1 or error 1004, written only when not 0."
 RectangularGradient,RectangleTop,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"0 to 1 or error 1004, written only when not 0."
-ReflectionFormat,Application,"property, read-only",As Object,,UNASSESSED,,
+ReflectionFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,Application itself; assigning to it is 450.
 ReflectionFormat,Blur,property,As Single,,PARTIAL,tests/fixtures/shape_effects.json; tests/test_excel_shape_effects.py,Reads and sets; a negative blur is -2147024809.
-ReflectionFormat,Creator,"property, read-only",As Long,,UNASSESSED,,
+ReflectionFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"xlCreatorCode, a Long; assigning to it is 450."
 ReflectionFormat,Offset,property,As Single,,PARTIAL,tests/fixtures/shape_effects.json; tests/test_excel_shape_effects.py,Reads and sets; a negative offset is taken as 0.
+ReflectionFormat,Parent,not in the type library,,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"438, as a glow's and a soft edge's."
 ReflectionFormat,Size,property,As Single,,PARTIAL,tests/fixtures/shape_effects.json; tests/test_excel_shape_effects.py,Reads and sets; 200 is -2147024809.
 ReflectionFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_effects.json; tests/test_excel_shape_effects.py,Reads and sets 0 to 1; past 1 is -2147024809.
 ReflectionFormat,Type,property,As MsoReflectionType,,PARTIAL,tests/fixtures/shape_effects.json; tests/test_excel_shape_effects.py,"0 to 9 read and set, each bringing its preset's transparency, size, offset and blur; anything else is -2147024809."
@@ -3794,7 +3795,7 @@ SeriesLines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_t
 SeriesLines,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/chart_type_reads.json; tests/test_excel_chart_type_reads.py,"ChartGroup, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 SeriesLines,Select,method,Select() As Variant,,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
 SeriesLines,SetProperty,method,"SetProperty(ID As String, Value As Variant)",no ID,PARTIAL,tests/test_excel_chart_group_looks.py,"As live Excel, for the kinds of chart the model draws."
-ShadowFormat,Application,"property, read-only",As Object,,UNASSESSED,,
+ShadowFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,Application itself; assigning to it is 450.
 ShadowFormat,Blur,property,As Single,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,"Reads and sets; negative is refused, 200 taken"
 ShadowFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,xlCreatorCode
 ShadowFormat,ForeColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_effects.json; tests/test_excel_shape_effects.py,"RGB reads and sets as Excel does on an AutoShape, a text box and a line; mixed before a shadow is shown."
@@ -3855,7 +3856,7 @@ Shape,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_prop
 Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"False writes clientData fLocksWithSheet 0, on new and loaded shapes."
 Shape,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 Shape,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,A freeform; other shapes report themselves.
+Shape,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py; tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,A freeform's. A new picture has none; other shapes report themselves.
 Shape,OLEFormat,"property, read-only",As OLEFormat,,UNASSESSED,,
 Shape,OnAction,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/object_members.json; tests/test_excel_object_members.py,"Worksheet, by the way it is reached; Set o.Parent is the error set_parent_error gives. Reports a gap a macro or a file can reach: The old object of a control; The old object of a."
@@ -3885,7 +3886,7 @@ Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_m
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"The members back in the group's place, answered as a ShapeRange; a shape that is no group raises -2147024891. A group loaded from a file is refused."
 Shape,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipV is set.
-Shape,Vertices,"property, read-only",As Variant,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"A freeform, as Singles from 1; other shapes report themselves."
+Shape,Vertices,"property, read-only",As Variant,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py; tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"A freeform's, as Singles from 1. A new AutoShape's read Empty and a new picture's fail with -2147467259; other shapes report themselves."
 Shape,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"0 hides the shape, written as cNvPr hidden after descr and title; any other number shows it; text that is no number is error 13. Read back once reopened."
 Shape,Width,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,"Moves the shape to the front or back, or one place, in the drawing's order, which Shapes and ZOrderPosition follow. Other commands raise -2147024809."
@@ -3907,7 +3908,7 @@ ShapeNodes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_
 ShapeNodes,SetEditingType,method,"SetEditingType(Index As Long, EditingType As MsoEditingType)",,MISSING,,
 ShapeNodes,SetPosition,method,"SetPosition(Index As Long, X1 As Single, Y1 As Single)",,MISSING,,
 ShapeNodes,SetSegmentType,method,"SetSegmentType(Index As Long, SegmentType As MsoSegmentType)",,MISSING,,
-ShapeRange,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
+ShapeRange,_Default,method,_Default(Index As Variant) As Shape,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"Item, bound early. Bound late Excel raises 438, as the model does."
 ShapeRange,_NewEnum,"property, read-only",As IUnknown,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"As on a typed variable. On an Object Excel raises 438, and the model does not know how a variable was typed."
 ShapeRange,Adjustments,"property, read-only",As Adjustments,,PARTIAL,tests/fixtures/shape_range_more_format.json; tests/test_excel_shape_range_more_format.py,"What its shapes share, or the mixed value. Past any shape's end is error 5, and a set stops there."
 ShapeRange,Align,method,"Align(AlignCmd As MsoAlignCmd, RelativeTo As MsoTriState)",,PARTIAL,tests/fixtures/shape_align.json; tests/test_excel_shape_align.py,"Lefts, centers, rights, tops, middles and bottoms of the shapes' box together; RelativeTo is ignored but must be -1, 0 or 1. One shape or a bad command raises -2147024809."
@@ -3917,7 +3918,7 @@ ShapeRange,Apply,method,Apply(),,PARTIAL,tests/fixtures/shape_painter.json; test
 ShapeRange,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,The shared value or -2; a set reaches every shape.
 ShapeRange,BackgroundStyle,property,As MsoBackgroundStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,BlackWhiteMode,property,As MsoBlackWhiteMode,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
-ShapeRange,Callout,"property, read-only",As CalloutFormat,,MISSING,,
+ShapeRange,Callout,"property, read-only",As CalloutFormat,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"One shape's is its own. Over several, Type and AutoAttach read what every shape reads, or raise as the first that raises."
 ShapeRange,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,The chart of one; a shape with none raises -2147024809; several charts are refused.
 ShapeRange,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ."
@@ -3946,13 +3947,13 @@ ShapeRange,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/c
 ShapeRange,Left,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."
 ShapeRange,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_range_fill_line.json; tests/test_excel_shape_range_fill_line.py,What all its shapes share; each takes a change as it would alone.
 ShapeRange,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared value; a set reaches every shape. Differing values are refused.
-ShapeRange,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
+ShapeRange,Model3D,"property, read-only",As Model3DFormat,,MISSING,,Exclusion candidate for William: it needs a 3D model file.
 ShapeRange,Name,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"One shape's name; several shapes raise -2147024891. A set raises -2147024809 for one shape and -2147024891 for several, as in Excel."
-ShapeRange,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
+ShapeRange,Nodes,"property, read-only",As ShapeNodes,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"One shape's are its own; over several, Count reads 0."
 ShapeRange,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/object_trio.json; tests/test_excel_object_trio.py; tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"Worksheet, by the way it is reached; Set o.Parent is the error set_parent_error gives."
 ShapeRange,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,PickUp,method,PickUp(),,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,One shape; a range of more is out of range.
-ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
+ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"One shape's is its own. Over several, a read raises what the first shape that raises gives, a measure they do not share reads the mixed Single, and other values they do not share are refused. Sets over several are refused."
 ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,PARTIAL,tests/fixtures/shape_range_effects.json; tests/test_excel_shape_range_effects.py,"A set reaches every shape; types that differ read mixed, measurements the last shape's."
 ShapeRange,Regroup,method,Regroup() As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The ungrouped shapes made a group again, with the next name and id; shapes from no group raise 1004. Regrouping after a member moved, or part of the shapes, is refused."
 ShapeRange,RerouteConnections,method,RerouteConnections(),,PARTIAL,tests/fixtures/shape_connectors.json; tests/test_excel_shape_connectors.py,One shape. Several report themselves.
@@ -3973,7 +3974,7 @@ ShapeRange,Top,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties
 ShapeRange,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ShapeRange,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"Every group in the range ungrouped, other shapes passed over, the members as one range; no group raises 1004."
 ShapeRange,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-ShapeRange,Vertices,"property, read-only",As Variant,,MISSING,,
+ShapeRange,Vertices,"property, read-only",As Variant,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,"One shape's are its own; over several, -2147467259."
 ShapeRange,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"Reads the shapes' shared value, or msoTriStateMixed (-2) where they differ; a set reaches every shape."
 ShapeRange,Width,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."
 ShapeRange,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"The shapes as one block in their own order, to the front or back or a step, none stepping past another of the range; other commands raise -2147024809."
@@ -4057,7 +4058,7 @@ SmartDocument,PickSolution,method,PickSolution([ConsiderAllSchemas As Boolean]),
 SmartDocument,RefreshPane,method,RefreshPane(),,EXCLUDED,,Out of headless scope: smart documents need an installed XML expansion pack
 SmartDocument,SolutionID,property,As String,,EXCLUDED,,Out of headless scope: smart documents need an installed XML expansion pack
 SmartDocument,SolutionURL,property,As String,,EXCLUDED,,Out of headless scope: smart documents need an installed XML expansion pack
-SoftEdgeFormat,Application,"property, read-only",As Object,,UNASSESSED,,
+SoftEdgeFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_format_rows.json; tests/test_excel_shape_format_rows.py,Application itself; assigning to it is 450.
 SoftEdgeFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,xlCreatorCode
 SoftEdgeFormat,Parent,not in the type library,,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,Error 438
 SoftEdgeFormat,Radius,property,As Single,,PARTIAL,tests/fixtures/unassessed_effects.json; tests/test_excel_unassessed_effects.py,"0 to 100, anything else refused; the Type follows a radius that matches one"

@@ -741,8 +741,8 @@ class _BoxAdded(_Drawings):
 
 
 class TextBoxes(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Height', 'HorizontalAlignment', 'Interior', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Height', 'HorizontalAlignment', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width'})
     vba_type_name = 'TextBoxes'
     item = TextBox
     missing = 449
@@ -755,8 +755,8 @@ class TextBoxes(_BoxAdded):
 
 
 class Rectangles(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'Height', 'HorizontalAlignment', 'Interior', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Height', 'HorizontalAlignment', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width'})
     vba_type_name = 'Rectangles'
     parts = frozenset({'Border', 'Characters', 'Font', 'Interior'})
     several = {'addindent': False, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
@@ -764,16 +764,16 @@ class Rectangles(_BoxAdded):
 
 
 class Ovals(_BoxAdded):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'Height', 'HorizontalAlignment', 'Interior', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'ShapeRange', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'Caption', 'Enabled', 'Height', 'HorizontalAlignment', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Shadow', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width'})
     vba_type_name = 'Ovals'
     item = Oval
     shape_type = 9
 
 
 class Arcs(_Drawings):
-    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'HorizontalAlignment', 'Interior', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Caption', 'Enabled', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'Height', 'HorizontalAlignment', 'Interior', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Caption', 'Enabled', 'Height', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible', 'Width'})
     vba_type_name = 'Arcs'
     item = Arc
 
@@ -785,8 +785,8 @@ class Arcs(_Drawings):
 
 
 class Lines(_Drawings):
-    spread_reads = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Enabled', 'Locked', 'Placement', 'PrintObject', 'Visible'})
+    spread_reads = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'Enabled', 'Height', 'Left', 'Locked', 'Placement', 'PrintObject', 'ShapeRange', 'Top', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Enabled', 'Height', 'Left', 'Locked', 'Placement', 'PrintObject', 'Top', 'Visible', 'Width'})
     vba_type_name = 'Lines'
     parts = frozenset({'Border'})
     several = {}
@@ -800,8 +800,8 @@ class Lines(_Drawings):
 
 
 class Pictures(_Drawings):
-    spread_reads = frozenset({'Border', 'Enabled', 'Interior', 'Locked', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Enabled', 'Locked', 'Placement', 'PrintObject', 'Shadow', 'Visible'})
+    spread_reads = frozenset({'Border', 'Enabled', 'Height', 'Interior', 'Left', 'Locked', 'Placement', 'PrintObject', 'Shadow', 'ShapeRange', 'Top', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'Enabled', 'Height', 'Left', 'Locked', 'Placement', 'PrintObject', 'Shadow', 'Top', 'Visible', 'Width'})
     vba_type_name = 'Pictures'
     parts = frozenset({'Border', 'Interior'})
     several = {}
@@ -838,7 +838,7 @@ class Pictures(_Drawings):
 class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     parts = frozenset()
     several = {}
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'InputType', 'Interior', 'LargeChange', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'SmallChange', 'Text', 'Value', 'VerticalAlignment', 'Visible', 'ZOrder'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'ArrowHeadLength', 'ArrowHeadStyle', 'ArrowHeadWidth', 'Border', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Display3DShading', 'DisplayVerticalScrollBar', 'DropDownLines', 'Enabled', 'Font', 'Height', 'HelpButton', 'HorizontalAlignment', 'InputType', 'Interior', 'LargeChange', 'Left', 'LinkedCell', 'ListFillRange', 'ListIndex', 'Locked', 'LockedText', 'Max', 'Min', 'MultiLine', 'MultiSelect', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'RoundedCorners', 'Shadow', 'ShapeRange', 'SmallChange', 'Text', 'Top', 'Value', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         """A member of the collection; of its items' members, the few Excel answers over a sheet's every kind, whatever they hold, and 1004 for the rest
@@ -890,6 +890,21 @@ class DrawingObjects(_Drawings, ValueDefault, ListedControls):
     @method
     def Selected(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
         raise error(1004, 'Unable to get the Selected property')
+
+    # A freeform's members, over all of a sheet's drawings, grouped or not, typed and late (tests/fixtures/old_collection_odds.json).
+    @method
+    def Vertices(self, Index1: object = MISSING, Index2: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        raise error(1004, 'Unable to get the Vertices property')
+
+    @method
+    def Reshape(self, Vertex: object = MISSING, Insert: object = MISSING, Left: object = MISSING, Top: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        raise error(1004, 'Unable to get the Reshape property')
+
+    @method
+    def Ungroup(self) -> object:
+        # Excel answers a DrawingObjects of some of the items with no group on the sheet, and ungroups one and answers 424 with a group
+        # (tests/fixtures/old_collection_odds.json); which items, and why, is not worked out.
+        raise VBAUnsupportedError('DrawingObjects.Ungroup is not implemented')
 
     @method
     def LinkCombo(self, Link: object = MISSING) -> object:  # noqa: N803 - native named argument

@@ -1,0 +1,159 @@
+{
+ "measured_at": "2026-11-10T22:02:30.319093+00:00",
+ "source": "Public Function Go(ByVal which As Long, ByVal path As String) As String\n    Dim wb As Workbook, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    On Error Resume Next\n    Select Case which\n    Case 0: s = Case0(wb)\n    Case 1: s = Case1(wb)\n    Case 2: s = Case2(wb)\n    Case 3: s = Case3(wb)\n    Case 4: s = Case4(wb)\n    Case 5: s = Case5(wb)\n    Case 6: s = Case6(wb)\n    Case 7: s = Case7(wb)\n    End Select\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    s = s & \" save=\" & Err.Number\n    Application.DisplayAlerts = True\n    wb.Close False\n    Go = s\nEnd Function\n\nPrivate Function Case0(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r><r>x</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = TypeName(p)\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case0 = s\nEnd Function\n\nPrivate Function Case1(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add()\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    b = p.LoadXML(\"<!DOCTYPE r><r>x</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = b\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case1 = s\nEnd Function\n\nPrivate Function Case2(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r []><r>x</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = TypeName(p)\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case2 = s\nEnd Function\n\nPrivate Function Case3(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add()\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    b = p.LoadXML(\"<!DOCTYPE r []><r>x</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = b\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case3 = s\nEnd Function\n\nPrivate Function Case4(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r [<!ENTITY a \"\"y\"\">]><r>&a;</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = TypeName(p)\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case4 = s\nEnd Function\n\nPrivate Function Case5(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add()\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    b = p.LoadXML(\"<!DOCTYPE r [<!ENTITY a \"\"y\"\">]><r>&a;</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = b\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case5 = s\nEnd Function\n\nPrivate Function Case6(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r [<!ELEMENT r (#PCDATA)>]><r>x</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = TypeName(p)\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case6 = s\nEnd Function\n\nPrivate Function Case7(wb As Workbook) As String\n    Dim tp As CustomXMLPart, tn As CustomXMLNode, k As Sink\n    Dim p As Object, n As Object, b As Variant, s As String, v As Variant\n    On Error Resume Next\n    Err.Clear\n    Set p = ActiveWorkbook.CustomXMLParts.Add()\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    b = p.LoadXML(\"<!DOCTYPE r [<!ELEMENT r (#PCDATA)>]><r>x</r>\")\n    If Err.Number <> 0 Then s = s & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = b\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveWorkbook.CustomXMLParts.Count\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.XML\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = p.DocumentElement.Text\n    If Err.Number <> 0 Then s = s & \"|E\" & Err.Number & \":\" & Err.Description Else s = s & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case7 = s\nEnd Function\n",
+ "sink": "Public WithEvents p As CustomXMLPart\nPublic WithEvents ps As CustomXMLParts\nPublic log As String\n\nPrivate Function Nm(n As Object) As String\n    On Error Resume Next\n    Nm = \"?\"\n    If n Is Nothing Then Nm = \"-\" Else Nm = n.BaseName & \":\" & n.NodeType\nEnd Function\n\nPrivate Sub p_NodeAfterDelete(ByVal OldNode As CustomXMLNode, ByVal OldParentNode As CustomXMLNode, ByVal OldNextSibling As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"D(\" & Nm(OldNode) & \",\" & Nm(OldParentNode) & \",\" & Nm(OldNextSibling) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub p_NodeAfterInsert(ByVal NewNode As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"I(\" & Nm(NewNode) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub p_NodeAfterReplace(ByVal OldNode As CustomXMLNode, ByVal NewNode As CustomXMLNode, ByVal InUndoRedo As Boolean)\n    log = log & \"R(\" & Nm(OldNode) & \",\" & Nm(NewNode) & \",\" & InUndoRedo & \")\"\nEnd Sub\n\nPrivate Sub ps_PartAfterAdd(ByVal NewPart As CustomXMLPart)\n    log = log & \"A(\" & NewPart.NamespaceURI & \")\"\nEnd Sub\n\nPrivate Sub ps_PartAfterLoad(ByVal Part As CustomXMLPart)\n    log = log & \"L(\" & Part.NamespaceURI & \")\"\nEnd Sub\n\nPrivate Sub ps_PartBeforeDelete(ByVal OldPart As CustomXMLPart)\n    log = log & \"B(\" & OldPart.NamespaceURI & \")\"\nEnd Sub\n",
+ "cases": [
+  [
+   "add bare",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r><r>x</r>\")"
+   ],
+   [
+    "TypeName(p)",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|String:Nothing|Long:3|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set save=0",
+   {
+    "workbook rels": "",
+    "content types": ""
+   }
+  ],
+  [
+   "loadxml bare",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add()",
+    "b = p.LoadXML(\"<!DOCTYPE r><r>x</r>\")"
+   ],
+   [
+    "b",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|Empty:|Long:4|String:|E91:Object variable or With block variable not set save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{895E1A65-4F24-4018-9AE8-4AE8EA311ECA}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"/>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "add empty subset",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r []><r>x</r>\")"
+   ],
+   [
+    "TypeName(p)",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|String:Nothing|Long:3|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set save=0",
+   {
+    "workbook rels": "",
+    "content types": ""
+   }
+  ],
+  [
+   "loadxml empty subset",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add()",
+    "b = p.LoadXML(\"<!DOCTYPE r []><r>x</r>\")"
+   ],
+   [
+    "b",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|Empty:|Long:4|String:|E91:Object variable or With block variable not set save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{5733006D-BCB8-4736-A996-D8097687389C}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"/>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "add entity",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r [<!ENTITY a \"\"y\"\">]><r>&a;</r>\")"
+   ],
+   [
+    "TypeName(p)",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|String:Nothing|Long:3|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set save=0",
+   {
+    "workbook rels": "",
+    "content types": ""
+   }
+  ],
+  [
+   "loadxml entity",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add()",
+    "b = p.LoadXML(\"<!DOCTYPE r [<!ENTITY a \"\"y\"\">]><r>&a;</r>\")"
+   ],
+   [
+    "b",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|Empty:|Long:4|String:|E91:Object variable or With block variable not set save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{C3C4BC47-6299-463F-9D9B-92B596851B80}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"/>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ],
+  [
+   "add element decl",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add(\"<!DOCTYPE r [<!ELEMENT r (#PCDATA)>]><r>x</r>\")"
+   ],
+   [
+    "TypeName(p)",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|String:Nothing|Long:3|E91:Object variable or With block variable not set|E91:Object variable or With block variable not set save=0",
+   {
+    "workbook rels": "",
+    "content types": ""
+   }
+  ],
+  [
+   "loadxml element decl",
+   [
+    "Set p = ActiveWorkbook.CustomXMLParts.Add()",
+    "b = p.LoadXML(\"<!DOCTYPE r [<!ELEMENT r (#PCDATA)>]><r>x</r>\")"
+   ],
+   [
+    "b",
+    "ActiveWorkbook.CustomXMLParts.Count",
+    "p.XML",
+    "p.DocumentElement.Text"
+   ],
+   "[-2147467259:DTD is prohibited.\n]|Empty:|Long:4|String:|E91:Object variable or With block variable not set save=0",
+   {
+    "customXml/_rels/item1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps\" Target=\"itemProps1.xml\"/></Relationships>",
+    "customXml/item1.xml": "",
+    "customXml/itemProps1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<ds:datastoreItem ds:itemID=\"{3B1FBBD5-AC2D-4614-9827-600A35E07E27}\" xmlns:ds=\"http://schemas.openxmlformats.org/officeDocument/2006/customXml\"/>",
+    "workbook rels": "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml\" Target=\"../customXml/item1.xml\"/>",
+    "content types": "<Override PartName=\"/customXml/itemProps1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.customXmlProperties+xml\"/>"
+   }
+  ]
+ ]
+}

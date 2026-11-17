@@ -815,7 +815,10 @@ before the selected caller executes, including unreachable calls. Positional
 arguments after named arguments are invalid even for late-bound calls.
 Primitive ByRef variables require compatible storage types; enum values share
 Long compatibility, LongPtr uses the runtime's 64-bit LongLong compatibility,
-and Variant scalar parameters accept typed variables. Typed array parameters
+and Variant scalar parameters accept typed variables. A parameter of an object
+type takes a variable of any object type, a Range to a Worksheet included, and
+refuses a Variant or a value's variable, as one of a value's type refuses an
+object's (92 live compiles in `tests/fixtures/vba_byref_objects.json`). Typed array parameters
 require matching element types; `values()` passes whole-array storage, and
 typed array function results can provide temporary arrays. Class properties
 provide coerced temporary arguments, while UDT/module fields retain storage.
@@ -2561,6 +2564,12 @@ Native Application.Run preserves Err on entry, invokes private standard
 module functions, rejects ordinary class modules and discards document
 procedure return values while passing arguments and executing side effects.
 These behaviors replay 21 probes in `tests/fixtures/excel_projects.json`.
+An error the macro Run started does not handle goes past every handler of
+its caller: Excel shows its run-time error dialog and ends every macro, and
+the model raises it to the host with `past_handlers` set. Errors Run raises
+itself, a macro not found (1004) or too many arguments (450), stay the
+caller's to trap (18 live cases in `tests/fixtures/vba_run_errors.json`).
+A Run into another workbook's project is taken to do the same, unmeasured.
 
 Workbook_Open and application WorkbookOpen run after source import and
 before workbook activation; EnableEvents suppresses them. Reopening an

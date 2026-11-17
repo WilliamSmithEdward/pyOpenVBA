@@ -936,6 +936,8 @@ class ElementFill(_ElementPart):
         if self.key.startswith("grid"):
             # Gridlines are lines: they have no fill to read or set.
             raise error(-2147467259, "Automation error\nUnspecified error")
+        if self.key == "area" and self.owner.chart.state.background is not None:
+            raise unmeasured("The fill of a chart area with a background picture")
         return self.look()
 
     def hidden(self) -> bool:
@@ -975,6 +977,9 @@ class ElementFill(_ElementPart):
 
     @member
     def Type(self) -> object:
+        if self.key == "area" and self.owner.chart.state.background is not None:
+            # msoFillTextured: a background picture tiles it (tests/fixtures/chart_templates.json).
+            return VBAInt(4, "Long")
         if not self.spelled() or (self.hidden() and not _windowed(self.key)):
             return VBAInt(-2, "Long")
         return VBAInt(1, "Long")

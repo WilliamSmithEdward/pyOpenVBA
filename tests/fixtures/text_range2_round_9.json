@@ -516,5 +516,106 @@
   [
    "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
   ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>ABC</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> DEF</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def.</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> xyz</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"><a:latin typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/><a:cs typeface=\"Arial\" panose=\"020B0604020202020204\" pitchFamily=\"34\" charset=\"0\"/></a:rPr><a:t>B</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>Abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> Def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "standard_height": [
+  "14.5",
+  "14.5"
+ ],
+ "measured_at": "2026-11-17T20:17:51.330185+00:00",
+ "excel": [
+  "e0=String:red|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:red|String:reredd fox. blue jay<LF>green owl|Long:30|Long:5|Long:2|Long:-2|Long:0",
+  "e0=String:red|String:red fox. blue jay<LF>green owlred|Long:30|Long:4|Long:2|Long:0|Long:0",
+  "e0=Long:2|String:rred fox. blue jay<LF>green owl|Long:28|Long:5|Long:2|Long:-2|Long:0",
+  "e0=String:red|String:red|Long:3|Long:1|Long:1|Long:0|Long:0",
+  "e0=Long:28|String:red fox. blue jay<LF>green owlred fox. blue jay<LF>green owl<LF>|Long:55|Long:6|Long:3|Long:0|Long:0",
+  "e0=Long:-1|String:red fox. blue jay<LF>green owlfox|Long:30|Long:4|Long:2|Long:0|Long:0",
+  "e0=String:red|String: redfox. blue jay<LF>green owl|Long:27|Long:4|Long:2|Long:-2|Long:0",
+  "e0=String:r fox. blue jay<LF>green owl|String:r fox. blue jay<LF>green owl|Long:25|Long:3|Long:2|Long:-2|Long:0",
+  "e0=String:red|String:red fox. blue jay<LF>green owlred|Long:30|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:red|String:red fox. blue jay<LF>green owlred|Long:30|Long:4|Long:2|Long:0|Long:0",
+  "e0=String:red|String:red fox. blue jay<LF>green owlred|Long:30|Long:4|Long:2|Long:0|Long:0",
+  "e0=String:red|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=Long:0|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=Long:0|String:|Long:0|Long:0|Long:0|e-2147024809|Long:0",
+  "e0=String:red fox. blue jay<LF>green owl<LF>|String:red fox. blue jay<LF>green owlred fox. blue jay<LF>green owl<LF>|Long:55|Long:6|Long:3|Long:0|Long:0",
+  "e0=String:0,2,7,9,44,45,50,51,52,53,|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:cell |String:red fox. blue jay<LF>green owlcell |Long:32|Long:5|Long:2|Long:0|Long:1",
+  "e0=String:cell |String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:1",
+  "e0=Long:0|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:red|1|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:red|1|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e1004=e1004|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:||String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:red|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:sol|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:sol|String:sosollo|Long:7|Long:3|Long:1|Long:-2|Long:0",
+  "e0=String:sol|String:solosol|Long:7|Long:2|Long:1|Long:0|Long:0",
+  "e0=Long:2|String:ssolo|Long:5|Long:3|Long:1|Long:-2|Long:0",
+  "e0=String:sol|String:sol|Long:3|Long:1|Long:1|Long:0|Long:0",
+  "e0=Long:5|String:solosolo<LF>|Long:9|Long:2|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:sol|String:osol|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:so|String:so|Long:2|Long:1|Long:1|e-2147024809|Long:0",
+  "e0=String:sol|String:solosol|Long:7|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:sol|String:solosol|Long:7|Long:2|Long:1|Long:0|Long:0",
+  "e0=String:sol|String:solosol|Long:7|Long:2|Long:1|Long:0|Long:0",
+  "e0=String:sol|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=Long:0|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=Long:0|String:|Long:0|Long:0|Long:0|e-2147024809|Long:0",
+  "e0=String:solo<LF>|String:solosolo<LF>|Long:9|Long:2|Long:1|Long:0|Long:0",
+  "e0=String:0,2,7,9,44,45,50,51,52,53,|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:cell |String:solocell |Long:9|Long:3|Long:1|Long:0|Long:1",
+  "e0=String:cell |String:solo|Long:4|Long:1|Long:1|Long:0|Long:1",
+  "e0=Long:0|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:sol|1|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:sol|1|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:|2|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:||String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:sol|String:solo|Long:4|Long:1|Long:1|Long:0|Long:0"
  ]
 }

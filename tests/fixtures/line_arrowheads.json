@@ -1,0 +1,688 @@
+{
+ "measured_at": "2026-11-10T16:08:08.145267+00:00",
+ "source": "Private Function Item(ws As Object, ByVal fresh As Boolean, ByVal add As Boolean) As Object\n    If fresh And add Then\n        Set Item = ws.Lines.Add(500, 300, 560, 340)\n    ElseIf fresh Then\n        Set Item = ws.Lines(ws.Lines.Count)\n    Else\n        Set Item = ws.Lines(1)\n    End If\nEnd Function\n\nPrivate Function Reads(o As Object) As String\n    Dim s As String, l As Object\n    On Error Resume Next\n    s = o.ArrowHeadStyle & \",\" & o.ArrowHeadLength & \",\" & o.ArrowHeadWidth\n    If Err.Number Then s = \"E\" & Err.Number\n    Err.Clear\n    Set l = o.ShapeRange.Line\n    s = s & \" begin \" & l.BeginArrowheadStyle & \",\" & l.BeginArrowheadLength & \",\" & l.BeginArrowheadWidth\n    s = s & \" end \" & l.EndArrowheadStyle & \",\" & l.EndArrowheadLength & \",\" & l.EndArrowheadWidth\n    If Err.Number Then s = s & \" E\" & Err.Number\n    Reads = s\nEnd Function\n\nPublic Function Row(ByVal path As String, ByVal saved As String, ByVal fresh As Boolean, ByVal which As Long) As String\n    Dim wb As Workbook, ws As Object, o As Object, e As Long, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set ws = wb.Worksheets(1)\n    Set o = Item(ws, fresh, True)\n    If which >= 0 Then\n        On Error Resume Next\n        Select Case which\n        Case 0\n            o.ArrowHeadStyle = -4142\n        Case 1\n            o.ArrowHeadStyle = 2\n        Case 2\n            o.ArrowHeadStyle = 3\n        Case 3\n            o.ArrowHeadStyle = 4\n        Case 4\n            o.ArrowHeadStyle = 5\n        Case 5\n            o.ArrowHeadLength = 1\n        Case 6\n            o.ArrowHeadLength = -4138\n        Case 7\n            o.ArrowHeadLength = 3\n        Case 8\n            o.ArrowHeadWidth = 1\n        Case 9\n            o.ArrowHeadWidth = -4138\n        Case 10\n            o.ArrowHeadWidth = 3\n        Case 11\n            o.ArrowHeadStyle = 3: o.ArrowHeadLength = 1\n        Case 12\n            o.ArrowHeadStyle = 2: o.ArrowHeadStyle = -4142\n        Case 13\n            o.ArrowHeadStyle = 5: o.ArrowHeadLength = 3: o.ArrowHeadWidth = 1\n        End Select\n        e = Err.Number\n        On Error GoTo 0\n        s = Reads(o)\n    End If\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    s = \"E\" & e & \"|\" & s & \"|reopened \" & Reads(Item(wb.Worksheets(1), fresh, False))\n    wb.Close False\n    Row = s\nEnd Function\n",
+ "cases": [
+  {
+   "fresh": false,
+   "case": "style None",
+   "statements": "o.ArrowHeadStyle = -4142",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"none\"/>",
+       "<a:tailEnd type=\"none\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "style Open",
+   "statements": "o.ArrowHeadStyle = 2",
+   "excel": "E0|2,-4138,-4138 begin 1,2,2 end 3,2,2|reopened 2,-4138,-4138 begin 1,2,2 end 3,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:tailEnd type=\"arrow\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "style Closed",
+   "statements": "o.ArrowHeadStyle = 3",
+   "excel": "E0|3,-4138,-4138 begin 1,2,2 end 2,2,2|reopened 3,-4138,-4138 begin 1,2,2 end 2,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:tailEnd type=\"triangle\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "style DoubleOpen",
+   "statements": "o.ArrowHeadStyle = 4",
+   "excel": "E0|4,-4138,-4138 begin 3,2,2 end 3,2,2|reopened 4,-4138,-4138 begin 3,2,2 end 3,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"arrow\"/>",
+       "<a:tailEnd type=\"arrow\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "style DoubleClosed",
+   "statements": "o.ArrowHeadStyle = 5",
+   "excel": "E0|5,-4138,-4138 begin 2,2,2 end 2,2,2|reopened 5,-4138,-4138 begin 2,2,2 end 2,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"triangle\"/>",
+       "<a:tailEnd type=\"triangle\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "length Short",
+   "statements": "o.ArrowHeadLength = 1",
+   "excel": "E0|-4142,1,-4138 begin 1,1,2 end 1,1,2|reopened -4142,1,-4138 begin 1,1,2 end 1,1,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"sm\"/>",
+       "<a:tailEnd len=\"sm\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "length Medium",
+   "statements": "o.ArrowHeadLength = -4138",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"med\"/>",
+       "<a:tailEnd len=\"med\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "length Long",
+   "statements": "o.ArrowHeadLength = 3",
+   "excel": "E0|-4142,3,-4138 begin 1,3,2 end 1,3,2|reopened -4142,3,-4138 begin 1,3,2 end 1,3,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"lg\"/>",
+       "<a:tailEnd len=\"lg\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "width Narrow",
+   "statements": "o.ArrowHeadWidth = 1",
+   "excel": "E0|-4142,-4138,1 begin 1,2,1 end 1,2,1|reopened -4142,-4138,1 begin 1,2,1 end 1,2,1",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd w=\"sm\"/>",
+       "<a:tailEnd w=\"sm\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "width Medium",
+   "statements": "o.ArrowHeadWidth = -4138",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd w=\"med\"/>",
+       "<a:tailEnd w=\"med\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "width Wide",
+   "statements": "o.ArrowHeadWidth = 3",
+   "excel": "E0|-4142,-4138,3 begin 1,2,3 end 1,2,3|reopened -4142,-4138,3 begin 1,2,3 end 1,2,3",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd w=\"lg\"/>",
+       "<a:tailEnd w=\"lg\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "style then length",
+   "statements": "o.ArrowHeadStyle = 3: o.ArrowHeadLength = 1",
+   "excel": "E0|3,1,-4138 begin 1,1,2 end 2,1,2|reopened 3,1,-4138 begin 1,1,2 end 2,1,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"sm\"/>",
+       "<a:tailEnd type=\"triangle\" len=\"sm\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "style then none",
+   "statements": "o.ArrowHeadStyle = 2: o.ArrowHeadStyle = -4142",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"none\"/>",
+       "<a:tailEnd type=\"none\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": false,
+   "case": "all three",
+   "statements": "o.ArrowHeadStyle = 5: o.ArrowHeadLength = 3: o.ArrowHeadWidth = 1",
+   "excel": "E0|5,3,1 begin 2,3,1 end 2,3,1|reopened 5,3,1 begin 2,3,1 end 2,3,1",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"triangle\" w=\"sm\" len=\"lg\"/>",
+       "<a:tailEnd type=\"triangle\" w=\"sm\" len=\"lg\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style None",
+   "statements": "o.ArrowHeadStyle = -4142",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{C1D7C4BE-DBCD-2C64-6114-7E37F0279D1E}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"none\"/>",
+       "<a:tailEnd type=\"none\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style Open",
+   "statements": "o.ArrowHeadStyle = 2",
+   "excel": "E0|2,-4138,-4138 begin 1,2,2 end 3,2,2|reopened 2,-4138,-4138 begin 1,2,2 end 3,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{477DD31D-CEB0-A047-A1A8-A430A0927B3E}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:tailEnd type=\"arrow\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style Closed",
+   "statements": "o.ArrowHeadStyle = 3",
+   "excel": "E0|3,-4138,-4138 begin 1,2,2 end 2,2,2|reopened 3,-4138,-4138 begin 1,2,2 end 2,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{577EACE9-7028-1930-EB42-D381052C6953}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:tailEnd type=\"triangle\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style DoubleOpen",
+   "statements": "o.ArrowHeadStyle = 4",
+   "excel": "E0|4,-4138,-4138 begin 3,2,2 end 3,2,2|reopened 4,-4138,-4138 begin 3,2,2 end 3,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{DC1B5FD7-69D1-7124-5A37-5164F4FA31C8}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"arrow\"/>",
+       "<a:tailEnd type=\"arrow\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style DoubleClosed",
+   "statements": "o.ArrowHeadStyle = 5",
+   "excel": "E0|5,-4138,-4138 begin 2,2,2 end 2,2,2|reopened 5,-4138,-4138 begin 2,2,2 end 2,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E4E8B9CF-D23D-7994-5465-A5D402C566FA}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"triangle\"/>",
+       "<a:tailEnd type=\"triangle\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "length Short",
+   "statements": "o.ArrowHeadLength = 1",
+   "excel": "E0|-4142,1,-4138 begin 1,1,2 end 1,1,2|reopened -4142,1,-4138 begin 1,1,2 end 1,1,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{D197E75B-A70A-ED1F-5410-2D0293275F0F}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"sm\"/>",
+       "<a:tailEnd len=\"sm\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "length Medium",
+   "statements": "o.ArrowHeadLength = -4138",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8606C5D-0472-32F1-B35D-AF64BE35D477}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"med\"/>",
+       "<a:tailEnd len=\"med\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "length Long",
+   "statements": "o.ArrowHeadLength = 3",
+   "excel": "E0|-4142,3,-4138 begin 1,3,2 end 1,3,2|reopened -4142,3,-4138 begin 1,3,2 end 1,3,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{21282258-4924-D4EF-759F-0BBB9699EC5F}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"lg\"/>",
+       "<a:tailEnd len=\"lg\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "width Narrow",
+   "statements": "o.ArrowHeadWidth = 1",
+   "excel": "E0|-4142,-4138,1 begin 1,2,1 end 1,2,1|reopened -4142,-4138,1 begin 1,2,1 end 1,2,1",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{0BB8E268-0AC5-084D-D1C9-03D5C781DB26}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd w=\"sm\"/>",
+       "<a:tailEnd w=\"sm\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "width Medium",
+   "statements": "o.ArrowHeadWidth = -4138",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{960B6DE6-90FD-DDFC-364C-187EC9B9E331}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd w=\"med\"/>",
+       "<a:tailEnd w=\"med\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "width Wide",
+   "statements": "o.ArrowHeadWidth = 3",
+   "excel": "E0|-4142,-4138,3 begin 1,2,3 end 1,2,3|reopened -4142,-4138,3 begin 1,2,3 end 1,2,3",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{9541DD91-D59C-0BF7-E777-0DDFE21A03AF}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd w=\"lg\"/>",
+       "<a:tailEnd w=\"lg\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style then length",
+   "statements": "o.ArrowHeadStyle = 3: o.ArrowHeadLength = 1",
+   "excel": "E0|3,1,-4138 begin 1,1,2 end 2,1,2|reopened 3,1,-4138 begin 1,1,2 end 2,1,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{43C60241-3546-FD5F-C363-301C59A53888}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd len=\"sm\"/>",
+       "<a:tailEnd type=\"triangle\" len=\"sm\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "style then none",
+   "statements": "o.ArrowHeadStyle = 2: o.ArrowHeadStyle = -4142",
+   "excel": "E0|-4142,-4138,-4138 begin 1,2,2 end 1,2,2|reopened -4142,-4138,-4138 begin 1,2,2 end 1,2,2",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{35F95E97-2A45-D24A-43AD-8B4335FF8DC2}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"none\"/>",
+       "<a:tailEnd type=\"none\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "fresh": true,
+   "case": "all three",
+   "statements": "o.ArrowHeadStyle = 5: o.ArrowHeadLength = 3: o.ArrowHeadWidth = 1",
+   "excel": "E0|5,3,1 begin 2,3,1 end 2,3,1|reopened 5,3,1 begin 2,3,1 end 2,3,1",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F17A8476-CD0E-8CF9-5144-176EA93E7119}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{2EDA7249-838D-FA68-B925-763D95990632}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:ln>",
+       "<a:headEnd type=\"triangle\" w=\"sm\" len=\"lg\"/>",
+       "<a:tailEnd type=\"triangle\" w=\"sm\" len=\"lg\"/>",
+       "</a:ln>"
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

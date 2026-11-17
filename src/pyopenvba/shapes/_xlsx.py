@@ -49,6 +49,9 @@ _ELEMENTS: dict[str, str] = {
 }
 
 _MACRO = re.compile(r'\bmacro="([^"]*)"')
+#: The shadow an old object's Shadow = True gives a drawing (tests/fixtures/old_drawings.json, loaded_drawing_edits.json).
+OLD_SHADOW = ('<a:effectLst><a:outerShdw blurRad="63500" dist="37357" dir="2700000" rotWithShape="0"><a:scrgbClr r="0" g="0" b="0"/>'
+              '</a:outerShdw></a:effectLst>')
 _TXBOX = re.compile(r"<xdr:cNvSpPr\b[^>]*?\btxBox=\"1\"")
 _CONTROL = re.compile(r"<control\b[^>]*?>.*?</control>|<control\b[^>]*?/>", re.DOTALL)
 _CONTROL_HEAD = re.compile(r"<control\b([^>]*?)/?>")
@@ -265,6 +268,13 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
             if found is not None:
                 setattr(shape, field_name, unescape(found.group(1)))
     shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
+    head = re.match(r"<xdr:sp\b([^>]*)>", markup)
+    shape.locks_text = head is None or re.search(r'\bfLocksText="(?:0|false)"', head.group(1)) is None
+    linked = None if head is None else re.search(r'\btextlink="([^"]*)"', head.group(1))
+    shape.text_link = "" if linked is None else unescape(linked.group(1))
+    field = re.search(r'<a:fld id="([^"]*)" type="TxLink">(<a:rPr\b[^>]*/>|<a:rPr\b.*?</a:rPr>)', markup, re.DOTALL) if shape.text_link else None
+    if field is not None:
+        shape.text_link_id, shape.text_link_run = field.group(1), field.group(2)
     # A form control's drawing is hidden for its own reasons; Visible reads only a shape's own hidden.
     link = _LINK.search(markup[: markup.find("</xdr:cNvPr>") if "</xdr:cNvPr>" in markup else 0])
     if link is not None:
@@ -1417,8 +1427,41 @@ def _with_loaded_links(markup: str, shape: Shape) -> str:
     return markup[:span.start()] + written + markup[span.end():]
 
 
+def _linked(body: str, shape: Shape) -> str:
+    """A txBody whose first paragraph shows the linked cell: its pPr kept, its runs one TxLink field in the cell's font, and its
+    endParaRPr, or one with the run's lang and sz (tests/fixtures/drawing_text_links.json)."""
+    paragraph = re.search(r"<a:p>(.*?)</a:p>", body, re.DOTALL)
+    if paragraph is None:
+        return body
+    inner = paragraph.group(1)
+    settings = re.match(r"<a:pPr\b[^>]*?(?:/>|>.*?</a:pPr>)", inner, re.DOTALL)
+    end = re.search(r"<a:endParaRPr\b[^>]*?(?:/>|>.*?</a:endParaRPr>)", inner, re.DOTALL)
+    if end is not None:
+        closing = end.group(0)
+    else:
+        run = re.search(r"<a:rPr\b([^>]*?)/?>", inner)
+        kept = re.findall(r'\b(lang|sz)="([^"]*)"', run.group(1)) if run is not None else [("lang", "en-US"), ("sz", "1100")]
+        closing = "<a:endParaRPr" + "".join(f' {name}="{value}"' for name, value in kept) + "/>"
+    field = f'<a:fld id="{shape.text_link_id}" type="TxLink">{shape.text_link_run}<a:t>{escape(shape.text)}</a:t></a:fld>'
+    return body[:paragraph.start(1)] + (settings.group(0) if settings else "") + field + closing + body[paragraph.end(1):]
+
+
+def _with_loaded_link(markup: str, shape: Shape, was: Shape) -> str:
+    """A loaded shape's markup with its text linked this session, or with the words of the field its file links now showing."""
+    if shape.text_link != was.text_link:
+        markup = _attribute_on_tag(markup, "xdr:sp", "textlink", shape.text_link)
+        span = dml.element_span(markup, "xdr:txBody")
+        return markup if span is None else markup[:span[0]] + _linked(markup[span[0]:span[1]], shape) + markup[span[1]:]
+    if shape.text == was.text:
+        return markup
+    return re.sub(r'(<a:fld\b[^>]*\btype="TxLink"[^>]*>.*?<a:t>)(.*?)(</a:t>)', lambda found: found.group(1) + escape(shape.text) + found.group(3),
+                  markup, count=1, flags=re.DOTALL)
+
+
 def _new_text_body(shape: Shape) -> str:
     """A shape's txBody as the model writes it."""
+    if shape.text_link:
+        return _linked(_new_text_body(replace(shape, text="", text_link="")), shape)
     body = dml.text_body(shape.text, "xdr:txBody")
     if shape.kind in ("shape", "freeform"):
         # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
@@ -1534,7 +1577,7 @@ def _new_element(shape: Shape) -> str:
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
     box = ' txBox="1"' if shape.kind == "textBox" else ""
-    textlink = "" if line else ' textlink=""'
+    textlink = "" if line else f' textlink="{escape(shape.text_link)}"' + ("" if shape.locks_text else ' fLocksText="0"')
     identity = _identity(shape)
     locks = "" if shape.lock_aspect is None else (
         '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>")
@@ -1973,6 +2016,12 @@ def _identity(shape: Shape) -> str:
             "</a:ext>"
         )
     hidden = ' hidden="1"' if shape.hidden else ""
+    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(_saved_name(shape))}"{described}{titled}{hidden}>'
+            f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
+
+
+def _saved_name(shape: Shape) -> str:
+    """The name a shape is saved under, which for some of Excel's own names differs from the one it reads as."""
     name = shape.name
     if shape.kind == "freeform":
         # A freeform Excel named reads "Freeform 1" but is saved as "Freeform: Shape 1" (tests/fixtures/shape_polyline.json).
@@ -1980,10 +2029,10 @@ def _identity(shape: Shape) -> str:
     if shape.kind == "line":
         name = re.sub(r"^(Elbow|Curved) Connector (\d+)$", r"Connector: \1 \2", name)
     if shape.kind == "shape":
-        # So with a rounded rectangle, read as "Rounded Rectangle 1" (tests/fixtures/old_drawings.json).
+        # So with a rounded rectangle, read as "Rounded Rectangle 1", new or loaded (tests/fixtures/old_drawings.json,
+        # loaded_drawing_edits.json).
         name = re.sub(r"^Rounded Rectangle (\d+)$", r"Rectangle: Rounded Corners \1", name)
-    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(name)}"{described}{titled}{hidden}>'
-            f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
+    return name
 
 
 def _corner_markup(which: str, grid: SheetGrid, across: float, down: float) -> str:
@@ -2055,7 +2104,10 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
     if was is None:
         return markup
     if shape.name != was.name:
-        markup = dml.with_name(markup, shape.name)
+        markup = dml.with_name(markup, _saved_name(shape))
+    if shape.geometry != was.geometry and was.geometry:
+        # Only an old object's RoundedCorners changes a loaded shape's preset (tests/fixtures/loaded_drawing_edits.json).
+        markup = markup.replace(f'<a:prstGeom prst="{was.geometry}">', f'<a:prstGeom prst="{shape.geometry}">', 1)
     if (shape.left, shape.top, shape.width, shape.height) != (
         was.left,
         was.top,
@@ -2068,9 +2120,17 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
             element = re.search(r"<(xdr:(?:sp|cxnSp|pic|graphicFrame|grpSp))(?=[\s/>])", markup)
             if element:
                 markup = _attribute_on_tag(markup, element.group(1), "macro", shape.macro)
+        if shape.locks_text != was.locks_text:
+            markup = _attribute_on_tag(markup, "xdr:sp", "fLocksText", None if shape.locks_text else "0")
+        if shape.shadow_added:
+            # In the schema's place: after the fill and line, before any 3-D settings.
+            properties = re.search(r"<xdr:spPr>.*?(?=<a:scene3d\b|<a:sp3d\b|<a:extLst\b|</xdr:spPr>)", markup, re.DOTALL)
+            if properties is not None:
+                markup = markup[:properties.end()] + OLD_SHADOW + markup[properties.end():]
     # Excel-authored controls can also carry a hidden DrawingML
     # caption. Excel prefers it to VML when both exist.
-    markup = _with_loaded_text(markup, shape, was)
+    linked = shape.text_link_made and shape.kind in ("shape", "textBox")
+    markup = _with_loaded_link(markup, shape, was) if linked else _with_loaded_text(markup, shape, was)
     if shape.kind == "formControl" and shape.control is not None:
         markup = with_text_frame(markup, shape.control)
     if shape.kind == "picture":

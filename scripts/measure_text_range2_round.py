@@ -111,6 +111,35 @@ STATEMENTS_8 = ['n = 0: For Each x In tr: n = n + 1: v = v & x.Text & "/": Next:
                 'v = tr.InsertChartField(msoChartFieldValue).Text', 'v = tr.InsertChartField(msoChartFieldFormula, "=Sheet1!A1").Text']
 ROUNDS[8] = ([('"red fox. blue jay" & vbCr & "green owl"', (5, 3)), ('"solo"', None)], [], STATEMENTS_8,
              OUT.with_name('text_range2_round_8.json'))
+#: Round 9, the text clipboard and the cells' together: where a paste of text lands and what it brings, PasteSpecial, Cut, what
+#: CutCopyMode and ClipboardFormats say, and each way a copy of cells and a copy of text meet. Every case starts from a clipboard it
+#: set itself, a cell copied and let go, so nothing of the user's clipboard, or an earlier case's, is read.
+END = 'tr.Characters(tr.Length + 1, 0)'
+STATEMENTS_9 = ['tr.Characters(1, 3).Copy: v = tr.Characters(1, 0).Paste.Text', 'tr.Characters(1, 3).Copy: v = tr.Characters(3, 0).Paste.Text',
+                f'tr.Characters(1, 3).Copy: v = {END}.Paste.Text', 'tr.Characters(1, 3).Copy: v = tr.Characters(2, 2).Paste.Start',
+                'tr.Characters(1, 3).Copy: v = tr.Paste.Text', f'tr.Copy: v = {END}.Paste.Length', f'tr.Characters(5, 3).Copy: v = {END}.Paste.Font.Bold',
+                'tr.Characters(1, 3).Cut: v = tr.Characters(2, 0).Paste.Text', 'tr.Characters(2, 2).Cut: v = tr.Text',
+                f'tr.Characters(1, 3).Copy: v = {END}.PasteSpecial(msoClipboardFormatPlainText).Text',
+                f'tr.Characters(1, 3).Copy: v = {END}.PasteSpecial(msoClipboardFormatHTML).Text',
+                f'tr.Characters(1, 3).Copy: v = {END}.PasteSpecial(msoClipboardFormatRTF).Text',
+                'tr.Characters(1, 3).Copy: v = tr.Characters(1, 0).PasteSpecial(msoClipboardFormatPlainText).Text',
+                f'v = {END}.Paste.Text', 'tr.Copy: v = Application.CutCopyMode', 'tr.Cut: v = Application.CutCopyMode',
+                f'tr.Copy: Application.CutCopyMode = False: v = {END}.Paste.Text',
+                'tr.Characters(1, 3).Copy: f = Application.ClipboardFormats: For k = LBound(f) To UBound(f): v = v & f(k) & ",": Next',
+                f'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: v = {END}.Paste.Text',
+                'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: v = tr.Characters(1, 0).Paste.Text',
+                'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: tr.Characters(1, 3).Copy: v = Application.CutCopyMode',
+                'tr.Characters(1, 3).Copy: ws.Range("C3").Select: ws.Paste: v = ws.Range("C3").Formula & "|" & ws.Shapes.Count',
+                'tr.Characters(1, 3).Copy: ws.Paste ws.Range("C3"): v = ws.Range("C3").Formula & "|" & ws.Shapes.Count',
+                'tr.Characters(1, 3).Copy: ws.Range("C3").PasteSpecial xlPasteValues: v = ws.Range("C3").Formula',
+                'tr.Characters(1, 3).Copy: ws.Range("C3").PasteSpecial xlPasteAll: v = ws.Range("C3").Formula & "|" & ws.Shapes.Count',
+                'tr.Characters(1, 3).Copy: ws.Range("C3").Insert: v = ws.Range("C3").Formula & "|" & ws.Range("C4").Formula',
+                f'tr.Characters(1, 3).Copy: ws.Range("A1").Value = "x": ws.Range("A1").Copy ws.Range("B1"): v = {END}.Paste.Text',
+                'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: tr.Characters(1, 3).Copy: ws.Range("C3").Select: ws.Paste: v = ws.Range("C3").Formula']
+ROUNDS[9] = ([('"red fox. blue jay" & vbCr & "green owl"', (5, 3)), ('"solo"', None)], [], STATEMENTS_9,
+             OUT.with_name('text_range2_round_9.json'))
+#: What round 9 reads after each statement besides AFTER.
+AFTER_9 = ['tr.Characters(1, 3).Font.Bold', 'Application.CutCopyMode']
 ROUND = 1
 
 
@@ -130,12 +159,15 @@ def _case(case: list[Any]) -> str:
              f'    tr.Text = {text}']
     if bold:
         lines.append(f'    tr.Characters({bold[0]}, {bold[1]}).Font.Bold = msoTrue')
+    if ROUND >= 9:
+        # A clipboard the case set itself: a cell copied, then let go.
+        lines += ['    ws.Range("Z1").Value = "z": ws.Range("Z1").Copy: Application.CutCopyMode = False', '    ws.Range("Z1").ClearContents']
     lines += ['    s = ""', '    Err.Clear: v = Empty']
     if how == 'read':
         lines += [f'    v = {what}', '    s = Show(v)']
     else:
         lines += [f'    {what}', '    s = "e" & Err.Number & "=" & Show(v)']
-        for read in AFTER:
+        for read in AFTER + (AFTER_9 if ROUND >= 9 else []):
             lines += ['    Err.Clear: v = Empty', f'    v = {read}', '    s = s & "|" & Show(v)']
     lines += ['    Set tr = Nothing: Set sh = Nothing', '    wb.Close SaveChanges:=False', f'    out = out & "{SEPARATOR}" & s']
     return '\n'.join(lines) + '\n'
@@ -148,6 +180,7 @@ End Function
 '''
 DECLARE = ('    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object, v As Variant, s As String, x As Object, n As Long\n'
            '    Dim x1 As Single, y1 As Single, x2 As Single, y2 As Single, x3 As Single, y3 As Single, x4 As Single, y4 As Single\n'
+           '    Dim f As Variant, k As Long\n'
            '    On Error Resume Next\n')
 PART = 12
 

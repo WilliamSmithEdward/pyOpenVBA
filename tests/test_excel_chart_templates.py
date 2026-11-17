@@ -1,9 +1,10 @@
 """Chart.SaveChartTemplate, ApplyChartTemplate, SetBackgroundPicture and Paste on a new embedded chart, against what
 Excel answers and saves (scripts/measure_chart_templates.py, tests/fixtures/chart_templates.json).
 
-A background picture tiles the chart area, the PNG kept byte for byte. Saving a template writes a picture of the chart
-the model cannot render, and applying one is not built: both stay refused, as does Paste of a copied chart's formats,
-which Excel itself failed to take from the clipboard. The probe's files are under TEMP, so the sandbox is off; a new
+A background picture tiles the chart area, the PNG kept byte for byte. A template is applied from the package Excel
+saved, rebuilt from its parts. Saving one needs the Export hook, which this test does not register, so it is refused here
+(see tests/test_excel_chart_templates_more.py), as is Paste of a copied chart's formats, which Excel itself failed to
+take from the clipboard. The probe's files are under TEMP, so the sandbox is off; a new
 chart's unique ids and axis ids are random at Excel's save, so they are masked."""
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECORD: dict[str, Any] = json.loads((FIXTURES / 'chart_templates.json').read_text(encoding='utf-8'))
-REFUSED = ('save template', 'apply template', 'apply missing', 'paste formats')
+REFUSED = ('save template', 'paste formats')
 _UNIQUE = re.compile(r'(uniqueId val="\{[0-9A-F]{8})-[0-9A-F-]+')
 _AXIS = re.compile(r'(<c:(?:axId|crossAx) val=")\d+')
 
@@ -38,6 +39,9 @@ def comparable(parts: dict[str, str]) -> dict[str, str]:
 def run(case: list[Any], folder: Path) -> tuple[str, dict[str, str]]:
     picture, template = folder / 'background.png', folder / 'template.crtx'
     picture.write_bytes(base64.b64decode(RECORD['picture']))
+    with zipfile.ZipFile(template, 'w') as package:
+        for name, part in RECORD['template'].items():
+            package.writestr(name, base64.b64decode(part[len('base64:'):]) if part.startswith('base64:') else part.encode('utf-8'))
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['source'], name='P')

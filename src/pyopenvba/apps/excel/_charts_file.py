@@ -1058,6 +1058,14 @@ def _with_element_labels(xml: str, shown: bool, place: int | None) -> str:
 def _laid_out(xml: str, state: ChartState) -> str:
     """The part with a loaded chart's manual layouts as its file spells them: the plot area's in place of its automatic
     one, and the legend's after its position and entries, before its overlay."""
+    if state.theme_override is not None:
+        # A chart a template was applied to: the template's colour map, and an empty extLst at its chart's end
+        # (tests/fixtures/chart_templates_more.json).
+        from pyopenvba.apps.excel._chart_templates import COLOUR_MAP
+
+        xml = xml.replace('</mc:AlternateContent><c:chart>', f'</mc:AlternateContent><c:clrMapOvr {COLOUR_MAP}<c:chart>', 1)
+        ended = re.sub(r'<c:extLst>(?:(?!<c:extLst>).)*?</c:extLst></c:chart>', '<c:extLst/></c:chart>', xml, count=1, flags=re.DOTALL)
+        xml = ended if ended != xml else xml.replace('</c:chart>', '<c:extLst/></c:chart>', 1)
     if state.plot_layout:
         xml = xml.replace('<c:plotArea><c:layout/>', '<c:plotArea>' + state.plot_layout, 1)
     if state.legend_layout and state.legend_manual and state.legend:
@@ -1374,6 +1382,31 @@ def _write_background(package: OpcFile, part: str, picture: bytes) -> None:
                      posixpath.relpath(media, posixpath.dirname(part)))
 
 
+def _write_theme_override(package: OpcFile, part: str, override: str, name: str) -> str:
+    """The theme override of the template applied to a chart, as the template held it, in xl/theme, and its relationship first
+    among the chart's: rId3 beside a style's two, rId1 alone (tests/fixtures/chart_templates_more.json). Its name, which a later
+    save of the chart keeps."""
+    theme_kind = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/themeOverride'
+    if not name:
+        number = 1
+        while package.has(f'xl/theme/themeOverride{number}.xml'):
+            number += 1
+        name = f'xl/theme/themeOverride{number}.xml'
+    package.write(name, override.encode('utf-8'))
+    add_content_type(package, name, 'application/vnd.openxmlformats-officedocument.themeOverride+xml')
+    rels = rels_part(part)
+    target = posixpath.relpath(name, posixpath.dirname(part))
+    opening = '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    if package.has(rels):
+        text = package.read(rels).decode('utf-8')
+        text = text.replace(opening, opening + f'<Relationship Id="rId3" Type="{theme_kind}" Target="{target}"/>', 1)
+    else:
+        text = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + opening
+                + f'<Relationship Id="rId1" Type="{theme_kind}" Target="{target}"/></Relationships>')
+    package.write(rels, text.encode('utf-8'))
+    return name
+
+
 def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
     retained = {chart.part for owner in sheet.book.sheets_ for identifier, chart in owner.chart_states.items()
                 if any(shape.shape_id == identifier and shape.kind == 'chart' for shape in owner.shapes_)}
@@ -1413,5 +1446,7 @@ def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
             _write_style_parts(package, chart)
             if chart.background is not None:
                 _write_background(package, chart.part, chart.background)
+            if chart.theme_override is not None:
+                chart.theme_override_part = _write_theme_override(package, chart.part, chart.theme_override, chart.theme_override_part)
             chart.dirty = False
     sheet.deleted_chart_parts.clear()

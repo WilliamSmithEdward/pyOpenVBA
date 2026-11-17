@@ -442,5 +442,74 @@
   [
    "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
   ]
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> d</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>bc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t>ef</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>ef</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>bc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>abc</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>de</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abbc c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "standard_height": [
+  "14.5",
+  "14.5"
+ ],
+ "measured_at": "2026-11-17T20:35:16.856539+00:00",
+ "excel": [
+  "e0=String:ab|4|0|String:ab abcdef gh<LF>ij kl|Long:18|Long:4|Long:2|Long:0|Long:0",
+  "e0=String:b |5|String:ab cb def gh<LF>ij kl|Long:18|Long:5|Long:2|Long:0|Long:0",
+  "e0=String:-1|2|String:acdb cdef gh<LF>ij kl|Long:18|Long:5|Long:2|Long:-2|Long:0",
+  "e0=String:a|2|String:aadef gh<LF>ij kl|Long:14|Long:4|Long:2|Long:-2|Long:0",
+  "e0=String: c|15|String:abdef gh<LF>ij kl c|Long:16|Long:5|Long:2|Long:-2|Long:0",
+  "e0=String:b |0|String:abb  cdef gh<LF>ij kl|Long:18|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:ab|String:ab cdef gh<LF>ij klab|Long:18|Long:4|Long:2|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:ab cdef gh<LF>ij kl|Long:16|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:0,53,10|String:ab cdef gh<LF>ij kl|Long:16|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:0| cdef gh<LF>ij kl|String: cdef gh<LF>ij kl|Long:14|Long:3|Long:2|Long:-2|Long:0",
+  "e0=String:ab|False|String:ab cdef gh<LF>ij kl|Long:16|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:cd|True|String:ab cdef gh<LF>ij kl|Long:16|Long:3|Long:2|Long:0|Long:0",
+  "e0=Long:-2|String:abab cdef gh<LF>ij kl|Long:18|Long:5|Long:2|Long:-2|Long:0",
+  "e0=Long:0|String:ab cdef gh<LF>ij kl|Long:16|Long:3|Long:2|Long:0|Long:0",
+  "e0=String:wx|4|-2|String:wxywxz|Long:6|Long:5|Long:1|Long:-2|Long:0",
+  "e0=String:xy|5|String:wxyzxy|Long:6|Long:3|Long:1|Long:-2|Long:0",
+  "e424=e424|String:wxyz|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:w|2|String:ww|Long:2|Long:2|Long:1|e-2147024809|Long:0",
+  "e0=String:yz|3|String:wxyz|Long:4|Long:3|Long:1|Long:-2|Long:0",
+  "e0=String:xy|0|String:wxxyyz|Long:6|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:wx|String:wxyzwx|Long:6|Long:4|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:0,53,10|String:wxyz|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:0|yz|String:yz|Long:2|Long:1|Long:1|e-2147024809|Long:0",
+  "e0=String:wx||String:wxyz|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e1004=e1004|String:wxyz|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:-2|String:wxwxyz|Long:6|Long:5|Long:1|Long:-2|Long:0",
+  "e0=Long:0|String:wxyz|Long:4|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:re|4|0|String:redre fox. blue jay<LF>green owl|Long:29|Long:5|Long:2|Long:0|Long:0",
+  "e0=String:ed|5|String:red edfox. blue jay<LF>green owl|Long:29|Long:4|Long:2|Long:0|Long:0",
+  "e0=String:-2|2|String:r fed fox. blue jay<LF>green owl|Long:29|Long:6|Long:2|Long:-2|Long:0",
+  "e0=String:ed |2|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e424=e424|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e1004=e1004|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e1004=e1004|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:0",
+  "e-2147221040=e-2147221040|String:red fox. blue jay<LF>green owl|Long:27|Long:3|Long:2|Long:0|Long:1"
  ]
 }

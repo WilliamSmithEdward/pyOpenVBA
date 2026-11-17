@@ -185,6 +185,16 @@ ROUNDS[11] = ([('"ab cdef gh" & vbCr & "ij kl"', (4, 2)), ('"wxyz"', (1, 1)), ('
 #: another program, which round 12's measure runs again.
 ROUNDS[12] = ([('"pq rs tuv" & vbCr & "wx"', (4, 2)), ('"mnop qr"', (6, 2)), ('"big cat. tiny ant" & vbCr & "slow"', (1, 3))], [],
               STATEMENTS_11, OUT.with_name('text_range2_round_12.json'))
+#: Round 13, what round 11's case 16 left open: Characters running past the text's end, read, copied and cut, late and through a
+#: variable typed TextRange2 (t).
+_PAST_END = ['v = {r}.Characters(4, 2).Text', 'v = {r}.Characters(4, 2).Length', 'v = {r}.Characters(4, 2).Start',
+             'v = {r}.Characters(5, 1).Text', 'v = {r}.Characters(5, 1).Start', 'v = {r}.Characters(6, 1).Length',
+             'v = {r}.Characters(3, 10).Text', 'v = {r}.Characters(0, 2).Text',
+             '{r}.Characters(4, 2).Copy: v = {r}.Characters({r}.Length + 1, 0).Paste.Text',
+             '{r}.Characters(3, 10).Copy: v = {r}.Characters(2, 0).Paste.Text',
+             '{r}.Characters(5, 1).Copy: v = {r}.Characters(2, 0).Paste.Text', '{r}.Characters(4, 2).Cut: v = {r}.Text']
+STATEMENTS_13 = [*(one.format(r='tr') for one in _PAST_END), *('Set t = tr: ' + one.format(r='t') for one in _PAST_END)]
+ROUNDS[13] = ([('"wxyz"', None), ('"ab cd"', (1, 2))], [], STATEMENTS_13, OUT.with_name('text_range2_round_13.json'))
 #: Round 11's markup.
 MARKUP_11 = ['tr.Characters(2, 2).Copy: tr.Characters(6, 0).Paste', 'tr.Characters(6, 2).Copy: tr.Characters(2, 0).Paste',
              'tr.Characters(1, 3).Copy: tr.Characters(5, 3).Paste', 'tr.Characters(5, 2).Copy: tr.Characters(tr.Length + 1, 0).Paste',
@@ -237,12 +247,14 @@ DECLARE = ('    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object,
            '    Dim x1 As Single, y1 As Single, x2 As Single, y2 As Single, x3 As Single, y3 As Single, x4 As Single, y4 As Single\n'
            '    Dim f As Variant, k As Long, p As Object\n'
            '    On Error Resume Next\n')
+#: From round 13, a variable typed TextRange2, so early bound calls are measured too.
+TYPED = '    Dim t As TextRange2\n'
 PART = 12
 
 
 def macro(chosen: list[list[Any]]) -> str:
     parts = [chosen[at:at + PART] for at in range(0, len(chosen), PART)]
-    procedures = ''.join(f'Private Sub Part{index}(ByRef out As String)\n{DECLARE}{"".join(_case(case) for case in part)}End Sub\n'
+    procedures = ''.join(f'Private Sub Part{index}(ByRef out As String)\n{DECLARE}{TYPED if ROUND >= 13 else ""}{"".join(_case(case) for case in part)}End Sub\n'
                          for index, part in enumerate(parts))
     calls = ''.join(f'    Part{index} out\n' for index in range(len(parts)))
     return (f'{HELPERS}{procedures}Function Probe() As String\n    Dim out As String\n    Application.DisplayAlerts = False\n{calls}'

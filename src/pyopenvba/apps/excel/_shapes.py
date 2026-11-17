@@ -4463,6 +4463,12 @@ class TextRange2(_ShapeText):
         return TextRange2(self.owner, at, 1)
 
     @method
+    def InsertChartField(self, ChartFieldType: object = MISSING, Formula: object = MISSING, Position: object = MISSING) -> object:
+        """A chart field belongs in a chart's text: in a shape's, any field is the parameter error (tests/fixtures/text_range2_round_8.json)."""
+        self.span()
+        raise error(-2147024809, "The parameter is incorrect.")
+
+    @method
     def LtrRun(self) -> object:
         return EMPTY
 

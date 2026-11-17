@@ -16,7 +16,7 @@ _SPEC = importlib.util.spec_from_file_location('measure_text_range2_round', ROOT
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 8)
+ROUNDS = range(1, 9)
 
 
 def _record(number: int) -> dict[str, Any]:
@@ -37,7 +37,7 @@ def test_the_held_out_rounds_are_answered_without_a_refusal(number: int) -> None
     assert [case for case in _record(number)['cases'] if PROBE.alone(case) == 'refused'] == []
 
 
-@pytest.mark.parametrize('number', range(4, 8))
+@pytest.mark.parametrize('number', range(4, 9))
 def test_the_statements_write_the_file_as_excel_did(number: int) -> None:
     excel = _record(number)['excel_markup']
     with tempfile.TemporaryDirectory() as folder:

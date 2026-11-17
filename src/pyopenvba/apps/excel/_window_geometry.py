@@ -7,8 +7,9 @@ rounded half up to a pixel, and the headings scale the same way. UsableWidth and
 its frame and bars, never below 0. The rows the grid shows are those that start inside it, a row cut off at the bottom
 included and at least one, and the columns the same. With frozen panes, VisibleRange is the scrolling pane's, from its
 first cell to the window's last. LargeScroll moves a page at a time: down, the row holding the
-pixel just past the grid's end becomes the first, so a row cut off there comes first and, when the rows end flush with
-the grid, the row after them; up, the reverse, the old first row becoming the one just past the end; a page is a row or
+second pixel past the grid's end becomes the first, so a row cut off there comes first, unless only its last pixel is
+cut off, and when the rows end flush with the grid the row after them comes first (tests/fixtures/window_geometry6.json
+and 7); up, the reverse, the old first row becoming the one just past the end; a page is a row or
 column at least, when the grid shows less than one whole; kept on the sheet (tests/fixtures/window_geometry5.json). ScrollIntoView takes a rectangle in screen pixels of the zoomed sheet,
 measured from A1: with Start True or left out, the row and column holding its top left come first; with Start False,
 the first column is the least that shows all of it in whole columns. Which first row Start False takes is not known:
@@ -134,8 +135,9 @@ class Grid:
         return index
 
     def beyond(self, axis: int, start: int) -> int:
-        """The row or column holding the first pixel past the grid's end, scrolled to ``start``."""
-        return self.holding(axis, self.offset(axis, start) + int(self.space[axis]))
+        """The row or column holding the second pixel past the grid's end, scrolled to ``start``: the next page's
+        first, a row shown but for its last pixel counting as shown."""
+        return self.holding(axis, self.offset(axis, start) + int(self.space[axis]) + 1)
 
     def whole(self, axis: int, start: int) -> int:
         """The pixel, from A1, where the last row or column wholly shown from ``start`` ends."""

@@ -6,15 +6,15 @@ members report themselves until a run at StandardHeight 15 adds that display.
 """
 from __future__ import annotations
 
+import importlib.util
 import json
-import sys
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).parents[1] / 'scripts'))
 
 from pyopenvba._a1 import column_letter
 from pyopenvba.apps.excel import ExcelApplication
@@ -22,17 +22,37 @@ from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, Unmeasured,
                                                    scroll_into_view, usable, visible)
 from pyopenvba.exceptions import VBAUnsupportedError
 
+
+def _script() -> ModuleType:
+    path = Path(__file__).parents[1] / 'scripts/measure_window_geometry.py'
+    spec = importlib.util.spec_from_file_location('measure_window_geometry', path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+SCRIPT = _script()
+
 FIXTURES = Path(__file__).parent / 'fixtures'
 DISPLAY = DISPLAYS[14.5]
 BASE = Layout(width=700, height=500)
 
 
-def _rows(pixels: int, upto: int) -> Any:
-    return lambda row: pixels if row <= upto else 29
+def _rows(pixels: int, upto: int) -> Callable[[int], int]:
+    def size(row: int) -> int:
+        return pixels if row <= upto else 29
+    return size
 
 
-def _hidden(first: int, last: int, default: int) -> Any:
-    return lambda index: 0 if first <= index <= last else default
+def _hidden(first: int, last: int, default: int) -> Callable[[int], int]:
+    def size(index: int) -> int:
+        return 0 if first <= index <= last else default
+    return size
+
+
+def _narrow(column: int) -> int:
+    return 40 if column <= 26 else 96
 
 
 #: Each measured case as a layout, and what to do in it: None to read it as it is, ('large', down, right) or
@@ -71,7 +91,7 @@ CASES: dict[str, tuple[Layout, Any]] = {
        for width, height, zoom in ((300, 200, 100), (450, 330, 100), (610, 410, 100), (900, 640, 100), (700, 500, 75),
                                    (700, 500, 110), (700, 500, 150), (520, 360, 130), (380, 260, 60))},
     'tall rows': (replace(BASE, row_pixels=_rows(66, 40)), None),
-    'narrow columns': (replace(BASE, column_pixels=lambda column: 40 if column <= 26 else 96), None),
+    'narrow columns': (replace(BASE, column_pixels=_narrow), None),
     'hidden columns': (replace(BASE, column_pixels=_hidden(2, 4, 96)), None),
     'frozen at B2': (replace(BASE, frozen=(1, 1), scroll=(2, 2)), None),
     'frozen at F10': (replace(BASE, frozen=(9, 5), scroll=(10, 6)), None),
@@ -183,14 +203,12 @@ ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'wi
 
 @pytest.mark.parametrize('stem, number, spec, answer', ROUNDS, ids=[f'{one[0]}-{one[1]}' for one in ROUNDS])
 def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dict[str, Any], answer: str) -> None:
-    from measure_window_geometry import predicted  # type: ignore[import-not-found]
-
     if stem == 'window_geometry1' and number in HEADINGS_OFF_100:
         pytest.xfail('headings at 50% and 60% are wider than their size at 100% times the zoom')
     if stem == 'window_geometry2' and number in START_FALSE_ROWS:
         pytest.xfail('ScrollIntoView with Start False: which first row it takes is not known')
     try:
-        found = predicted(spec)
+        found = str(SCRIPT.predicted(spec))
     except Unmeasured:
         # Only frozen panes that leave the scrolling pane less than a row or column are refused.
         assert spec['frozen'] != [0, 0]

@@ -77,8 +77,12 @@ def test_not_yet_names_measured_sets_only() -> None:
 
 
 def test_a_registered_setter_is_one_that_replays() -> None:
-    """A collection lists a setter (spread_sets) only for a member measured on it whose every case replays."""
+    """A collection lists a setter (spread_sets) only for a member measured on it whose every case replays: here, or for Left, Top, Width and
+    Height in tests/fixtures/old_collection_geometry.json, less what tests/test_excel_old_collection_geometry.py holds as refused."""
+    from test_excel_old_collection_geometry import RECORD as GEOMETRY, REFUSED
+
     measured = {(case['collection'], case['member']) for case in CASES}
+    measured |= {(case['collection'], case['member']) for case in GEOMETRY['cases']} - REFUSED
     found = _collections()
     assert found['Lines'] is Lines and len(found) == 12, sorted(found)
     for name, kind in found.items():

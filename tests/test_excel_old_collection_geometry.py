@@ -30,9 +30,9 @@ _spec.loader.exec_module(_script)
 row_source: Any = getattr(_script, 'row_source')
 OFF_GRID: str = getattr(_script, 'OFF_GRID')
 FIELDS = {'Left': 0, 'Top': 1, 'Width': 2, 'Height': 3}
-#: What the model does not set yet: the places of arcs, which keep their Left in Excel, and of every drawing, where each kind moves its own
+#: What the model does not set yet: arcs' Left, which moved to 200 at 96 DPI (old_drawings.json) and stayed put for 45 here, the places of every drawing, where each kind moves its own
 #: way; and a list box's height, which Excel fits to whole rows of the display (the item refuses a size it has not measured).
-REFUSED = {('Arcs', 'Left'), ('Arcs', 'Top'), ('DrawingObjects', 'Left'), ('DrawingObjects', 'Top'), ('ListBoxes', 'Height'), ('DrawingObjects', 'Height')}
+REFUSED = {('Arcs', 'Left'), ('DrawingObjects', 'Left'), ('DrawingObjects', 'Top'), ('ListBoxes', 'Height'), ('DrawingObjects', 'Height')}
 CASES = [one for one in RECORD['cases'] if one['book'] == 'made' and one['value'] != OFF_GRID]
 #: The kind of each of a made book's drawings, in DrawingObjects' order.
 ORDER = ('Arcs', 'Buttons', 'CheckBoxes', 'DropDowns', 'Lines', 'ListBoxes', 'OptionButtons', 'Ovals', 'Rectangles', 'TextBoxes', 'Pictures')

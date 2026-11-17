@@ -773,7 +773,7 @@ class Ovals(_BoxAdded):
 
 class Arcs(_Drawings):
     spread_reads = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Border', 'Caption', 'Characters', 'Enabled', 'Font', 'Formula', 'Height', 'HorizontalAlignment', 'Interior', 'Left', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
-    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Caption', 'Enabled', 'Height', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible', 'Width'})
+    spread_sets = frozenset({'AddIndent', 'AutoScaleFont', 'AutoSize', 'Caption', 'Enabled', 'Height', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width'})
     vba_type_name = 'Arcs'
     item = Arc
 

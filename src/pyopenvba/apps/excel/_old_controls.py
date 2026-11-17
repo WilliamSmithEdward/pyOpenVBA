@@ -854,8 +854,9 @@ class OldControls(VBACollection, Created):
             for item, arc in zip(items, arcs, strict=True):
                 getattr(item, 'vba_set')(name, wanted / 2 if arc else wanted)
             return
-        if any(arcs) or self.vba_type_name == 'DrawingObjects':
-            # Arcs keep their Left there, and over every drawing each kind moves its own way, by rules not worked out.
+        if any(arcs) and lower == 'left' or self.vba_type_name == 'DrawingObjects':
+            # Arcs moved to a Left of 200 at 96 DPI (tests/fixtures/old_drawings.json) but kept theirs for 45 at 144 DPI; and over every
+            # drawing each kind moves its own way. Neither rule is worked out.
             raise VBAUnsupportedError(f'{self.vba_type_name}.{name} set over arcs or every drawing is not implemented')
         places = [float(to_number(getattr(one, 'vba_get')(name, []))) for one in items]
         shift = float(to_number(value)) - places[-1]

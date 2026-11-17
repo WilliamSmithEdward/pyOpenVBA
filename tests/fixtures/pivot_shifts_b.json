@@ -1,0 +1,345 @@
+{
+"measured_at": "2026-11-10T17:24:49.709077+00:00",
+"source": "Private Function Table(pt As Object) As String\n    Dim s As String, v As String\n    On Error Resume Next\n    v = \"-\": v = pt.TableRange1.Address(False, False): s = s & \"t1=\" & v\n    v = \"-\": v = pt.TableRange2.Address(False, False): s = s & \" t2=\" & v\n    v = \"-\": v = pt.DataBodyRange.Address(False, False): s = s & \" body=\" & v\n    v = \"-\": v = pt.RowRange.Address(False, False): s = s & \" rows=\" & v\n    v = \"-\": v = pt.SourceData: s = s & \" src=\" & v\n    Table = s\nEnd Function\n\nPrivate Function Cells(ws As Object) As String\n    Dim r As Long, c As Long, out As String\n    On Error Resume Next\n    For r = 1 To 12\n        For c = 1 To 8\n            out = out & ws.Cells(r, c).Formula & \",\"\n        Next\n        out = out & \"/\"\n    Next\n    Cells = out\nEnd Function\n\nPublic Function Go(ByVal kind As String, ByVal edit As String, ByVal typed As Boolean) As String\n    Dim wb As Workbook, src As Object, ws As Object, wt As Worksheet, held As Object, out As String, path As String\n    Dim r As Long, at As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set src = wb.Worksheets(1): src.Name = \"Main\"\n    Set ws = wb.Worksheets.Add(After:=src): ws.Name = \"Second\"\n    Set wt = ws\n    If kind = \"same\" Then Set src = ws\n    src.Range(\"A1:C1\").Value = Array(\"k\", \"v\", \"g\")\n    For r = 2 To 5\n        src.Cells(r, 1).Value = Chr(95 + r): src.Cells(r, 2).Value = r - 1: src.Cells(r, 3).Value = IIf(r Mod 2 = 0, \"x\", \"y\")\n    Next\n    at = \"C3\"\n    If kind = \"same\" Then at = \"E3\"\n    If kind = \"page\" Then at = \"C5\"\n    Set held = wb.PivotCaches.Create(xlDatabase, src.Range(\"A1:C5\")).CreatePivotTable(ws.Range(at), \"PT\")\n    held.PivotFields(\"k\").Orientation = xlRowField\n    held.AddDataField held.PivotFields(\"v\"), \"Sum of v\", xlSum\n    If kind = \"page\" Then held.PivotFields(\"g\").Orientation = xlPageField\n    ws.Activate\n    Dim parts() As String, target As String, how As String\n    parts = Split(edit, \" \")\n    target = parts(1)\n    how = parts(2)\n    On Error Resume Next\n    Err.Clear\n    If how = \"auto\" And typed Then\n        If parts(0) = \"insert\" Then wt.Range(target).Insert Else wt.Range(target).Delete\n    ElseIf how = \"auto\" Then\n        If parts(0) = \"insert\" Then ws.Range(target).Insert Else ws.Range(target).Delete\n    ElseIf typed Then\n        If parts(0) = \"insert\" Then\n            wt.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            wt.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    Else\n        If parts(0) = \"insert\" Then\n            ws.Range(target).Insert Shift:=IIf(how = \"down\", xlShiftDown, xlShiftToRight)\n        Else\n            ws.Range(target).Delete Shift:=IIf(how = \"up\", xlShiftUp, xlShiftToLeft)\n        End If\n    End If\n    out = \"err=\" & Err.Number & \":\" & Err.Description\n    Err.Clear\n    out = out & \" n=\" & ws.PivotTables.Count & \" held[\" & Table(held) & \"]\"\n    If ws.PivotTables.Count > 0 Then out = out & \" again[\" & Table(ws.PivotTables(1)) & \"]\"\n    out = out & \" \" & Cells(ws)\n    Err.Clear\n    If ws.PivotTables.Count > 0 Then\n        ws.PivotTables(1).RefreshTable\n        out = out & \" refresh=\" & Err.Number & \" [\" & Table(ws.PivotTables(1)) & \"] \" & Cells(ws)\n    End If\n    Err.Clear\n    path = Environ(\"TEMP\") & \"\\pyovba_pivot_shift.xlsx\"\n    Kill path\n    Err.Clear\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    Application.DisplayAlerts = True\n    out = out & \" save=\" & Err.Number\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    Set ws = wb.Worksheets(\"Second\")\n    out = out & \" ~ n=\" & ws.PivotTables.Count\n    If ws.PivotTables.Count > 0 Then out = out & \" [\" & Table(ws.PivotTables(1)) & \"]\"\n    wb.Close False\n    Kill path\n    Go = out\nEnd Function\n",
+"cases": [
+[
+"same",
+"insert 1:1 auto",
+true
+],
+[
+"same",
+"insert 1:1 auto",
+false
+],
+[
+"same",
+"insert 3:3 auto",
+true
+],
+[
+"same",
+"insert 3:3 auto",
+false
+],
+[
+"same",
+"insert 4:4 auto",
+true
+],
+[
+"same",
+"insert 4:4 auto",
+false
+],
+[
+"same",
+"delete 3:3 auto",
+true
+],
+[
+"same",
+"delete 3:3 auto",
+false
+],
+[
+"same",
+"delete 2:2 auto",
+true
+],
+[
+"same",
+"delete 2:2 auto",
+false
+],
+[
+"same",
+"insert A:A auto",
+true
+],
+[
+"same",
+"insert A:A auto",
+false
+],
+[
+"same",
+"insert B:B auto",
+true
+],
+[
+"same",
+"insert B:B auto",
+false
+],
+[
+"same",
+"delete B:B auto",
+true
+],
+[
+"same",
+"delete B:B auto",
+false
+],
+[
+"same",
+"insert E:E auto",
+true
+],
+[
+"same",
+"insert E:E auto",
+false
+],
+[
+"same",
+"insert D:D auto",
+true
+],
+[
+"same",
+"insert D:D auto",
+false
+],
+[
+"same",
+"insert A2:C2 down",
+true
+],
+[
+"same",
+"insert A2:C2 down",
+false
+],
+[
+"same",
+"delete A2:C2 up",
+true
+],
+[
+"same",
+"delete A2:C2 up",
+false
+],
+[
+"same",
+"insert A1:F1 down",
+true
+],
+[
+"same",
+"insert A1:F1 down",
+false
+],
+[
+"same",
+"insert E1:F1 down",
+true
+],
+[
+"same",
+"insert E1:F1 down",
+false
+],
+[
+"same",
+"insert A6:C6 down",
+true
+],
+[
+"same",
+"insert A6:C6 down",
+false
+],
+[
+"same",
+"delete A5:C5 up",
+true
+],
+[
+"same",
+"delete A5:C5 up",
+false
+],
+[
+"page",
+"insert 1:1 auto",
+true
+],
+[
+"page",
+"insert 1:1 auto",
+false
+],
+[
+"page",
+"insert 3:3 auto",
+true
+],
+[
+"page",
+"insert 3:3 auto",
+false
+],
+[
+"page",
+"insert 4:4 auto",
+true
+],
+[
+"page",
+"insert 4:4 auto",
+false
+],
+[
+"page",
+"delete 3:3 auto",
+true
+],
+[
+"page",
+"delete 3:3 auto",
+false
+],
+[
+"page",
+"delete 4:4 auto",
+true
+],
+[
+"page",
+"delete 4:4 auto",
+false
+],
+[
+"page",
+"insert C1:D1 down",
+true
+],
+[
+"page",
+"insert C1:D1 down",
+false
+],
+[
+"page",
+"insert C3 down",
+true
+],
+[
+"page",
+"insert C3 down",
+false
+],
+[
+"page",
+"insert C4:D4 down",
+true
+],
+[
+"page",
+"insert C4:D4 down",
+false
+],
+[
+"page",
+"delete C4:D4 up",
+true
+],
+[
+"page",
+"delete C4:D4 up",
+false
+],
+[
+"page",
+"insert A3 right",
+true
+],
+[
+"page",
+"insert A3 right",
+false
+],
+[
+"page",
+"insert A3:A4 right",
+true
+],
+[
+"page",
+"insert A3:A4 right",
+false
+],
+[
+"page",
+"insert A1:A12 right",
+true
+],
+[
+"page",
+"insert A1:A12 right",
+false
+]
+],
+"answers": [
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R6C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R6C3] k,v,g,,,,,,/a,1,x,,,,,,/,,,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F10 t2=E4:F10 body=F5:F10 rows=E4:E10 src=Second!R1C1:R6C3] k,v,g,,,,,,/a,1,x,,,,,,/,,,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,(blank),,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F10 t2=E4:F10 body=F5:F10 rows=E4:E10 src=Second!R1C1:R6C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R6C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R6C3] k,v,g,,,,,,/a,1,x,,,,,,/,,,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F10 t2=E4:F10 body=F5:F10 rows=E4:E10 src=Second!R1C1:R6C3] k,v,g,,,,,,/a,1,x,,,,,,/,,,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,(blank),,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F10 t2=E4:F10 body=F5:F10 rows=E4:E10 src=Second!R1C1:R6C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=E2:F7 t2=E2:F7 body=F3:F7 rows=E2:E7 src=Second!R1C1:R4C3] again[t1=E2:F7 t2=E2:F7 body=F3:F7 rows=E2:E7 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E2:F6 t2=E2:F6 body=F3:F6 rows=E2:E6 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,b,2,,,/d,4,y,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,9,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E2:F6 t2=E2:F6 body=F3:F6 rows=E2:E6 src=Second!R1C1:R4C3]",
+"err=0: n=1 held[t1=E2:F7 t2=E2:F7 body=F3:F7 rows=E2:E7 src=Second!R1C1:R4C3] again[t1=E2:F7 t2=E2:F7 body=F3:F7 rows=E2:E7 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E2:F6 t2=E2:F6 body=F3:F6 rows=E2:E6 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,b,2,,,/d,4,y,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,9,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E2:F6 t2=E2:F6 body=F3:F6 rows=E2:E6 src=Second!R1C1:R4C3]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4] ,k,v,g,,,,,/,a,1,x,,,,,/,b,2,y,,Row Labels,Sum of v,,/,c,3,x,,a,1,,/,d,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4] ,k,v,g,,,,,/,a,1,x,,,,,/,b,2,y,,Row Labels,Sum of v,,/,c,3,x,,a,1,,/,d,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4] ,k,v,g,,,,,/,a,1,x,,,,,/,b,2,y,,Row Labels,Sum of v,,/,c,3,x,,a,1,,/,d,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4] ,k,v,g,,,,,/,a,1,x,,,,,/,b,2,y,,Row Labels,Sum of v,,/,c,3,x,,a,1,,/,d,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C2:R5C4]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4] k,,v,g,,,,,/a,,1,x,,,,,/b,,2,y,,Row Labels,Sum of v,,/c,,3,x,,a,1,,/d,,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4] k,,v,g,,,,,/a,,1,x,,,,,/b,,2,y,,Row Labels,Sum of v,,/c,,3,x,,a,1,,/d,,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4] k,,v,g,,,,,/a,,1,x,,,,,/b,,2,y,,Row Labels,Sum of v,,/c,,3,x,,a,1,,/d,,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4] k,,v,g,,,,,/a,,1,x,,,,,/b,,2,y,,Row Labels,Sum of v,,/c,,3,x,,a,1,,/d,,4,y,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C4]",
+"err=0: n=1 held[t1=D3:E8 t2=D3:E8 body=E4:E8 rows=D3:D8 src=Second!R1C1:R5C2] again[t1=D3:E8 t2=D3:E8 body=E4:E8 rows=D3:D8 src=Second!R1C1:R5C2] k,g,,,,,,,/a,x,,,,,,,/b,y,,Row Labels,Sum of v,,,,/c,x,,a,1,,,,/d,y,,b,2,,,,/,,,c,3,,,,/,,,d,4,,,,/,,,Grand Total,10,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=D3:D8 t2=D3:D8 body=D4:D8 rows=D3:D8 src=Second!R1C1:R5C2] k,g,,,,,,,/a,x,,,,,,,/b,y,,Row Labels,,,,,/c,x,,a,,,,,/d,y,,b,,,,,/,,,c,,,,,/,,,d,,,,,/,,,Grand Total,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=D3:D8 t2=D3:D8 body=D4:D8 rows=D3:D8 src=Second!R1C1:R5C2]",
+"err=0: n=1 held[t1=D3:E8 t2=D3:E8 body=E4:E8 rows=D3:D8 src=Second!R1C1:R5C2] again[t1=D3:E8 t2=D3:E8 body=E4:E8 rows=D3:D8 src=Second!R1C1:R5C2] k,g,,,,,,,/a,x,,,,,,,/b,y,,Row Labels,Sum of v,,,,/c,x,,a,1,,,,/d,y,,b,2,,,,/,,,c,3,,,,/,,,d,4,,,,/,,,Grand Total,10,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=D3:D8 t2=D3:D8 body=D4:D8 rows=D3:D8 src=Second!R1C1:R5C2] k,g,,,,,,,/a,x,,,,,,,/b,y,,Row Labels,,,,,/c,x,,a,,,,,/d,y,,b,,,,,/,,,c,,,,,/,,,d,,,,,/,,,Grand Total,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=D3:D8 t2=D3:D8 body=D4:D8 rows=D3:D8 src=Second!R1C1:R5C2]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] again[t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,Row Labels,Sum of v,,/c,3,x,,,a,1,,/d,4,y,,,b,2,,/,,,,,c,3,,/,,,,,d,4,,/,,,,,Grand Total,10,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=F3:G8 t2=F3:G8 body=G4:G8 rows=F3:F8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R6C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R6C3] k,v,g,,,,,,/,,,,,,,,/a,1,x,,Row Labels,Sum of v,,,/b,2,y,,a,1,,,/c,3,x,,b,2,,,/d,4,y,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F9 t2=E3:F9 body=F4:F9 rows=E3:E9 src=Second!R1C1:R6C3] k,v,g,,,,,,/,,,,,,,,/a,1,x,,Row Labels,Sum of v,,,/b,2,y,,a,1,,,/c,3,x,,b,2,,,/d,4,y,,c,3,,,/,,,,d,4,,,/,,,,(blank),,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F9 t2=E3:F9 body=F4:F9 rows=E3:E9 src=Second!R1C1:R6C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R6C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R6C3] k,v,g,,,,,,/,,,,,,,,/a,1,x,,Row Labels,Sum of v,,,/b,2,y,,a,1,,,/c,3,x,,b,2,,,/d,4,y,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F9 t2=E3:F9 body=F4:F9 rows=E3:E9 src=Second!R1C1:R6C3] k,v,g,,,,,,/,,,,,,,,/a,1,x,,Row Labels,Sum of v,,,/b,2,y,,a,1,,,/c,3,x,,b,2,,,/d,4,y,,c,3,,,/,,,,d,4,,,/,,,,(blank),,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F9 t2=E3:F9 body=F4:F9 rows=E3:E9 src=Second!R1C1:R6C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,9,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3] k,v,g,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,9,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3] ,,,,,,,,/k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R2C1:R6C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3] again[t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,,,,,/c,3,x,,Row Labels,Sum of v,,,/d,4,y,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E4:F9 t2=E4:F9 body=F5:F9 rows=E4:E9 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/d,4,y,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R5C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,Grand Total,6,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3]",
+"err=0: n=1 held[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] again[t1=E3:F8 t2=E3:F8 body=F4:F8 rows=E3:E8 src=Second!R1C1:R4C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,d,4,,,/,,,,Grand Total,10,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3] k,v,g,,,,,,/a,1,x,,,,,,/b,2,y,,Row Labels,Sum of v,,,/c,3,x,,a,1,,,/,,,,b,2,,,/,,,,c,3,,,/,,,,Grand Total,6,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=E3:F7 t2=E3:F7 body=F4:F7 rows=E3:E7 src=Second!R1C1:R4C3]",
+"err=0: n=1 held[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] again[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ refresh=0 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] again[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ refresh=0 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] again[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ refresh=0 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] again[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ refresh=0 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] again[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ refresh=0 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] again[t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ refresh=0 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C6:D11 t2=C4:D11 body=D7:D11 rows=C6:C11 src=Main!R1C1:R5C3]",
+"err=1004:The item cannot be added or modified. There may not be enough memory, the maximum number of items allowed in a field may have been reached, or if a Visual Basic macro is performing the operation, the macro may be incorrect.\n\nSimplify the PivotTable report or check the macro for errors, and then try the operation again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:The item cannot be added or modified. There may not be enough memory, the maximum number of items allowed in a field may have been reached, or if a Visual Basic macro is performing the operation, the macro may be incorrect.\n\nSimplify the PivotTable report or check the macro for errors, and then try the operation again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=1004:We can't make this change for the selected cells because it will affect a PivotTable. Use the field list to change the report. If you are trying to insert or delete cells, move the PivotTable and try again. n=1 held[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] again[t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,g,(All),,,,,/,,,,,,,,/,,Row Labels,Sum of v,,,,,/,,a,1,,,,,/,,b,2,,,,,/,,c,3,,,,,/,,d,4,,,,,/,,Grand Total,10,,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=C5:D10 t2=C3:D10 body=D6:D10 rows=C5:C10 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3] again[t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,g,(All),,,,/,,,,,,,,/,,,Row Labels,Sum of v,,,,/,,,a,1,,,,/,,,b,2,,,,/,,,c,3,,,,/,,,d,4,,,,/,,,Grand Total,10,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,g,(All),,,,/,,,,,,,,/,,,Row Labels,Sum of v,,,,/,,,a,1,,,,/,,,b,2,,,,/,,,c,3,,,,/,,,d,4,,,,/,,,Grand Total,10,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3]",
+"err=0: n=1 held[t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3] again[t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,g,(All),,,,/,,,,,,,,/,,,Row Labels,Sum of v,,,,/,,,a,1,,,,/,,,b,2,,,,/,,,c,3,,,,/,,,d,4,,,,/,,,Grand Total,10,,,,/,,,,,,,,/,,,,,,,,/ refresh=0 [t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3] ,,,,,,,,/,,,,,,,,/,,,g,(All),,,,/,,,,,,,,/,,,Row Labels,Sum of v,,,,/,,,a,1,,,,/,,,b,2,,,,/,,,c,3,,,,/,,,d,4,,,,/,,,Grand Total,10,,,,/,,,,,,,,/,,,,,,,,/ save=0 ~ n=1 [t1=D5:E10 t2=D3:E10 body=E6:E10 rows=D5:D10 src=Main!R1C1:R5C3]"
+],
+"crashes": []
+}

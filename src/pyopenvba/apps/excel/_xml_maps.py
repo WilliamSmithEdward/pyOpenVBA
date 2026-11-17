@@ -17,11 +17,10 @@ import re
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast
-from xml.parsers import expat
 
 from pyopenvba._a1 import Area
 from pyopenvba._xml import escape, unescape
-from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
+from pyopenvba.apps.excel._charts_file import XmlElement, XmlParseError, xml_tree
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -331,7 +330,7 @@ def _parsed(data: str) -> XmlElement:
     refuses a DOCTYPE in imported data too, with the error it gives text that is not XML (tests/fixtures/xml_map_events.json)."""
     try:
         return xml_tree(data)
-    except (expat.ExpatError, ValueError):
+    except (XmlParseError, ValueError):
         raise error(_UNSPECIFIED, "Automation error\nUnspecified error") from None
 
 
@@ -1336,7 +1335,7 @@ def read_parts(book: Workbook, package: Any, sheet_parts: dict[str, Worksheet]) 
         return
     try:
         _read_parts(book, package)
-    except (VBAUnsupportedError, KeyError, ValueError, expat.ExpatError) as failed:
+    except (VBAUnsupportedError, KeyError, ValueError, XmlParseError) as failed:
         book.xml_maps.clear()
         for sheet in book.sheets_:
             sheet.xml_cells.clear()

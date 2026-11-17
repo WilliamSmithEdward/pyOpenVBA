@@ -1,7 +1,8 @@
-"""FillFormat as live Excel answered four held-out rounds (scripts/measure_fill_format_round.py): the members the model has, the texture
-members on fills with no texture, PictureEffects, and the picture methods up to the picture itself. Each case runs alone in the model,
+"""FillFormat as live Excel answered six held-out rounds (scripts/measure_fill_format_round.py): the members the model has, the texture
+members on fills with no texture, PictureEffects, and pictures and textures from files. Each case runs alone in the model,
 typed and late, read by read, then saved, opened again and read once more, and its saved spPr is compared. A read or case the model
-refuses is allowed; one it answers must be Excel's. Round 6 compares the reads of the book opened again only."""
+refuses is allowed; one it answers must be Excel's. Round 5 was measured at StandardHeight 14.5 (144 DPI) and its spPr
+matched the model's 96-DPI answer; the rounds before it did not record StandardHeight. Round 6 compares the reads of the book opened again only."""
 from __future__ import annotations
 
 import importlib.util
@@ -24,7 +25,7 @@ PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
 
 
-@pytest.mark.parametrize('number', [1, 2, 3, 4])
+@pytest.mark.parametrize('number', [1, 2, 3, 4, 5])
 def test_each_case_answers_as_excel_did(number: int, monkeypatch: pytest.MonkeyPatch) -> None:
     record: dict[str, Any] = json.loads((ROOT / f'tests/fixtures/fill_format_round_{number}.json').read_text(encoding='utf-8'))
     monkeypatch.setattr(PROBE, 'ROUND', number)

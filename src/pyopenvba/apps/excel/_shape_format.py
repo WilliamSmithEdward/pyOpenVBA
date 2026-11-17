@@ -511,8 +511,10 @@ class FillFormat(_Format):
             data = handle.read()
         look = self.change(picture=True)
         look.fill_picture = FillPicture(tiled=tiled)
-        # Its colours read white, and Solid then makes it white.
+        # Its colours read white, and Solid then makes it white. It replaces a pattern, whose Pattern then reads -2
+        # (tests/fixtures/fill_format_round_5.json), and a gradient, as the file it saves holds the picture alone.
         look.fill_rgb, look.fill_back_rgb, look.fill_hidden = "FFFFFF", "FFFFFF", False
+        look.fill_pattern, look.fill_gradient = None, None
         self.shape.image, self.shape.image_extension, self.shape.image_relationship = data, extension, ""
         return EMPTY
 

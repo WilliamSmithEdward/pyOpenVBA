@@ -10,9 +10,8 @@ tests/fixtures/custom_xml*.json).
 """
 from __future__ import annotations
 
-from typing import NoReturn
-from xml.parsers import expat
 
+from pyopenvba.apps.excel._charts_file import DTD_REFUSED, XML_ERRORS, XmlParseError, xml_parser
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import error
 
@@ -105,26 +104,15 @@ class Node:
         return XML_NAMESPACE if prefix == 'xml' else ''
 
 
-class _Prohibited(Exception):
-    """A DOCTYPE, met before its internal subset is read."""
-
-
-def _prohibit(*_args: object) -> NoReturn:
-    raise _Prohibited
-
-
 def parsed(text: str) -> Node:
     """The document ``text`` holds, or error -2147467259. A macro's text is untrusted, so a DOCTYPE stops the parse
-    where it starts, before any entity it declares is read or expanded, and nothing external is ever fetched: MSXML
-    in Excel answers "DTD is prohibited." for every one (tests/fixtures/custom_xml_f.json)."""
+    where it starts, before any entity it declares is read or expanded, and nothing external is ever fetched, through
+    the shared hardened parser: MSXML in Excel answers "DTD is prohibited." for every one
+    (tests/fixtures/custom_xml_f.json)."""
     document = Node(DOCUMENT)
     open_tags: list[Node] = [document]
-    parser = expat.ParserCreate()
+    parser = xml_parser(namespaces=False)
     parser.ordered_attributes = True
-    parser.StartDoctypeDeclHandler = _prohibit
-    parser.EntityDeclHandler = _prohibit
-    parser.ExternalEntityRefHandler = _prohibit
-    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
 
     def start(name: str, attributes: list[str]) -> None:
         element = Node(ELEMENT, name)
@@ -167,25 +155,27 @@ def parsed(text: str) -> Node:
     parser.XmlDeclHandler = declaration
     try:
         parser.Parse(text, True)
-    except _Prohibited:
+    except ValueError as refused:
+        if str(refused) != DTD_REFUSED:
+            raise
         raise error(FAILED, 'DTD is prohibited.\n') from None
-    except expat.ExpatError as failure:
+    except XmlParseError as failure:
         raise _failure(failure, text, open_tags) from None
     return document
 
 
-def _failure(failure: expat.ExpatError, text: str, open_tags: list[Node]) -> Exception:
+def _failure(failure: XmlParseError, text: str, open_tags: list[Node]) -> Exception:
     """MSXML's reason, where it was measured; any other is reported unsupported."""
-    if failure.code == expat.errors.codes[expat.errors.XML_ERROR_TAG_MISMATCH]:
+    if failure.code == XML_ERRORS.codes[XML_ERRORS.XML_ERROR_TAG_MISMATCH]:
         line = text.splitlines()[failure.lineno - 1] if text.splitlines() else ''
         closing = line[failure.offset:].removeprefix('</').split('>')[0].strip()
         return error(FAILED, f"End tag '{closing}' does not match the start tag '{open_tags[-1].name}'.\n")
-    if failure.code in (expat.errors.codes[expat.errors.XML_ERROR_NO_ELEMENTS],
-                        expat.errors.codes[expat.errors.XML_ERROR_UNCLOSED_TOKEN]) and len(open_tags) > 1:
+    if failure.code in (XML_ERRORS.codes[XML_ERRORS.XML_ERROR_NO_ELEMENTS],
+                        XML_ERRORS.codes[XML_ERRORS.XML_ERROR_UNCLOSED_TOKEN]) and len(open_tags) > 1:
         return error(FAILED, f"The following tags were not closed: {', '.join(one.name for one in open_tags[1:])}.\n")
-    if failure.code in (expat.errors.codes[expat.errors.XML_ERROR_SYNTAX],
-                        expat.errors.codes[expat.errors.XML_ERROR_JUNK_AFTER_DOC_ELEMENT],
-                        expat.errors.codes[expat.errors.XML_ERROR_INVALID_TOKEN]) and len(open_tags) == 1:
+    if failure.code in (XML_ERRORS.codes[XML_ERRORS.XML_ERROR_SYNTAX],
+                        XML_ERRORS.codes[XML_ERRORS.XML_ERROR_JUNK_AFTER_DOC_ELEMENT],
+                        XML_ERRORS.codes[XML_ERRORS.XML_ERROR_INVALID_TOKEN]) and len(open_tags) == 1:
         return error(FAILED, "Invalid at the top level of the document.\n")
     return VBAUnsupportedError(f'custom XML that is not well formed ({failure}) is not implemented')
 

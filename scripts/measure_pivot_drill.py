@@ -52,6 +52,10 @@ as 7, 2, 4; 2, 4, 6 as 6, 2, 4; 2, 4, 6, 7 as 7, 2, 6, 4; and 3, 5 as 5, 3. Sour
 was the first record's. No rule fitted to these four predicts the rest, so a part's detail is not built: the order
 of its records is not worked out.
 
+Held-out round A (cases 32 to 36, the grand total), predicted on 89a6e51d (sha256 07e9fa9c7b27c572): 4 of 5. The miss
+had two fields on the rows, k outside g: Excel grouped the records by g first, then k. Within an axis the innermost
+field now leads. Held-out round B (cases 37 to 41) tests that on new layouts, predicted by the model before it ran.
+
     python scripts/measure_pivot_drill.py
 
 writes tests/fixtures/pivot_drill.json.
@@ -174,6 +178,24 @@ CASES = [
     LONG + K_G.replace('A1:C5', 'A1:C9') + 'pt.PivotFields("k").AutoSort xlDescending, "k": '
     'pt.PivotFields("g").AutoSort xlDescending, "g": ' + GO
     + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).Select: Application.DoubleClick',
+    # Held-out round B, the order of two fields on one axis, predicted by the model before it ran.
+    MANY + ROWS.replace('A1:C5', 'A1:C10') + 'pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True',
+    LONG + ROWS.replace('A1:C5', 'A1:C9') + 'pt.PivotFields("k").Orientation = xlColumnField: '
+    'pt.PivotFields("g").Orientation = xlColumnField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True',
+    LONG + ROWS.replace('A1:C5', 'A1:C9') + 'pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.PivotFields("g").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
+    'pt.PivotFields("k").AutoSort xlDescending, "k": ' + GO
+    + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True',
+    LONG + ROWS.replace('A1:C5', 'A1:C9') + 'pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlColumnField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
+    'pt.PivotFields("k").AutoSort xlDescending, "k": ' + GO
+    + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True',
+    MANY + ROWS.replace('A1:C5', 'A1:C10') + 'pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.PivotFields("g").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
+    'pt.RowAxisLayout xlTabularRow: ' + GO + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True',
 ]
 PROBE = '''Private Function Digest(wb As Workbook) As String
     Dim s As String, sh As Worksheet, lo As ListObject, cell As Range, c As Long

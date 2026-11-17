@@ -277,22 +277,36 @@ def _detail_records(table: PivotTable) -> list[list[object]]:
             pages[int(page.get('fld', '0'))] = int(items[int(chosen)].get('x', '-1'))
     row_places, column_places = {one: places(one) for one in rows}, {one: places(one) for one in columns}
 
-    def order(lines: tuple[PivotLine, ...], axis: list[int], at: dict[int, dict[int, int]], record: list[int]) -> int:
-        if not axis:
-            return 0
-        wanted = tuple(at[field].get(record[field], -1) for field in axis)
-        for number, line in enumerate(lines):
-            if line.kind == 'data' and line.items[:len(axis)] == wanted:
-                return number
-        raise VBAUnsupportedError('ShowDetail on a value of a pivot table whose records its lines do not show is not '
-                                  'implemented')
+    def ranks(lines: tuple[PivotLine, ...], axis: list[int]) -> list[dict[int, int]]:
+        """Each field's items' ranks on an axis: the order the table first shows them in, a sort's included."""
+        found_ranks: list[dict[int, int]] = [{} for _ in axis]
+        for line in lines:
+            if line.kind == 'grand':
+                continue
+            for depth, place in enumerate(line.items[:len(axis)]):
+                found_ranks[depth].setdefault(place, len(found_ranks[depth]))
+        return found_ranks
 
-    row_lines, column_lines = axis_lines(root, 'rowItems'), axis_lines(root, 'colItems')
-    kept: list[tuple[tuple[int, int, int], list[object]]] = []
+    def order(axis: list[int], at: dict[int, dict[int, int]], ranked: list[dict[int, int]],
+              record: list[int]) -> tuple[int, ...]:
+        """A record's key on an axis: its items' ranks, the innermost field's first (a measured order: two row
+        fields grouped the records by the inner one first)."""
+        key: list[int] = []
+        for depth in reversed(range(len(axis))):
+            place = at[axis[depth]].get(record[axis[depth]], -1)
+            if place not in ranked[depth]:
+                raise VBAUnsupportedError('ShowDetail on a value of a pivot table whose records its lines do not show '
+                                          'is not implemented')
+            key.append(ranked[depth][place])
+        return tuple(key)
+
+    row_ranks = ranks(axis_lines(root, 'rowItems'), rows)
+    column_ranks = ranks(axis_lines(root, 'colItems'), columns)
+    kept: list[tuple[tuple[tuple[int, ...], tuple[int, ...], int], list[object]]] = []
     for number, (record, values) in enumerate(zip(ids, found, strict=True)):
         if any(record[field] != item for field, item in pages.items()):
             continue
-        key = (order(row_lines, rows, row_places, record), order(column_lines, columns, column_places, record), number)
+        key = (order(rows, row_places, row_ranks, record), order(columns, column_places, column_ranks, record), number)
         kept.append((key, [_cached(value) for value in values]))
     kept.sort(key=lambda pair: pair[0])
     return [values for _, values in kept]

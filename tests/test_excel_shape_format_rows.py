@@ -21,9 +21,9 @@ NAMES = [name for name, _ in RECORD['ranges']]
 #: Each case's statements, as the probe ran them.
 STATEMENTS = re.findall(r'^    Case \d+\n        (.+)$', RECORD['source'].split('Private Function Graphics')[0], re.MULTILINE)
 #: A new AutoShape's nodes are its preset's, which the model does not draw; TextEffect and ThreeD are not modelled on Shape.
-REFUSED = {(name, read) for name in ('rect', 'callout', 'two') for read in ('r.Nodes.Count', 'sh.Nodes.Count')} - {
-    ('two', 'r.Nodes.Count')}
-REFUSED |= {(name, read) for name in NAMES for read in RECORD['reads'] if 'TextEffect' in read or 'ThreeD' in read}
+REFUSED = ({(name, read) for name in ('rect', 'callout', 'two') for read in ('r.Nodes.Count', 'sh.Nodes.Count')}
+           - {('two', 'r.Nodes.Count')}
+           | {(name, read) for name in NAMES for read in RECORD['reads'] if 'TextEffect' in read or 'ThreeD' in read})
 
 
 def png(folder: Path) -> None:

@@ -483,6 +483,27 @@ def pivot_item(target: _model.Range) -> pivots.PivotItem:
     return item
 
 
+def double_clicked(cell: _model.Range) -> None:
+    """Application.DoubleClick on ``cell``, the active cell (tests/fixtures/double_click.json). Anywhere but a pivot
+    table nothing happens. On a pivot table's value, a grand total's among them, Excel shows the value's detail on a
+    new sheet before the active one, raising no BeforeDoubleClick; the detail sheet, as Range.ShowDetail makes it, is
+    not built. On the rest of a table Excel opens its Show Detail dialog, which is not built either."""
+    at = cell.first
+    for table in cell.sheet.pivot_tables:
+        covered = table.vba_get('TableRange2')
+        if not isinstance(covered, _model.Range) or not any(area.contains(at.top, at.left) for area in covered.areas):
+            continue
+        try:
+            body = table.vba_get('DataBodyRange')
+        except VBARuntimeError:
+            body = None
+        if isinstance(body, _model.Range) and any(area.contains(at.top, at.left) for area in body.areas):
+            raise VBAUnsupportedError("Application.DoubleClick on a pivot table's value, which shows its detail on a "
+                                      "new sheet, is not implemented")
+        raise VBAUnsupportedError("Application.DoubleClick on a pivot table's labels, where Excel opens its Show Detail "
+                                  "dialog, is not implemented")
+
+
 def refuse_value_write(target: _model.Range) -> None:
     """A value written into a pivot table's values: Excel raises the table's PivotTableChangeSync and refuses it with 1004, writing
     nothing (tests/fixtures/workbook_macro_events.json pivot_value_edit), and Change fires all the same

@@ -884,6 +884,22 @@ class Application(ExcelObject):
         return windows if Index is MISSING else windows.vba_get("Item", [Index])
 
     @method
+    def DoubleClick(self) -> object:
+        """A double-click on the active cell, as a macro gives one in an Excel not shown
+        (tests/fixtures/double_click.json): anywhere but a pivot table it does nothing at all, raising no
+        BeforeDoubleClick. In a pivot table, where Excel shows a value's detail on a new sheet or opens its Show
+        Detail dialog, it reports itself unsupported."""
+        from pyopenvba.apps.excel._pivot_cells import double_clicked
+
+        sheet = self.active_book.active_sheet if self.active_book is not None else None
+        if not isinstance(sheet, Worksheet):
+            raise VBAUnsupportedError("Application.DoubleClick with no worksheet active is not implemented")
+        cell = sheet.active_cell
+        if isinstance(cell, Range):
+            double_clicked(cell)
+        return EMPTY
+
+    @method
     def Goto(self, Reference: object = MISSING, Scroll: object = MISSING) -> object:
         from pyopenvba.apps.excel._windows import goto
 

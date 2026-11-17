@@ -140,6 +140,35 @@ ROUNDS[9] = ([('"red fox. blue jay" & vbCr & "green owl"', (5, 3)), ('"solo"', N
              OUT.with_name('text_range2_round_9.json'))
 #: What round 9 reads after each statement besides AFTER.
 AFTER_9 = ['tr.Characters(1, 3).Font.Bold', 'Application.CutCopyMode']
+#: Round 10, what round 9 left open: what a pasted run carries, the characters a copied cell brings, and what a sheet does with copied
+#: text that reads as a number, a formula or more than one line. The pasted part is the range Paste answers, p.
+STATEMENTS_10 = ['tr.Characters(1, 3).Copy: Set p = tr.Characters(3, 0).Paste: v = p.Font.Bold & "|" & p.Font.Name & "|" & p.Font.Size & "|" & p.Font.Italic',
+                 'tr.Characters(1, 3).Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: v = p.Font.Bold & "|" & p.Font.Name & "|" & p.Font.Size',
+                 'tr.Characters(1, 3).Copy: Set p = tr.Characters(tr.Length + 1, 0).PasteSpecial(msoClipboardFormatPlainText): v = p.Font.Bold & "|" & p.Start & "|" & p.Length',
+                 'tr.Characters(1, 3).Font.Italic = msoTrue: tr.Characters(1, 3).Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: v = p.Font.Italic & "|" & p.Font.Bold',
+                 'tr.Characters(2, 2).Font.Size = 20: tr.Characters(1, 3).Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: v = p.Font.Size & "|" & p.Runs.Count',
+                 'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: For k = 1 To p.Length: v = v & AscW(Mid(p.Text, k, 1)) & ",": Next',
+                 'ws.Range("A1").Value = "cell": ws.Range("A2").Value = 5: ws.Range("A1:A2").Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: For k = 1 To p.Length: v = v & AscW(Mid(p.Text, k, 1)) & ",": Next',
+                 'ws.Range("A1").Value = "a": ws.Range("B1").Value = "b": ws.Range("A1:B1").Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: For k = 1 To p.Length: v = v & AscW(Mid(p.Text, k, 1)) & ",": Next',
+                 'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: Set p = tr.Characters(tr.Length + 1, 0).Paste: v = p.Font.Bold & "|" & p.Font.Name & "|" & p.Font.Size',
+                 'tr.Text = "12": tr.Copy: ws.Paste ws.Range("C3"): v = TypeName(ws.Range("C3").Value) & ":" & ws.Range("C3").Formula & "|" & ws.Range("C4").Formula',
+                 'tr.Text = "=1+1": tr.Characters(1, 4).Copy: ws.Paste ws.Range("C3"): v = TypeName(ws.Range("C3").Value) & ":" & ws.Range("C3").Formula',
+                 'tr.Text = "007": tr.Characters(1, 3).Copy: ws.Paste ws.Range("C3"): v = TypeName(ws.Range("C3").Value) & ":" & ws.Range("C3").Formula',
+                 'tr.Characters(1, 3).Copy: ws.Range("C3").Value = "old": ws.Paste ws.Range("C3:D4"): v = ws.Range("C3").Formula & "|" & ws.Range("D4").Formula & "|" & ws.Range("C3").Font.Bold',
+                 'tr.Copy: ws.Paste ws.Range("C3"): v = ws.Range("C3").Formula & "|" & ws.Range("C4").Formula & "|" & ws.Range("C5").Formula',
+                 'tr.Characters(5, 3).Copy: ws.Paste ws.Range("C3"): v = ws.Range("C3").Formula & "|" & ws.Range("C3").Font.Bold & "|" & ws.Range("C3").Font.Name',
+                 'tr.Characters(1, 3).Copy: ws.Range("C3").Select: ws.Paste: v = TypeName(Selection) & ":" & Selection.Address',
+                 'tr.Characters(1, 3).Copy: ws.Paste ws.Range("C3"): v = Application.CutCopyMode & "|" & ws.Range("C3").Formula: Set p = tr.Characters(tr.Length + 1, 0).Paste: v = v & "|" & p.Text',
+                 'tr.Characters(1, 3).Copy: ws.Range("C3").Value = 1: ws.Range("C3").Insert: v = ws.Range("C3").Formula & "|" & ws.Range("C4").Formula',
+                 'tr.Characters(1, 3).Copy: ws.Range("C3").Value = 1: ws.Range("C3").PasteSpecial xlPasteValues: v = ws.Range("C3").Formula']
+ROUNDS[10] = ([('"red fox. blue jay" & vbCr & "green owl"', (5, 3)), ('"solo"', None)], [], STATEMENTS_10,
+              OUT.with_name('text_range2_round_10.json'))
+#: Round 10's markup: what a paste writes to the file.
+MARKUP_10 = ['tr.Characters(1, 3).Copy: tr.Characters(5, 0).Paste', 'tr.Characters(5, 3).Copy: tr.Characters(1, 3).Paste',
+             'tr.Characters(1, 3).Copy: tr.Characters(tr.Length + 1, 0).Paste',
+             'tr.Characters(1, 3).Copy: tr.Characters(tr.Length + 1, 0).PasteSpecial msoClipboardFormatPlainText',
+             'tr.Characters(1, 3).Copy: tr.Characters(tr.Length + 1, 0).PasteSpecial msoClipboardFormatHTML', 'tr.Characters(5, 3).Cut',
+             'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: tr.Characters(tr.Length + 1, 0).Paste', 'tr.Copy: tr.Characters(4, 0).Paste']
 ROUND = 1
 
 
@@ -180,7 +209,7 @@ End Function
 '''
 DECLARE = ('    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object, v As Variant, s As String, x As Object, n As Long\n'
            '    Dim x1 As Single, y1 As Single, x2 As Single, y2 As Single, x3 As Single, y3 As Single, x4 As Single, y4 As Single\n'
-           '    Dim f As Variant, k As Long\n'
+           '    Dim f As Variant, k As Long, p As Object\n'
            '    On Error Resume Next\n')
 PART = 12
 
@@ -218,10 +247,15 @@ MARKUP = ['', 'tr.RtlRun', 'tr.LtrRun', 'tr.Paragraphs(1).RtlRun', 'tr.ChangeCas
           'tr.InsertAfter ".": tr.RemovePeriods']
 
 
+def markups() -> list[str]:
+    """The statements whose markup the round records: round 10 has its own."""
+    return MARKUP_10 if ROUND >= 10 else MARKUP
+
+
 def markup_macro() -> str:
     lines = ['Function Marks(ByVal folder As String) As String', '    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object',
              '    Application.DisplayAlerts = False']
-    for index, statement in enumerate(MARKUP):
+    for index, statement in enumerate(markups()):
         lines += ['    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)',
                   '    Set sh = ws.Shapes.AddShape(msoShapeRectangle, 100, 50, 240, 120)', '    Set tr = sh.TextFrame2.TextRange',
                   '    tr.Text = "abc def"', '    tr.Characters(1, 3).Font.Bold = msoTrue', f'    {statement}',
@@ -234,7 +268,7 @@ def text_bodies(folder: Path) -> list[list[str]]:
     import zipfile
 
     bodies: list[list[str]] = []
-    for index in range(len(MARKUP)):
+    for index in range(len(markups())):
         with zipfile.ZipFile(folder / f'm{index}.xlsx') as package:
             bodies.append(re.findall(r'<xdr:txBody>.*?</xdr:txBody>', package.read('xl/drawings/drawing1.xml').decode('utf-8'), re.S))
     return bodies

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import zlib
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 MIN_MATCH = 3
 MAX_MATCH = 258
@@ -676,6 +677,25 @@ def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
     """The deflate blocks alone, without zlib's header or its trailer.
 
     This is what a ZIP entry carries.  The defaults are what Excel uses
-    for the parts of a Power Query package.
+    for the parts of a Power Query package.  The same bytes always deflate
+    the same way, so a large part saved again, such as a picture, is
+    deflated once: this port takes seconds a megabyte.
     """
+    if len(data) >= _LARGE:
+        return _large_raw_compress(data, level, memlevel)
+    return _small_raw_compress(data, level, memlevel)
+
+
+#: What counts as large. Small parts, the theme and styles every save writes, have a cache of their own, so they do not push
+#: a picture out of its one.
+_LARGE = 1 << 16
+
+
+@lru_cache(maxsize=4)
+def _large_raw_compress(data: bytes, level: int, memlevel: int) -> bytes:
+    return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+
+
+@lru_cache(maxsize=256)
+def _small_raw_compress(data: bytes, level: int, memlevel: int) -> bytes:
     return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]

@@ -10,7 +10,10 @@ first cell to the window's last. LargeScroll moves a page at a time: down, the l
 first becomes the last; a page is a row or column at least, when
 the grid shows less than one whole; kept on the sheet. ScrollIntoView takes a rectangle in screen pixels of the zoomed sheet,
 measured from A1: with Start True or left out, the row and column holding its top left come first; with Start False,
-the first row and column are the least that show all of it in whole rows and columns.
+the first column is the least that shows all of it in whole columns. Which first row Start False takes is not known:
+of eight measured cases, five took the least that shows all of it in whole rows and three the least that shows it with a
+row cut off at the bottom, and nothing in the window or the sheet told them apart (tests/fixtures/window_geometry1.json,
+window_geometry2.json); the rule below is the first.
 
 All of it depends on the display's DPI, through the pixels a point makes and the sizes of Excel's own frame, bars and
 headings. DISPLAYS holds those for each display they were measured on, by the StandardHeight its rows have. The model

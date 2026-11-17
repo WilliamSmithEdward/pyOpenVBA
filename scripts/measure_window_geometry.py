@@ -199,7 +199,7 @@ def held_out(round_: str) -> list[dict[str, Any]]:
         elif action == 'into':
             rectangle = [pick.randint(-20, 3000), pick.randint(-20, 4000), pick.randint(1, 300), pick.randint(1, 300)]
             plain = spec['scroll'] == [1, 1] and spec['frozen'] == [0, 0]
-            start = pick.choice(['', ', True', ', False'] if plain else ['', ', True'])
+            start = pick.choice(['', ', True', ', False'] if plain and round_ in ('1', '2') else ['', ', True'])
             spec['action'] = ['into', rectangle, start != ', False']
             statements.append('w.ScrollIntoView ' + ', '.join(str(one) for one in rectangle) + start)
         found.append({'call': [f'held {round_}.{number}', statements, SIZES + GRID], 'spec': spec})

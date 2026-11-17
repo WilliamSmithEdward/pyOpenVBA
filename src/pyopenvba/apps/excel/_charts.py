@@ -227,6 +227,9 @@ class ChartState:
     plot_layout: str = ''
     #: The PNG SetBackgroundPicture gave the chart area, tiled, written in xl/media at save (tests/fixtures/chart_templates.json).
     background: bytes | None = None
+    #: The theme override of the template ApplyChartTemplate gave the chart, written beside it at save (see _chart_templates).
+    theme_override: str | None = None
+    theme_override_part: str = ''
     legend_layout: str = ''
     legend: bool = True
     #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
@@ -2903,6 +2906,31 @@ class Chart(ElementProperties, HeldPart):
                 self.changed()
             self.state.holds_automatic_title(self.sheet)
         return ChartTitle(self)
+
+    @method
+    def ApplyChartTemplate(self, Filename: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The chart made the template's, over its own data (see _chart_templates, tests/fixtures/chart_templates_more.json)."""
+        from pyopenvba.apps.excel._chart_templates import apply_template
+
+        self.admit_read()
+        if Filename is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        apply_template(self, to_text(Filename))
+        return EMPTY
+
+    @method
+    def SaveChartTemplate(self, Filename: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """A .crtx of the chart, its picture from the Export hook (see _chart_templates, tests/fixtures/chart_templates_more.json)."""
+        from pyopenvba.apps.excel._chart_templates import save_template
+
+        self.admit_read()
+        if Filename is MISSING:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        wanted = to_text(Filename)
+        if not wanted.lower().endswith('.crtx'):
+            raise VBAUnsupportedError('SaveChartTemplate to a name without .crtx is not implemented')
+        save_template(self, wanted)
+        return EMPTY
 
     @method
     def SetBackgroundPicture(self, Filename: object = MISSING) -> object:  # noqa: N803 - native named argument

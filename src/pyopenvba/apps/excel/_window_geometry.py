@@ -7,7 +7,8 @@ rounded half up to a pixel, and the headings scale the same way. UsableWidth and
 its frame and bars, never below 0. The rows the grid shows are those that start inside it, a row cut off at the bottom
 included and at least one, and the columns the same. With frozen panes, VisibleRange is the scrolling pane's, from its
 first cell to the window's last. LargeScroll moves a page at a time: down, the last row shown becomes the first; up, the
-first becomes the last; kept on the sheet. ScrollIntoView takes a rectangle in screen pixels of the zoomed sheet,
+first becomes the last; a page is a row or column at least, when
+the grid shows less than one whole; kept on the sheet. ScrollIntoView takes a rectangle in screen pixels of the zoomed sheet,
 measured from A1: with Start True or left out, the row and column holding its top left come first; with Start False,
 the first row and column are the least that show all of it in whole rows and columns.
 
@@ -41,8 +42,9 @@ class Display:
     status_bar: float
     #: The rows the row headings were measured for: more digits make them wider, which was not measured.
     heading_rows: int
-    #: The zooms the rules matched Excel at. At 85% Excel showed a column less than the rounding above gives, by a
-    #: pixel, so the headings' or columns' rounding at other zooms is not known.
+    #: The zooms the rules held at. At 100% they matched every case, row numbers of one to three digits; at other
+    #: zooms the headings are not their size at 100% times the zoom (wider at 50% and 60%, and wider again for row
+    #: numbers of three digits), which one look does not pin (tests/fixtures/window_geometry1.json).
     zooms: frozenset[int]
 
 
@@ -50,7 +52,7 @@ class Display:
 DISPLAYS: dict[float, Display] = {
     14.5: Display(pixels=2.0, row_heading=40, column_heading=29, frame_width=11.0, vertical_bar=15.5,
                   frame_height=140.0, tab_row=24.0, formula_bar=28.5, status_bar=16.5, heading_rows=999,
-                  zooms=frozenset({50, 60, 75, 100, 110, 130, 150, 200})),
+                  zooms=frozenset({100})),
 }
 
 
@@ -160,12 +162,12 @@ def large_scroll(display: Display, layout: Layout, down: int, right: int) -> tup
         for _ in range(abs(pages)):
             here = places[axis]
             if pages > 0:
-                places[axis] = min(grid.last(axis, here), limit)
+                places[axis] = min(max(grid.last(axis, here), here + 1), limit)
             else:
                 start = here
                 while start > grid.first(axis) and grid.last(axis, start - 1) >= here:
                     start -= 1
-                places[axis] = start
+                places[axis] = max(min(start, here - 1), grid.first(axis))
     return places[0], places[1]
 
 

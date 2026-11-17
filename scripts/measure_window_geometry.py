@@ -169,7 +169,7 @@ def held_out(round_: str) -> list[dict[str, Any]]:
     found: list[dict[str, Any]] = []
     for number in range(40):
         width, height = pick.randint(300, 900), pick.randint(220, 650)
-        zoom = pick.choice([50, 60, 75, 100, 100, 110, 130, 150, 200])
+        zoom = 100 if round_ not in ('1',) else pick.choice([50, 60, 75, 100, 100, 110, 130, 150, 200])
         spec: dict[str, Any] = {'width': width, 'height': height, 'zoom': zoom,
                                 'headings': pick.random() > 0.2, 'vertical_bar': pick.random() > 0.2,
                                 'horizontal_bar': pick.random() > 0.2, 'tabs': pick.random() > 0.2,

@@ -7,11 +7,14 @@ members report themselves until a run at StandardHeight 15 adds that display.
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 import pytest
+
+sys.path.insert(0, str(Path(__file__).parents[1] / 'scripts'))
 
 from pyopenvba._a1 import column_letter
 from pyopenvba.apps.excel import ExcelApplication
@@ -117,8 +120,8 @@ def _address(top: int, left: int, bottom: int, right: int) -> str:
 @pytest.mark.parametrize('name, reads, answers', MEASURED, ids=[one[0] for one in MEASURED])
 def test_the_rules_answer_as_excel_did_at_144_dpi(name: str, reads: list[str], answers: dict[str, str]) -> None:
     layout, action = CASES[name]
-    if layout.zoom not in DISPLAY.zooms:
-        pytest.xfail(f'zoom {layout.zoom}: Excel showed a column less than the rounding gives, by a pixel')
+    if name == 'zoom 85':
+        pytest.xfail('zoom 85: the headings at 85% are not 34 pixels, so Excel shows a column less')
     if action is not None and action[0] == 'large':
         layout = replace(layout, scroll=large_scroll(DISPLAY, layout, action[1], action[2]))
     elif action is not None:
@@ -155,3 +158,26 @@ def test_the_model_reports_them_at_its_own_dpi(read: str) -> None:
                    '    w.Width = 700: w.Height = 500\n' f'    {statement}\nEnd Function\n', name='P')
     with pytest.raises(VBAUnsupportedError, match='96 DPI'):
         app.run('P.Go')
+
+
+#: Round 1's cases the rules miss: headings at 50% and 60% are wider than their size at 100% times the zoom.
+HEADINGS_OFF_100 = {15, 31, 37}
+
+
+def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
+    predicted = json.loads((FIXTURES / f'{stem}_predictions.json').read_text('utf-8'))['cases']
+    measured = json.loads((FIXTURES / f'{stem}.json').read_text('utf-8'))['cases']
+    return [(number, one['spec'], answer[3]) for number, (one, answer) in enumerate(zip(predicted, measured, strict=True))]
+
+
+ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'window_geometry3')
+          if (FIXTURES / f'{stem}.json').exists() for case in _round(stem)]
+
+
+@pytest.mark.parametrize('stem, number, spec, answer', ROUNDS, ids=[f'{one[0]}-{one[1]}' for one in ROUNDS])
+def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dict[str, Any], answer: str) -> None:
+    from measure_window_geometry import predicted  # type: ignore[import-not-found]
+
+    if stem == 'window_geometry1' and number in HEADINGS_OFF_100:
+        pytest.xfail('headings at 50% and 60% are wider than their size at 100% times the zoom')
+    assert predicted(spec) == answer

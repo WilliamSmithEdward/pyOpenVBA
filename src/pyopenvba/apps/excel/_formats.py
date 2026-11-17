@@ -1210,6 +1210,12 @@ def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Cal
         sheet.restyle(row, column, S.applying(theirs, "border", border=cleared))
 
 
+def _automatic(side: S.Side) -> S.Side:
+    """A line in the automatic colour, which Excel writes ``indexed="64"`` here; no line stays none
+    (tests/fixtures/row_formats/row_formats.json)."""
+    return S.Side(side.style, S.FOREGROUND) if side.style else side
+
+
 def inside_current(upper: S.Side, lower: S.Side) -> S.Side:
     """What an inside border between two cells is before a change, from the sides each one stores.
 
@@ -1347,9 +1353,14 @@ class Border(ExcelObject):
             name = EDGES[self.index]
             last = name in ("bottom", "right")
             kind = _row_formats.whole(area)
-            # Whole rows read their right edge from the first of them, whole columns their bottom edge (tests/fixtures/border_gaps.json).
-            row = area.top if not last or (kind == "rows" and name == "right") else area.bottom
-            column = area.left if not last or (kind == "columns" and name == "bottom") else area.right
+            # Whole rows read their right edge in their first row's first column, whole columns their bottom edge in their
+            # first column's first row (tests/fixtures/border_gaps.json, tests/fixtures/used_range.json).
+            first = (kind == "rows" and name == "right") or (kind == "columns" and name == "bottom")
+            if first:
+                # What that cell stores, not a neighbour's line showing there.
+                return own_side(sheet, area.top, area.left, name)
+            row = area.top if not last else area.bottom
+            column = area.left if not last else area.right
             return effective_side(sheet, row, column, name)
         if self.index in (11, 12):
             # What the first cell stores on that side, whatever the next cell's shows (tests/fixtures/border_gaps.json).
@@ -1392,7 +1403,10 @@ class Border(ExcelObject):
         first = self.target.first
         along_whole = self.index in EDGES and _row_formats.whole(first) and not self.side().style
         inside = self.index in (11, 12) and not _row_formats.whole(first) and first.rows * first.columns > 2
-        if (along_whole or inside) and len(set(self.sides())) > 1:
+        # The automatic colour is one colour however it is spelled (see S.same_automatic).
+        shown = {S.Side(side.style, S.FOREGROUND) if side.color is not None and side.color.kind == "auto" else side
+                 for side in self.sides()}
+        if (along_whole or inside) and len(shown) > 1:
             # Along whole rows or columns whose lines differ, where the first shows none, and an inside border whose lines
             # differ (tests/fixtures/border_gaps.json).
             answers: dict[str, object] = {"LineStyle": VBAInt(-4142, "Long"), "Weight": VBAInt(2, "Long"), "Color": 0.0, "ColorIndex": VBAInt(-4142, "Long")}
@@ -1407,6 +1421,8 @@ class Border(ExcelObject):
         sheet = self.target.sheet
         areas = visible_areas(self.target) or self.target.areas
         _row_formats.refuse_past_half(areas)
+        if not self.collection:
+            _row_formats.refuse_wide_border(sheet, areas, self.index, alone=not self.together)
         if self.index not in (5, 6) and _leaves_lines(change) and all(_row_formats.whole(area) for area in areas):
             # No colour along whole rows or columns changes nothing where the border reads a line, and otherwise takes
             # every line along it away (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
@@ -1680,8 +1696,18 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
             what, value = "LineStyle", XL_NONE
         elif what == "Color" and value is not NULL and value is not True and int(to_integer(value, "Long")) == -1:
             what, value = "ColorIndex", XL_AUTOMATIC
+        # A line style or weight set through the collection draws a horizontal line in the automatic colour, whatever colour
+        # it had, where the range spans more than one row, and a vertical line where it spans more than one column
+        # (tests/fixtures/used_range.json, tests/fixtures/border_rounds.json).
+        restyling = what in ("LineStyle", "Weight")
         for index in self._indexes():
-            Border(self.target, index, together=True, collection=True).assign(what, value)
+            border = Border(self.target, index, together=True, collection=True)
+            across = (lambda area: area.rows) if index in (8, 9, 12) else (lambda area: area.columns)
+            if restyling and any(across(area) > 1 for area in self.target.areas):
+                change = side_change(what, value)
+                border.apply(lambda side, change=change: _automatic(change(side)))  # type: ignore[misc]
+            else:
+                border.assign(what, value)
         if colour:
             restyle(self.target, lambda style: S.applying(style, "fill"))
 

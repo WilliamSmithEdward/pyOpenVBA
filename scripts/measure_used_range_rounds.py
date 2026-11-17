@@ -114,7 +114,7 @@ def model(case: dict[str, Any], path: str) -> str:
 
 
 def _standard_height(excel: Any) -> str:
-    """A new sheet's StandardHeight, which reads 15 only at 96 DPI."""
+    """A new sheet's StandardHeight, which reads the display: 15 at 96 DPI, 14.5 at 144."""
     source = ("Public Function Height() As String\nDim wb: Set wb = Workbooks.Add(xlWBATWorksheet)\n"
               "Height = CStr(wb.Worksheets(1).StandardHeight)\nwb.Close False\nEnd Function\n")
     answer = excel.run_vba(source, "Height", (), timeout=60.0, line_numbers=False)
@@ -162,16 +162,19 @@ def main() -> None:
             try:
                 with ExcelSession(HarnessConfig(lock_wait_s=600.0, exclusive=False)) as excel:
                     excel.new_document()
-                    # Rows a border or a font draws taller depend on the display: measure only at 96 DPI, StandardHeight 15.
-                    if _standard_height(excel) != "15":
-                        raise SystemExit("StandardHeight is not 15: the display is not at 96 DPI")
+                    # Rows a border or a font draws taller depend on the display, which StandardHeight reads (15 at 96
+                    # DPI, 14.5 at 144): each answer keeps the reading, and a run whose reading moves keeps nothing.
+                    height = _standard_height(excel)
+                    measured: dict[int, str] = {}
                     for at in list(todo)[:40]:
                         answer = excel.run_vba(case_source(cases[at], str(folder / f"{at}.xlsx")), "Probe",
                                                (str(folder / f"{at}.xlsx"),), timeout=60.0, line_numbers=False)
-                        cases[at]["excel"] = str(answer.value) if answer.ok else f"no answer {answer.outcome}"
+                        measured[at] = str(answer.value) if answer.ok else f"no answer {answer.outcome}"
+                    if _standard_height(excel) != height:
+                        raise SystemExit("StandardHeight moved during the run: its answers are not kept")
+                    for at, answer_text in measured.items():
+                        cases[at]["excel"], cases[at]["standard_height"] = answer_text, height
                         todo.remove(at)
-                    if _standard_height(excel) != "15":
-                        raise SystemExit("StandardHeight left 15 during the run: its answers are not kept")
             except Exception as failure:  # noqa: BLE001 - a case that ends Excel is recorded, and the rest go on
                 cases[todo[0]]["excel"] = f"no answer, Excel ended: {str(failure)[:80]}"
                 todo.pop(0)
@@ -183,7 +186,8 @@ def main() -> None:
             case["model"] = model(case, str(folder / f"{at}.xlsx"))
         file.write_text(json.dumps(cases, indent=0), encoding="utf-8")
     wrong = [case for case in cases if case["model"] != case.get("excel")]
-    print(seed, "differ", len(wrong), "of", len(cases), "refused", sum(case["model"].startswith("REFUSED") for case in cases))
+    print(seed, "differ", len(wrong), "of", len(cases), "refused", sum(case["model"].startswith("REFUSED") for case in cases),
+          "StandardHeight", sorted({str(case.get("standard_height", "?")) for case in cases}))
     for case in wrong[:int(sys.argv[3]) if len(sys.argv) > 3 else 0]:
         print(" ", case["edits"], "T" if case["typed"] else "L", case["from"])
         print("     E", case.get("excel", "")[:300], "\n     M", case["model"][:300])

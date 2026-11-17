@@ -490,6 +490,18 @@ APPLY_FLAGS: Final = {"number_format": "applyNumberFormat", "font": "applyFont",
 PARTS: Final = frozenset(APPLY_FLAGS)
 
 
+def same_automatic(style: Style) -> Style:
+    """A format with every border line in the automatic colour spelled one way, ``indexed="64"``, as ``auto="1"`` is the
+    same colour to Excel when it weighs whether a cell says anything (tests/fixtures/border_rounds.json)."""
+    def side(found: Side) -> Side:
+        return replace(found, color=FOREGROUND) if found.color is not None and found.color.kind == "auto" else found
+
+    border = style.border
+    plain = replace(border, left=side(border.left), right=side(border.right), top=side(border.top),
+                    bottom=side(border.bottom), diagonal=side(border.diagonal))
+    return style if plain == border else replace(style, border=plain)
+
+
 def applying(style: Style, part: str, **changes: object) -> Style:
     """The format with one part set by a macro: changed as asked, and applied from now on."""
     return replace(style, applied=style.applied | {part}, **changes)  # type: ignore[arg-type]

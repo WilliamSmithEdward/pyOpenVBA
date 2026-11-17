@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
-from pyopenvba.apps.excel._styles import applying
+from pyopenvba.apps.excel._styles import applying, same_automatic
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -4755,11 +4755,14 @@ class Worksheet(ExcelObject):
         """Whether a cell says anything: a value, a formula, or a format apart from the one it would inherit.
 
         Excel keeps a cell with nothing in it only while its format differs
-        from its row's or column's, and lets it go the moment it does not.
+        from its row's or column's, and lets it go the moment it does not. A
+        border line in the automatic colour is the same line however the file
+        spells it (tests/fixtures/border_rounds.json).
         """
         if cell.value is not EMPTY or cell.formula or cell.html_id or cell.ignored_errors:
             return True
-        return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
+        mine, inherited = cell.style or self.book.stylesheet.default, self.inherited_style(row, column)
+        return mine != inherited and same_automatic(mine) != same_automatic(inherited)
 
     def settle(self, row: int, column: int) -> None:
         """Drop the cell at a position if it no longer says anything."""

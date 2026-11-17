@@ -505,18 +505,44 @@ def edge_past_half(sheet: Worksheet, area: Area, index: int) -> bool:
     """A left or right edge set alone on more than half the sheet's columns, whole, to its last one, draws nothing while
     no cell and no column format stands in them short of the last one: True once the columns are touched as Excel touches
     them, through their own formats (tests/fixtures/used_range.json)."""
-    if index not in (7, 10) or not (area.top == 1 and area.bottom == MAX_ROWS and 1 < area.left
-                                    and area.right == MAX_COLUMNS and area.columns > MAX_COLUMNS // 2):
-        return False
-    dims = sheet.dims
-    # Columns formatted apart: after a format on more than half the columns, only those formatted apart since.
-    apart = (dims.since_wide if dims.wide_left is not None and dims.wide_left <= area.left
-             else {column for column, record in dims.columns.items() if record.style is not None})
-    if any(area.left <= column < MAX_COLUMNS for _, column in sheet.cells_) or any(
-            area.left <= column < MAX_COLUMNS for column in apart):
+    if index not in (7, 10) or not wide_columns(area) or holds_content(sheet, area):
         return False
     format_columns(sheet, area.left, area.right, _touch)
     return True
+
+
+def wide_columns(area: Area) -> bool:
+    """More than half the sheet's columns, whole, to its last one, short of column A."""
+    return (area.top == 1 and area.bottom == MAX_ROWS and 1 < area.left and area.right == MAX_COLUMNS
+            and area.columns > MAX_COLUMNS // 2)
+
+
+def holds_content(sheet: Worksheet, area: Area) -> bool:
+    """Whether a cell or a column formatted apart stands in an area's columns short of the last one. After a format on
+    more than half the columns, only those formatted apart since count."""
+    dims = sheet.dims
+    apart = (dims.since_wide if dims.wide_left is not None and dims.wide_left <= area.left
+             else {column for column, record in dims.columns.items() if record.style is not None})
+    return (any(area.left <= column < MAX_COLUMNS for _, column in sheet.cells_)
+            or any(area.left <= column < MAX_COLUMNS for column in apart))
+
+
+def refuse_wide_border(sheet: Worksheet, areas: Iterable[Area], index: int, *, alone: bool) -> None:
+    """Refuse a border set on more than half the sheet's columns where Excel's lines are not yet worked out
+    (tests/fixtures/border_rounds.json, rounds 16001 and 16002): a top or bottom edge on such whole columns short of
+    B:XFD's shape, which Excel draws over A:XFC and not over B:XFD; and, set alone to the last column over cells or columns
+    formatted apart, an inside border or a right edge, or a left edge while a cell stands in the last row. BorderAround's
+    edges there are measured (tests/fixtures/used_range.json)."""
+    for area in areas:
+        whole_wide = area.top == 1 and area.bottom == MAX_ROWS and area.columns > MAX_COLUMNS // 2
+        if whole_wide and index in (8, 9) and area.columns < MAX_COLUMNS and not wide_columns(area):
+            raise VBAUnsupportedError("a top or bottom edge on more than half the columns, short of the whole sheet, "
+                                      "is not implemented")
+        if not alone or not wide_columns(area) or not holds_content(sheet, area):
+            continue
+        if index in (10, 11, 12) or (index == 7 and any(row == MAX_ROWS for row, _ in sheet.cells_)):
+            raise VBAUnsupportedError("a border set alone on more than half the columns, to the last column, over cells "
+                                      "or formatted columns there, is not implemented")
 
 
 def refuse_past_half(areas: Iterable[Area]) -> None:
@@ -646,7 +672,9 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
                      for row in rows if row < MAX_ROWS]
             new = change(_current_pair(sheet, pairs, "bottom", "top"))
             # What stands in the first row keeps what it has above it (tests/fixtures/border_gaps.json).
-            kept = {column: own_side(sheet, 1, column, "top") for column in range(area.left, area.right + 1)} if _along_first_row(sheet) else {}
+            # Set with the Borders collection, the first row takes the line too (tests/fixtures/border_rounds.json).
+            kept = {column: own_side(sheet, 1, column, "top") for column in range(area.left, area.right + 1)} \
+                if _along_first_row(sheet) and not together else {}
             format_columns(sheet, area.left, area.right, lambda style: _sides(style, top=new, bottom=new))
             for column, side in kept.items():
                 change_side(sheet, 1, column, 8, lambda _: side, clear_neighbour=False)  # noqa: B023

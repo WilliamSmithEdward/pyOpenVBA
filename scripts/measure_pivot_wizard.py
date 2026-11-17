@@ -47,6 +47,19 @@ Predictions for look 3 (cases 20 to 23, the classic table with fields and no dat
 - L2': a column field alone is the same turned: its caption and items across one row, over the data area's row.
 - L3: one data field alone shows "Sum of v" over its total, E1:E2.
 
+What look 3 showed: L1, L2' and L3 all wrong. A row or column field with no data field shows only its caption, in a
+frame 3 cells high and 2 wide: k at E2, g at F1. A data field alone is E1:F2, Sum of v and Total over Total and 10.
+
+Held-out rounds A and B (cases 24 to 33), predicted on 7b0b4b54 (sha256 1954b9234baaab05): 4 of 10 right, one
+refused. The misses:
+- With one data field and one axis empty, the data field's caption takes the corner. A header row reading Total goes
+  over the values when there's no column field; with no row field, the row label reads Total.
+- The wizard's table keeps RowGrand in colGrandTotals and ColumnGrand in rowGrandTotals, the other way round from a
+  table CreatePivotTable makes.
+- Two row fields with no data field make a frame with a label column for each.
+All fixed and now part of the fixture. Held-out rounds C (34 to 38) and D (39 to 43) are predicted by the model
+before they run.
+
     python scripts/measure_pivot_wizard.py
 
 writes tests/fixtures/pivot_wizard.json.
@@ -139,6 +152,27 @@ CASES = [
     'Log = "": ws.Range("F3").Value = 50: r = ws.Range("H3").Value',
     WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): ' + FIELDS + 'ws.Range("C2").Value = 9: Log = "": '
     'pt.RefreshTable: r = pt.TableRange2.Address(False, False)',
+    # Held-out round C, predicted by the model before it ran.
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("G2")): pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlColumnField: pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.AddDataField pt.PivotFields("v"): '
+    'pt.PivotFields("g").Orientation = xlColumnField',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): ' + FIELDS + 'pt.RowGrand = False: r = pt.ColumnGrand',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1"), HasAutoFormat:=False): '
+    'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.PivotFields("g").Orientation = xlColumnField: pt.AddDataField pt.PivotFields("v"), "Avg", xlAverage',
+    # Held-out round D, predicted by the model before it ran.
+    WIZARD + 'xlDatabase, ws.Range("A1:C4"), ws.Range("E1")): pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("g").Orientation = xlColumnField: '
+    'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v")',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1"), RowGrand:=False, ColumnGrand:=False): ' + FIELDS
+    + 'r = pt.TableRange1.Address(False, False)',
+    WIZARD + 'xlDatabase, ws.Range("A1:C5"), ws.Range("E1")): pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v"): pt.ColumnGrand = False: r = pt.RowGrand',
 ]
 PROBE = '''Private Function Digest(wb As Workbook) As String
     Dim s As String, sh As Worksheet, pt As PivotTable, cell As Range

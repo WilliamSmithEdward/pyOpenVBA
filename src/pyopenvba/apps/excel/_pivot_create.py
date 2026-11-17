@@ -502,7 +502,7 @@ def wizard(sheet: Worksheet, source_type: object, source: object, destination: o
     the table's first cell becomes the active cell. Called with nothing while the active cell is in a table, it gives
     that table back. Given anything then, Excel works on that table -- moving it to a new TableDestination -- which
     is not built, nor are the arguments that shape a source other than a list."""
-    from pyopenvba.apps.excel._pivot_forms import TABLE_ORDER, ordered, set_flag
+    from pyopenvba.apps.excel._pivot_forms import TABLE_ORDER, grand_attributes, ordered, set_flag
     from pyopenvba.apps.excel._pivot_options import CACHE_ORDER
 
     book = sheet.book
@@ -546,7 +546,8 @@ def wizard(sheet: Worksheet, source_type: object, source: object, destination: o
         assert isinstance(added, Sheet)
         destination = added.vba_get('Range', ['A1'])
     table = create_table(cache, destination, name, read, MISSING, classic=True)
-    for key, attribute in (('RowGrand', 'rowGrandTotals'), ('ColumnGrand', 'colGrandTotals'),
+    row_grand, column_grand = grand_attributes(table.root)
+    for key, attribute in (('RowGrand', row_grand), ('ColumnGrand', column_grand),
                            ('HasAutoFormat', 'useAutoFormatting')):
         value = flags[key]
         if value is not MISSING and not to_bool(value):

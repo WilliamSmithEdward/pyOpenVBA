@@ -1702,8 +1702,8 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         restyling = what in ("LineStyle", "Weight")
         for index in self._indexes():
             border = Border(self.target, index, together=True, collection=True)
-            across = (lambda area: area.rows) if index in (8, 9, 12) else (lambda area: area.columns)
-            if restyling and any(across(area) > 1 for area in self.target.areas):
+            horizontal = index in (8, 9, 12)
+            if restyling and any((area.rows if horizontal else area.columns) > 1 for area in self.target.areas):
                 change = side_change(what, value)
                 border.apply(lambda side, change=change: _automatic(change(side)))  # type: ignore[misc]
             else:

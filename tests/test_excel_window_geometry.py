@@ -18,8 +18,9 @@ import pytest
 
 from pyopenvba._a1 import column_letter
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, Unmeasured, large_scroll,
-                                                   scroll_into_view, usable, visible)
+from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, Unmeasured, application_usable, large_scroll,
+                                                   origin, range_from_point, screen_pixel, scroll_into_view, snapped,
+                                                   usable, visible)
 from pyopenvba.exceptions import VBAUnsupportedError
 
 
@@ -214,3 +215,96 @@ def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dic
         assert spec['frozen'] != [0, 0]
         return
     assert found == answer
+
+
+# -- Application's frame and screen pixels (tests/fixtures/window_geometry_c.json)
+
+LOOK_C = {name: (reads, answer) for name, _statements, reads, answer in json.loads(
+    (FIXTURES / 'window_geometry_c.json').read_text('utf-8'))['cases']}
+
+
+def _values(name: str) -> dict[str, str]:
+    reads, answer = LOOK_C[name]
+    assert answer.startswith('dpi=14.5|') and answer.endswith(' dpi=14.5'), answer
+    return dict(zip(reads, answer.removeprefix('dpi=14.5|').removesuffix(' dpi=14.5').split('|'), strict=True))
+
+
+#: Each frame case: what Application's frame is set to, (width, height), and whether the bars show.
+FRAMES: dict[str, tuple[float, float, bool, bool]] = {
+    'frame as set': (700, 500, True, True),
+    **{f'application width {value}': (value, 500, True, True) for value in (600, 600.25, 600.5, 600.75, 601)},
+    **{f'application height {value}': (700, value, True, True) for value in (450, 450.25, 450.5, 450.75)},
+    **{f'window width {value}': (value, 500, True, True) for value in (400, 400.25, 400.5, 401)},
+    **{f'window height {value}': (700, value, True, True) for value in (300, 300.25, 300.5, 301)},
+    'formula bar off': (700, 500, False, True),
+    'status bar off': (700, 500, True, False),
+    'both bars off': (700, 500, False, False),
+}
+
+
+def _number(text: str) -> float:
+    return float(text.split(':', 1)[1])
+
+
+@pytest.mark.parametrize('name', list(FRAMES))
+def test_application_s_frame_reads_as_excel_did(name: str) -> None:
+    """Application's size reads back down to a whole pixel, the window's usable area follows it, and
+    Application.UsableWidth and UsableHeight are that size less the frame, ribbon and bars."""
+    width, height, formula_bar, status_bar = FRAMES[name]
+    values = _values(name)
+    assert _number(values['Application.Width']) == snapped(DISPLAY, width)
+    assert _number(values['Application.Height']) == snapped(DISPLAY, height)
+    assert (_number(values['Application.UsableWidth']), _number(values['Application.UsableHeight'])) == \
+        application_usable(DISPLAY, width, height, formula_bar, status_bar)
+    layout = replace(BASE, width=width, height=height, formula_bar=formula_bar, status_bar=status_bar)
+    assert (_number(values['w.UsableWidth']), _number(values['w.UsableHeight'])) == usable(DISPLAY, layout)
+
+
+#: Each screen-pixel case: the window's layout and its place in points.
+PIXEL_CASES: dict[str, tuple[Layout, float, float]] = {
+    'pixels': (BASE, 0, 0),
+    'pixels moved': (BASE, 100, 60),
+    'pixels headings off': (replace(BASE, headings=False), 0, 0),
+    'pixels formula bar off': (replace(BASE, formula_bar=False), 0, 0),
+    'pixels scrolled': (replace(BASE, scroll=(5, 2)), 0, 0),
+    'pixels hidden': (replace(BASE, row_pixels=_hidden(1, 1, 29), column_pixels=_hidden(1, 1, 96)), 0, 0),
+    'pixels shape': (BASE, 0, 0),
+    'pixels rows 100': (replace(BASE, scroll=(100, 1)), 0, 0),
+}
+#: The points PointsToScreenPixelsX and Y were asked for, in the probe's order.
+POINTS = [('x', 0), ('y', 0), ('x', 1), ('y', 1), ('x', 47), ('x', 48), ('x', 97), ('y', -30), ('x', 1000), ('x', 2.6),
+          ('y', 2.4)]
+#: The screen pixels RangeFromPoint was asked for: from A1's corner, or (None) on the screen itself.
+SPOTS = [(0, 0, True), (-1, 0, True), (0, -1, True), (95, 0, True), (96, 0, True), (0, 28, True), (0, 29, True),
+         (500, 300, True), (-45, 10, True), (10, -35, True), (0, 0, False), (-5, -5, False), (1300, 10, True),
+         (10, 600, True)]
+
+
+@pytest.mark.parametrize('name', list(PIXEL_CASES))
+def test_screen_pixels_and_the_cells_under_them_as_excel_answered(name: str) -> None:
+    """PointsToScreenPixelsX and Y, and RangeFromPoint, for a window at a whole pixel at 100%. RangeFromPoint's
+    Nothing reads as error 91 in the probe, which took its Address."""
+    layout, left, top = PIXEL_CASES[name]
+    reads, answer = LOOK_C[name]
+    values = answer.removeprefix('dpi=14.5|').removesuffix(' dpi=14.5').split('|')
+    across, down = origin(DISPLAY, layout, left, top)
+    for (axis, points), value in zip(POINTS, values, strict=False):
+        assert value == f'Long:{screen_pixel(across if axis == "x" else down, points)}', (axis, points)
+    for (x, y, relative), value in zip(SPOTS, values[len(POINTS):], strict=True):
+        found = range_from_point(DISPLAY, layout, left, top, across + x if relative else x,
+                                 down + y if relative else y)
+        want = 'E91' if found is None else f'String:Range:{column_letter(found[1])}{found[0]}'
+        assert value == want, (x, y, relative)
+    assert len(reads) == len(POINTS) + len(SPOTS)
+
+
+def test_the_third_look_s_cases_left_out_are_named() -> None:
+    """Left out: Application's Left and Top, which snap in ways four cases each do not pin; a frame set below its
+    least width (99pt); zooms other than 100%, where the headings come from a table of their own; a wide column whose
+    width was not read; and frozen panes, whose screen pixels follow no rule found."""
+    left_out = {f'application left {value}' for value in (30, 30.25, 30.5, 31)} | \
+        {f'application top {value}' for value in (30, 30.25, 30.5, 31)} | \
+        {f'window left {value}' for value in (10, 10.5, 11)} | {f'window top {value}' for value in (10, 10.5, 11)} | \
+        {'application too small', 'pixels tall row', 'pixels frozen'} | \
+        {f'pixels zoom {zoom}' for zoom in (50, 60, 75, 85, 110, 150, 200)}
+    assert set(LOOK_C) - set(FRAMES) - set(PIXEL_CASES) == left_out

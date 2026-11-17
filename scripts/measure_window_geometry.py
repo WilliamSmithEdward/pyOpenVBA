@@ -116,6 +116,64 @@ CASES_B: list[tuple[str, list[str], list[str]]] = [
 ]
 
 
+#: What a size or place set reads back as, through Application and through the window.
+FRAME = ['Application.Width', 'Application.Height', 'Application.Left', 'Application.Top', 'w.Width', 'w.Height',
+         'w.Left', 'w.Top', 'Application.UsableWidth', 'Application.UsableHeight', 'w.UsableWidth', 'w.UsableHeight']
+#: Screen pixels of points from A1, and the cells under screen pixels.
+PIXELS = ['w.PointsToScreenPixelsX(0)', 'w.PointsToScreenPixelsY(0)', 'w.PointsToScreenPixelsX(1)',
+          'w.PointsToScreenPixelsY(1)', 'w.PointsToScreenPixelsX(47)', 'w.PointsToScreenPixelsX(48)',
+          'w.PointsToScreenPixelsX(97)', 'w.PointsToScreenPixelsY(-30)', 'w.PointsToScreenPixelsX(1000)',
+          'w.PointsToScreenPixelsX(2.6)', 'w.PointsToScreenPixelsY(2.4)']
+
+
+def _at(x: str, y: str) -> str:
+    return (f'IIf(w.RangeFromPoint({x}, {y}) Is Nothing, "Nothing", '
+            f'TypeName(w.RangeFromPoint({x}, {y})) & ":" & w.RangeFromPoint({x}, {y}).Address(False, False))')
+
+
+X0, Y0 = 'w.PointsToScreenPixelsX(0)', 'w.PointsToScreenPixelsY(0)'
+#: The cells under screen pixels round A1's corner and further in.
+POINTS_AT = [_at(X0, Y0), _at(f'{X0} - 1', Y0), _at(X0, f'{Y0} - 1'), _at(f'{X0} + 95', Y0), _at(f'{X0} + 96', Y0),
+             _at(X0, f'{Y0} + 28'), _at(X0, f'{Y0} + 29'), _at(f'{X0} + 500', f'{Y0} + 300'),
+             _at(f'{X0} - 45', f'{Y0} + 10'), _at(f'{X0} + 10', f'{Y0} - 35'), _at('0', '0'), _at('-5', '-5'),
+             _at(f'{X0} + 1300', f'{Y0} + 10'), _at(f'{X0} + 10', f'{Y0} + 600')]
+
+
+def _frame(name: str, statements: list[str]) -> tuple[str, list[str], list[str]]:
+    return (name, statements, FRAME)
+
+
+#: The third look: Application's frame and usable area as it is set and read back, screen pixels from points, and the
+#: cells under screen pixels.
+CASES_C: list[tuple[str, list[str], list[str]]] = [
+    _frame('frame as set', []),
+    *[_frame(f'application width {value}', [f'Application.Width = {value}']) for value in (600, 600.25, 600.5, 600.75, 601)],
+    *[_frame(f'application height {value}', [f'Application.Height = {value}']) for value in (450, 450.25, 450.5, 450.75)],
+    *[_frame(f'application left {value}', [f'Application.Left = {value}']) for value in (30, 30.25, 30.5, 31)],
+    *[_frame(f'application top {value}', [f'Application.Top = {value}']) for value in (30, 30.25, 30.5, 31)],
+    *[_frame(f'window width {value}', [f'w.Width = {value}']) for value in (400, 400.25, 400.5, 401)],
+    *[_frame(f'window height {value}', [f'w.Height = {value}']) for value in (300, 300.25, 300.5, 301)],
+    *[_frame(f'window left {value}', [f'w.Left = {value}']) for value in (10, 10.5, 11)],
+    *[_frame(f'window top {value}', [f'w.Top = {value}']) for value in (10, 10.5, 11)],
+    _frame('formula bar off', ['Application.DisplayFormulaBar = False']),
+    _frame('status bar off', ['Application.DisplayStatusBar = False']),
+    _frame('both bars off', ['Application.DisplayFormulaBar = False', 'Application.DisplayStatusBar = False']),
+    _frame('application too small', ['Application.Width = 50', 'Application.Height = 40']),
+    ('pixels', [], PIXELS + POINTS_AT),
+    ('pixels moved', ['w.Left = 100', 'w.Top = 60'], PIXELS + POINTS_AT),
+    ('pixels headings off', ['w.DisplayHeadings = False'], PIXELS + POINTS_AT),
+    ('pixels formula bar off', ['Application.DisplayFormulaBar = False'], PIXELS + POINTS_AT),
+    ('pixels scrolled', ['w.ScrollRow = 5', 'w.ScrollColumn = 2'], PIXELS + POINTS_AT),
+    *[(f'pixels zoom {zoom}', [f'w.Zoom = {zoom}'], PIXELS + POINTS_AT) for zoom in (50, 60, 75, 85, 110, 150, 200)],
+    ('pixels tall row', ['ActiveSheet.Rows(1).RowHeight = 40', 'ActiveSheet.Columns(1).ColumnWidth = 20'],
+     PIXELS + POINTS_AT),
+    ('pixels hidden', ['ActiveSheet.Rows(1).Hidden = True', 'ActiveSheet.Columns(1).Hidden = True'], PIXELS + POINTS_AT),
+    ('pixels shape', ['ActiveSheet.Shapes.AddShape 1, 0, 0, 60, 30'], PIXELS + POINTS_AT),
+    ('pixels frozen', ['ActiveSheet.Range("C4").Select', 'w.FreezePanes = True'], PIXELS + POINTS_AT),
+    ('pixels rows 100', ['w.ScrollRow = 100'], PIXELS + POINTS_AT),
+]
+
+
 def source(cases: list[tuple[str, list[str], list[str]]]) -> str:
     lines = ['Public Function Go(ByVal which As Long) As String',
              '    Dim wb As Workbook, s As String, state As Long, wide As Double, high As Double, across As Double',
@@ -292,7 +350,7 @@ def main() -> None:
     predictions = FIXTURES / f'window_geometry{look}_predictions.json'
     expected = json.loads(predictions.read_text('utf-8'))['cases'] if predictions.exists() else None
     cases = ([tuple(one['call']) for one in expected] if expected is not None
-             else {'_a': CASES_A, '_b': CASES_B}[look])
+             else {'_a': CASES_A, '_b': CASES_B, '_c': CASES_C}[look])
     text = source(cases)
     before = placement()
     answers: list[str] = []

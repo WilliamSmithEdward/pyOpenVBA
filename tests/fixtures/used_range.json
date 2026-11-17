@@ -1,5 +1,5 @@
 {
-"about": "Worksheet.UsedRange measured in Excel after each step and after a save and reopen, with SpecialCells(xlLastCell) and End in round 15001. Cases marked refused are ones the model does not answer yet; their Excel answers are where the rows-side lane starts.",
+"about": "Worksheet.UsedRange measured in Excel after each step and after a save and reopen, with SpecialCells(xlLastCell) and End in round 15001; and a Worksheet held past its workbook's close. Cases marked refused are ones the model does not answer yet, their Excel answers where the work that answers them starts. Cases marked differs are known differences, kept with Excel's answer and the reason (see the Worksheet.UsedRange checklist note).",
 "probes": [
 {
 "name": "used1",
@@ -4786,7 +4786,7 @@
 "{folder}/9.xlsx"
 ],
 "excel": "0:$A$1:$A$3;[B1/7 -4142 2]0:$A$1:$A$3;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4798,7 +4798,7 @@
 "{folder}/10.xlsx"
 ],
 "excel": "0:$A$1;[A2/8 -4142 2]0:$A$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4909,7 +4909,7 @@
 "{folder}/0.xlsx"
 ],
 "excel": "0:$A$1:$B$2;[C1/7 -4142 2]0:$A$1:$B$2;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4921,7 +4921,7 @@
 "{folder}/1.xlsx"
 ],
 "excel": "0:$A$1:$C$1;[A2/8 -4142 2]0:$A$1:$C$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4933,7 +4933,7 @@
 "{folder}/2.xlsx"
 ],
 "excel": "0:$A$1:$A$3;[B3/9 1 2]0:$A$1:$A$3;saved:$A$3",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4945,7 +4945,7 @@
 "{folder}/3.xlsx"
 ],
 "excel": "0:$A$1;[B1/7 -4142 2]0:$A$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4970,7 +4970,7 @@
 "{folder}/5.xlsx"
 ],
 "excel": "0:$C$2;0:$A$1:$C$3;[B1/7 1 2]0:$A$1:$C$3;saved:$B$1:$C$3",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -4982,7 +4982,7 @@
 "{folder}/6.xlsx"
 ],
 "excel": "0:$A$2;0:$A$1:$A$3;saved:$A$2",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5038,7 +5038,7 @@
 "{folder}/11.xlsx"
 ],
 "excel": "0:$A$1;[A1048576/9 -4142 2]0:$A$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5050,7 +5050,7 @@
 "{folder}/12.xlsx"
 ],
 "excel": "0:$A$1;[A2/9 1 2]0:$A$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5075,7 +5075,7 @@
 "{folder}/14.xlsx"
 ],
 "excel": "0:$A$1;0:$A$1:$A$2;[A3/8 -4142 2]0:$A$1:$A$2;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5296,7 +5296,7 @@
 "{folder}/13.xlsx"
 ],
 "excel": "0:$A$1:$LCA$3;[LCB1/7 -4142]0:$A$1:$LCA$3;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5319,7 +5319,7 @@
 "{folder}/15.xlsx"
 ],
 "excel": "0:$A$1:$C$3;[D1/7 -4142]0:$A$1:$C$3;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5375,7 +5375,7 @@
 "{folder}/20.xlsx"
 ],
 "excel": "0:$A$1:$A$524287;[A524288/8 -4142]0:$A$1:$A$524287;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5387,7 +5387,7 @@
 "{folder}/21.xlsx"
 ],
 "excel": "0:$A$1;[A2/8 -4142]0:$A$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5410,7 +5410,7 @@
 "{folder}/23.xlsx"
 ],
 "excel": "0:$A$1;[A2/7 1]0:$A$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5422,7 +5422,7 @@
 "{folder}/24.xlsx"
 ],
 "excel": "0:$A$1:$C$1;[A2/7 1]0:$A$1:$C$1;saved:$A$1",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 }
 ]
 },
@@ -5607,7 +5607,7 @@
 "{folder}/10.xlsx"
 ],
 "excel": "0:$XFD$2;0:$1:$3;[B1/7 -4142]0:$1:$3;[B2/7 -4142]0:$1:$3;saved:$XFD$2",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5623,7 +5623,7 @@
 "{folder}/11.xlsx"
 ],
 "excel": "0:$B$1;0:$A$1:$B$3;[B1/7 1]0:$A$1:$B$3;[B3/7 1]0:$A$1:$B$3;saved:$B$1:$B$3",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5637,7 +5637,7 @@
 "{folder}/12.xlsx"
 ],
 "excel": "0:$D$9;0:$A$1:$D$9;[B1/7 1]0:$A$1:$D$9;saved:$B$1:$D$9",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5651,7 +5651,7 @@
 "{folder}/13.xlsx"
 ],
 "excel": "0:$A$5;0:$A$1:$A$5;[A2/8 -4142]0:$A$1:$A$5;saved:$A$5",
-"refused": "more than half the sheet's rows"
+"refused": "formatting\\ more\\ than\\ half\\ the\\ sheet's\\ rows\\ down\\ to\\ its\\ last\\ "
 },
 {
 "middle": [
@@ -5903,6 +5903,1407 @@
 "{folder}/15.xlsx"
 ],
 "excel": "0:$A$1:$A$2;0:$XFD$1:$XFD$2;saved:$1:$2"
+}
+]
+},
+{
+"name": "ur18",
+"about": "The collection on rows over a colour-only left edge; a line saved by Excel cleared by a row edge",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.R",
+"suffix": ").ColorIndex & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"ange(\"A1\").Borders(7).Color = 65280",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Rows(\"1:2\").Borders.LineStyle = xlContinuous",
+"s = s & \"[A1/7 \" & ws.Range(\"A1\").Borders(7).LineStyle & \" \" & ws.Range(\"A1\").Borders(7).Color & \" \" & ws.Range(\"A1\").Borders(7).ColorIndex & \"]\"",
+"s = s & \"[A2/7 \" & ws.Range(\"A2\").Borders(7).LineStyle & \" \" & ws.Range(\"A2\").Borders(7).Color & \" \" & ws.Range(\"A2\").Borders(7).ColorIndex & \"]\"",
+"s = s & \"[B1/7 \" & ws.Range(\"B1\").Borders(7).LineStyle & \" \" & ws.Range(\"B1\").Borders(7).Color & \" \" & ws.Range(\"B1\").Borders(7",
+"ws.Rows(\"1:2\").Borders(7).LineStyle = xlContinuous",
+"s = s & \"[A2/7 \" & ws.Range(\"A2\").Borders(7).LineStyle & \" \" & ws.Range(\"A2\").Borders(7).Color & \" \" & ws.Range(\"A2\").Borders(7",
+"ange(\"A1\").Borders(7).LineStyle = xlDash",
+"ows(\"1:2\").Borders.LineStyle = xlContinuous",
+"s = s & \"[B1/7 \" & ws.Range(\"B1\").Borders(7).LineStyle & \" \" & ws.Range(\"B1\").Borders(7).Color & \" \" & ws.Range(\"B1\").Borders(7).ColorIndex & \"]\"",
+"s = s & \"[A1/8 \" & ws.Range(\"A1\").Borders(8).LineStyle & \" \" & ws.Range(\"A1\").Borders(8).Color & \" \" & ws.Range(\"A1\").Borders(8",
+"ws.Columns(\"XFD\").Borders.LineStyle = xlDash",
+"s = s & \"[XFD1/7 \" & ws.Range(\"XFD1\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(7).Color & \" \" & ws.Range(\"XFD1\").Borders(7",
+"ange(\"C1\").Borders(9).LineStyle = xlContinuous",
+"wb.SaveAs path & \".mid.xlsx\", 51: wb.Close False",
+"Set wb = Workbooks.Open(path & \".mid.xlsx\"): Set ws = wb.Worksheets(1)",
+"ws.Rows(2).Borders(8).Color = 65280",
+"s = s & \"[C1/9 \" & ws.Range(\"C1\").Borders(9).LineStyle & \" \" & ws.Range(\"C1\").Borders(9).Color & \" \" & ws.Range(\"C1\").Borders(9",
+"ange(\"C1\").Font.Bold = True",
+"ws.Range(\"C1\").Borders(9).LineStyle = xlContinuous",
+"ws.Range(\"C2\").Borders(8).Color = 65280",
+"ws.Range(\"C1\").Borders(9).LineStyle = xlNone"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$2;[A1/7 1 0 -4105]0:$A$1:$A$2;[A2/7 1 0 -4105]0:$A$1:$A$2;[B1/7 1 0 -4105]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+0,
+1,
+6,
+1,
+3,
+1,
+7
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$2;[A1/7 1 0 -4105]0:$A$1:$A$2;[A2/7 1 0 -4105]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+8,
+1,
+2,
+1,
+3,
+1,
+7
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$2;[A1/7 1 0 -4105]0:$A$1:$A$2;[A2/7 1 0 -4105]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+9,
+1,
+3,
+1,
+10,
+1,
+11
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$1:$A$2;[A1/7 1 0 -4105]0:$A$1:$A$2;[B1/7 1 0 -4105]0:$A$1:$A$2;[A1/8 1 0 -4105]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+0,
+1,
+12,
+1,
+2,
+1,
+3,
+1,
+13
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$1;0:$1:$1;0:$XFD$1:$XFD$2;[A1/7 1 0 -4105]0:$XFD$1:$XFD$2;[XFD1/7 1 0 -4105]0:$XFD$1:$XFD$2;saved:$A$1:$XFC$2"
+},
+{
+"middle": [
+14,
+1,
+15,
+1,
+16,
+1,
+17,
+1,
+18
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;0:$C$1:$C$2;[C1/9 1 65280 4]0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+14,
+1,
+17,
+1,
+18
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$C$1;0:$C$1:$C$2;[C1/9 1 65280 4]0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+19,
+1,
+20,
+1,
+15,
+1,
+16,
+1,
+17,
+1,
+18
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;0:$C$1;0:$C$1:$C$2;[C1/9 1 65280 4]0:$C$1:$C$2;saved:$C$1:$C$2"
+},
+{
+"middle": [
+14,
+1,
+15,
+1,
+16,
+1,
+21,
+1,
+18
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;0:$C$1:$C$2;[C1/9 1 65280 4]0:$C$1:$C$2;saved:$C$2"
+},
+{
+"middle": [
+14,
+1,
+15,
+1,
+16,
+1,
+22,
+1,
+18
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;0:$C$1;[C1/9 -4142 0 -4142]0:$C$1;saved:$A$1"
+}
+]
+},
+{
+"name": "ur19",
+"about": "Round 10002 case 92 as macros",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.Range(\"",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"C1\").Borders(9).LineStyle = xlDot",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Range(\"A2\").Borders(8).LineStyle = xlDash",
+"ws.Rows(2).Borders(8).Color = 65280",
+"s = s & \"[C1/9 \" & ws.Range(\"C1\").Borders(9).LineStyle & \" \" & ws.Range(\"C1\").Borders(9).Color & \" \" & ws.Range(\"C1\").Borders(9).Weight & \"]\"",
+"s = s & \"[A2/8 \" & ws.Range(\"A2\").Borders(8).LineStyle & \" \" & ws.Range(\"A2\").Borders(8).Color & \" \" & ws.Range(\"A2\").Borders(8).Weight & \"]\"",
+"s = s & \"[B2/8 \" & ws.Range(\"B2\").Borders(8).LineStyle & \" \" & ws.Range(\"B2\").Borders(8).Color & \" \" & ws.Range(\"B2\").Borders(8",
+"ws.Range(\"B2\").Value = 1",
+"s = s & \"[B1/9 \" & ws.Range(\"B1\").Borders(9).LineStyle & \" \" & ws.Range(\"B1\").Borders(9).Color & \" \" & ws.Range(\"B1\").Borders(9",
+"s = s & \"[C1/9 \" & ws.Range(\"C1\").Borders(9).LineStyle & \" \" & ws.Range(\"C1\").Borders(9).Color & \" \" & ws.Range(\"C1\").Borders(9",
+"A2\").Borders(8).LineStyle = xlDash",
+"ws.Rows(2).Borders(8).Weight = xlThick",
+"ws.Rows(2).Borders(8).LineStyle = xlContinuous",
+"ws.Range(\"B1\").Borders(9).LineStyle = xlDouble",
+"s = s & \"[B1/9 \" & ws.Range(\"B1\").Borders(9).LineStyle & \" \" & ws.Range(\"B1\").Borders(9).Color & \" \" & ws.Range(\"B1\").Borders(9).Weight & \"]\"",
+"A1\").Value = 1",
+"ws.Range(\"C1\").Borders(9).LineStyle = xlDot"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$C$1:$C$2;[C1/9 -4115 65280 2]0:$C$1:$C$2;[A2/8 -4115 65280 2]0:$C$1:$C$2;[B2/8 -4115 65280 2]0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+7,
+1,
+3,
+1,
+4,
+1,
+8
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$B$1:$C$2;[C1/9 -4115 65280 2]0:$B$1:$C$2;[B1/9 -4115 65280 2]0:$B$1:$C$2;saved:$B$2"
+},
+{
+"middle": [
+0,
+1,
+3,
+1,
+9
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$C$1;0:$C$1:$C$2;[C1/9 1 65280 2]0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+10,
+1,
+3,
+1,
+5,
+1,
+9
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$2;0:$A$2;[A2/8 -4115 65280 2]0:$A$2;[C1/9 -4115 65280 2]0:$A$2;saved:$A$2"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+11,
+1,
+9
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$C$1:$C$2;[C1/9 1 0 4]0:$C$1:$C$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+12,
+1,
+9
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$C$1:$C$2;[C1/9 1 0 2]0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+13,
+1,
+3,
+1,
+14,
+1,
+9
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$B$1:$C$2;[B1/9 -4115 65280 2]0:$B$1:$C$2;[C1/9 -4115 65280 2]0:$B$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+15,
+1,
+16,
+1,
+2,
+1,
+3,
+1,
+9
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;[C1/9 -4115 65280 2]0:$A$1:$C$2;saved:$A$1:$A$2"
+}
+]
+},
+{
+"name": "ur20",
+"about": "Left edges on B:XFD with cells in the last row; the collection over coloured lines; one-row inside horizontals",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"Range(\"A1048576\").Borders(9).LineStyle = xlContinuous",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Columns(\"B:XFD\").Borders(7).Weight = xlThick",
+"s = s & \"[A1048576/7 \" & ws.Range(\"A1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(7).Color & \" \" & ws.Range(\"A1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[B1048576/7 \" & ws.Range(\"B1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"B1048576\").Borders(7).Color & \" \" & ws.Range(\"B1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[C1048576/7 \" & ws.Range(\"C1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"C1048576\").Borders(7).Color & \" \" & ws.Range(\"C1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[B1/7 \" & ws.Range(\"B1\").Borders(7).LineStyle & \" \" & ws.Range(\"B1\").Borders(7).Color & \" \" & ws.Range(\"B1\").Borders(7",
+"Range(\"C1048576\").Value = 1",
+"Range(\"C1\").Value = 1",
+"Range(\"A1\").Value = 1",
+"ws.Range(\"C1\").Value = 1",
+"s = s & \"[A1/7 \" & ws.Range(\"A1\").Borders(7).LineStyle & \" \" & ws.Range(\"A1\").Borders(7).Color & \" \" & ws.Range(\"A1\").Borders(7).Weight & \"]\"",
+"Range(\"A1048576\").Value = 1",
+"Rows(\"1:2\").Borders(12).Color = 65280",
+"ws.Rows(\"1:2\").Borders.LineStyle = xlContinuous",
+"s = s & \"[A1/9 \" & ws.Range(\"A1\").Borders(9).LineStyle & \" \" & ws.Range(\"A1\").Borders(9).Color & \" \" & ws.Range(\"A1\").Borders(9).Weight & \"]\"",
+"s = s & \"[A1/8 \" & ws.Range(\"A1\").Borders(8).LineStyle & \" \" & ws.Range(\"A1\").Borders(8).Color & \" \" & ws.Range(\"A1\").Borders(8).Weight & \"]\"",
+"s = s & \"[A2/8 \" & ws.Range(\"A2\").Borders(8).LineStyle & \" \" & ws.Range(\"A2\").Borders(8).Color & \" \" & ws.Range(\"A2\").Borders(8).Weight & \"]\"",
+"s = s & \"[A2/9 \" & ws.Range(\"A2\").Borders(9).LineStyle & \" \" & ws.Range(\"A2\").Borders(9).Color & \" \" & ws.Range(\"A2\").Borders(9",
+"ws.Rows(\"1:2\").Borders.LineStyle = xlDash",
+"s = s & \"[A1/8 \" & ws.Range(\"A1\").Borders(8).LineStyle & \" \" & ws.Range(\"A1\").Borders(8).Color & \" \" & ws.Range(\"A1\").Borders(8",
+"ws.Rows(\"1:2\").Borders(8).LineStyle = xlContinuous",
+"Columns(\"XFD\").Borders.LineStyle = xlContinuous",
+"ws.Rows(2).Borders(12).Weight = xlHairline",
+"s = s & \"[XFD1/9 \" & ws.Range(\"XFD1\").Borders(9).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(9).Color & \" \" & ws.Range(\"XFD1\").Borders(9).Weight & \"]\"",
+"s = s & \"[XFD2/8 \" & ws.Range(\"XFD2\").Borders(8).LineStyle & \" \" & ws.Range(\"XFD2\").Borders(8).Color & \" \" & ws.Range(\"XFD2\").Borders(8).Weight & \"]\"",
+"s = s & \"[XFD2/9 \" & ws.Range(\"XFD2\").Borders(9).LineStyle & \" \" & ws.Range(\"XFD2\").Borders(9).Color & \" \" & ws.Range(\"XFD2\").Borders(9",
+"Rows(2).Borders(12).Weight = xlHairline",
+"Rows(\"1:2\").Borders(7).Color = 5",
+"ws.Range(\"C1048576\").Borders(11).Color = 65280",
+"ws.Rows(1).Borders(8).Weight = xlHairline",
+"ws.Columns(\"XFD\").Borders.LineStyle = xlContinuous",
+"s = s & \"[XFD1/8 \" & ws.Range(\"XFD1\").Borders(8).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(8).Color & \" \" & ws.Range(\"XFD1\").Borders(8"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[A1048576/7 -4142 0 2]0:$A$1048576;[B1048576/7 -4142 0 2]0:$A$1048576;[C1048576/7 -4142 0 2]0:$A$1048576;[B1/7 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+7,
+1,
+2,
+1,
+3,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$C$1048576;0:$A$1048576:$C$1048576;[A1048576/7 -4142 0 2]0:$A$1048576:$C$1048576;[C1048576/7 -4142 0 2]0:$A$1048576:$C$1048576;[B1/7 1 0 4]0:$A$1048576:$C$1048576;saved:$B$1048576:$C$1048576",
+"refused": "a\\ border\\ set\\ alone\\ on\\ more\\ than\\ half\\ the\\ columns,\\ to\\ the\\ las"
+},
+{
+"middle": [
+8,
+1,
+2,
+1,
+3,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$1;[A1048576/7 -4142 0 2]0:$A$1:$C$1;[C1048576/7 -4142 0 2]0:$A$1:$C$1;[B1/7 1 0 4]0:$A$1:$C$1;saved:$B$1:$C$1"
+},
+{
+"middle": [
+9,
+1,
+10,
+1,
+2,
+1,
+3,
+1,
+5,
+1,
+11,
+1,
+6
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$C$1;0:$A$1:$C$1;[A1048576/7 -4142 0 2]0:$A$1:$C$1;[C1048576/7 -4142 0 2]0:$A$1:$C$1;[A1/7 -4142 0 2]0:$A$1:$C$1;[B1/7 1 0 4]0:$A$1:$C$1;saved:$A$1:$C$1"
+},
+{
+"middle": [
+12,
+1,
+10,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$1048576;0:$A:$C;0:$A:$C;[A1048576/7 -4142 0 2]0:$A:$C;[B1048576/7 1 0 4]0:$A:$C;[C1048576/7 1 0 4]0:$A:$C;[B1/7 1 0 4]0:$A:$C;saved:$A:$C",
+"refused": "a\\ border\\ set\\ alone\\ on\\ more\\ than\\ half\\ the\\ columns,\\ to\\ the\\ las"
+},
+{
+"middle": [
+13,
+1,
+14,
+1,
+15,
+1,
+16,
+1,
+17,
+1,
+18
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A$1:$A$2;[A1/9 1 0 2]0:$A$1:$A$2;[A1/8 1 0 2]0:$A$1:$A$2;[A2/8 1 0 2]0:$A$1:$A$2;[A2/9 1 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+13,
+1,
+19,
+1,
+15,
+1,
+20
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A$1:$A$2;[A1/9 -4115 0 2]0:$A$1:$A$2;[A1/8 -4115 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+13,
+1,
+21,
+1,
+15,
+1,
+20
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A$1:$A$2;[A1/9 1 65280 2]0:$A$1:$A$2;[A1/8 1 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$2;[XFD1/9 1 0 2]0:$XFD$2;[XFD2/8 1 0 2]0:$XFD$2;[XFD2/9 1 0 2]0:$XFD$2;saved:$2:$2",
+"differs": "UsedRange after a save: a one-row inside horizontal beside column XFD's collection"
+},
+{
+"middle": [
+27,
+1,
+15,
+1,
+18
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$A$2;[A1/9 -4142 0 2]0:$A$2;[A2/9 -4142 0 2]0:$A$2;saved:$A$1"
+},
+{
+"middle": [
+28,
+1,
+29,
+1,
+30,
+1,
+31,
+1,
+23,
+1,
+24,
+1,
+32
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$C:$C;0:$C:$C;0:$C:$XFD;0:$C:$XFD;[XFD1/9 1 0 2]0:$C:$XFD;[XFD1/8 1 0 2]0:$C:$XFD;saved:$1:$2",
+"differs": "UsedRange after a save: a one-row inside horizontal beside column XFD's collection, round 16002 case 101's steps"
+}
+]
+},
+{
+"name": "ur21",
+"about": "The collection's automatic colour on cells, rows and columns; the collection on column XFD over a row's top",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.",
+"suffix": " & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"Range(\"C3:C4\").Borders(12).Color = 65280",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Range(\"C3:C4\").Borders.LineStyle = xlContinuous",
+"s = s & \"[C3/9 \" & ws.Range(\"C3\").Borders(9).LineStyle & \" \" & ws.Range(\"C3\").Borders(9).Color & \" \" & ws.Range(\"C3\").Borders(9).Weight & \"]\"",
+"s = s & \"[C4/8 \" & ws.Range(\"C4\").Borders(8).LineStyle & \" \" & ws.Range(\"C4\").Borders(8).Color & \" \" & ws.Range(\"C4\").Borders(8).Weight",
+"Range(\"C3\").Borders(9).Color = 255",
+"ws.Range(\"C3\").Borders.LineStyle = xlContinuous",
+"s = s & \"[C3/9 \" & ws.Range(\"C3\").Borders(9).LineStyle & \" \" & ws.Range(\"C3\").Borders(9).Color & \" \" & ws.Range(\"C3\").Borders(9).Weight",
+"Range(\"C3\").Borders(9).LineStyle = xlDash",
+"ws.Range(\"C3\").Borders(9).Color = 255",
+"ws.Range(\"C3\").Borders(9).LineStyle = xlContinuous",
+"Rows(\"1:2\").Borders(9).Color = 255",
+"ws.Rows(\"1:2\").Borders.LineStyle = xlContinuous",
+"s = s & \"[A2/9 \" & ws.Range(\"A2\").Borders(9).LineStyle & \" \" & ws.Range(\"A2\").Borders(9).Color & \" \" & ws.Range(\"A2\").Borders(9).Weight",
+"Columns(\"B:C\").Borders(11).Color = 65280",
+"ws.Columns(\"B:C\").Borders.LineStyle = xlContinuous",
+"s = s & \"[B1/10 \" & ws.Range(\"B1\").Borders(10).LineStyle & \" \" & ws.Range(\"B1\").Borders(10).Color & \" \" & ws.Range(\"B1\").Borders(10).Weight",
+"Rows(\"1:2\").Borders(12).Color = 65280",
+"ws.Rows(\"1:2\").Borders.Weight = xlThick",
+"s = s & \"[A1/9 \" & ws.Range(\"A1\").Borders(9).LineStyle & \" \" & ws.Range(\"A1\").Borders(9).Color & \" \" & ws.Range(\"A1\").Borders(9).Weight",
+"Rows(1).Borders(8).Weight = xlHairline",
+"ws.Columns(\"XFD\").Borders.LineStyle = xlContinuous",
+"s = s & \"[XFD1/8 \" & ws.Range(\"XFD1\").Borders(8).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(8).Color & \" \" & ws.Range(\"XFD1\").Borders(8).Weight & \"]\"",
+"s = s & \"[A1/8 \" & ws.Range(\"A1\").Borders(8).LineStyle & \" \" & ws.Range(\"A1\").Borders(8).Color & \" \" & ws.Range(\"A1\").Borders(8).Weight",
+"Rows(1).Font.Bold = True",
+"s = s & \"[bold \" & ws.Range(\"XFD1\").Font.Bold"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$C$3:$C$4;0:$C$3:$C$4;[C3/9 1 0 2]0:$C$3:$C$4;[C4/8 1 0 2]0:$C$3:$C$4;saved:$C$3:$C$4"
+},
+{
+"middle": [
+5,
+1,
+6,
+1,
+7
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$C$3;0:$C$3;[C3/9 1 255 2]0:$C$3;saved:$C$3"
+},
+{
+"middle": [
+8,
+1,
+9,
+1,
+6,
+1,
+7
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$C$3;0:$C$3;0:$C$3;[C3/9 1 255 2]0:$C$3;saved:$C$3"
+},
+{
+"middle": [
+5,
+1,
+10,
+1,
+7
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$C$3;0:$C$3;[C3/9 1 255 2]0:$C$3;saved:$C$3"
+},
+{
+"middle": [
+11,
+1,
+12,
+1,
+13
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A$1:$A$2;[A2/9 1 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$B$1:$C$1;0:$B$1:$C$1;[B1/10 1 0 2]0:$B$1:$C$1;saved:$B$1:$C$1"
+},
+{
+"middle": [
+17,
+1,
+18,
+1,
+19
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A$1:$A$3;[A1/9 1 0 4]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+20,
+1,
+21,
+1,
+22,
+1,
+23
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$A$1;0:$XFD$1;[XFD1/8 1 0 2]0:$XFD$1;[A1/8 1 0 1]0:$XFD$1;saved:$1:$1"
+},
+{
+"middle": [
+24,
+1,
+21,
+1,
+22,
+1,
+25
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$A$1;0:$XFD$1;[XFD1/8 1 0 2]0:$XFD$1;[bold True]0:$XFD$1;saved:$1:$1"
+}
+]
+},
+{
+"name": "ur22",
+"about": "Where an edge of whole columns or rows reads",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"Range(\"D1\").Borders(10).Color = 255",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"s = s & \"[10 \" & ws.Columns(\"B:D\").Borders(10).LineStyle & \" \" & ws.Columns(\"B:D\").Borders(10).Color & \" \" & ws.Columns(\"B:D\").Borders(10",
+"Range(\"D5\").Borders(10).Color = 255",
+"Range(\"D1048576\").Borders(10).Color = 255",
+"Rows(5).Borders.Color = 255",
+"Rows(1048576).Borders.Color = 255",
+"Rows(\"1:2\").Borders(11).Color = 512",
+"ws.Rows(9).Borders.Color = 65280",
+"Range(\"D9\").Borders(10).Color = 255",
+"ws.Rows(5).Borders.Color = 65280",
+"Range(\"B5\").Value = 1",
+"ws.Range(\"D9\").Borders(10).Color = 255",
+"Range(\"B1\").Borders(9).Color = 255",
+"s = s & \"[9 \" & ws.Columns(2).Borders(9).LineStyle & \" \" & ws.Columns(2).Borders(9).Color & \" \" & ws.Columns(2).Borders(9",
+"Range(\"B5\").Borders(9).Color = 255",
+"Range(\"B1048576\").Borders(9).Color = 255",
+"Range(\"A1\").Borders(10).Color = 255",
+"s = s & \"[10 \" & ws.Rows(\"1:3\").Borders(10).LineStyle & \" \" & ws.Rows(\"1:3\").Borders(10).Color & \" \" & ws.Rows(\"1:3\").Borders(10",
+"Range(\"C2\").Borders(10).Color = 255",
+"Range(\"XFD1\").Borders(10).Color = 255",
+"Columns(3).Borders.Color = 255",
+"Columns(1).Borders.Color = 255",
+"Range(\"A3\").Borders(9).Color = 255",
+"s = s & \"[9 \" & ws.Rows(\"1:3\").Borders(9).LineStyle & \" \" & ws.Rows(\"1:3\").Borders(9).Color & \" \" & ws.Rows(\"1:3\").Borders(9",
+"Range(\"C3\").Borders(9).Color = 255"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$D$1;[10 -4142 0 2]0:$D$1;saved:$D$1"
+},
+{
+"middle": [
+3,
+1,
+2
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$D$5;[10 -4142 0 2]0:$D$5;saved:$D$5"
+},
+{
+"middle": [
+4,
+1,
+2
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$D$1048576;[10 1 255 2]0:$D$1048576;saved:$D$1048576"
+},
+{
+"middle": [
+5,
+1,
+2
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$5;[10 -4142 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+6,
+1,
+2
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$1048576;[10 1 255 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+7,
+1,
+2
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$A$1:$A$2;[10 -4142 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+3,
+1,
+8,
+1,
+2
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$D$5;0:$D$5:$D$9;[10 -4142 0 2]0:$D$5:$D$9;saved:$D$5:$D$9"
+},
+{
+"middle": [
+9,
+1,
+10,
+1,
+2
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$D$9;0:$D$5:$D$9;[10 -4142 0 2]0:$D$5:$D$9;saved:$D$5:$D$9"
+},
+{
+"middle": [
+11,
+1,
+12,
+1,
+2
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$B$5;0:$B$5:$D$9;[10 -4142 0 2]0:$B$5:$D$9;saved:$B$5:$D$9"
+},
+{
+"middle": [
+13,
+1,
+14
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$B$1;[9 1 255 2]0:$B$1;saved:$B$1"
+},
+{
+"middle": [
+15,
+1,
+14
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$B$5;[9 -4142 0 2]0:$B$5;saved:$B$5"
+},
+{
+"middle": [
+16,
+1,
+14
+],
+"args": [
+"{folder}/11.xlsx"
+],
+"excel": "0:$B$1048576;[9 -4142 0 2]0:$B$1048576;saved:$B$1048576"
+},
+{
+"middle": [
+5,
+1,
+14
+],
+"args": [
+"{folder}/12.xlsx"
+],
+"excel": "0:$A$5;[9 -4142 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+17,
+1,
+18
+],
+"args": [
+"{folder}/13.xlsx"
+],
+"excel": "0:$A$1;[10 1 255 2]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+19,
+1,
+18
+],
+"args": [
+"{folder}/14.xlsx"
+],
+"excel": "0:$C$2;[10 -4142 0 2]0:$C$2;saved:$C$2"
+},
+{
+"middle": [
+20,
+1,
+18
+],
+"args": [
+"{folder}/15.xlsx"
+],
+"excel": "0:$XFD$1;[10 -4142 0 2]0:$XFD$1;saved:$XFD$1"
+},
+{
+"middle": [
+21,
+1,
+18
+],
+"args": [
+"{folder}/16.xlsx"
+],
+"excel": "0:$C$1;[10 -4142 0 2]0:$C$1;saved:$C$1"
+},
+{
+"middle": [
+22,
+1,
+18
+],
+"args": [
+"{folder}/17.xlsx"
+],
+"excel": "0:$A$1;[10 1 255 2]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+23,
+1,
+24
+],
+"args": [
+"{folder}/18.xlsx"
+],
+"excel": "0:$A$3;[9 -4142 0 2]0:$A$3;saved:$A$3"
+},
+{
+"middle": [
+25,
+1,
+24
+],
+"args": [
+"{folder}/19.xlsx"
+],
+"excel": "0:$C$3;[9 -4142 0 2]0:$C$3;saved:$C$3"
+},
+{
+"middle": [
+21,
+1,
+24
+],
+"args": [
+"{folder}/20.xlsx"
+],
+"excel": "0:$C$1;[9 -4142 0 2]0:$C$1;saved:$C$1"
+}
+]
+},
+{
+"name": "ur23",
+"about": "A row's top edge clearing a line in books Excel saved, with round 10002 case 92's surroundings added one at a time",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.Range(\"C1\").Borders(9).",
+"suffix": "\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nws.Rows(2).Borders(8).Color = 65280\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"LineStyle = xlContinuous",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"wb.SaveAs path & \".mid.xlsx\", 51: wb.Close False",
+"Set wb = Workbooks.Open(path & \".mid.xlsx\"): Set ws = wb.Worksheets(1)",
+"Weight = xlHairline: ws.Range(\"C1\").Borders(9).Color = RGB(0, 255, 255)",
+"ws.Range(\"A1\").Borders.ColorIndex = xlColorIndexNone",
+"ws.Range(\"A2\").Borders(8).Weight = xlMedium",
+"ws.Range(\"A2\").Borders(7).LineStyle = xlDouble: ws.Range(\"A2\").Borders(10).Weight = xlHairline",
+"ws.Range(\"B2\").Borders(7).LineStyle = xlContinuous: ws.Range(\"B2\").Borders(9).LineStyle = xlDot",
+"ws.Range(\"B3\").Borders(10).Weight = xlHairline: ws.Range(\"B3\").Borders(8).LineStyle = xlDouble"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+4,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+0,
+1,
+5,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$1;0:$C$1;0:$C$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+0,
+1,
+6,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$C$1:$C$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+0,
+1,
+7,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$2;saved:$A$2"
+},
+{
+"middle": [
+0,
+1,
+8,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$C$1;0:$B$1:$C$2;0:$B$1:$C$2;0:$B$1:$C$2;saved:$B$2"
+},
+{
+"middle": [
+0,
+1,
+9,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$C$1;0:$B$1:$C$3;0:$B$1:$C$3;0:$B$1:$C$3;saved:$B$2:$B$3"
+},
+{
+"middle": [
+0,
+1,
+5,
+1,
+6,
+1,
+7,
+1,
+8,
+1,
+9,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$3;0:$A$1:$C$3;0:$A$1:$C$3;saved:$A$1:$B$3"
+},
+{
+"middle": [
+4,
+1,
+5,
+1,
+6,
+1,
+7,
+1,
+8,
+1,
+9,
+1,
+2,
+1,
+3
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$3;0:$A$1:$C$3;0:$A$1:$C$3;saved:$A$1:$B$3"
+},
+{
+"middle": [
+0,
+1,
+5,
+1,
+6,
+1,
+7,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$C$1;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$2;0:$A$1:$C$3;0:$A$1:$C$3;saved:$A$1:$B$3"
+},
+{
+"middle": [
+0,
+1,
+8
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$C$1;0:$B$1:$C$2;0:$B$1:$C$2;saved:$B$2"
+}
+]
+},
+{
+"name": "themeless",
+"about": "The same in books written by this tool, openpyxl and the model, each with and without a theme part",
+"entry": "M.Probe",
+"prefix": "Public Function Probe() As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Open(\"{book}\"): Set ws = wb.Worksheets(1)\ns = ws.UsedRange.Address & \";\"\nOn Error Resume Next\nws.Rows(2).Borders(8).Color = 65280\ns = s & Err.Number & \";\" & ws.UsedRange.Address & \";C1=\" & ws.Range(\"C1\").Borders(9).LineStyle\nwb.Close False\nProbe = s\nEnd Function\n",
+"suffix": "",
+"lines": [
+""
+],
+"book": {},
+"books": [
+{
+"[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/></Types>",
+"_rels/.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>",
+"xl/_rels/workbook.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/></Relationships>",
+"xl/styles.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><fonts count=\"1\"><font><sz val=\"11\"/><name val=\"Calibri\"/></font></fonts><fills count=\"2\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"2\"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style=\"thin\"><color rgb=\"FF000000\"/></bottom><diagonal/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/></cellXfs></styleSheet>",
+"xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><sheets><sheet name=\"Sheet1\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>",
+"xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\"><c r=\"C1\" s=\"1\"/></row></sheetData></worksheet>"
+},
+{
+"[Content_Types].xml": "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/></Types>",
+"_rels/.rels": "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\" Id=\"rId1\"/><Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"docProps/core.xml\" Id=\"rId2\"/><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties\" Target=\"docProps/app.xml\" Id=\"rId3\"/></Relationships>",
+"docProps/app.xml": "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\"><Application>Microsoft Excel Compatible / Openpyxl 3.1.5</Application><AppVersion>3.1</AppVersion></Properties>",
+"docProps/core.xml": "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\"><dc:creator xmlns:dc=\"http://purl.org/dc/elements/1.1/\">openpyxl</dc:creator><dcterms:created xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:01Z</dcterms:created><dcterms:modified xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:01Z</dcterms:modified></cp:coreProperties>",
+"xl/_rels/workbook.xml.rels": "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"/xl/worksheets/sheet1.xml\" Id=\"rId1\"/><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\" Id=\"rId2\"/><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme\" Target=\"theme/theme1.xml\" Id=\"rId3\"/></Relationships>",
+"xl/styles.xml": "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><numFmts count=\"0\"/><fonts count=\"1\"><font><name val=\"Calibri\"/><family val=\"2\"/><color theme=\"1\"/><sz val=\"11\"/><scheme val=\"minor\"/></font></fonts><fills count=\"2\"><fill><patternFill/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"2\"><border><left/><right/><top/><bottom/><diagonal/></border><border><bottom style=\"thin\"/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" pivotButton=\"0\" quotePrefix=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" pivotButton=\"0\" quotePrefix=\"0\" xfId=\"0\"/></cellXfs><cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\" hidden=\"0\"/></cellStyles><tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium9\" defaultPivotStyle=\"PivotStyleLight16\"/><colors><indexedColors><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008000\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00808000\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"00C0C0C0\"/><rgbColor rgb=\"00808080\"/><rgbColor rgb=\"009999FF\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00FFFFCC\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00660066\"/><rgbColor rgb=\"00FF8080\"/><rgbColor rgb=\"000066CC\"/><rgbColor rgb=\"00CCCCFF\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"0000CCFF\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00CCFFCC\"/><rgbColor rgb=\"00FFFF99\"/><rgbColor rgb=\"0099CCFF\"/><rgbColor rgb=\"00FF99CC\"/><rgbColor rgb=\"00CC99FF\"/><rgbColor rgb=\"00FFCC99\"/><rgbColor rgb=\"003366FF\"/><rgbColor rgb=\"0033CCCC\"/><rgbColor rgb=\"0099CC00\"/><rgbColor rgb=\"00FFCC00\"/><rgbColor rgb=\"00FF9900\"/><rgbColor rgb=\"00FF6600\"/><rgbColor rgb=\"00666699\"/><rgbColor rgb=\"00969696\"/><rgbColor rgb=\"00003366\"/><rgbColor rgb=\"00339966\"/><rgbColor rgb=\"00003300\"/><rgbColor rgb=\"00333300\"/><rgbColor rgb=\"00993300\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00333399\"/><rgbColor rgb=\"00333333\"/></indexedColors></colors></styleSheet>",
+"xl/theme/theme1.xml": "<?xml version=\"1.0\"?>\n<a:theme xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" name=\"Office Theme\">\n  <a:themeElements>\n    <a:clrScheme name=\"Office\">\n      <a:dk1>\n        <a:sysClr val=\"windowText\" lastClr=\"000000\"/>\n      </a:dk1>\n      <a:lt1>\n        <a:sysClr val=\"window\" lastClr=\"FFFFFF\"/>\n      </a:lt1>\n      <a:dk2>\n        <a:srgbClr val=\"1F497D\"/>\n      </a:dk2>\n      <a:lt2>\n        <a:srgbClr val=\"EEECE1\"/>\n      </a:lt2>\n      <a:accent1>\n        <a:srgbClr val=\"4F81BD\"/>\n      </a:accent1>\n      <a:accent2>\n        <a:srgbClr val=\"C0504D\"/>\n      </a:accent2>\n      <a:accent3>\n        <a:srgbClr val=\"9BBB59\"/>\n      </a:accent3>\n      <a:accent4>\n        <a:srgbClr val=\"8064A2\"/>\n      </a:accent4>\n      <a:accent5>\n        <a:srgbClr val=\"4BACC6\"/>\n      </a:accent5>\n      <a:accent6>\n        <a:srgbClr val=\"F79646\"/>\n      </a:accent6>\n      <a:hlink>\n        <a:srgbClr val=\"0000FF\"/>\n      </a:hlink>\n      <a:folHlink>\n        <a:srgbClr val=\"800080\"/>\n      </a:folHlink>\n    </a:clrScheme>\n    <a:fontScheme name=\"Office\">\n      <a:majorFont>\n        <a:latin typeface=\"Cambria\"/>\n        <a:ea typeface=\"\"/>\n        <a:cs typeface=\"\"/>\n        <a:font script=\"Jpan\" typeface=\"&#xFF2D;&#xFF33; &#xFF30;&#x30B4;&#x30B7;&#x30C3;&#x30AF;\"/>\n        <a:font script=\"Hang\" typeface=\"&#xB9D1;&#xC740; &#xACE0;&#xB515;\"/>\n        <a:font script=\"Hans\" typeface=\"&#x5B8B;&#x4F53;\"/>\n        <a:font script=\"Hant\" typeface=\"&#x65B0;&#x7D30;&#x660E;&#x9AD4;\"/>\n        <a:font script=\"Arab\" typeface=\"Times New Roman\"/>\n        <a:font script=\"Hebr\" typeface=\"Times New Roman\"/>\n        <a:font script=\"Thai\" typeface=\"Tahoma\"/>\n        <a:font script=\"Ethi\" typeface=\"Nyala\"/>\n        <a:font script=\"Beng\" typeface=\"Vrinda\"/>\n        <a:font script=\"Gujr\" typeface=\"Shruti\"/>\n        <a:font script=\"Khmr\" typeface=\"MoolBoran\"/>\n        <a:font script=\"Knda\" typeface=\"Tunga\"/>\n        <a:font script=\"Guru\" typeface=\"Raavi\"/>\n        <a:font script=\"Cans\" typeface=\"Euphemia\"/>\n        <a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/>\n        <a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/>\n        <a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/>\n        <a:font script=\"Thaa\" typeface=\"MV Boli\"/>\n        <a:font script=\"Deva\" typeface=\"Mangal\"/>\n        <a:font script=\"Telu\" typeface=\"Gautami\"/>\n        <a:font script=\"Taml\" typeface=\"Latha\"/>\n        <a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/>\n        <a:font script=\"Orya\" typeface=\"Kalinga\"/>\n        <a:font script=\"Mlym\" typeface=\"Kartika\"/>\n        <a:font script=\"Laoo\" typeface=\"DokChampa\"/>\n        <a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/>\n        <a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/>\n        <a:font script=\"Viet\" typeface=\"Times New Roman\"/>\n        <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>\n      </a:majorFont>\n      <a:minorFont>\n        <a:latin typeface=\"Calibri\"/>\n        <a:ea typeface=\"\"/>\n        <a:cs typeface=\"\"/>\n        <a:font script=\"Jpan\" typeface=\"&#xFF2D;&#xFF33; &#xFF30;&#x30B4;&#x30B7;&#x30C3;&#x30AF;\"/>\n        <a:font script=\"Hang\" typeface=\"&#xB9D1;&#xC740; &#xACE0;&#xB515;\"/>\n        <a:font script=\"Hans\" typeface=\"&#x5B8B;&#x4F53;\"/>\n        <a:font script=\"Hant\" typeface=\"&#x65B0;&#x7D30;&#x660E;&#x9AD4;\"/>\n        <a:font script=\"Arab\" typeface=\"Arial\"/>\n        <a:font script=\"Hebr\" typeface=\"Arial\"/>\n        <a:font script=\"Thai\" typeface=\"Tahoma\"/>\n        <a:font script=\"Ethi\" typeface=\"Nyala\"/>\n        <a:font script=\"Beng\" typeface=\"Vrinda\"/>\n        <a:font script=\"Gujr\" typeface=\"Shruti\"/>\n        <a:font script=\"Khmr\" typeface=\"DaunPenh\"/>\n        <a:font script=\"Knda\" typeface=\"Tunga\"/>\n        <a:font script=\"Guru\" typeface=\"Raavi\"/>\n        <a:font script=\"Cans\" typeface=\"Euphemia\"/>\n        <a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/>\n        <a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/>\n        <a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/>\n        <a:font script=\"Thaa\" typeface=\"MV Boli\"/>\n        <a:font script=\"Deva\" typeface=\"Mangal\"/>\n        <a:font script=\"Telu\" typeface=\"Gautami\"/>\n        <a:font script=\"Taml\" typeface=\"Latha\"/>\n        <a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/>\n        <a:font script=\"Orya\" typeface=\"Kalinga\"/>\n        <a:font script=\"Mlym\" typeface=\"Kartika\"/>\n        <a:font script=\"Laoo\" typeface=\"DokChampa\"/>\n        <a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/>\n        <a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/>\n        <a:font script=\"Viet\" typeface=\"Arial\"/>\n        <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>\n      </a:minorFont>\n    </a:fontScheme>\n    <a:fmtScheme name=\"Office\">\n      <a:fillStyleLst>\n        <a:solidFill>\n          <a:schemeClr val=\"phClr\"/>\n        </a:solidFill>\n        <a:gradFill rotWithShape=\"1\">\n          <a:gsLst>\n            <a:gs pos=\"0\">\n              <a:schemeClr val=\"phClr\">\n                <a:tint val=\"50000\"/>\n                <a:satMod val=\"300000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"35000\">\n              <a:schemeClr val=\"phClr\">\n                <a:tint val=\"37000\"/>\n                <a:satMod val=\"300000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"100000\">\n              <a:schemeClr val=\"phClr\">\n                <a:tint val=\"15000\"/>\n                <a:satMod val=\"350000\"/>\n              </a:schemeClr>\n            </a:gs>\n          </a:gsLst>\n          <a:lin ang=\"16200000\" scaled=\"1\"/>\n        </a:gradFill>\n        <a:gradFill rotWithShape=\"1\">\n          <a:gsLst>\n            <a:gs pos=\"0\">\n              <a:schemeClr val=\"phClr\">\n                <a:shade val=\"51000\"/>\n                <a:satMod val=\"130000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"80000\">\n              <a:schemeClr val=\"phClr\">\n                <a:shade val=\"93000\"/>\n                <a:satMod val=\"130000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"100000\">\n              <a:schemeClr val=\"phClr\">\n                <a:shade val=\"94000\"/>\n                <a:satMod val=\"135000\"/>\n              </a:schemeClr>\n            </a:gs>\n          </a:gsLst>\n          <a:lin ang=\"16200000\" scaled=\"0\"/>\n        </a:gradFill>\n      </a:fillStyleLst>\n      <a:lnStyleLst>\n        <a:ln w=\"9525\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\">\n          <a:solidFill>\n            <a:schemeClr val=\"phClr\">\n              <a:shade val=\"95000\"/>\n              <a:satMod val=\"105000\"/>\n            </a:schemeClr>\n          </a:solidFill>\n          <a:prstDash val=\"solid\"/>\n        </a:ln>\n        <a:ln w=\"25400\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\">\n          <a:solidFill>\n            <a:schemeClr val=\"phClr\"/>\n          </a:solidFill>\n          <a:prstDash val=\"solid\"/>\n        </a:ln>\n        <a:ln w=\"38100\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\">\n          <a:solidFill>\n            <a:schemeClr val=\"phClr\"/>\n          </a:solidFill>\n          <a:prstDash val=\"solid\"/>\n        </a:ln>\n      </a:lnStyleLst>\n      <a:effectStyleLst>\n        <a:effectStyle>\n          <a:effectLst>\n            <a:outerShdw blurRad=\"40000\" dist=\"20000\" dir=\"5400000\" rotWithShape=\"0\">\n              <a:srgbClr val=\"000000\">\n                <a:alpha val=\"38000\"/>\n              </a:srgbClr>\n            </a:outerShdw>\n          </a:effectLst>\n        </a:effectStyle>\n        <a:effectStyle>\n          <a:effectLst>\n            <a:outerShdw blurRad=\"40000\" dist=\"23000\" dir=\"5400000\" rotWithShape=\"0\">\n              <a:srgbClr val=\"000000\">\n                <a:alpha val=\"35000\"/>\n              </a:srgbClr>\n            </a:outerShdw>\n          </a:effectLst>\n        </a:effectStyle>\n        <a:effectStyle>\n          <a:effectLst>\n            <a:outerShdw blurRad=\"40000\" dist=\"23000\" dir=\"5400000\" rotWithShape=\"0\">\n              <a:srgbClr val=\"000000\">\n                <a:alpha val=\"35000\"/>\n              </a:srgbClr>\n            </a:outerShdw>\n          </a:effectLst>\n          <a:scene3d>\n            <a:camera prst=\"orthographicFront\">\n              <a:rot lat=\"0\" lon=\"0\" rev=\"0\"/>\n            </a:camera>\n            <a:lightRig rig=\"threePt\" dir=\"t\">\n              <a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/>\n            </a:lightRig>\n          </a:scene3d>\n          <a:sp3d>\n            <a:bevelT w=\"63500\" h=\"25400\"/>\n          </a:sp3d>\n        </a:effectStyle>\n      </a:effectStyleLst>\n      <a:bgFillStyleLst>\n        <a:solidFill>\n          <a:schemeClr val=\"phClr\"/>\n        </a:solidFill>\n        <a:gradFill rotWithShape=\"1\">\n          <a:gsLst>\n            <a:gs pos=\"0\">\n              <a:schemeClr val=\"phClr\">\n                <a:tint val=\"40000\"/>\n                <a:satMod val=\"350000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"40000\">\n              <a:schemeClr val=\"phClr\">\n                <a:tint val=\"45000\"/>\n                <a:shade val=\"99000\"/>\n                <a:satMod val=\"350000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"100000\">\n              <a:schemeClr val=\"phClr\">\n                <a:shade val=\"20000\"/>\n                <a:satMod val=\"255000\"/>\n              </a:schemeClr>\n            </a:gs>\n          </a:gsLst>\n          <a:path path=\"circle\">\n            <a:fillToRect l=\"50000\" t=\"-80000\" r=\"50000\" b=\"180000\"/>\n          </a:path>\n        </a:gradFill>\n        <a:gradFill rotWithShape=\"1\">\n          <a:gsLst>\n            <a:gs pos=\"0\">\n              <a:schemeClr val=\"phClr\">\n                <a:tint val=\"80000\"/>\n                <a:satMod val=\"300000\"/>\n              </a:schemeClr>\n            </a:gs>\n            <a:gs pos=\"100000\">\n              <a:schemeClr val=\"phClr\">\n                <a:shade val=\"30000\"/>\n                <a:satMod val=\"200000\"/>\n              </a:schemeClr>\n            </a:gs>\n          </a:gsLst>\n          <a:path path=\"circle\">\n            <a:fillToRect l=\"50000\" t=\"50000\" r=\"50000\" b=\"50000\"/>\n          </a:path>\n        </a:gradFill>\n      </a:bgFillStyleLst>\n    </a:fmtScheme>\n  </a:themeElements>\n  <a:objectDefaults/>\n  <a:extraClrSchemeLst/>\n</a:theme>\n",
+"xl/workbook.xml": "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><workbookPr/><workbookProtection/><bookViews><workbookView visibility=\"visible\" minimized=\"0\" showHorizontalScroll=\"1\" showVerticalScroll=\"1\" showSheetTabs=\"1\" tabRatio=\"600\" firstSheet=\"0\" activeTab=\"0\" autoFilterDateGrouping=\"1\"/></bookViews><sheets><sheet xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" name=\"Sheet\" sheetId=\"1\" state=\"visible\" r:id=\"rId1\"/></sheets><definedNames/><calcPr calcId=\"124519\" fullCalcOnLoad=\"1\"/></workbook>",
+"xl/worksheets/sheet1.xml": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetPr><outlinePr summaryBelow=\"1\" summaryRight=\"1\"/><pageSetUpPr/></sheetPr><dimension ref=\"C1:C1\"/><sheetViews><sheetView workbookViewId=\"0\"><selection activeCell=\"A1\" sqref=\"A1\"/></sheetView></sheetViews><sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\"/><sheetData><row r=\"1\"><c r=\"C1\" s=\"1\" t=\"n\"></c></row></sheetData><pageMargins left=\"0.75\" right=\"0.75\" top=\"1\" bottom=\"1\" header=\"0.5\" footer=\"0.5\"/></worksheet>"
+},
+{
+"[Content_Types].xml": "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/></Types>",
+"_rels/.rels": "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\" Id=\"rId1\"/><Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"docProps/core.xml\" Id=\"rId2\"/><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties\" Target=\"docProps/app.xml\" Id=\"rId3\"/></Relationships>",
+"docProps/app.xml": "<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\"><Application>Microsoft Excel Compatible / Openpyxl 3.1.5</Application><AppVersion>3.1</AppVersion></Properties>",
+"docProps/core.xml": "<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\"><dc:creator xmlns:dc=\"http://purl.org/dc/elements/1.1/\">openpyxl</dc:creator><dcterms:created xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:01Z</dcterms:created><dcterms:modified xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:01Z</dcterms:modified></cp:coreProperties>",
+"xl/_rels/workbook.xml.rels": "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"/xl/worksheets/sheet1.xml\" Id=\"rId1\"/><Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\" Id=\"rId2\"/></Relationships>",
+"xl/styles.xml": "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><numFmts count=\"0\"/><fonts count=\"1\"><font><name val=\"Calibri\"/><family val=\"2\"/><color theme=\"1\"/><sz val=\"11\"/><scheme val=\"minor\"/></font></fonts><fills count=\"2\"><fill><patternFill/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"2\"><border><left/><right/><top/><bottom/><diagonal/></border><border><bottom style=\"thin\"/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" pivotButton=\"0\" quotePrefix=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" pivotButton=\"0\" quotePrefix=\"0\" xfId=\"0\"/></cellXfs><cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\" hidden=\"0\"/></cellStyles><tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium9\" defaultPivotStyle=\"PivotStyleLight16\"/><colors><indexedColors><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008000\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00808000\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"00C0C0C0\"/><rgbColor rgb=\"00808080\"/><rgbColor rgb=\"009999FF\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00FFFFCC\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00660066\"/><rgbColor rgb=\"00FF8080\"/><rgbColor rgb=\"000066CC\"/><rgbColor rgb=\"00CCCCFF\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"0000CCFF\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00CCFFCC\"/><rgbColor rgb=\"00FFFF99\"/><rgbColor rgb=\"0099CCFF\"/><rgbColor rgb=\"00FF99CC\"/><rgbColor rgb=\"00CC99FF\"/><rgbColor rgb=\"00FFCC99\"/><rgbColor rgb=\"003366FF\"/><rgbColor rgb=\"0033CCCC\"/><rgbColor rgb=\"0099CC00\"/><rgbColor rgb=\"00FFCC00\"/><rgbColor rgb=\"00FF9900\"/><rgbColor rgb=\"00FF6600\"/><rgbColor rgb=\"00666699\"/><rgbColor rgb=\"00969696\"/><rgbColor rgb=\"00003366\"/><rgbColor rgb=\"00339966\"/><rgbColor rgb=\"00003300\"/><rgbColor rgb=\"00333300\"/><rgbColor rgb=\"00993300\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00333399\"/><rgbColor rgb=\"00333333\"/></indexedColors></colors></styleSheet>",
+"xl/workbook.xml": "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><workbookPr/><workbookProtection/><bookViews><workbookView visibility=\"visible\" minimized=\"0\" showHorizontalScroll=\"1\" showVerticalScroll=\"1\" showSheetTabs=\"1\" tabRatio=\"600\" firstSheet=\"0\" activeTab=\"0\" autoFilterDateGrouping=\"1\"/></bookViews><sheets><sheet xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" name=\"Sheet\" sheetId=\"1\" state=\"visible\" r:id=\"rId1\"/></sheets><definedNames/><calcPr calcId=\"124519\" fullCalcOnLoad=\"1\"/></workbook>",
+"xl/worksheets/sheet1.xml": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetPr><outlinePr summaryBelow=\"1\" summaryRight=\"1\"/><pageSetUpPr/></sheetPr><dimension ref=\"C1:C1\"/><sheetViews><sheetView workbookViewId=\"0\"><selection activeCell=\"A1\" sqref=\"A1\"/></sheetView></sheetViews><sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\"/><sheetData><row r=\"1\"><c r=\"C1\" s=\"1\" t=\"n\"></c></row></sheetData><pageMargins left=\"0.75\" right=\"0.75\" top=\"1\" bottom=\"1\" header=\"0.5\" footer=\"0.5\"/></worksheet>"
+},
+{
+"[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>",
+"_rels/.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties\" Target=\"docProps/app.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"docProps/core.xml\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>",
+"docProps/app.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\"><Application>Microsoft Excel</Application><DocSecurity>0</DocSecurity><ScaleCrop>false</ScaleCrop><HeadingPairs><vt:vector size=\"2\" baseType=\"variant\"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs><TitlesOfParts><vt:vector size=\"1\" baseType=\"lpstr\"><vt:lpstr>Sheet1</vt:lpstr></vt:vector></TitlesOfParts><Company></Company><LinksUpToDate>false</LinksUpToDate><SharedDoc>false</SharedDoc><HyperlinksChanged>false</HyperlinksChanged><AppVersion>16.0300</AppVersion></Properties>",
+"docProps/core.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><dc:creator>pyOpenVBA</dc:creator><cp:lastModifiedBy>pyOpenVBA</cp:lastModifiedBy><dcterms:created xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:01Z</dcterms:created><dcterms:modified xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:02Z</dcterms:modified></cp:coreProperties>",
+"xl/_rels/workbook.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme\" Target=\"theme/theme1.xml\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/></Relationships>",
+"xl/styles.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac x16r2 xr\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:x16r2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/02/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\"><fonts count=\"1\" x14ac:knownFonts=\"1\"><font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></fonts><fills count=\"2\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"2\"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/></cellXfs><cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/></cellStyles><dxfs count=\"0\"/><tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/><extLst><ext uri=\"{EB79DEF2-80B8-43e5-95BD-54CBDDF9020C}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:slicerStyles defaultSlicerStyle=\"SlicerStyleLight1\"/></ext><ext uri=\"{9260A510-F301-46a8-8635-F512D64BE5F5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:timelineStyles defaultTimelineStyle=\"TimeSlicerStyleLight1\"/></ext></extLst></styleSheet>",
+"xl/theme/theme1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<a:theme xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" name=\"Office Theme\"><a:themeElements><a:clrScheme name=\"Office\"><a:dk1><a:sysClr val=\"windowText\" lastClr=\"000000\"/></a:dk1><a:lt1><a:sysClr val=\"window\" lastClr=\"FFFFFF\"/></a:lt1><a:dk2><a:srgbClr val=\"0E2841\"/></a:dk2><a:lt2><a:srgbClr val=\"E8E8E8\"/></a:lt2><a:accent1><a:srgbClr val=\"156082\"/></a:accent1><a:accent2><a:srgbClr val=\"E97132\"/></a:accent2><a:accent3><a:srgbClr val=\"196B24\"/></a:accent3><a:accent4><a:srgbClr val=\"0F9ED5\"/></a:accent4><a:accent5><a:srgbClr val=\"A02B93\"/></a:accent5><a:accent6><a:srgbClr val=\"4EA72E\"/></a:accent6><a:hlink><a:srgbClr val=\"467886\"/></a:hlink><a:folHlink><a:srgbClr val=\"96607D\"/></a:folHlink></a:clrScheme><a:fontScheme name=\"Office\"><a:majorFont><a:latin typeface=\"Aptos Display\" panose=\"02110004020202020204\"/><a:ea typeface=\"\"/><a:cs typeface=\"\"/><a:font script=\"Jpan\" typeface=\"\u6e38\u30b4\u30b7\u30c3\u30af Light\"/><a:font script=\"Hang\" typeface=\"\ub9d1\uc740 \uace0\ub515\"/><a:font script=\"Hans\" typeface=\"\u7b49\u7ebf Light\"/><a:font script=\"Hant\" typeface=\"\u65b0\u7d30\u660e\u9ad4\"/><a:font script=\"Arab\" typeface=\"Times New Roman\"/><a:font script=\"Hebr\" typeface=\"Times New Roman\"/><a:font script=\"Thai\" typeface=\"Tahoma\"/><a:font script=\"Ethi\" typeface=\"Nyala\"/><a:font script=\"Beng\" typeface=\"Vrinda\"/><a:font script=\"Gujr\" typeface=\"Shruti\"/><a:font script=\"Khmr\" typeface=\"MoolBoran\"/><a:font script=\"Knda\" typeface=\"Tunga\"/><a:font script=\"Guru\" typeface=\"Raavi\"/><a:font script=\"Cans\" typeface=\"Euphemia\"/><a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/><a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/><a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/><a:font script=\"Thaa\" typeface=\"MV Boli\"/><a:font script=\"Deva\" typeface=\"Mangal\"/><a:font script=\"Telu\" typeface=\"Gautami\"/><a:font script=\"Taml\" typeface=\"Latha\"/><a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Orya\" typeface=\"Kalinga\"/><a:font script=\"Mlym\" typeface=\"Kartika\"/><a:font script=\"Laoo\" typeface=\"DokChampa\"/><a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/><a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/><a:font script=\"Viet\" typeface=\"Times New Roman\"/><a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/><a:font script=\"Geor\" typeface=\"Sylfaen\"/><a:font script=\"Armn\" typeface=\"Arial\"/><a:font script=\"Bugi\" typeface=\"Leelawadee UI\"/><a:font script=\"Bopo\" typeface=\"Microsoft JhengHei\"/><a:font script=\"Java\" typeface=\"Javanese Text\"/><a:font script=\"Lisu\" typeface=\"Segoe UI\"/><a:font script=\"Mymr\" typeface=\"Myanmar Text\"/><a:font script=\"Nkoo\" typeface=\"Ebrima\"/><a:font script=\"Olck\" typeface=\"Nirmala UI\"/><a:font script=\"Osma\" typeface=\"Ebrima\"/><a:font script=\"Phag\" typeface=\"Phagspa\"/><a:font script=\"Syrn\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Syrj\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Syre\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Sora\" typeface=\"Nirmala UI\"/><a:font script=\"Tale\" typeface=\"Microsoft Tai Le\"/><a:font script=\"Talu\" typeface=\"Microsoft New Tai Lue\"/><a:font script=\"Tfng\" typeface=\"Ebrima\"/></a:majorFont><a:minorFont><a:latin typeface=\"Aptos Narrow\" panose=\"02110004020202020204\"/><a:ea typeface=\"\"/><a:cs typeface=\"\"/><a:font script=\"Jpan\" typeface=\"\u6e38\u30b4\u30b7\u30c3\u30af\"/><a:font script=\"Hang\" typeface=\"\ub9d1\uc740 \uace0\ub515\"/><a:font script=\"Hans\" typeface=\"\u7b49\u7ebf\"/><a:font script=\"Hant\" typeface=\"\u65b0\u7d30\u660e\u9ad4\"/><a:font script=\"Arab\" typeface=\"Arial\"/><a:font script=\"Hebr\" typeface=\"Arial\"/><a:font script=\"Thai\" typeface=\"Tahoma\"/><a:font script=\"Ethi\" typeface=\"Nyala\"/><a:font script=\"Beng\" typeface=\"Vrinda\"/><a:font script=\"Gujr\" typeface=\"Shruti\"/><a:font script=\"Khmr\" typeface=\"DaunPenh\"/><a:font script=\"Knda\" typeface=\"Tunga\"/><a:font script=\"Guru\" typeface=\"Raavi\"/><a:font script=\"Cans\" typeface=\"Euphemia\"/><a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/><a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/><a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/><a:font script=\"Thaa\" typeface=\"MV Boli\"/><a:font script=\"Deva\" typeface=\"Mangal\"/><a:font script=\"Telu\" typeface=\"Gautami\"/><a:font script=\"Taml\" typeface=\"Latha\"/><a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Orya\" typeface=\"Kalinga\"/><a:font script=\"Mlym\" typeface=\"Kartika\"/><a:font script=\"Laoo\" typeface=\"DokChampa\"/><a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/><a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/><a:font script=\"Viet\" typeface=\"Arial\"/><a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/><a:font script=\"Geor\" typeface=\"Sylfaen\"/><a:font script=\"Armn\" typeface=\"Arial\"/><a:font script=\"Bugi\" typeface=\"Leelawadee UI\"/><a:font script=\"Bopo\" typeface=\"Microsoft JhengHei\"/><a:font script=\"Java\" typeface=\"Javanese Text\"/><a:font script=\"Lisu\" typeface=\"Segoe UI\"/><a:font script=\"Mymr\" typeface=\"Myanmar Text\"/><a:font script=\"Nkoo\" typeface=\"Ebrima\"/><a:font script=\"Olck\" typeface=\"Nirmala UI\"/><a:font script=\"Osma\" typeface=\"Ebrima\"/><a:font script=\"Phag\" typeface=\"Phagspa\"/><a:font script=\"Syrn\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Syrj\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Syre\" typeface=\"Estrangelo Edessa\"/><a:font script=\"Sora\" typeface=\"Nirmala UI\"/><a:font script=\"Tale\" typeface=\"Microsoft Tai Le\"/><a:font script=\"Talu\" typeface=\"Microsoft New Tai Lue\"/><a:font script=\"Tfng\" typeface=\"Ebrima\"/></a:minorFont></a:fontScheme><a:fmtScheme name=\"Office\"><a:fillStyleLst><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:lumMod val=\"110000\"/><a:satMod val=\"105000\"/><a:tint val=\"67000\"/></a:schemeClr></a:gs><a:gs pos=\"50000\"><a:schemeClr val=\"phClr\"><a:lumMod val=\"105000\"/><a:satMod val=\"103000\"/><a:tint val=\"73000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:lumMod val=\"105000\"/><a:satMod val=\"109000\"/><a:tint val=\"81000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"0\"/></a:gradFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:satMod val=\"103000\"/><a:lumMod val=\"102000\"/><a:tint val=\"94000\"/></a:schemeClr></a:gs><a:gs pos=\"50000\"><a:schemeClr val=\"phClr\"><a:satMod val=\"110000\"/><a:lumMod val=\"100000\"/><a:shade val=\"100000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:lumMod val=\"99000\"/><a:satMod val=\"120000\"/><a:shade val=\"78000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"0\"/></a:gradFill></a:fillStyleLst><a:lnStyleLst><a:ln w=\"12700\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:ln w=\"25400\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln></a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst><a:outerShdw blurRad=\"57150\" dist=\"19050\" dir=\"5400000\" algn=\"ctr\" rotWithShape=\"0\"><a:srgbClr val=\"000000\"><a:alpha val=\"63000\"/></a:srgbClr></a:outerShdw></a:effectLst></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst><a:solidFill><a:schemeClr val=\"phClr\"/></a:solidFill><a:solidFill><a:schemeClr val=\"phClr\"><a:tint val=\"95000\"/><a:satMod val=\"170000\"/></a:schemeClr></a:solidFill><a:gradFill rotWithShape=\"1\"><a:gsLst><a:gs pos=\"0\"><a:schemeClr val=\"phClr\"><a:tint val=\"93000\"/><a:satMod val=\"150000\"/><a:shade val=\"98000\"/><a:lumMod val=\"102000\"/></a:schemeClr></a:gs><a:gs pos=\"50000\"><a:schemeClr val=\"phClr\"><a:tint val=\"98000\"/><a:satMod val=\"130000\"/><a:shade val=\"90000\"/><a:lumMod val=\"103000\"/></a:schemeClr></a:gs><a:gs pos=\"100000\"><a:schemeClr val=\"phClr\"><a:shade val=\"63000\"/><a:satMod val=\"120000\"/></a:schemeClr></a:gs></a:gsLst><a:lin ang=\"5400000\" scaled=\"0\"/></a:gradFill></a:bgFillStyleLst></a:fmtScheme></a:themeElements><a:objectDefaults><a:lnDef><a:spPr/><a:bodyPr/><a:lstStyle/><a:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"/></a:lnRef><a:fillRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"tx1\"/></a:fontRef></a:style></a:lnDef></a:objectDefaults><a:extraClrSchemeLst/><a:extLst><a:ext uri=\"{05A4C25C-085E-4340-85A3-A5531E510DB2}\"><thm15:themeFamily xmlns:thm15=\"http://schemas.microsoft.com/office/thememl/2012/main\" name=\"Office Theme\" id=\"{2E142A2C-CD16-42D6-873A-C26D2A0506FA}\" vid=\"{1BDDFF52-6CD6-40A5-AB3C-68EB2F1E4D0A}\"/></a:ext></a:extLst></a:theme>",
+"xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"29929\" codeName=\"{28389E77-7640-9E18-AD5C-E98E2F4A8B83}\"/><workbookPr defaultThemeVersion=\"202300\"/><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{EB85D234-467C-48D5-8A1F-C1E40D36E2E0}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"-110\" yWindow=\"-110\" windowWidth=\"51420\" windowHeight=\"21100\" xr2:uid=\"{627C48FE-EBEE-4520-961C-F2FB30898455}\"/></bookViews><sheets><sheet name=\"Sheet1\" sheetId=\"1\" r:id=\"rId1\"/></sheets><calcPr calcId=\"191029\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+"xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{1CD8B136-B237-4D96-9332-4F25AFEE4A04}\"><dimension ref=\"C1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"3:3\" x14ac:dyDescent=\"0.25\"><c r=\"C1\" s=\"1\"/></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+},
+{
+"[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>",
+"_rels/.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties\" Target=\"docProps/app.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"docProps/core.xml\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/></Relationships>",
+"docProps/app.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\"><Application>Microsoft Excel</Application><DocSecurity>0</DocSecurity><ScaleCrop>false</ScaleCrop><HeadingPairs><vt:vector size=\"2\" baseType=\"variant\"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs><TitlesOfParts><vt:vector size=\"1\" baseType=\"lpstr\"><vt:lpstr>Sheet1</vt:lpstr></vt:vector></TitlesOfParts><Company></Company><LinksUpToDate>false</LinksUpToDate><SharedDoc>false</SharedDoc><HyperlinksChanged>false</HyperlinksChanged><AppVersion>16.0300</AppVersion></Properties>",
+"docProps/core.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><dc:creator>pyOpenVBA</dc:creator><cp:lastModifiedBy>pyOpenVBA</cp:lastModifiedBy><dcterms:created xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:01Z</dcterms:created><dcterms:modified xsi:type=\"dcterms:W3CDTF\">2026-11-17T21:22:02Z</dcterms:modified></cp:coreProperties>",
+"xl/_rels/workbook.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/></Relationships>",
+"xl/styles.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac x16r2 xr\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:x16r2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/02/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\"><fonts count=\"1\" x14ac:knownFonts=\"1\"><font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></fonts><fills count=\"2\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill></fills><borders count=\"2\"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs><cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/></cellXfs><cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/></cellStyles><dxfs count=\"0\"/><tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/><extLst><ext uri=\"{EB79DEF2-80B8-43e5-95BD-54CBDDF9020C}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:slicerStyles defaultSlicerStyle=\"SlicerStyleLight1\"/></ext><ext uri=\"{9260A510-F301-46a8-8635-F512D64BE5F5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:timelineStyles defaultTimelineStyle=\"TimeSlicerStyleLight1\"/></ext></extLst></styleSheet>",
+"xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"29929\" codeName=\"{28389E77-7640-9E18-AD5C-E98E2F4A8B83}\"/><workbookPr defaultThemeVersion=\"202300\"/><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{EB85D234-467C-48D5-8A1F-C1E40D36E2E0}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"-110\" yWindow=\"-110\" windowWidth=\"51420\" windowHeight=\"21100\" xr2:uid=\"{627C48FE-EBEE-4520-961C-F2FB30898455}\"/></bookViews><sheets><sheet name=\"Sheet1\" sheetId=\"1\" r:id=\"rId1\"/></sheets><calcPr calcId=\"191029\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+"xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{1CD8B136-B237-4D96-9332-4F25AFEE4A04}\"><dimension ref=\"C1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"3:3\" x14ac:dyDescent=\"0.25\"><c r=\"C1\" s=\"1\"/></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+}
+],
+"cases": [
+{
+"middle": [
+0
+],
+"args": [],
+"excel": "$C$1;0;$C$1:$C$2;C1=1",
+"book": 0
+},
+{
+"middle": [
+0
+],
+"args": [],
+"excel": "$C$1;0;$C$1:$C$2;C1=1",
+"book": 1
+},
+{
+"middle": [
+0
+],
+"args": [],
+"excel": "$C$1;0;$C$1:$C$2;C1=1",
+"book": 2
+},
+{
+"middle": [
+0
+],
+"args": [],
+"excel": "$C$1;0;$C$1:$C$2;C1=1",
+"book": 3
+},
+{
+"middle": [
+0
+],
+"args": [],
+"excel": "$C$1;0;$C$1:$C$2;C1=1",
+"book": 4
+}
+]
+},
+{
+"name": "held_sheet",
+"about": "A Worksheet held past its workbook's close, typed and late, saved or not",
+"entry": "M.Probe",
+"prefix": "Public Function Probe() As String\nDim wb, ws As ",
+"suffix": "wb.Close False\ns = \"\"\nOn Error Resume Next\nv = Empty: Err.Clear\nv = ws.Name\ns = s & \"[ws.Name: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.UsedRange.Address\ns = s & \"[ws.UsedRange.Address: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.Range(\"A1\").Value\ns = s & \"[ws.Range(\"\"A1\"\").Value: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.Index\ns = s & \"[ws.Index: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.Parent.Name\ns = s & \"[ws.Parent.Name: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.Cells.Count\ns = s & \"[ws.Cells.Count: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.Visible\ns = s & \"[ws.Visible: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = ws.Application.Name\ns = s & \"[ws.Application.Name: \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nv = Empty: Err.Clear\nv = TypeName(ws)\ns = s & \"[TypeName(ws): \" & Err.Number & \" \" & Err.Description & \" | \" & TypeName(v) & \"]\"\nErr.Clear\nws.Name = \"Other\"\ns = s & \"[ws.Name = \"\"Other\"\": \" & Err.Number & \" \" & Err.Description & \"]\"\nErr.Clear\nws.Range(\"A1\").Value = 2\ns = s & \"[ws.Range(\"\"A1\"\").Value = 2: \" & Err.Number & \" \" & Err.Description & \"]\"\nErr.Clear\nws.Activate\ns = s & \"[ws.Activate: \" & Err.Number & \" \" & Err.Description & \"]\"\nProbe = s\nEnd Function\n",
+"lines": [
+"Worksheet, s, v",
+"Application.DisplayAlerts = False",
+"Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)",
+"ws.Range(\"A1\").Value = 1",
+"wb.SaveAs \"{folder}/0.xlsx\", 51: ",
+"",
+"Object, s, v",
+"wb.SaveAs \"{folder}/2.xlsx\", 51: "
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+3,
+4
+],
+"args": [],
+"excel": "[ws.Name: -2147221080 Method 'Name' of object '_Worksheet' failed | Empty][ws.UsedRange.Address: -2147221080 Method 'UsedRange' of object '_Worksheet' failed | Empty][ws.Range(\"A1\").Value: -2147221080 Method 'Range' of object '_Worksheet' failed | Empty][ws.Index: -2147221080 Method 'Index' of object '_Worksheet' failed | Empty][ws.Parent.Name: -2147221080 Method 'Parent' of object '_Worksheet' failed | Empty][ws.Cells.Count: -2147221080 Method 'Cells' of object '_Worksheet' failed | Empty][ws.Visible: -2147221080 Method 'Visible' of object '_Worksheet' failed | Empty][ws.Application.Name: -2147221080 Method 'Application' of object '_Worksheet' failed | Empty][TypeName(ws): 0  | String][ws.Name = \"Other\": -2147221080 Method 'Name' of object '_Worksheet' failed][ws.Range(\"A1\").Value = 2: -2147221080 Method 'Range' of object '_Worksheet' failed][ws.Activate: -2147221080 Method 'Activate' of object '_Worksheet' failed]"
+},
+{
+"middle": [
+0,
+1,
+2,
+3,
+5
+],
+"args": [],
+"excel": "[ws.Name: -2147221080 Method 'Name' of object '_Worksheet' failed | Empty][ws.UsedRange.Address: -2147221080 Method 'UsedRange' of object '_Worksheet' failed | Empty][ws.Range(\"A1\").Value: -2147221080 Method 'Range' of object '_Worksheet' failed | Empty][ws.Index: -2147221080 Method 'Index' of object '_Worksheet' failed | Empty][ws.Parent.Name: -2147221080 Method 'Parent' of object '_Worksheet' failed | Empty][ws.Cells.Count: -2147221080 Method 'Cells' of object '_Worksheet' failed | Empty][ws.Visible: -2147221080 Method 'Visible' of object '_Worksheet' failed | Empty][ws.Application.Name: -2147221080 Method 'Application' of object '_Worksheet' failed | Empty][TypeName(ws): 0  | String][ws.Name = \"Other\": -2147221080 Method 'Name' of object '_Worksheet' failed][ws.Range(\"A1\").Value = 2: -2147221080 Method 'Range' of object '_Worksheet' failed][ws.Activate: -2147221080 Method 'Activate' of object '_Worksheet' failed]"
+},
+{
+"middle": [
+6,
+1,
+2,
+3,
+7
+],
+"args": [],
+"excel": "[ws.Name: 424 Object required | Empty][ws.UsedRange.Address: 424 Object required | Empty][ws.Range(\"A1\").Value: 424 Object required | Empty][ws.Index: 424 Object required | Empty][ws.Parent.Name: 424 Object required | Empty][ws.Cells.Count: 424 Object required | Empty][ws.Visible: 424 Object required | Empty][ws.Application.Name: 424 Object required | Empty][TypeName(ws): 0  | String][ws.Name = \"Other\": 424 Object required][ws.Range(\"A1\").Value = 2: 424 Object required][ws.Activate: 424 Object required]"
+},
+{
+"middle": [
+6,
+1,
+2,
+3,
+5
+],
+"args": [],
+"excel": "[ws.Name: 424 Object required | Empty][ws.UsedRange.Address: 424 Object required | Empty][ws.Range(\"A1\").Value: 424 Object required | Empty][ws.Index: 424 Object required | Empty][ws.Parent.Name: 424 Object required | Empty][ws.Cells.Count: 424 Object required | Empty][ws.Visible: 424 Object required | Empty][ws.Application.Name: 424 Object required | Empty][TypeName(ws): 0  | String][ws.Name = \"Other\": 424 Object required][ws.Range(\"A1\").Value = 2: 424 Object required][ws.Activate: 424 Object required]"
 }
 ]
 },
@@ -9525,7 +10926,8 @@
 "args": [
 "{folder}/135.xlsx"
 ],
-"excel": "0,0,0,0,$A$1:$XFC$3/$XFC$3/$B$1048576/$XFD$2/$B$1/$A$1:$XFC$3;0;$A$1:$XFC$3/$XFC$3/$B$1048576/$XFD$2/$B$1/$A$1:$XFC$3;0"
+"excel": "0,0,0,0,$A$1:$XFC$3/$XFC$3/$B$1048576/$XFD$2/$B$1/$A$1:$XFC$3;0;$A$1:$XFC$3/$XFC$3/$B$1048576/$XFD$2/$B$1/$A$1:$XFC$3;0",
+"refused": "a\\ top\\ or\\ bottom\\ edge\\ on\\ more\\ than\\ half\\ the\\ columns,\\ short\\ of"
 },
 {
 "middle": [

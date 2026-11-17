@@ -3652,6 +3652,13 @@ class Worksheet(ExcelObject):
             spec = super(ExcelObject, self).vba_member(name)
             raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' "
                                      "failed")
+        if self.book.closed:
+            # Held past its workbook's close, a member is 424 through an Object and the same automation error through a
+            # Worksheet; TypeName still answers (tests/fixtures/used_range.json, held_sheet).
+            spec = super(ExcelObject, self).vba_member(name)
+            if BINDING.late:
+                raise error(424, "Object required")
+            raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' failed")
         return super().vba_member(name)
 
     def __init__(self, book: Workbook, name: str) -> None:

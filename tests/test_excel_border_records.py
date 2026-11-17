@@ -5,7 +5,9 @@ the case's own middle (the numbers of its lines in the probe's table of lines), 
 the text Excel returned. A case that saves names its file
 under {folder}; one that opens a book the probe built names it {book}, made here from the parts every book of the
 probe shares and the parts of its own. The model must return the same text for every case, or, for a case marked
-refused, refuse it with the error its "refused" text matches.
+refused, refuse it with the error its "refused" text matches. A case marked "differs" is a known difference, kept with
+Excel's answer and the reason the model answers otherwise; the test fails once the model answers it as Excel did, so the
+mark comes off.
 """
 from __future__ import annotations
 
@@ -57,6 +59,12 @@ def test_the_model_answers_as_excel_did(probe: dict[str, Any], tmp_path: Path) -
                 app.run(probe["entry"], *args)
             continue
         got = str(app.run(probe["entry"], *args))
+        if "differs" in case:
+            # A known difference, kept with Excel's answer and its reason: answering as Excel did means the record moves to
+            # the cases that match.
+            if got == case["excel"]:
+                wrong.append(f"case {at} now answers as Excel did; take its differs mark away: {case['differs']}")
+            continue
         if got != case["excel"]:
             wrong.append(f"case {at}:\n  Excel {case['excel'][:300]}\n  model {got[:300]}")
     assert not wrong, f"{len(wrong)} of {len(probe['cases'])} differ\n" + "\n".join(wrong[:5])

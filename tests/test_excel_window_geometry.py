@@ -137,11 +137,15 @@ def _address(top: int, left: int, bottom: int, right: int) -> str:
     return f'{column_letter(left)}{top}:{column_letter(right)}{bottom}'
 
 
-@pytest.mark.parametrize('name, reads, answers', MEASURED, ids=[one[0] for one in MEASURED])
+#: Measured cases the rules miss, run so that a change that fixes one fails until its mark goes.
+ZOOM_85 = 'zoom 85: the headings at 85% are not 34 pixels, so Excel shows a column less'
+
+
+@pytest.mark.parametrize('name, reads, answers', [
+    pytest.param(*one, id=one[0], marks=pytest.mark.xfail(strict=True, reason=ZOOM_85)) if one[0] == 'zoom 85'
+    else pytest.param(*one, id=one[0]) for one in MEASURED])
 def test_the_rules_answer_as_excel_did_at_144_dpi(name: str, reads: list[str], answers: dict[str, str]) -> None:
     layout, action = CASES[name]
-    if name == 'zoom 85':
-        pytest.xfail('zoom 85: the headings at 85% are not 34 pixels, so Excel shows a column less')
     if action is not None and action[0] == 'large':
         layout = replace(layout, scroll=large_scroll(DISPLAY, layout, action[1], action[2]))
     elif action is not None:
@@ -201,12 +205,19 @@ ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'wi
           if (FIXTURES / f'{stem}.json').exists() for case in _round(stem)]
 
 
-@pytest.mark.parametrize('stem, number, spec, answer', ROUNDS, ids=[f'{one[0]}-{one[1]}' for one in ROUNDS])
-def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dict[str, Any], answer: str) -> None:
+def _missed(stem: str, number: int) -> str | None:
     if stem == 'window_geometry1' and number in HEADINGS_OFF_100:
-        pytest.xfail('headings at 50% and 60% are wider than their size at 100% times the zoom')
+        return 'headings at 50% and 60% are wider than their size at 100% times the zoom'
     if stem == 'window_geometry2' and number in START_FALSE_ROWS:
-        pytest.xfail('ScrollIntoView with Start False: which first row it takes is not known')
+        return 'ScrollIntoView with Start False: which first row it takes is not known'
+    return None
+
+
+@pytest.mark.parametrize('stem, number, spec, answer', [
+    pytest.param(*one, id=f'{one[0]}-{one[1]}', marks=pytest.mark.xfail(strict=True, reason=reason))
+    if (reason := _missed(one[0], one[1])) is not None else pytest.param(*one, id=f'{one[0]}-{one[1]}')
+    for one in ROUNDS])
+def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dict[str, Any], answer: str) -> None:
     try:
         found = str(SCRIPT.predicted(spec))
     except Unmeasured:

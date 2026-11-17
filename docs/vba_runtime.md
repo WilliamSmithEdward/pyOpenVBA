@@ -3157,11 +3157,12 @@ not establish complete calculation scheduling, iteration, or event conformance.
   A shape's fill can hold one: `FillFormat.UserPicture` stretches a PNG, JPEG
   or GIF over it and `UserTextured` tiles one, as Excel does. The file goes
   into the workbook as it is, however large; only its first bytes are read,
-  to name its content type. A BMP or anything else Excel converts reports
-  itself unsupported, as does `PresetTextured`, whose textures are Excel's
-  own pictures. A picture fill reads back from a book opened again as it
-  did before the save. Changing one there, or hiding a picture fill or
-  making it see-through, reports itself unsupported.
+  to name its content type. A BMP, a JPEG or GIF named `.png`, or anything
+  else Excel converts reports itself unsupported, as does `PresetTextured`,
+  whose textures are Excel's own pictures. A picture fill reads back from a
+  book opened again as it did before the save. Changing one there, hiding a
+  picture fill or making it see-through, and turning `TextureTile` on for a
+  tiled fill or off for a stretched picture report themselves unsupported.
   Excel embedded charts can be created and saved for eight common chart kinds;
   editing imported chart contents and broader chart formatting remain incomplete.
 - A type-suffixed name is the same variable as the name without it, so

@@ -230,31 +230,35 @@ def application_usable(display: Display, width: float, height: float, formula_ba
                 - (display.status_bar if status_bar else 0), 0.0))
 
 
-def _whole_pixels(display: Display, points: float) -> int:
-    pixels = points * display.pixels
-    if pixels != int(pixels):
-        raise Unmeasured('a window placed at a point that is not a whole number of pixels')
-    return int(pixels)
+def _placed(display: Display, points: float, across: bool) -> int:
+    """The screen pixel a window's Left (``across``) or Top in points puts its edge at. Measured for whole points
+    only: a Left that is a whole multiple of 3 points, past 0, lands a pixel further right than the others at 144 DPI
+    (tests/fixtures/window_geometryp1.json and p2), by a conversion not pinned further."""
+    if points != int(points):
+        raise Unmeasured('a window placed at a point that is not whole')
+    whole = int(points)
+    return int(whole * display.pixels) + (1 if across and whole > 0 and whole % 3 == 0 else 0)
 
 
 def origin(display: Display, layout: Layout, left: float, top: float) -> tuple[int, int]:
     """The screen pixel A1's top left corner falls on, for a window at ``left`` and ``top`` in points: the window's
     place in pixels, its frame, the ribbon and formula bar, and the headings, less the rows and columns scrolled past.
-    It was measured at 100% only, without frozen panes, and for windows at whole pixels."""
+    It was measured at 100% only, without frozen panes, and for windows at whole points."""
     if layout.zoom not in display.zooms or layout.frozen != (0, 0):
         raise Unmeasured('screen pixels at another zoom or with frozen panes')
     grid = Grid(display, layout)
-    across = (_whole_pixels(display, left) + display.frame_left
+    across = (_placed(display, left, True) + display.frame_left
               + (zoomed(display.row_heading, layout.zoom) if layout.headings else 0) - grid.offset(1, layout.scroll[1]))
-    down = (_whole_pixels(display, top) + display.frame_top
+    down = (_placed(display, top, False) + display.frame_top
             - (0 if layout.formula_bar else int(display.formula_bar * display.pixels))
             + (zoomed(display.column_heading, layout.zoom) if layout.headings else 0) - grid.offset(0, layout.scroll[0]))
     return across, down
 
 
 def screen_pixel(start: int, points: float) -> int:
-    """PointsToScreenPixelsX or Y: a pixel for each point from A1, rounded half up, at any zoom."""
-    return start + int(points + 0.5) if points >= 0 else start - int(-points + 0.5)
+    """PointsToScreenPixelsX or Y: a pixel for each point from A1, at any zoom. The argument is a Long, so a fraction
+    rounds as VBA rounds it to a Long, half to even."""
+    return start + round(points)
 
 
 def range_from_point(display: Display, layout: Layout, left: float, top: float, x: int,

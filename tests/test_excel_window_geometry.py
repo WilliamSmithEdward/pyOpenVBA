@@ -205,7 +205,8 @@ def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
     return [(number, one['spec'], answer[3]) for number, (one, answer) in enumerate(zip(predicted, measured, strict=True))]
 
 
-ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'window_geometry3', 'window_geometry4',
+ROUNDS = [(stem, *case) for stem in ('window_geometryp1', 'window_geometryp2', 'window_geometryp3',
+                                    'window_geometryp4', 'window_geometry1', 'window_geometry2', 'window_geometry3', 'window_geometry4',
                                 'window_geometry5', 'window_geometry6', 'window_geometry7',
                                 'window_geometry8', 'window_geometry9', 'window_geometry10',
                                 'window_geometry11')
@@ -299,7 +300,7 @@ SPOTS = [(0, 0, True), (-1, 0, True), (0, -1, True), (95, 0, True), (96, 0, True
 
 @pytest.mark.parametrize('name', list(PIXEL_CASES))
 def test_screen_pixels_and_the_cells_under_them_as_excel_answered(name: str) -> None:
-    """PointsToScreenPixelsX and Y, and RangeFromPoint, for a window at a whole pixel at 100%. RangeFromPoint's
+    """PointsToScreenPixelsX and Y, and RangeFromPoint, for a window at a whole point at 100%. RangeFromPoint's
     Nothing reads as error 91 in the probe, which took its Address."""
     layout, left, top = PIXEL_CASES[name]
     reads, answer = LOOK_C[name]

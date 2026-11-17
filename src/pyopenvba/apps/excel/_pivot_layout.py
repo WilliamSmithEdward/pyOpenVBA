@@ -511,9 +511,27 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         height -= int(not rows)
         width -= int(bool(rows) and not columns)
     empty = not rows and not columns and not reports
+    # The wizard's classic table, its drop zones in the grid (tests/fixtures/pivot_wizard.json): empty, it is a frame
+    # 2 cells by 2; with fields and no data field, a frame 3 by 2 holding their captions and no items; with a data
+    # field alone, its caption and value with a Total over the value and beside it.
+    classic = 'createdVersion' not in root.attrib and root.get('gridDropZones') in ('1', 'true')
+    frame = classic and not reports and bool(rows or columns) and not pages
+    alone = classic and bool(reports) and not rows and not columns and not pages
+    if classic and pages:
+        raise VBAUnsupportedError("A page field in the wizard's classic pivot table is not implemented")
+    if frame:
+        if len(rows) > 1 or len(columns) > 1:
+            raise VBAUnsupportedError("The wizard's classic pivot table with more than one row or column field and "
+                                      "no data field is not implemented")
+        row_lines, col_lines = [], []
+        dr, dc, height, width = 2, 1, 3, 2
+    if alone:
+        if len(reports) > 1:
+            raise VBAUnsupportedError("The wizard's classic pivot table with data fields alone is not implemented")
+        dc, width = 1, 2
     if empty:
         dr, dc = (0, 0) if pages else (1, 0)
-        height, width = (1, 1) if pages else (18, 3)
+        height, width = (1, 1) if pages else ((2, 2) if classic else (18, 3))
     # Page fields with no room above the body move it down until they fit, a blank row between; taking them away
     # leaves it where it is (tests/fixtures/pivot_show_pages/ two_pages).
     top = max(old.top, page_rows + 2) if pages else old.top
@@ -547,7 +565,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         if value is not EMPTY and value != '':
             cells[area.top + row, area.left + column] = value
 
-    if empty and not pages:
+    if (empty or frame) and not pages:
         # An empty table draws its placeholder again, as a new one does (tests/fixtures/pivot_options/
         # clear_table).
         from pyopenvba.apps.excel._pivot_create import placeholder_border
@@ -953,7 +971,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             for index in axis:
                 group.append(node('field', {'x': str(index)}))
             children.append(group)
-        if not empty and not skeleton:
+        if not empty and not skeleton and not frame:
             children.append(_line_xml('rowItems' if name == 'rowFields' else 'colItems', row_lines if name == 'rowFields' else col_lines))
     if pages:
         group = node('pageFields', {'count': str(len(pages))})
@@ -970,12 +988,21 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         root.insert(1 + index, child)
     location.attrib.update(ref=area.address(absolute=False), firstHeaderRow=str(0 if empty and pages else int(VALUES not in columns or len(columns) > 1 or values_row)),
                            firstDataRow=str(dr), firstDataCol=str(dc))
+    if frame and not columns:
+        location.set('firstHeaderRow', '2')
+    if alone:
+        # A Total over the value and beside it (tests/fixtures/pivot_wizard.json).
+        put(0, 1, 'Total')
+        put(1, 0, 'Total')
     if pages:
         location.attrib.update(rowPageCount=str(page_rows), colPageCount=str(page_columns))
     else:
         location.attrib.pop('rowPageCount', None)
         location.attrib.pop('colPageCount', None)
-    set_flag(root, 'dataOnRows', VALUES in rows, False, TABLE_ORDER)
+    if VALUES in rows or VALUES in columns:
+        set_flag(root, 'dataOnRows', VALUES in rows, False, TABLE_ORDER)
+    # With no Values field the flag says where one would go, and stays as it was: the wizard's classic table keeps
+    # its dataOnRows over one data field (tests/fixtures/pivot_wizard.json).
     styles = [*buttons.items(), *labels.items(), *values_formats.items()]
     # A value takes the elements of its lines: a grand total's, a subtotal's or a subheading's; with no fields on
     # an axis its one line is the grand total's.

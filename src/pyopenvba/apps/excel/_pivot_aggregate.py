@@ -266,7 +266,9 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
     if fields[index].get('numFmtId', '0') != '0':
         new.set('numFmtId', fields[index].get('numFmtId', '0'))
     reports = [*previous, new]
-    if axes:
+    # The wizard's classic table lays a data field alone out as its own layout does (see _pivot_layout).
+    classic = 'createdVersion' not in table.root.attrib and table.root.get('gridDropZones') in ('1', 'true')
+    if axes or classic:
         from pyopenvba.apps.excel._pivot_layout import render
 
         definition = deepcopy(table.root)

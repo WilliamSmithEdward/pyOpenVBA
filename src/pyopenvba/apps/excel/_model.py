@@ -4327,6 +4327,23 @@ class Worksheet(ExcelObject):
         # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
         return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
 
+    @method
+    def PivotTableWizard(self, SourceType: object = MISSING, SourceData: object = MISSING,  # noqa: N803
+                         TableDestination: object = MISSING, TableName: object = MISSING,  # noqa: N803
+                         RowGrand: object = MISSING, ColumnGrand: object = MISSING, SaveData: object = MISSING,  # noqa: N803
+                         HasAutoFormat: object = MISSING, AutoPage: object = MISSING, Reserved: object = MISSING,  # noqa: N803
+                         BackgroundQuery: object = MISSING, OptimizeCache: object = MISSING,  # noqa: N803
+                         PageFieldOrder: object = MISSING, PageFieldWrapCount: object = MISSING,  # noqa: N803
+                         ReadData: object = MISSING, Connection: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._pivot_create import wizard
+
+        return wizard(self, SourceType, SourceData, TableDestination, TableName,
+                      {"RowGrand": RowGrand, "ColumnGrand": ColumnGrand, "SaveData": SaveData,
+                       "HasAutoFormat": HasAutoFormat}, ReadData,
+                      {"AutoPage": AutoPage, "Reserved": Reserved, "BackgroundQuery": BackgroundQuery,
+                       "OptimizeCache": OptimizeCache, "PageFieldOrder": PageFieldOrder,
+                       "PageFieldWrapCount": PageFieldWrapCount, "Connection": Connection})
+
     @member
     def PrintedCommentPages(self) -> object:
         return VBAInt(0, "Long")

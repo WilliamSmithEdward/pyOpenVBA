@@ -92,6 +92,25 @@ ROUNDS = {1: (TEXTS, READS, STATEMENTS, OUT), 2: (TEXTS_2, READS_2, STATEMENTS_2
                ('"Fine?" & vbCr & "maybe." & vbCr & "sure"', None)], READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_6.json')),
           7: ([('"wet sand. dry rock! cold sea" & vbCr & "warm wind"', (6, 4)), ('"  xy  z"', None), ('"NASA team" & vbTab', None),
                ('"a." & vbCr & "bb?" & vbCr & "cc"', (2, 2))], READS_3, STATEMENTS_4, OUT.with_name('text_range2_round_7.json'))}
+#: Round 8, a first measurement of the members the model lacks: For Each over a range and its collections, the bounds, which follow
+#: the display's DPI, the clipboard methods, each Paste after a Copy or Cut of the probe's own text so nothing of the user's clipboard
+#: is read, and InsertChartField on a shape's text.
+STATEMENTS_8 = ['n = 0: For Each x In tr: n = n + 1: v = v & x.Text & "/": Next: v = n & ":" & v',
+                'n = 0: For Each x In tr.Characters: n = n + 1: v = v & x.Text & "/": Next: v = n & ":" & v',
+                'n = 0: For Each x In tr.Words: n = n + 1: v = v & x.Text & "/": Next: v = n & ":" & v',
+                'n = 0: For Each x In tr.Runs: n = n + 1: v = v & x.Text & "/": Next: v = n & ":" & v',
+                'n = 0: For Each x In tr.Paragraphs: n = n + 1: v = v & TypeName(x) & "/": Next: v = n & ":" & v',
+                'v = tr.BoundLeft', 'v = tr.BoundTop', 'v = tr.BoundWidth', 'v = tr.BoundHeight', 'v = tr.Characters(1, 3).BoundWidth',
+                'v = tr.Paragraphs(1).BoundHeight',
+                'tr.Characters(1, 3).RotatedBounds x1, y1, x2, y2, x3, y3, x4, y4: v = x1 & "," & y1 & "," & x2 & "," & y2 & "," & x3 & "," & y3 & "," & x4 & "," & y4',
+                'tr.Characters(1, 3).Copy: v = tr.Characters(5, 0).Paste.Text', 'tr.Characters(1, 3).Copy: v = tr.Characters(5, 2).Paste.Start',
+                'tr.Copy: v = tr.Characters(2, 0).Paste.Length', 'tr.Characters(1, 4).Cut: v = tr.Characters(2, 0).Paste.Text',
+                'tr.Characters(1, 4).Cut', 'tr.Characters(5, 3).Copy: v = tr.Characters(1, 0).PasteSpecial(msoClipboardFormatPlainText).Text',
+                'tr.Characters(5, 3).Copy: v = tr.Characters(1, 0).PasteSpecial(msoClipboardFormatHTML).Text',
+                'ws.Range("A1").Value = "cell": ws.Range("A1").Copy: v = tr.Characters(1, 0).Paste.Text',
+                'v = tr.InsertChartField(msoChartFieldValue).Text', 'v = tr.InsertChartField(msoChartFieldFormula, "=Sheet1!A1").Text']
+ROUNDS[8] = ([('"red fox. blue jay" & vbCr & "green owl"', (5, 3)), ('"solo"', None)], [], STATEMENTS_8,
+             OUT.with_name('text_range2_round_8.json'))
 ROUND = 1
 
 
@@ -127,7 +146,9 @@ HELPERS = '''Private Function Show(ByVal v As Variant) As String
     Show = TypeName(v) & ":" & Replace(Replace(Replace(CStr(v), vbCr, "<CR>"), vbLf, "<LF>"), Chr(11), "<VT>")
 End Function
 '''
-DECLARE = '    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object, v As Variant, s As String\n    On Error Resume Next\n'
+DECLARE = ('    Dim wb As Workbook, ws As Worksheet, sh As Object, tr As Object, v As Variant, s As String, x As Object, n As Long\n'
+           '    Dim x1 As Single, y1 As Single, x2 As Single, y2 As Single, x3 As Single, y3 As Single, x4 As Single, y4 As Single\n'
+           '    On Error Resume Next\n')
 PART = 12
 
 
@@ -220,8 +241,11 @@ def measure() -> None:
     record: dict[str, Any] = json.loads(ROUNDS[ROUND][3].read_text(encoding='utf-8'))
     every: list[list[Any]] = record['cases']
     answers: list[str] = []
+    height = 'Function H() As String\n    H = CStr(ActiveSheet.StandardHeight)\nEnd Function\n'
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
+        # From round 8, the display's scale at both ends of the run, which the bounds follow (StandardHeight 15 is 96 DPI).
+        heights = [str(excel.run_vba(height, 'H', line_numbers=False).value)] if ROUND >= 8 else []
         for at in range(0, len(every), 60):
             result = excel.run_vba(macro(every[at:at + 60]), 'Probe', (), timeout=600, line_numbers=False)
             assert result.ok, (at, result.error, [one.message for one in result.dialogs])
@@ -235,6 +259,10 @@ def measure() -> None:
                 assert result.ok, (result.error, [one.message for one in result.dialogs])
                 record['excel_markup'] = text_bodies(Path(folder))
             print('markup same as the model:', record['excel_markup'] == record['model_markup'])
+        if heights:
+            heights.append(str(excel.run_vba(height, 'H', line_numbers=False).value))
+            record['standard_height'] = heights
+            print('StandardHeight', heights, flush=True)
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'excel': answers})
     ROUNDS[ROUND][3].write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     wrong = sum(model != excel and model != 'refused' for model, excel in zip(record['model'], answers))

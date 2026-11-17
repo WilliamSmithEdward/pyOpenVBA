@@ -14,8 +14,10 @@ from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/double_click.json').read_text(encoding='utf-8'))
 CASES: list[list[Any]] = RECORD['cases']
-#: A pivot table's value, whose detail Excel shows on a new sheet as Range.ShowDetail does: not built.
-DETAIL = {index for index, (statement, _, _) in enumerate(CASES) if 'CreatePivotTable' in statement}
+#: A pivot table's value standing for part of its records, whose detail Excel lists in an order not worked out (see
+#: _pivot_details.drill): not built. The grand total's (E4) is.
+DETAIL = {index for index, (statement, _, _) in enumerate(CASES)
+          if 'CreatePivotTable' in statement and 'Range("E4")' not in statement}
 
 
 def _run(index: int) -> str:
@@ -37,7 +39,7 @@ def test_a_double_click_does_what_excels_does(index: int) -> None:
 def test_a_pivot_values_detail_reports_itself(index: int) -> None:
     from pyopenvba.exceptions import VBAUnsupportedError
 
-    with pytest.raises(VBAUnsupportedError, match="pivot table's value"):
+    with pytest.raises(VBAUnsupportedError, match='part of its records'):
         _run(index)
 
 

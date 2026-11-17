@@ -486,8 +486,8 @@ def pivot_item(target: _model.Range) -> pivots.PivotItem:
 def double_clicked(cell: _model.Range) -> None:
     """Application.DoubleClick on ``cell``, the active cell (tests/fixtures/double_click.json). Anywhere but a pivot
     table nothing happens. On a pivot table's value, a grand total's among them, Excel shows the value's detail on a
-    new sheet before the active one, raising no BeforeDoubleClick; the detail sheet, as Range.ShowDetail makes it, is
-    not built. On the rest of a table Excel opens its Show Detail dialog, which is not built either."""
+    new sheet before the active one, as Range.ShowDetail does, raising no BeforeDoubleClick (see
+    _pivot_details.drill). On the rest of a table Excel opens its Show Detail dialog, which is not built."""
     at = cell.first
     for table in cell.sheet.pivot_tables:
         covered = table.vba_get('TableRange2')
@@ -498,8 +498,11 @@ def double_clicked(cell: _model.Range) -> None:
         except VBARuntimeError:
             body = None
         if isinstance(body, _model.Range) and any(area.contains(at.top, at.left) for area in body.areas):
-            raise VBAUnsupportedError("Application.DoubleClick on a pivot table's value, which shows its detail on a "
-                                      "new sheet, is not implemented")
+            from pyopenvba.apps.excel._pivot_details import drill
+
+            # The value's detail, as ShowDetail shows it, the cell selected already (tests/fixtures/pivot_drill.json).
+            drill(table, cell, True, select=False)
+            return
         raise VBAUnsupportedError("Application.DoubleClick on a pivot table's labels, where Excel opens its Show Detail "
                                   "dialog, is not implemented")
 

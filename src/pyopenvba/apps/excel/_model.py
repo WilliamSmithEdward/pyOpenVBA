@@ -6573,12 +6573,25 @@ class Range(ExcelObject):
     def ShowDetail(self) -> object:
         from pyopenvba.apps.excel._outline import read_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import read_value_detail, value_cell
+
+            if value_cell(self) is not None:
+                read_value_detail()
         return read_detail(self)
 
     @setter('ShowDetail')
     def _set_show_detail(self, value: object) -> None:
         from pyopenvba.apps.excel._outline import set_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import drill, value_cell
+
+            # A pivot table's value shows the records behind it (drill-through).
+            table = value_cell(self)
+            if table is not None:
+                drill(table, self, value, select=True)
+                return
         set_detail(self, value)
 
     @member

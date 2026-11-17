@@ -23,40 +23,15 @@ _spec.loader.exec_module(_script)
 row_source: Any = getattr(_script, 'row_source')
 #: Sets the model does not yet answer as Excel did, each with why.
 NOT_YET: dict[str, str] = {
-    'Arcs.AutoScaleFont': "the drawing's item setter reports itself",
-    'Arcs.Formula': "the drawing's item setter reports itself",
-    'Arcs.LockedText': "the drawing's item setter reports itself",
-    'Arcs.ReadingOrder': "the drawing's item setter reports itself",
     'Buttons.AutoSize': "the item setter needs the caption's text width",
     'Buttons.Formula': 'Excel answers 1004 and changes nothing; the item setter is not measured',
-    'Lines.ArrowHeadLength': "the line's item setter reports itself",
-    'Lines.ArrowHeadStyle': "the line's item setter reports itself",
-    'Lines.ArrowHeadWidth': "the line's item setter reports itself",
-    'Ovals.AutoScaleFont': "the drawing's item setter reports itself",
+    **{f'{kind}.Formula': 'Excel links no item, answering 1004 on Arcs, Ovals and TextBoxes and nothing on Rectangles, by no rule found yet'
+       for kind in ('Arcs', 'Ovals', 'Rectangles', 'TextBoxes')},
     'Ovals.AutoSize': "the drawing's item setter reports itself",
-    'Ovals.Formula': "the drawing's item setter reports itself",
-    'Ovals.LockedText': "the drawing's item setter reports itself",
-    'Ovals.ReadingOrder': "the drawing's item setter reports itself",
-    'Ovals.Shadow': "the drawing's item setter reports itself",
     'Pictures.Formula': "the picture's item setter reports itself",
     'Pictures.Shadow': "the picture's item setter reports itself",
-    'Rectangles.AutoScaleFont': "the drawing's item setter reports itself",
     'Rectangles.AutoSize': "the drawing's item setter reports itself",
-    'Rectangles.Formula': "the drawing's item setter reports itself",
-    'Rectangles.LockedText': "the drawing's item setter reports itself",
-    'Rectangles.ReadingOrder': "the drawing's item setter reports itself",
-    'Rectangles.RoundedCorners': "the drawing's item setter reports itself",
-    'Rectangles.Shadow': "the drawing's item setter reports itself",
-    'TextBoxes.AutoScaleFont': "the drawing's item setter reports itself",
     'TextBoxes.AutoSize': "the drawing's item setter reports itself",
-    'TextBoxes.Formula': "the drawing's item setter reports itself",
-    'TextBoxes.HorizontalAlignment': "the drawing's item setter reports itself",
-    'TextBoxes.LockedText': "the drawing's item setter reports itself",
-    'TextBoxes.Orientation': "the drawing's item setter reports itself",
-    'TextBoxes.ReadingOrder': "the drawing's item setter reports itself",
-    'TextBoxes.RoundedCorners': "the drawing's item setter reports itself",
-    'TextBoxes.Shadow': "the drawing's item setter reports itself",
-    'TextBoxes.VerticalAlignment': "the drawing's item setter reports itself",
 }
 CASES = [case for case in RECORD['cases'] if case['collection'] != 'DrawingObjects']
 REPLAYED = [case for case in CASES if f"{case['collection']}.{case['member']}" not in NOT_YET]

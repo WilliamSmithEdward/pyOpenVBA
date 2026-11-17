@@ -1,0 +1,3345 @@
+{
+ "measured_at": "2026-11-10T15:50:46.401755+00:00",
+ "source": "Private Function Item(ws As Object, ByVal kind As String, ByVal fresh As Boolean, ByVal add As Boolean) As Object\n    If fresh And add Then\n        If kind = \"Arcs\" Then\n            Set Item = CallByName(ws, kind, VbMethod).Add(500, 300, 560, 340)\n        Else\n            Set Item = CallByName(ws, kind, VbMethod).Add(500, 300, 60, 40)\n        End If\n    ElseIf fresh Then\n        Set Item = CallByName(ws, kind, VbMethod, CallByName(ws, kind, VbMethod).Count)\n    Else\n        Set Item = CallByName(ws, kind, VbMethod, 1)\n    End If\nEnd Function\n\nPrivate Function Reads(o As Object) As String\n    Dim s As String\n    On Error Resume Next\n    s = \"F[\" & o.Formula & \"]\"\n    If Err.Number Then s = \"FE\" & Err.Number\n    Err.Clear\n    s = s & \" T[\" & o.Text & \"]\"\n    If Err.Number Then s = s & \" TE\" & Err.Number\n    Err.Clear\n    s = s & \" C[\" & o.Characters.Text & \"]\"\n    If Err.Number Then s = s & \" CE\" & Err.Number\n    Err.Clear\n    s = s & \" A[\" & o.AutoScaleFont & \"]\"\n    If Err.Number Then s = s & \" AE\" & Err.Number\n    Reads = s\nEnd Function\n\nPublic Function Row(ByVal path As String, ByVal saved As String, ByVal kind As String, ByVal fresh As Boolean, ByVal formula As String, _\n                    ByVal after As String, ByVal scaled As Boolean, ByVal change As Boolean) As String\n    Dim wb As Workbook, ws As Object, o As Object, e As Long, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"B2\").Value = \"hello\"\n    ws.Range(\"B3\").Value = 1234.5\n    ws.Range(\"B3\").NumberFormat = \"#,##0.00\"\n    ws.Range(\"B4\").Value = \"bold\"\n    ws.Range(\"B4\").Font.Bold = True\n    ws.Range(\"B4\").Font.Color = RGB(255, 0, 0)\n    Set o = Item(ws, kind, fresh, True)\n    If change Then\n        On Error Resume Next\n        If scaled Then\n            o.AutoScaleFont = True\n        Else\n            o.Formula = Replace(formula, \"{sheet}\", ws.Name)\n        End If\n        e = Err.Number\n        Err.Clear\n        If after = \"ws.Range(\"\"B2\"\").Value = \"\"changed\"\"\" Then ws.Range(\"B2\").Value = \"changed\"\n        If after = \"o.Formula = \"\"\"\"\" Then o.Formula = \"\"\n        If Err.Number Then e = 1000000 + Err.Number\n        On Error GoTo 0\n        s = Reads(o)\n    End If\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    s = \"E\" & e & \"|\" & s & \"|reopened \" & Reads(Item(wb.Worksheets(1), kind, fresh, False)) & \"|\" & wb.Worksheets(1).StandardHeight\n    wb.Close False\n    Row = s\nEnd Function\n",
+ "cases": [
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{7563FF2C-DF71-42B6-AEE4-E619166DE0DF}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       " "
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{1B4780EB-D58A-41A6-A85E-C9EF14C67FB2}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{F735C00C-7062-4CFA-8D5F-991D1F84723E}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "1,234.50"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{58B4DEA0-0A40-43E8-91BB-316B345E22CB}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "bold"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{0F45FED4-272D-4591-A8C7-3014EDB81C47}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{980F3279-B12E-4D87-B886-718FBF52A280}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{C8A983EA-8513-4BC5-BF6A-9D565BC76B36}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "changed"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "Rect"
+      ],
+      [
+       "hello"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": false,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[Rect] C[Rect] A[False]|reopened F[] T[Rect] C[Rect] A[False]|14.5",
+   "parts": {}
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{D34DE9A1-5D73-C25D-444D-11D53998FE05}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{AF116CAA-8555-4754-9BA8-EFDF2CA059A3}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       " ",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{5E76AEB7-DF17-5ECD-5D77-EE27B673BA6F}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{091A586B-AE6C-45E3-8837-9612402C0902}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{0AD28617-FC82-1E4C-E164-2036CDC687B4}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{DE951523-98CA-44E6-82AA-2740863A68F2}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "1,234.50",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{CF41AAF0-9B18-5B5D-6EDE-99C39C3D38C4}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{4393597B-A920-4E31-9CDB-5DDE546CB6D0}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "bold",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{2AC0D249-2D53-65F1-A9E0-97E276CB93A3}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{D77DCAE2-2C4E-4A0D-A4BA-7B8C2BCCF7DB}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{B275560B-4022-12BA-BC35-5DB43107331C}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{62D2B8A3-B58F-43E9-BEA4-F194FB02A398}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{82BC92F0-436F-B91B-2698-16B6D3398CCB}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{869D9E51-C74A-499F-8510-B8BD10BBBDA1}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "changed",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F9EDD809-D62C-A6A0-4228-4092D9EDC616}\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:r>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Rectangles",
+   "fresh": true,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[] C[] A[False]|reopened F[] T[] C[] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{F8A25AAD-CB49-83C5-97D5-EBB6122CDA78}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{386ACBC1-41DB-2026-92C8-23EB0E415741}\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{9E4B8575-1A25-439B-AB67-40B6BCF103D3}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       " "
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{817D97DC-39CD-47A0-AC5F-A3E8EE8D18E9}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{6707F670-A9B9-473E-96B2-F098FC02C8E2}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "1,234.50"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{DD6EEF99-42E2-4F54-8680-1052BBECF12F}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "bold"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{C2D876D1-694C-4D83-A301-6F861E87CCCF}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{694A7E21-6709-4380-8807-F4661D6C6913}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{CE2A1FAC-456D-40ED-81EE-DE3BD40E14AB}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "changed"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "Round"
+      ],
+      [
+       "hello"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": false,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[Round] C[Round] A[False]|reopened F[] T[Round] C[Round] A[False]|14.5",
+   "parts": {}
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{24693826-A1AB-1576-AA63-FE51FA95D92B}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{85AC2090-84C9-4A44-B296-6647C0D797B6}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       " ",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{C9F90268-0081-FFC7-EE6F-FD448C2B8832}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{ED2E4458-137B-47D2-815C-38BEDBDB06A5}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{FFDB8E2F-96F9-5273-F4AA-697E90C58090}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{D30594A9-DBAA-495F-9D87-7C0646F185B5}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "1,234.50",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{EEEF0C51-91A9-115D-47B2-CBF3533C7B4E}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{28B69FA4-74B0-405F-BE09-E62D7B9B6DE7}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "bold",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{C07039AE-CDBE-15D9-B6D8-3DF6359DAD6A}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{AC01FA4D-43A9-40B7-AFC3-3B1C1E891637}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E5CD32BF-CDF5-3DAA-9C45-F0E6DEF1C796}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{5BCB3666-98F3-42A7-A932-635AE5C5882D}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E37F948A-0DAC-559B-EE8B-5C0B2F105E8A}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{F708C4CB-5245-4589-A445-AEB3D9139931}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "changed",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{112E11EA-CC0E-7A4C-AADE-B8D2FF356F22}\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:r>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Ovals",
+   "fresh": true,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[] C[] A[False]|reopened F[] T[] C[] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E9B95F23-458D-3CCB-97CB-2787402DE0A2}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{E7294015-DD59-55B3-7F47-6E9A103A01B0}\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{CA65EB48-0778-4DB1-957D-26BC283D1AA3}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       " ",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{D7CD8FBB-3D52-4F47-8F38-875AD4CF4CF5}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{A601727A-F19F-4FFC-936A-85549D5D0411}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "1,234.50",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{64D8EFCA-7AE6-44FC-859E-64DCD727ADE9}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "bold",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{DC972B4D-C511-49B0-BE7E-ED88E1DD09C9}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{80145639-3F39-4036-9652-D262273721C4}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{A2AB9B35-B339-4FB6-A3AB-7BD542EE6991}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "changed",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:r>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": false,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[] C[] A[False]|reopened F[] T[] C[] A[False]|14.5",
+   "parts": {}
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{4F038129-0776-4154-CD95-A432157F442D}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{A762E54A-B5D2-4B7D-B353-5205BC832907}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       " ",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{D8FC3918-2B72-4A62-CA91-43728302261D}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{6EBD38DE-A215-472A-8B42-B489FBD9DEF7}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{3A5250BD-83BE-EA27-72DE-3977AA39425D}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{0240DD4D-C017-47DA-8926-4906F4E9B315}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "1,234.50",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{DDC97A5D-14BA-A279-B754-125E8FE9F34E}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{63120436-A899-4808-A43E-6E4B1EBDA6A0}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "bold",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{B2D30D0E-18AD-B326-D6B1-4A1E74B26F4F}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{0CEDC677-75AA-4CE4-AB99-005AEF03E63C}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{C5106D55-B28A-8A0A-4274-0972EA892CDB}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{CD917EF9-61DA-4581-8101-9A9B14EC68A0}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{9BC457F1-E43C-6D86-5D83-5AE699D7A357}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{354485CC-E1DC-4C49-BBC3-59C594E7A595}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "changed",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{A7EEFE0C-81F2-F0DA-141C-8A2302B93796}\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:r>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "Arcs",
+   "fresh": true,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[] C[] A[False]|reopened F[] T[] C[] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{AE0937BB-912E-DA62-ACA6-00EE1BCA413D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{25DCD26C-EBBB-6937-5D81-16B62FFC8821}\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{0B0B647E-45EA-44F3-AB0C-CD72FE880376}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       " "
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{C76A9EDD-90F6-445C-8A9A-B2148E67D921}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{2078D479-49D9-4923-967E-13F343D7B5EF}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "1,234.50"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{8E66DA00-8D75-48B8-93D8-3D7644F0CC8B}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "bold"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{D951526E-CE79-4C40-BE57-196AF96019CB}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{A959D637-AA1D-402C-ADC1-78D653B2E36B}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "hello"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:fld id=\"{F77AFFF3-07B2-4D20-8FAE-012DC7C27BCE}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "changed"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "</a:r>"
+      ],
+      [
+       "</a:fld>",
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "Boxed"
+      ],
+      [
+       "hello"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": false,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[Boxed] C[Boxed] A[False]|reopened F[] T[Boxed] C[Boxed] A[False]|14.5",
+   "parts": {}
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "empty",
+   "formula": "=$A$1",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$A$1 ] T[ ] C[ ] A[False]|reopened F[$A$1 ] T[ ] C[ ] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$A$1\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{C457E281-8AD2-04CF-4205-BA16715F3727}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{B52E025D-A5E0-4486-9804-79E2DBDEDD4B}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       " ",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "text",
+   "formula": "=$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[hello] C[hello] A[False]|reopened F[$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{2BC80BF9-1044-6262-51A1-47239394E465}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{74E33972-D76F-48DC-9B61-C5A8055DEA94}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "number",
+   "formula": "=$B$3",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|reopened F[$B$3 ] T[1,234.50] C[1,234.50] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$3\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{25208EE7-3557-E795-B434-A7840F9CE12B}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{BAE04607-78AB-4413-A1A9-043CF2E21467}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "1,234.50",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "font",
+   "formula": "=$B$4",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[$B$4 ] T[bold] C[bold] A[False]|reopened F[$B$4 ] T[bold] C[bold] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$4\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{48C73CA7-8594-1D34-1323-229E2EB06F47}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{D720FDA4-085B-4AFB-A4DF-47A202D8B8D1}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"FF0000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "bold",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "relative",
+   "formula": "=B2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[B2 ] T[hello] C[hello] A[False]|reopened F[B2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"B2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{C132C2FC-21B4-BCF6-207C-5463435D790F}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{31CBE10B-C8AF-4019-9860-BAD88533F9C4}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "sheet",
+   "formula": "='{sheet}'!$B$2",
+   "after": "",
+   "scaled": false,
+   "excel": "E0|F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|reopened F[Sheet1!$B$2 ] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"Sheet1!$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{81B000F4-D681-49E8-BF6F-42D1401068D3}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{37379575-9A8A-438E-A87C-D46FE4E00EB4}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "changed",
+   "formula": "=$B$2",
+   "after": "ws.Range(\"B2\").Value = \"changed\"",
+   "scaled": false,
+   "excel": "E0|F[$B$2 ] T[changed] C[changed] A[False]|reopened F[$B$2 ] T[changed] C[changed] A[False]|14.5",
+   "parts": {
+    "xl/worksheets/sheet1.xml": [
+     [
+      "replace",
+      [
+       "3"
+      ],
+      [
+       "4"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "4"
+      ],
+      [
+       "3"
+      ]
+     ]
+    ],
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<xdr:sp macro=\"\" textlink=\"\">"
+      ],
+      [
+       "<xdr:sp macro=\"\" textlink=\"$B$2\">"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{8D6D80CC-D37F-1508-1313-B2D9BC42FA8B}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:fld id=\"{8ACF9283-DD55-4C88-A207-6055503E6E4B}\" type=\"TxLink\">",
+       "<a:rPr lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\">",
+       "<a:solidFill>",
+       "<a:srgbClr val=\"000000\"/>",
+       "</a:solidFill>",
+       "<a:latin typeface=\"Aptos Narrow\"/>",
+       "</a:rPr>",
+       "<a:t>",
+       "changed",
+       "</a:t>",
+       "</a:fld>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "cleared",
+   "formula": "=$B$2",
+   "after": "o.Formula = \"\"",
+   "scaled": false,
+   "excel": "E0|F[] T[hello] C[hello] A[False]|reopened F[] T[hello] C[hello] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{FA22EFA2-007F-0B86-18DC-9D7E0F406F2E}\"/>"
+      ]
+     ],
+     [
+      "replace",
+      [
+       "<a:endParaRPr lang=\"en-US\" sz=\"1100\"/>"
+      ],
+      [
+       "<a:r>",
+       "<a:rPr lang=\"en-US\" sz=\"1100\"/>",
+       "<a:t>",
+       "hello",
+       "</a:t>",
+       "</a:r>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "kind": "TextBoxes",
+   "fresh": true,
+   "case": "AutoScaleFont",
+   "formula": "",
+   "after": "",
+   "scaled": true,
+   "excel": "E0|F[] T[] C[] A[False]|reopened F[] T[] C[] A[False]|14.5",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{599AEC68-9CAA-C9D4-B6AD-B9433D87CE36}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{986C8619-27F3-7B56-DD9A-B7CEF4403007}\"/>"
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

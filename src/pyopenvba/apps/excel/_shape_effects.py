@@ -468,6 +468,7 @@ class _RangeEffect(_Effect):
     """An effect through a ShapeRange (tests/fixtures/shape_range_effects.json): a set reaches every shape, and a read
     gives what they share, or the mixed value for its type."""
 
+    vba_type_name = ''
     #: The format each of its shapes has, and what a measurement they do not share reads.
     single: type[_Effect] = _Effect
     mixed_measure = -2147483648.0

@@ -289,14 +289,15 @@ def _typed(text: str, kind: str) -> tuple[object, bool]:
             return float(text) + 0.0, True
         return text, text.strip() in ("NaN", "INF", "-INF")
     if kind in ("dateTime", "time"):
-        from pyopenvba.apps.excel._xml_infer import _takes
+        from pyopenvba.apps.excel._xml_infer import takes
 
-        if not _takes(kind, text):
+        if not takes(kind, text):
             return text, False
         numbers = [int(one) for one in re.findall(r"\d+", text)]
         if kind == "time":
             return (numbers[0] * 3600 + numbers[1] * 60 + numbers[2]) / 86400, True
-        return VBADate.from_datetime(dt.datetime(*numbers)), True
+        year, month, day, hour, minute, second = numbers[:6]
+        return VBADate.from_datetime(dt.datetime(year, month, day, hour, minute, second)), True
     raise VBAUnsupportedError(f"importing an XML value of type {kind} is not implemented")
 
 

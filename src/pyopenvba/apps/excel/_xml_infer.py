@@ -113,7 +113,7 @@ def _clock(hours: str, minutes: str, seconds: str) -> bool:
     return int(hours) < 24 and int(minutes) < 60 and int(seconds) < 60
 
 
-def _takes(kind: str, text: str) -> bool:
+def takes(kind: str, text: str) -> bool:
     if kind == "integer":
         return _INTEGER.fullmatch(text) is not None
     if kind == "boolean":
@@ -135,7 +135,7 @@ def leaf_type(values: list[str]) -> str:
     """The narrowest type all of a leaf's values take: an integer before a boolean, so 1 and 0 alone are integers, and a
     boolean before a double (tests/fixtures/xml_infer.json). An empty value takes none but string."""
     for kind in ("integer", "boolean", "double", "date", "dateTime", "time"):
-        if values and all(_takes(kind, one) for one in values):
+        if values and all(takes(kind, one) for one in values):
             return kind
     return "string"
 

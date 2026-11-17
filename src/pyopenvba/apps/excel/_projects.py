@@ -55,11 +55,12 @@ class ExcelInterpreter(Interpreter):
             super().initialise()
 
     def call(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
-             named: dict[str, object], *, me: object = None, reset_error: bool = False) -> object:
+             named: dict[str, object], *, me: object = None, reset_error: bool = False,
+             past_handlers: bool = False) -> object:
         try:
             with self.execution_context():
                 self.executed_modules.add(module)
-                return super().call(procedure, module, args, named, me=me, reset_error=reset_error)
+                return super().call(procedure, module, args, named, me=me, reset_error=reset_error, past_handlers=past_handlers)
         finally:
             application = self.bridge.application
             if not application.executing_projects:
@@ -279,7 +280,9 @@ def run_macro(application: Application, macro: str, args: list[object]) -> objec
 
     if any(record_byval_signature(project, runtime, item) for item in runtime.parsed.procedures):
         raise error(1004, f"Cannot run macro {macro!r}")
-    result = project.run(macro, args, preserve_error=True)
+    # An error the macro does not handle shows Excel's run-time error dialog and ends every macro; no handler of the
+    # caller's sees it (tests/fixtures/vba_run_errors.json).
+    result = project.run(macro, args, preserve_error=True, past_handlers=True)
     # Excel runs a document module's procedure and passes its arguments,
     # but Application.Run discards its return value (native probes).
     return EMPTY if runtime.document is not None else result

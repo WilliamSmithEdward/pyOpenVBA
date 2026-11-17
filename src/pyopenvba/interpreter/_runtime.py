@@ -1349,11 +1349,14 @@ class Interpreter:
                                   "sandbox=False allows what pyOpenVBA implements of it", where=self.current_where())
 
     def run(self, procedure_name: str, args: Sequence[object] = (), *, module: str = "",
-            preserve_error: bool = False) -> object:
+            preserve_error: bool = False, past_handlers: bool = False) -> object:
         """Run one procedure by name.
 
         Excel's Application.Run preserves Err on entry; ordinary VBA calls
         clear it. Hosts request that distinction with preserve_error.
+        With past_handlers, an error that escapes the procedure's body goes
+        past every handler of its callers, as one from a macro
+        Application.Run started does; one from binding its arguments does not.
         """
         self.initialise()
         target, runtime = self.find_procedure(procedure_name, module)
@@ -1363,7 +1366,8 @@ class Interpreter:
             )
         try:
             # A sheet's or the workbook's own module runs as that object's code.
-            return self.call(target, runtime, list(args), {}, me=runtime.document, reset_error=not preserve_error)
+            return self.call(target, runtime, list(args), {}, me=runtime.document, reset_error=not preserve_error,
+                             past_handlers=past_handlers)
         except _EndSignal:
             return EMPTY
         finally:
@@ -1392,6 +1396,7 @@ class Interpreter:
         *,
         me: object = None,
         reset_error: bool = False,
+        past_handlers: bool = False,
     ) -> object:
         """Call one procedure and give back what it returns."""
         steps = self.steps
@@ -1400,13 +1405,13 @@ class Interpreter:
             # through, is part of the run it started, and the next entry starts afresh.
             steps.running, steps.left, steps.entry = True, steps.limit or 0, f"{module.name}.{procedure.name}"
             try:
-                return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
+                return self.call(procedure, module, args, named, me=me, reset_error=reset_error, past_handlers=past_handlers)
             finally:
                 steps.running, steps.entry = False, ""
         if not self.frames and _locale.current() is not self.locale:
             # The outermost call runs everything under the project's locale.
             with _locale.active(self.locale):
-                return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
+                return self.call(procedure, module, args, named, me=me, reset_error=reset_error, past_handlers=past_handlers)
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
         from pyopenvba.interpreter._compile import validate_numeric_loops, validate_record_arguments
@@ -1438,6 +1443,10 @@ class Interpreter:
         except _ExitSignal as signal:
             if signal.what not in ("sub", "function", "property"):
                 raise
+        except VBARuntimeError as failure:
+            if past_handlers:
+                failure.past_handlers = True
+            raise
         except RecursionError:
             # Python ran out of stack before the VBA depth cap did.
             # Either way the macro recursed away, which is error 28.
@@ -1805,7 +1814,7 @@ class Interpreter:
             failure.args = (f"{failure.where}: {failure.message}",)
         if not failure.source:
             failure.source = self.project_name
-        if failure.unhandled_event or frame.in_handler or frame.handler == "none":
+        if failure.past_handlers or frame.in_handler or frame.handler == "none":
             return "raise"
         self.err.capture(failure)
         self.err.erl = frame.line_number
@@ -2151,7 +2160,7 @@ class Interpreter:
         try:
             self.call(procedure, module, args, {}, me=me)
         except VBARuntimeError as failure:
-            failure.unhandled_event = True
+            failure.past_handlers = True
             raise
 
     def listens_for_event(self, source: object, name: str) -> bool:

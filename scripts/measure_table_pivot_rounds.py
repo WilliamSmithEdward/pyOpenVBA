@@ -274,6 +274,33 @@ def _lock() -> Path:
     return (ROOT / common).resolve() / 'excel-coordination' / 'live.lock'
 
 
+def take_lock(lock: Path, who: str) -> str:
+    """Wait for live.lock, take it and write who holds it in its owner file, as the board asks; the text written."""
+    owner = f'{who} {Path(sys.argv[0]).name} pid {os.getpid()} at {datetime.now(timezone.utc).isoformat()}'
+    while True:
+        try:
+            os.mkdir(lock)
+            break
+        except FileExistsError:
+            time.sleep(10)
+    (lock / 'owner').write_text(owner + '\n', encoding='utf-8')
+    return owner
+
+
+def release_lock(lock: Path, owner: str) -> None:
+    """Give live.lock back only if its owner file still names this run; a lock anyone else holds is left alone."""
+    try:
+        held = (lock / 'owner').read_text(encoding='utf-8').strip()
+    except OSError:
+        print('live.lock is no longer this run\'s: left alone', flush=True)
+        return
+    if held != owner:
+        print('live.lock is held by another run: left alone', flush=True)
+        return
+    (lock / 'owner').unlink()
+    os.rmdir(lock)
+
+
 def measure(seed: int, chunks: int, plan: Plan | None = None) -> None:
     """Up to ``chunks`` runs of CHUNK cases, carrying on from what the round file already holds; the comparison once all are in."""
     from pyvbaharness import ExcelSession, HarnessConfig
@@ -297,12 +324,7 @@ def measure(seed: int, chunks: int, plan: Plan | None = None) -> None:
                     return
                 chunks -= 1
                 left = todo[start:start + CHUNK]
-                while True:
-                    try:
-                        os.mkdir(lock)
-                        break
-                    except FileExistsError:
-                        time.sleep(10)
+                owner = take_lock(lock, 'Verification 02')
                 try:
                     while left:
                         # A failed run can leave its books open in that Excel, so the rest go to a new one.
@@ -315,7 +337,7 @@ def measure(seed: int, chunks: int, plan: Plan | None = None) -> None:
                                 if not done.ok:
                                     break
                 finally:
-                    os.rmdir(lock)
+                    release_lock(lock, owner)
                 path.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
                 print(tag, start + CHUNK, 'of', len(todo), flush=True)
             if any(str(case[tag]).startswith('no answer') for case in cases):

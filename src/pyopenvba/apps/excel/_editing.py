@@ -110,8 +110,12 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     sheet, area = target.sheet, target.first
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
+    sheet.book.application.parameters_ready = True
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
+    from pyopenvba.apps.excel import _pivot_shifts
+
+    pivots = _pivot_shifts.lines_planned(sheet, rows=rows, start=start, count=count, delete=delete)
     if not laid:
         from pyopenvba.apps.excel._outline import guard_axis_edit
 
@@ -166,6 +170,7 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     held = anchors(sheet)
     merges = _merges.lines_planned(sheet, rows=rows, start=start, count=count, delete=delete)
     sheet.cells_ = moved
+    pivots()
     sheet.traced.clear()
     _chart_references.carry_out(chart_references)
     _merges.replaced(sheet, merges)
@@ -272,6 +277,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     sheet = target.sheet
     shift = CellShift.of(area, delete=delete, vertical=vertical)
     band, start, count = shift.band, shift.start, shift.count
+    from pyopenvba.apps.excel import _pivot_shifts
+
+    pivots = _pivot_shifts.cells_planned(sheet, area, shift)
     limit = MAX_ROWS if vertical else MAX_COLUMNS
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
     from pyopenvba.apps.excel._conditional_edits import planned
@@ -283,6 +291,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     from pyopenvba.apps.excel import _table_shifts
 
     tables_moving = _table_shifts.shifted(sheet, shift, region, through)
+    sheet.book.application.parameters_ready = True
     caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
@@ -340,6 +349,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     merges = _merges.shift_planned(sheet, band, vertical=vertical, start=start, count=count, delete=delete)
     # All validation precedes mutation.
     sheet.cells_ = moved
+    pivots()
     _merges.replaced(sheet, merges)
     for owner, cell, text in formulas:
         cell.formula = text

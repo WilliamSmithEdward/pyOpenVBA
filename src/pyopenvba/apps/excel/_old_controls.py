@@ -872,7 +872,37 @@ class Buttons(OldControls):
     lost_sets = frozenset({'autoscalefont'})
 
 
-class CheckBoxes(OldControls):
+class ValueDefault(OldControls):
+    """Those whose hidden _Default the type library gives As Long: their items' Value, read and set as Value is over them, typed. Late bound
+    Excel answers 438 for it, as for every hidden member; the model follows the typed answers (tests/fixtures/old_collection_defaults.json)."""
+
+    vba_type_name = ''
+
+    @member(name='_Default')
+    def value_default(self) -> object:
+        return self.vba_get('Value')
+
+    @setter('_Default')
+    def _value_default(self, value: object) -> None:
+        self.vba_set('Value', value)
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
+        if name.lower() != '_default':
+            super().vba_set(name, value, args, named, by_ref=by_ref)
+            return
+        if self.vba_type_name == 'DrawingObjects':
+            # Excel sets every control's Value but leaves the sheet's two option buttons both off, by a rule not worked out.
+            raise VBAUnsupportedError('DrawingObjects._Default set is not implemented')
+        for item in self.vba_items():
+            if getattr(item, 'vba_member')('Value') is not None:
+                getattr(item, 'vba_set')('Value', value)
+
+    def vba_value(self) -> object:
+        # Read where a value is wanted, the collection is its _Default, typed and late alike.
+        return self.vba_get('Value')
+
+
+class CheckBoxes(ValueDefault):
     vba_type_name = 'CheckBoxes'
     kind = 'CheckBox'
     spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
@@ -880,7 +910,7 @@ class CheckBoxes(OldControls):
     parts = frozenset({'Border', 'Characters', 'Interior'})
 
 
-class OptionButtons(OldControls):
+class OptionButtons(ValueDefault):
     vba_type_name = 'OptionButtons'
     kind = 'Radio'
     spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'GroupBox', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
@@ -916,7 +946,7 @@ class ListedControls(OldControls):
         return True
 
 
-class DropDowns(ListedControls):
+class DropDowns(ValueDefault, ListedControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
     spread_reads = frozenset({'Caption', 'Characters', 'Display3DShading', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
@@ -924,7 +954,7 @@ class DropDowns(ListedControls):
     parts = frozenset({'Characters'})
 
 
-class ListBoxes(ListedControls):
+class ListBoxes(ValueDefault, ListedControls):
     vba_type_name = 'ListBoxes'
     kind = 'List'
     spread_reads = frozenset({'Display3DShading', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})

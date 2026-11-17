@@ -176,7 +176,7 @@ def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
 
 
 ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'window_geometry3', 'window_geometry4',
-                                'window_geometry5')
+                                'window_geometry5', 'window_geometry6', 'window_geometry7')
           if (FIXTURES / f'{stem}.json').exists() for case in _round(stem)]
 
 

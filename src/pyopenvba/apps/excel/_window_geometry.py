@@ -6,9 +6,10 @@ Excel lays the grid out in whole pixels of the display. A row or column at a zoo
 rounded half up to a pixel, and the headings scale the same way. UsableWidth and UsableHeight are the window's size less
 its frame and bars, never below 0. The rows the grid shows are those that start inside it, a row cut off at the bottom
 included and at least one, and the columns the same. With frozen panes, VisibleRange is the scrolling pane's, from its
-first cell to the window's last. LargeScroll moves a page at a time: down, the last row shown becomes the first; up, the
-first becomes the last; a page is a row or column at least, when
-the grid shows less than one whole; kept on the sheet. ScrollIntoView takes a rectangle in screen pixels of the zoomed sheet,
+first cell to the window's last. LargeScroll moves a page at a time: down, the row holding the
+pixel just past the grid's end becomes the first, so a row cut off there comes first and, when the rows end flush with
+the grid, the row after them; up, the reverse, the old first row becoming the one just past the end; a page is a row or
+column at least, when the grid shows less than one whole; kept on the sheet (tests/fixtures/window_geometry5.json). ScrollIntoView takes a rectangle in screen pixels of the zoomed sheet,
 measured from A1: with Start True or left out, the row and column holding its top left come first; with Start False,
 the first column is the least that shows all of it in whole columns. Which first row Start False takes is not known:
 of eight measured cases, five took the least that shows all of it in whole rows and three the least that shows it with a
@@ -132,6 +133,10 @@ class Grid:
             index += 1
         return index
 
+    def beyond(self, axis: int, start: int) -> int:
+        """The row or column holding the first pixel past the grid's end, scrolled to ``start``."""
+        return self.holding(axis, self.offset(axis, start) + int(self.space[axis]))
+
     def whole(self, axis: int, start: int) -> int:
         """The pixel, from A1, where the last row or column wholly shown from ``start`` ends."""
         limit = MAX_ROWS if axis == 0 else MAX_COLUMNS
@@ -173,10 +178,10 @@ def large_scroll(display: Display, layout: Layout, down: int, right: int) -> tup
         for _ in range(abs(pages)):
             here = places[axis]
             if pages > 0:
-                places[axis] = min(max(grid.last(axis, here), here + 1), limit)
+                places[axis] = min(max(grid.beyond(axis, here), here + 1), limit)
             else:
                 start = here
-                while start > grid.first(axis) and grid.last(axis, start - 1) >= here:
+                while start > grid.first(axis) and grid.beyond(axis, start - 1) >= here:
                     start -= 1
                 places[axis] = max(min(start, here - 1), grid.first(axis))
     return places[0], places[1]

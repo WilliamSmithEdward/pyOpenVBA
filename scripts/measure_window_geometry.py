@@ -160,6 +160,88 @@ def placement() -> str:
         return f'Pos={winreg.QueryValueEx(key, "Pos")[0]} Maximized={winreg.QueryValueEx(key, "Maximized")[0]}'
 
 
+def held_out(round_: str) -> list[dict[str, Any]]:
+    """Fresh cases for a round: a window size, a measured zoom, headings and bars on or off, rows made taller, panes
+    frozen or not, a scroll, then nothing, LargeScroll or ScrollIntoView; each with the layout the rules read it as."""
+    import random
+
+    pick = random.Random('window_geometry' + round_)
+    found: list[dict[str, Any]] = []
+    for number in range(40):
+        width, height = pick.randint(300, 900), pick.randint(220, 650)
+        zoom = pick.choice([50, 60, 75, 100, 100, 110, 130, 150, 200])
+        spec: dict[str, Any] = {'width': width, 'height': height, 'zoom': zoom,
+                                'headings': pick.random() > 0.2, 'vertical_bar': pick.random() > 0.2,
+                                'horizontal_bar': pick.random() > 0.2, 'tabs': pick.random() > 0.2,
+                                'tall': pick.choice([0, 0, 0, 22, 40]), 'frozen': [0, 0], 'scroll': [1, 1]}
+        statements = [f'w.Width = {width}', f'w.Height = {height}', f'w.Zoom = {zoom}']
+        statements += [f'w.{name} = False' for name, key in (('DisplayHeadings', 'headings'),
+                       ('DisplayVerticalScrollBar', 'vertical_bar'), ('DisplayHorizontalScrollBar', 'horizontal_bar'),
+                       ('DisplayWorkbookTabs', 'tabs')) if not spec[key]]
+        if spec['tall']:
+            statements.append(f'ActiveSheet.Rows("1:600").RowHeight = {spec["tall"]}')
+        if pick.random() < 0.3:
+            row, column = pick.randint(1, 6), pick.randint(1, 4)
+            if row > 1 or column > 1:
+                spec['frozen'], spec['scroll'] = [row - 1, column - 1], [row, column]
+                statements += [f'ActiveSheet.Cells({row}, {column}).Select', 'w.FreezePanes = True']
+        if pick.random() < 0.5:
+            spec['scroll'] = [spec['scroll'][0] + pick.randint(0, 150), spec['scroll'][1] + pick.randint(0, 20)]
+            statements += [f'w.ScrollRow = {spec["scroll"][0]}', f'w.ScrollColumn = {spec["scroll"][1]}']
+        action = pick.choice(['none', 'large', 'large', 'into', 'into'])
+        if action == 'large':
+            down, right = pick.randint(-2, 3), pick.randint(-1, 2)
+            spec['action'] = ['large', down, right]
+            parts = [f'Down:={down}' if down > 0 else f'Up:={-down}' if down < 0 else '',
+                     f'ToRight:={right}' if right > 0 else f'ToLeft:={-right}' if right < 0 else '']
+            statements.append('w.LargeScroll ' + ', '.join(one for one in parts if one) if any(parts)
+                              else 'w.LargeScroll')
+        elif action == 'into':
+            rectangle = [pick.randint(-20, 3000), pick.randint(-20, 4000), pick.randint(1, 300), pick.randint(1, 300)]
+            plain = spec['scroll'] == [1, 1] and spec['frozen'] == [0, 0]
+            start = pick.choice(['', ', True', ', False'] if plain else ['', ', True'])
+            spec['action'] = ['into', rectangle, start != ', False']
+            statements.append('w.ScrollIntoView ' + ', '.join(str(one) for one in rectangle) + start)
+        found.append({'call': [f'held {round_}.{number}', statements, SIZES + GRID], 'spec': spec})
+    return found
+
+
+def predicted(spec: dict[str, Any]) -> str:
+    """What the rules say the case reads, spelled as the probe writes it, at StandardHeight 14.5."""
+    from dataclasses import replace as replaced
+
+    from pyopenvba._a1 import column_letter
+    from pyopenvba.apps.excel._window_geometry import DISPLAYS, Layout, large_scroll, scroll_into_view, usable, visible
+
+    display = DISPLAYS[14.5]
+    tall = spec['tall']
+    layout = Layout(width=spec['width'], height=spec['height'], zoom=spec['zoom'], headings=spec['headings'],
+                    vertical_bar=spec['vertical_bar'], horizontal_bar=spec['horizontal_bar'], tabs=spec['tabs'],
+                    scroll=(spec['scroll'][0], spec['scroll'][1]), frozen=(spec['frozen'][0], spec['frozen'][1]),
+                    row_pixels=(lambda row: int(tall * 2) if row <= 600 else 29) if tall else (lambda _row: 29))
+    action = spec.get('action')
+    if action and action[0] == 'large':
+        layout = replaced(layout, scroll=large_scroll(display, layout, action[1], action[2]))
+    elif action:
+        layout = replaced(layout, scroll=scroll_into_view(display, layout, tuple(action[1]), action[2]))
+    width, height = usable(display, layout)
+    top, left, bottom, right = visible(display, layout)
+
+    def number(value: float) -> str:
+        return 'Double:' + (str(int(value)) if value == int(value) else str(value))
+
+    return ('dpi=14.5|' + '|'.join([number(48), number(tall or 14.5), number(width), number(height),
+                                     f'String:{column_letter(left)}{top}:{column_letter(right)}{bottom}',
+                                     number(layout.scroll[0]), number(layout.scroll[1])]) + ' dpi=14.5')
+
+
+def predict(round_: str) -> None:
+    cases = [{'call': one['call'], 'spec': one['spec'], 'model': predicted(one['spec'])} for one in held_out(round_)]
+    (FIXTURES / f'window_geometry{round_}_predictions.json').write_text(json.dumps({'cases': cases}, indent=1) + '\n',
+                                                                       encoding='utf-8', newline='\n')
+    print(len(cases), 'predicted')
+
+
 REPAIR = '''Public Function Repair(ByVal across As Double, ByVal down As Double, ByVal wide As Double, _
         ByVal high As Double) As String
     Application.WindowState = xlNormal
@@ -200,7 +282,10 @@ def main() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
     look = sys.argv[1] if len(sys.argv) > 1 else '_a'
-    cases = {'_a': CASES_A, '_b': CASES_B}[look]
+    predictions = FIXTURES / f'window_geometry{look}_predictions.json'
+    expected = json.loads(predictions.read_text('utf-8'))['cases'] if predictions.exists() else None
+    cases = ([tuple(one['call']) for one in expected] if expected is not None
+             else {'_a': CASES_A, '_b': CASES_B}[look])
     text = source(cases)
     before = placement()
     answers: list[str] = []
@@ -217,6 +302,12 @@ def main() -> None:
         indent=1) + '\n', encoding='utf-8', newline='\n')
     print(len(answers), 'asked,', sum(answer.startswith('ERROR') for answer in answers), 'errors')
     print('placement before', before, 'after', after)
+    if expected is not None:
+        wrong = [(one['call'][0], one['model'], answer) for one, answer in zip(expected, answers, strict=True)
+                 if one['model'] != answer]
+        print(f'{len(answers) - len(wrong)} right, {len(wrong)} wrong of {len(answers)}')
+        for one in wrong[:12]:
+            print(one)
     if before != after:
         after = repaired(before, after)
         print('placement repaired to', after)
@@ -231,4 +322,7 @@ def model_answer(cases: list[Any], number: int) -> str | None:
 
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 2 and sys.argv[1] == 'predict':
+        predict(sys.argv[2])
+    else:
+        main()

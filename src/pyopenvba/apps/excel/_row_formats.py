@@ -169,9 +169,17 @@ def keep_shown(sheet: Worksheet, area: Area, *, vertical: bool, delete: bool) ->
                 cell.style = shown
 
 
-def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change, *, crossings: bool = True) -> None:
+def _loaded_plain(cell: Cell, style: S.Style, default: S.Style) -> S.Style:
+    """A cell as the file had it, cleared to the default format but for apply flags: Excel holds no apply flags for a
+    format it read, so the cell takes the default and lets go (tests/fixtures/border_rounds.json, round 10002)."""
+    return default if cell.xf >= 0 and replace(style, applied=default.applied) == default else style
+
+
+def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change, *, crossings: bool = True,
+                clearing: bool = False) -> None:
     """Whole rows formatted: each row's format and each of its cells change from what they show; with crossings False,
-    the places where a formatted column crosses a row with no format of its own keep what they show."""
+    the places where a formatted column crosses a row with no format of its own keep what they show. ``clearing``: an
+    edge clearing the side facing it, which leaves a cell read from the file plain (see _loaded_plain)."""
     change = shared(change)
     default = sheet.book.stylesheet.default
     base = sheet_format(sheet)
@@ -197,7 +205,8 @@ def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change, *, cros
         else:
             _set_row(sheet, row, new)
         for column, cell in mine.items():
-            _restyle_cell(sheet, row, column, cell, change(cell.style or default))
+            restyled = change(cell.style or default)
+            _restyle_cell(sheet, row, column, cell, _loaded_plain(cell, restyled, default) if clearing else restyled)
             sheet.settle(row, column)
         sheet.dims.fonts_changed(row)
 
@@ -573,7 +582,7 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
             if 1 <= beyond <= MAX_ROWS and not together:
                 format_rows(sheet, beyond, beyond, lambda style: _sides(style, **{opposite: S.NO_SIDE})
                             if getattr(style.border, opposite).style and getattr(style.border, opposite) != new else style,
-                            crossings=index == 8)
+                            crossings=index == 8, clearing=True)
         elif index == 12:
             for row in range(area.top, area.bottom):
                 new = change(_current_pair(sheet, [(row, column, row + 1, column) for column in columns],

@@ -1,0 +1,112 @@
+{
+ "cases": [
+  {
+   "argument": "Nothing",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "1004",
+   "model": "13"
+  },
+  {
+   "argument": "Nothing",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "1004",
+   "model": "13"
+  },
+  {
+   "argument": "ws",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "ws",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "ws.Range(\"A1\")",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "ws.Range(\"A1\")",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "wb",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "wb",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "\"text\"",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "\"text\"",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "5",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "5",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "Empty",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "Empty",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "Null",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "Null",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "True",
+   "way": "o.ChangeConnection {arg}",
+   "excel": "13",
+   "model": "13"
+  },
+  {
+   "argument": "True",
+   "way": "CallByName o, \"ChangeConnection\", VbMethod, {arg}",
+   "excel": "13",
+   "model": "13"
+  }
+ ]
+}

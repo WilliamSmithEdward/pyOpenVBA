@@ -1,0 +1,1030 @@
+{
+ "cases": [
+  {
+   "book": "new",
+   "field": "data",
+   "read": "AllItemsVisible",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "CalculatedItems.Count",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "ChildField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "ChildItems.Count",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "DataType",
+   "late": "Long:-4145 E0",
+   "typed": "Long:-4145 E0",
+   "model_late": "Long:-4145 E0",
+   "model_typed": "Long:-4145 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "GroupLevel",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "HiddenItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "IsCalculated",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "LayoutPageBreak",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "ParentField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "ParentItems.Count",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "PivotItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "ShowingInAxis",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "SourceCaption",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Empty: E5",
+   "model_typed": "Empty: E5"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "SourceName",
+   "late": "String:v E0",
+   "typed": "String:v E0",
+   "model_late": "String:v E0",
+   "model_typed": "String:v E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "TotalLevels",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "VisibleItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "Orientation",
+   "late": "Double:4 E0",
+   "typed": "Long:4 E0",
+   "model_late": "Long:4 E0",
+   "model_typed": "Long:4 E0"
+  },
+  {
+   "book": "new",
+   "field": "data",
+   "read": "Name",
+   "late": "String:Sum of v E0",
+   "typed": "String:Sum of v E0",
+   "model_late": "String:Sum of v E0",
+   "model_typed": "String:Sum of v E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "AllItemsVisible",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "CalculatedItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "ChildField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "ChildItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "DataType",
+   "late": "Long:-4158 E0",
+   "typed": "Long:-4158 E0",
+   "model_late": "Long:-4158 E0",
+   "model_typed": "Long:-4158 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "GroupLevel",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "HiddenItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "IsCalculated",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "LayoutPageBreak",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "ParentField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "ParentItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "PivotItems.Count",
+   "late": "Long:2 E0",
+   "typed": "Long:2 E0",
+   "model_late": "Long:2 E0",
+   "model_typed": "Long:2 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "ShowingInAxis",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "SourceCaption",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Empty: E5",
+   "model_typed": "Empty: E5"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "SourceName",
+   "late": "String:k E0",
+   "typed": "String:k E0",
+   "model_late": "String:k E0",
+   "model_typed": "String:k E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "TotalLevels",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "VisibleItems.Count",
+   "late": "Long:2 E0",
+   "typed": "Long:2 E0",
+   "model_late": "Long:2 E0",
+   "model_typed": "Long:2 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "Orientation",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "row",
+   "read": "Name",
+   "late": "String:k E0",
+   "typed": "String:k E0",
+   "model_late": "String:k E0",
+   "model_typed": "String:k E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "AllItemsVisible",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "CalculatedItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "ChildField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "ChildItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "DataType",
+   "late": "Long:-4158 E0",
+   "typed": "Long:-4158 E0",
+   "model_late": "Long:-4158 E0",
+   "model_typed": "Long:-4158 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "GroupLevel",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "HiddenItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "IsCalculated",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "LayoutPageBreak",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "ParentField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "ParentItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "PivotItems.Count",
+   "late": "Long:2 E0",
+   "typed": "Long:2 E0",
+   "model_late": "Long:2 E0",
+   "model_typed": "Long:2 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "ShowingInAxis",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "SourceCaption",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Empty: E5",
+   "model_typed": "Empty: E5"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "SourceName",
+   "late": "String:k E0",
+   "typed": "String:k E0",
+   "model_late": "String:k E0",
+   "model_typed": "String:k E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "TotalLevels",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "VisibleItems.Count",
+   "late": "Long:2 E0",
+   "typed": "Long:2 E0",
+   "model_late": "Long:2 E0",
+   "model_typed": "Long:2 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "Orientation",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "new",
+   "field": "first",
+   "read": "Name",
+   "late": "String:k E0",
+   "typed": "String:k E0",
+   "model_late": "String:k E0",
+   "model_typed": "String:k E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "AllItemsVisible",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "CalculatedItems.Count",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "ChildField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "ChildItems.Count",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "DataType",
+   "late": "Long:-4145 E0",
+   "typed": "Long:-4145 E0",
+   "model_late": "Long:-4145 E0",
+   "model_typed": "Long:-4145 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "GroupLevel",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "HiddenItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "IsCalculated",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "LayoutPageBreak",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "ParentField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "ParentItems.Count",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "PivotItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "ShowingInAxis",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "SourceCaption",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Empty: E5",
+   "model_typed": "Empty: E5"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "SourceName",
+   "late": "String:Amount E0",
+   "typed": "String:Amount E0",
+   "model_late": "String:Amount E0",
+   "model_typed": "String:Amount E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "TotalLevels",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "VisibleItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "Orientation",
+   "late": "Double:4 E0",
+   "typed": "Long:4 E0",
+   "model_late": "Long:4 E0",
+   "model_typed": "Long:4 E0"
+  },
+  {
+   "book": "file",
+   "field": "data",
+   "read": "Name",
+   "late": "String:Total E0",
+   "typed": "String:Total E0",
+   "model_late": "String:Total E0",
+   "model_typed": "String:Total E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "AllItemsVisible",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "CalculatedItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "ChildField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "ChildItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "DataType",
+   "late": "Long:-4145 E0",
+   "typed": "Long:-4145 E0",
+   "model_late": "Long:-4145 E0",
+   "model_typed": "Long:-4145 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "GroupLevel",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "HiddenItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "IsCalculated",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "LayoutPageBreak",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "ParentField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "ParentItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "PivotItems.Count",
+   "late": "Long:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "ShowingInAxis",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "SourceCaption",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Empty: E5",
+   "model_typed": "Empty: E5"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "SourceName",
+   "late": "String:Name E0",
+   "typed": "String:Name E0",
+   "model_late": "String:Name E0",
+   "model_typed": "String:Name E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "TotalLevels",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "VisibleItems.Count",
+   "late": "Long:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "Orientation",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "row",
+   "read": "Name",
+   "late": "String:Name E0",
+   "typed": "String:Name E0",
+   "model_late": "String:Name E0",
+   "model_typed": "String:Name E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "AllItemsVisible",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "CalculatedItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "ChildField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "ChildItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "DataType",
+   "late": "Long:-4145 E0",
+   "typed": "Long:-4145 E0",
+   "model_late": "Long:-4145 E0",
+   "model_typed": "Long:-4145 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "GroupLevel",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "HiddenItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "IsCalculated",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "LayoutPageBreak",
+   "late": "Boolean:False E0",
+   "typed": "Boolean:False E0",
+   "model_late": "Boolean:False E0",
+   "model_typed": "Boolean:False E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "ParentField.Name",
+   "late": "Empty: E1004",
+   "typed": "Empty: E1004",
+   "model_late": "Empty: E1004",
+   "model_typed": "Empty: E1004"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "ParentItems.Count",
+   "late": "Long:0 E0",
+   "typed": "Long:0 E0",
+   "model_late": "Long:0 E0",
+   "model_typed": "Long:0 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "PivotItems.Count",
+   "late": "Long:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "ShowingInAxis",
+   "late": "Boolean:True E0",
+   "typed": "Boolean:True E0",
+   "model_late": "Boolean:True E0",
+   "model_typed": "Boolean:True E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "SourceCaption",
+   "late": "Empty: E5",
+   "typed": "Empty: E5",
+   "model_late": "Empty: E5",
+   "model_typed": "Empty: E5"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "SourceName",
+   "late": "String:Name E0",
+   "typed": "String:Name E0",
+   "model_late": "String:Name E0",
+   "model_typed": "String:Name E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "TotalLevels",
+   "late": "Double:1 E0",
+   "typed": "Double:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "VisibleItems.Count",
+   "late": "Long:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "Orientation",
+   "late": "Double:1 E0",
+   "typed": "Long:1 E0",
+   "model_late": "Long:1 E0",
+   "model_typed": "Long:1 E0"
+  },
+  {
+   "book": "file",
+   "field": "first",
+   "read": "Name",
+   "late": "String:Name E0",
+   "typed": "String:Name E0",
+   "model_late": "String:Name E0",
+   "model_typed": "String:Name E0"
+  }
+ ]
+}

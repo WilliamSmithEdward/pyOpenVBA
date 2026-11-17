@@ -202,6 +202,13 @@ def held_out(round_: str) -> list[dict[str, Any]]:
             start = pick.choice(['', ', True', ', False'] if plain and round_ in ('1', '2') else ['', ', True'])
             spec['action'] = ['into', rectangle, start != ', False']
             statements.append('w.ScrollIntoView ' + ', '.join(str(one) for one in rectangle) + start)
+        if round_ not in ('1', '2', '3') and spec['frozen'] != [0, 0]:
+            from pyopenvba.apps.excel._window_geometry import Unmeasured
+
+            try:
+                predicted(spec)
+            except Unmeasured:
+                continue
         found.append({'call': [f'held {round_}.{number}', statements, SIZES + GRID], 'spec': spec})
     return found
 

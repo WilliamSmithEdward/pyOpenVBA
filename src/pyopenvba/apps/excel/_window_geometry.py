@@ -93,6 +93,11 @@ def usable(display: Display, layout: Layout) -> tuple[float, float]:
     return max(width, 0.0), max(height, 0.0)
 
 
+class Unmeasured(ValueError):
+    """A layout the rules were not measured for: frozen panes as tall or as wide as the whole grid, where Excel showed
+    one row of the scrolling pane in one case and two in two others (tests/fixtures/window_geometry1.json and 3)."""
+
+
 class Grid:
     """The cells a window's grid shows, in pixels."""
 
@@ -104,6 +109,9 @@ class Grid:
         down = height * display.pixels - (zoomed(display.column_heading, layout.zoom) if headings else 0)
         self.space = (down - sum(self.size(0, row) for row in range(1, layout.frozen[0] + 1)),
                       across - sum(self.size(1, column) for column in range(1, layout.frozen[1] + 1)))
+        for axis in (0, 1):
+            if layout.frozen[axis] and self.space[axis] <= 0:
+                raise Unmeasured('frozen panes that fill the grid')
 
     def size(self, axis: int, index: int) -> int:
         layout = self.layout

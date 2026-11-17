@@ -18,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).parents[1] / 'scripts'))
 
 from pyopenvba._a1 import column_letter
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, large_scroll, scroll_into_view, usable,
-                                                   visible)
+from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, Unmeasured, large_scroll,
+                                                   scroll_into_view, usable, visible)
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / 'fixtures'
@@ -164,6 +164,9 @@ def test_the_model_reports_them_at_its_own_dpi(read: str) -> None:
 HEADINGS_OFF_100 = {15, 31, 37}
 #: Round 2's cases with ScrollIntoView Start False whose first row the rules miss, by one.
 START_FALSE_ROWS = {23, 27, 38}
+#: Cases with frozen panes taller than the grid, which the rules report unmeasured: Excel showed one row of the
+#: scrolling pane in round 1 and two in round 3.
+FROZEN_FILLING = {('window_geometry1', 9), ('window_geometry3', 9), ('window_geometry3', 36)}
 
 
 def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
@@ -172,7 +175,8 @@ def _round(stem: str) -> list[tuple[int, dict[str, Any], str]]:
     return [(number, one['spec'], answer[3]) for number, (one, answer) in enumerate(zip(predicted, measured, strict=True))]
 
 
-ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'window_geometry3', 'window_geometry4')
+ROUNDS = [(stem, *case) for stem in ('window_geometry1', 'window_geometry2', 'window_geometry3', 'window_geometry4',
+                                'window_geometry5')
           if (FIXTURES / f'{stem}.json').exists() for case in _round(stem)]
 
 
@@ -184,4 +188,8 @@ def test_the_held_out_rounds_as_excel_answered(stem: str, number: int, spec: dic
         pytest.xfail('headings at 50% and 60% are wider than their size at 100% times the zoom')
     if stem == 'window_geometry2' and number in START_FALSE_ROWS:
         pytest.xfail('ScrollIntoView with Start False: which first row it takes is not known')
+    if (stem, number) in FROZEN_FILLING:
+        with pytest.raises(Unmeasured):
+            predicted(spec)
+        return
     assert predicted(spec) == answer

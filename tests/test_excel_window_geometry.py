@@ -173,14 +173,20 @@ def test_every_measured_case_is_replayed_or_named_as_left_out() -> None:
 
 
 @pytest.mark.parametrize('read', ['w.UsableWidth', 'w.UsableHeight', 'w.VisibleRange.Address', 'w.LargeScroll 1',
-                                  'w.ScrollIntoView 0, 0, 10, 10'])
+                                  'w.ScrollIntoView 0, 0, 10, 10', 'w.PointsToScreenPixelsX(0)',
+                                  'w.PointsToScreenPixelsY(0)', 'w.RangeFromPoint(100, 100)', 'Application.Width',
+                                  'Application.Height', 'Application.Left', 'Application.Top', 'Application.UsableWidth',
+                                  'Application.UsableHeight', 'Application.Width = 600 ', 'Application.Top = 10 '])
 def test_the_model_reports_them_at_its_own_dpi(read: str) -> None:
     """The model lays sheets out at 96 DPI, which no run has measured yet."""
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
-    statement = f'v = {read}' if 'Scroll' not in read else read
+    statement = read if 'Scroll' in read or read.endswith(' ') else f'v = {read}'
+    if 'RangeFromPoint' in read:
+        statement = f'Set v = {read}'
     app.add_module('Function Go() As String\n    Dim w As Object, v As Variant\n    Set w = ActiveWindow\n'
-                   '    w.Width = 700: w.Height = 500\n' f'    {statement}\nEnd Function\n', name='P')
+                   '    w.Width = 700: w.Height = 500: w.Left = 0: w.Top = 0\n' f'    {statement}\nEnd Function\n',
+                   name='P')
     with pytest.raises(VBAUnsupportedError, match='96 DPI'):
         app.run('P.Go')
 

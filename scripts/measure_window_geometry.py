@@ -218,11 +218,85 @@ def placement() -> str:
         return f'Pos={winreg.QueryValueEx(key, "Pos")[0]} Maximized={winreg.QueryValueEx(key, "Maximized")[0]}'
 
 
+#: What a screen-pixel round reads of Application's frame.
+APPLICATION = ['Application.Width', 'Application.Height', 'Application.UsableWidth', 'Application.UsableHeight']
+
+
+def _held_out_pixels(round_: str) -> list[dict[str, Any]]:
+    """Fresh cases for a screen-pixel round (named p1, p2 and on): the window set to a size in quarter points and
+    placed at whole points, headings and bars on or off, a first row and column hidden or not, scrolled or not; then
+    Application's frame read, screen pixels of random points, and the cells under random pixels round the grid."""
+    import random
+
+    pick = random.Random('window_geometry_pixels' + round_)
+    found: list[dict[str, Any]] = []
+    for number in range(30):
+        spec: dict[str, Any] = {
+            'kind': 'pixels', 'width': pick.randint(1200, 3600) / 4, 'height': pick.randint(1000, 2600) / 4,
+            'left': pick.randint(0, 300), 'top': pick.randint(0, 200), 'headings': pick.random() > 0.25,
+            'formula_bar': pick.random() > 0.25, 'status_bar': pick.random() > 0.25, 'hidden': pick.random() < 0.2,
+            'scroll': [1, 1]}
+        statements = [f'w.Width = {spec["width"]}', f'w.Height = {spec["height"]}', f'w.Left = {spec["left"]}',
+                      f'w.Top = {spec["top"]}']
+        if not spec['headings']:
+            statements.append('w.DisplayHeadings = False')
+        if not spec['formula_bar']:
+            statements.append('Application.DisplayFormulaBar = False')
+        if not spec['status_bar']:
+            statements.append('Application.DisplayStatusBar = False')
+        if spec['hidden']:
+            statements += ['ActiveSheet.Rows(1).Hidden = True', 'ActiveSheet.Columns(1).Hidden = True']
+        if pick.random() < 0.4:
+            spec['scroll'] = [pick.randint(1, 120), pick.randint(1, 15)]
+            statements += [f'w.ScrollRow = {spec["scroll"][0]}', f'w.ScrollColumn = {spec["scroll"][1]}']
+        spec['points'] = [[pick.choice('xy'), pick.choice([pick.randint(-200, 3000), pick.randint(-2000, 30000) / 10])]
+                          for _ in range(6)]
+        # Pixels from A1's corner, round the first cell shown: hidden first rows and columns take none.
+        before = [sum(0 if spec['hidden'] and index == 1 else size for index in range(1, spec['scroll'][axis]))
+                  for axis, size in ((0, 29), (1, 96))]
+        spec['spots'] = [[before[1] + pick.randint(-60, 1300), before[0] + pick.randint(-60, 700)] for _ in range(6)]
+        reads = APPLICATION + [f'w.PointsToScreenPixels{axis.upper()}({value})' for axis, value in spec['points']]
+        reads += [_at(f'{X0} + {x}', f'{Y0} + {y}') for x, y in spec['spots']]
+        found.append({'call': [f'held {round_}.{number}', statements, reads], 'spec': spec})
+    return found
+
+
+def _predicted_pixels(spec: dict[str, Any]) -> str:
+    from pyopenvba._a1 import column_letter
+    from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, application_usable, origin, range_from_point,
+                                                       screen_pixel, snapped)
+
+    display = DISPLAYS[14.5]
+
+    def hidden(index: int, size: int) -> int:
+        return 0 if spec['hidden'] and index == 1 else size
+
+    layout = Layout(width=spec['width'], height=spec['height'], headings=spec['headings'],
+                    formula_bar=spec['formula_bar'], status_bar=spec['status_bar'],
+                    scroll=(spec['scroll'][0], spec['scroll'][1]), row_pixels=lambda row: hidden(row, 29),
+                    column_pixels=lambda column: hidden(column, 96))
+
+    def number(value: float) -> str:
+        return 'Double:' + (str(int(value)) if value == int(value) else str(value))
+
+    width, height = application_usable(display, spec['width'], spec['height'], spec['formula_bar'], spec['status_bar'])
+    parts = [number(snapped(display, spec['width'])), number(snapped(display, spec['height'])), number(width),
+             number(height)]
+    across, down = origin(display, layout, spec['left'], spec['top'])
+    parts += [f'Long:{screen_pixel(across if axis == "x" else down, value)}' for axis, value in spec['points']]
+    for x, y in spec['spots']:
+        cell = range_from_point(display, layout, spec['left'], spec['top'], across + x, down + y)
+        parts.append('E91' if cell is None else f'String:Range:{column_letter(cell[1])}{cell[0]}')
+    return 'dpi=14.5|' + '|'.join(parts) + ' dpi=14.5'
+
+
 def held_out(round_: str) -> list[dict[str, Any]]:
     """Fresh cases for a round: a window size, a measured zoom, headings and bars on or off, rows made taller, panes
     frozen or not, a scroll, then nothing, LargeScroll or ScrollIntoView; each with the layout the rules read it as."""
     import random
 
+    if round_.startswith('p'):
+        return _held_out_pixels(round_)
     pick = random.Random('window_geometry' + round_)
     found: list[dict[str, Any]] = []
     for number in range(40):
@@ -278,6 +352,8 @@ def predicted(spec: dict[str, Any]) -> str:
     from pyopenvba._a1 import column_letter
     from pyopenvba.apps.excel._window_geometry import DISPLAYS, Layout, large_scroll, scroll_into_view, usable, visible
 
+    if spec.get('kind') == 'pixels':
+        return _predicted_pixels(spec)
     display = DISPLAYS[14.5]
     tall = spec['tall']
     layout = Layout(width=spec['width'], height=spec['height'], zoom=spec['zoom'], headings=spec['headings'],

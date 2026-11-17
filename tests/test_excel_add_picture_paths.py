@@ -61,7 +61,12 @@ def test_with_the_sandbox_on_a_backslashed_route_out_is_refused_before_the_disk(
                                                                                 monkeypatch: pytest.MonkeyPatch) -> None:
     granted, _ = folders
     looked: list[str] = []
-    monkeypatch.setattr(Path, 'read_bytes', lambda self: looked.append(str(self)) or b'')  # pyright: ignore[reportUnknownLambdaType]
+
+    def read_bytes(self: Path) -> bytes:
+        looked.append(str(self))
+        return b''
+
+    monkeypatch.setattr(Path, 'read_bytes', read_bytes)
     with pytest.raises(VBASandboxError):
         app(True).run('P.Add', str(granted) + '\\..\\away\\a.png')
     assert not looked

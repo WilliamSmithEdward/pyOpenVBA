@@ -3458,7 +3458,9 @@ class _ShapeFontBase(HeldPart):
             raise _unsupported(f"Characters.Font.{member} of text TextRange2.Paste put there")
         if all(pasted):
             return None
-        if member == "Bold" and any("font_bold" not in mark for mark, one in zip(marks, pasted) if not one):
+        if member == "Bold" and (len({bool(mark.get("font_bold")) for mark in marks}) > 1
+                                 or any("font_bold" not in mark for mark, one in zip(marks, pasted) if not one)):
+            # Mixed: by value, or by a setting spelled out against one left out (tests/fixtures/text_range2_round_13.json).
             return VBAInt(-2, "Long")
         raise _unsupported(f"Font2.{member} over text TextRange2.Paste put there and other text together")
 

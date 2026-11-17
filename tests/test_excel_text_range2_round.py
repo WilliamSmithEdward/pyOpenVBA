@@ -17,12 +17,21 @@ _SPEC = importlib.util.spec_from_file_location('measure_text_range2_round', ROOT
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 13)
+ROUNDS = range(1, 14)
 #: Cases where Excel's own clipboard failed, left out of the comparison. Excel could not open the clipboard
 #: (CLIPBRD_E_CANT_OPEN, -2147221040, as another program, here Remote Desktop's clipboard, held it), or a paste
 #: that went through elsewhere did nothing, answered 424 or failed with 1004 (round 8's case 12 had no clipboard
-#: of its own set first). Round 11's case 16 copies Characters running past the text's end, which is still open.
+#: of its own set first). Round 11's case 16 is the probe's own: its Copy of Characters past the text's end fails,
+#: as round 13 measured and the model answers, so its Paste sets nothing and p is the earlier case's range, from a
+#: workbook since closed (424), where a case run alone has p Nothing (91).
 CLIPBOARD_FAILED = {8: [12], 11: [16, 31, 32, 33, 34, 36, 37, 38, 40, 41], 12: [19, 24]}
+
+
+def test_characters_past_the_text_s_end_are_the_parameter_error() -> None:
+    """Round 13: read, copied or cut, late or typed, a range running past the end, or from 0, raises -2147024809."""
+    record = _record(13)
+    past = [excel for case, excel in zip(record['cases'], record['excel']) if case[0] == '"wxyz"']
+    assert len(past) == 24 and all(one.startswith('e-2147024809') for one in past)
 
 
 def _record(number: int) -> dict[str, Any]:

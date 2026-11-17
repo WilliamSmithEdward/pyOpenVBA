@@ -74,6 +74,48 @@ CASES_A: list[tuple[str, list[str], list[str]]] = [
 ]
 
 
+#: Each case's sheet dimensions in points, for the rules that turn a usable area into cells.
+SIZES = ['ActiveSheet.Columns(1).Width', 'ActiveSheet.Rows(1).Height']
+GRID = ['w.UsableWidth', 'w.UsableHeight', 'w.VisibleRange.Address(False, False)', 'w.ScrollRow', 'w.ScrollColumn']
+
+
+def _sized(width: int, height: int, zoom: int) -> tuple[str, list[str], list[str]]:
+    return (f'window {width} by {height} zoom {zoom}', [f'w.Width = {width}', f'w.Height = {height}', f'w.Zoom = {zoom}'],
+            SIZES + GRID + ['w.Width', 'w.Height'])
+
+
+#: The second look: window sizes and zooms, scroll targets, frozen splits and odd rows and columns, to pin the rules
+#: that turn a usable area into cells.
+CASES_B: list[tuple[str, list[str], list[str]]] = [
+    _sized(300, 200, 100), _sized(450, 330, 100), _sized(610, 410, 100), _sized(900, 640, 100),
+    _sized(700, 500, 75), _sized(700, 500, 110), _sized(700, 500, 150), _sized(520, 360, 130), _sized(380, 260, 60),
+    ('tall rows', ['ActiveSheet.Rows("1:40").RowHeight = 33'], SIZES + GRID),
+    ('narrow columns', ['ActiveSheet.Columns("A:Z").ColumnWidth = 3'], SIZES + GRID),
+    ('hidden columns', ['ActiveSheet.Columns("B:D").Hidden = True'], SIZES + GRID),
+    ('frozen at B2', ['ActiveSheet.Range("B2").Select', 'w.FreezePanes = True'], SIZES + GRID),
+    ('frozen at F10', ['ActiveSheet.Range("F10").Select', 'w.FreezePanes = True'], SIZES + GRID),
+    ('frozen rows only', ['ActiveSheet.Range("A6").Select', 'w.FreezePanes = True', 'w.LargeScroll Down:=1'],
+     SIZES + GRID),
+    ('large scroll tall rows', ['ActiveSheet.Rows("1:200").RowHeight = 33', 'w.LargeScroll Down:=1'], SIZES + GRID),
+    ('large scroll right 2', ['w.LargeScroll ToRight:=2'], SIZES + GRID),
+    ('large scroll down 3 up 1', ['w.LargeScroll Down:=3, Up:=1'], SIZES + GRID),
+    ('large scroll near the end', ['w.ScrollRow = 1048570', 'w.LargeScroll Down:=1'], ['w.ScrollRow']),
+    ('large scroll up past top', ['w.ScrollRow = 5', 'w.LargeScroll Up:=1'], ['w.ScrollRow']),
+    ('into view middle', ['w.ScrollIntoView 300, 400, 50, 50'], SIZES + GRID),
+    ('into view middle start', ['w.ScrollIntoView 300, 400, 50, 50, True'], SIZES + GRID),
+    ('into view middle end', ['w.ScrollIntoView 300, 400, 50, 50, False'], SIZES + GRID),
+    ('into view taller than window', ['w.ScrollIntoView 0, 600, 10, 900'], SIZES + GRID),
+    ('into view already shown', ['w.ScrollIntoView 100, 100, 20, 20'], SIZES + GRID),
+    ('into view far right end', ['w.ScrollIntoView 2000, 0, 30, 10, False'], SIZES + GRID),
+    ('into view tall rows', ['ActiveSheet.Rows("1:200").RowHeight = 33', 'w.ScrollIntoView 0, 1500, 10, 10'],
+     SIZES + GRID),
+    ('into view frozen', ['ActiveSheet.Range("C4").Select', 'w.FreezePanes = True', 'w.ScrollIntoView 0, 1000, 10, 10'],
+     SIZES + GRID),
+    ('into view negative', ['w.ScrollRow = 30', 'w.ScrollIntoView -50, -50, 10, 10'], SIZES + GRID),
+    ('into view zoom 50', ['w.Zoom = 50', 'w.ScrollIntoView 0, 2000, 10, 10'], SIZES + GRID),
+]
+
+
 def source(cases: list[tuple[str, list[str], list[str]]]) -> str:
     lines = ['Public Function Go(ByVal which As Long) As String',
              '    Dim wb As Workbook, s As String, state As Long, wide As Double, high As Double, across As Double',
@@ -118,11 +160,47 @@ def placement() -> str:
         return f'Pos={winreg.QueryValueEx(key, "Pos")[0]} Maximized={winreg.QueryValueEx(key, "Maximized")[0]}'
 
 
+REPAIR = '''Public Function Repair(ByVal across As Double, ByVal down As Double, ByVal wide As Double, _
+        ByVal high As Double) As String
+    Application.WindowState = xlNormal
+    ActiveWindow.Left = ActiveWindow.Left + across: ActiveWindow.Top = ActiveWindow.Top + down
+    ActiveWindow.Width = ActiveWindow.Width + wide: ActiveWindow.Height = ActiveWindow.Height + high
+    Repair = ActiveWindow.Left & "," & ActiveWindow.Top & "," & ActiveWindow.Width & "," & ActiveWindow.Height
+End Function
+'''
+
+
+def repaired(before: str, after: str) -> str:
+    """Put Excel's saved placement back where it was, through ActiveWindow, when a run moved it: points read back a
+    pixel off at some sizes, so a restore through them can land a pixel away. Pos is in screen pixels, and a point is
+    as many pixels as StandardHeight's rows say (2 at 144 DPI, 4/3 at 96)."""
+    from pyvbaharness import ExcelSession, HarnessConfig
+
+    def numbers(text: str) -> list[int]:
+        return [int(one) for one in text.split()[0].removeprefix('Pos=').split(',')]
+
+    for _ in range(3):
+        if after == before:
+            break
+        old, new = numbers(before), numbers(after)
+        if before.split()[1] != after.split()[1]:
+            raise SystemExit(f'Maximized moved: {before} -> {after}; put it back by hand')
+        with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
+            excel.new_document()
+            scale = excel.run_vba('Public Function Dpi() As Double\n    Dpi = ActiveSheet.StandardHeight\nEnd Function\n',
+                                  'Dpi', (), timeout=60.0, line_numbers=False)
+            pixels = 2.0 if scale.value == 14.5 else 4.0 / 3.0
+            change = tuple((one - two) / pixels for one, two in zip(old, new, strict=True))
+            excel.run_vba(REPAIR, 'Repair', change, timeout=60.0, line_numbers=False)
+        after = placement()
+    return after
+
+
 def main() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
     look = sys.argv[1] if len(sys.argv) > 1 else '_a'
-    cases = {'_a': CASES_A}[look]
+    cases = {'_a': CASES_A, '_b': CASES_B}[look]
     text = source(cases)
     before = placement()
     answers: list[str] = []
@@ -139,6 +217,12 @@ def main() -> None:
         indent=1) + '\n', encoding='utf-8', newline='\n')
     print(len(answers), 'asked,', sum(answer.startswith('ERROR') for answer in answers), 'errors')
     print('placement before', before, 'after', after)
+    if before != after:
+        after = repaired(before, after)
+        print('placement repaired to', after)
+        if after != before:
+            print('PLACEMENT STILL MOVED: put it back through ActiveWindow before anyone else runs', file=sys.stderr)
+            sys.exit(2)
 
 
 def model_answer(cases: list[Any], number: int) -> str | None:

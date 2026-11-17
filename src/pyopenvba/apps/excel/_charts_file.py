@@ -50,6 +50,10 @@ C16R3 = 'http://schemas.microsoft.com/office/drawing/2017/03/chart'
 # Shared with the pivot reader: constructing a node does not parse XML.
 XmlElement = ET.Element
 XmlParseError = expat.ExpatError
+#: Expat's errors (``XML_ERRORS.codes[XML_ERRORS.XML_ERROR_SYNTAX]``), for a reader that answers some in its own words.
+XML_ERRORS = expat.errors
+#: What xml_parser raises, as ValueError, at a DTD or a declared entity.
+DTD_REFUSED = 'Office XML must not contain DTDs or declared entities'
 
 
 def xml_bytes(root: XmlElement) -> bytes:
@@ -109,11 +113,12 @@ def xml_bytes(root: XmlElement) -> bytes:
     return written.replace(b' />', b'/>')
 
 
-def xml_parser() -> expat.XMLParserType:
-    """Create the shared namespace-aware parser with DTD/entity handling refused."""
-    parser = expat.ParserCreate(namespace_separator='}')
+def xml_parser(*, namespaces: bool = True) -> expat.XMLParserType:
+    """Create the shared parser with DTD/entity handling refused: namespace-aware, or with ``namespaces`` off one that
+    reports names and xmlns attributes as written, for a reader that keeps them, as a custom XML part does."""
+    parser = expat.ParserCreate(namespace_separator='}') if namespaces else expat.ParserCreate()
     def refuse(*_args: object) -> NoReturn:
-        raise ValueError('Office XML must not contain DTDs or declared entities')
+        raise ValueError(DTD_REFUSED)
     parser.StartDoctypeDeclHandler = refuse
     parser.EntityDeclHandler = refuse
     parser.ExternalEntityRefHandler = refuse

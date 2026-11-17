@@ -343,9 +343,14 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
             raise error(1004, "AddPicture method of Shapes class failed")
         if linked:
             raise _unsupported("a linked picture")
+        from pyopenvba.interpreter._files import final_path, native_path
+
+        given = to_text(Filename)
+        # The one string opened, past the gate above: a backslash a separator off Windows too, links and .. resolved.
+        opened = final_path(given)
+        source = Path(native_path(given))
         try:
-            source = Path(to_text(Filename))
-            data = source.read_bytes()
+            data = Path(opened).read_bytes()
         except OSError:
             raise error(1004, "AddPicture method of Shapes class failed") from None
         wide, tall, kind = _image_points(data)

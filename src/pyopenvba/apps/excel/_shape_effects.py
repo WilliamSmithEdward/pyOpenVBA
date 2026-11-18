@@ -143,6 +143,9 @@ class ShadowFormat(_Effect):
     @member
     def Visible(self) -> object:
         shape = self.owner.shape
+        if shape.shadow_added:
+            # Given through the old object (tests/fixtures/old_collection_leftovers.json).
+            return VBAInt(-1, 'Long')
         if shape.source and shape.fill_line is None or shape.source and (shape.fill_line is not None and shape.fill_line.extra is None):
             from pyopenvba.shapes._read_look import has_own_shadow
 

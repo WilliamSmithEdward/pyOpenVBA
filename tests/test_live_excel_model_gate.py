@@ -2731,6 +2731,41 @@ def test_excel_reads_the_headers_this_wrote(tmp_path: Path) -> None:
     assert records(str(result.value)) == [[case[0], "", *case[2:]] for case in RECORD["cases"][:len(names)]]
 
 
+def test_excel_reads_the_xml_maps_this_wrote(tmp_path: Path) -> None:
+    """Every case tests/fixtures/xml_maps measured that the model saves, made by the model in the measurement's order and
+    folder: Excel opens each file and reads its maps, tables, mapped cells and values as it read its own before saving."""
+    from test_excel_xml_maps import CASES, RECORD, REFUSED
+
+    harness = pytest.importorskip("pyvbaharness")
+    for name, text in {**RECORD["schemas"], **RECORD["data"]}.items():
+        (tmp_path / name).write_text(text, encoding="utf-8")
+    kept = tmp_path / "kept"
+    kept.mkdir()
+    made: list[int] = []
+    for index in range(len(CASES)):
+        if index in REFUSED:
+            continue
+        app = ExcelApplication(sandbox=False)
+        app.add_workbook()
+        app.add_module(RECORD["source"], name="P")
+        app.run("P.Probe", str(tmp_path), index)
+        saved = tmp_path / f"c{index}.xlsx"
+        if saved.exists() and CASES[index][2].get("xl/xmlMaps.xml"):
+            shutil.move(saved, kept / saved.name)
+            made.append(index)
+    reader = RECORD["source"].split("Private Sub Act(", 1)[0] + (
+        "Public Function Read(paths As String) As String\nDim wb As Object, one As Variant, out As String\n"
+        'Application.DisplayAlerts = False\nFor Each one In Split(paths, "~")\nSet wb = Workbooks.Open(one)\n'
+        'out = out & Digest(wb) & "~"\nwb.Close False\nNext\nRead = out\nEnd Function\n')
+    paths = "~".join(str(kept / f"c{index}.xlsx") for index in made)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (paths,), timeout=600.0, line_numbers=False)
+    assert result.ok, result.message
+    read = str(result.value).split("~")[:-1]
+    assert {index: one for index, one in zip(made, read, strict=True)} == {index: CASES[index][1].split("|", 2)[2] for index in made}
+
+
 def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
     """Every case tests/fixtures/document_properties measured that the model makes, made by the model with Excel's
     functions for them, this machine's time zone, clock and user, and saved, the workbook without docProps among

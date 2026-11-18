@@ -1401,18 +1401,19 @@ class Border(ExcelObject):
             if what in ("ThemeColor", "TintAndShade"):
                 return NULL
         first = self.target.first
-        along_whole = self.index in EDGES and _row_formats.whole(first) and not self.side().style
-        inside = (self.index in (11, 12) and not _row_formats.whole(first) and first.rows * first.columns > 2
-                  and not self.side().style)
-        # The automatic colour is one colour however it is spelled (see S.same_automatic).
-        shown = {S.Side(side.style, S.FOREGROUND) if side.color is not None and side.color.kind == "auto" else side
-                 for side in self.sides()}
-        if (along_whole or inside) and len(shown) > 1:
-            # Along whole rows or columns, or an inside border, whose lines differ, where the first shows none
-            # (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
-            answers: dict[str, object] = {"LineStyle": VBAInt(-4142, "Long"), "Weight": VBAInt(2, "Long"), "Color": 0.0, "ColorIndex": VBAInt(-4142, "Long")}
-            return answers.get(what, NULL)
-        return side_answer(_colors(self.target), self.side(), what)
+        side = self.side()
+        along_whole = self.index in EDGES and _row_formats.whole(first)
+        inside = self.index in (11, 12) and not _row_formats.whole(first) and first.rows * first.columns > 2
+        if (along_whole or inside) and not side.style:
+            # The automatic colour is one colour however it is spelled (see S.same_automatic).
+            shown = {S.Side(each.style, S.FOREGROUND) if each.color is not None and each.color.kind == "auto" else each
+                     for each in self.sides()}
+            if len(shown) > 1:
+                # Along whole rows or columns, or an inside border, whose lines differ, where the first shows none
+                # (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
+                answers: dict[str, object] = {"LineStyle": VBAInt(-4142, "Long"), "Weight": VBAInt(2, "Long"), "Color": 0.0, "ColorIndex": VBAInt(-4142, "Long")}
+                return answers.get(what, NULL)
+        return side_answer(_colors(self.target), side, what)
 
     def assign(self, what: str, value: object) -> None:
         self.apply(side_change(what, value))

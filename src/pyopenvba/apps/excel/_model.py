@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._application_more import Timer
     from pyopenvba.apps.excel._dialogs import FileDialog as FileDialogObject
-    from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._clipboard import Clip, TextClip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -414,6 +414,8 @@ class Application(ExcelObject):
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
         #: What CopyPicture put on the clipboard, for as long as the clipboard holds it: the clipboard as it was left (see _output).
         self.copied_picture: tuple[object] | None = None
+        #: A shape's text Copy or Cut put on the clipboard, and the clipboard then, which it lasts as long as (see _clipboard.text_copied).
+        self.copied_text: tuple[TextClip, object] | None = None
         #: What the clipboard holds other than cells, and the clipboard then, which it lasts as long as (see _clipboard.clipboard_formats).
         self.held_formats: tuple[tuple[int, ...] | None, object] | None = None
         #: Cells copied straight after a kind of copy that Excel answers ClipboardFormats for at random (see _clipboard).

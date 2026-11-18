@@ -1866,8 +1866,18 @@ def _text_line(line: TextLine) -> str:
     return f"<a:ln{attributes}><a:solidFill>{ink}</a:solidFill>{dash}</a:ln>"
 
 
+#: What Excel spells out on a run TextRange2.Paste put in an AutoShape's text, past its size and bold (tests/fixtures/text_range2_round_10.json).
+_PASTED_ATTRIBUTES = ' i="0" u="none" strike="noStrike" kern="0" cap="none" spc="0" normalizeH="0" baseline="0" noProof="0"'
+_PASTED_CHILDREN = ('<a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val="white"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/>'
+                    '<a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/>')
+#: How a pasted run's attributes begin, which _props writes ahead of its lang, as Excel does.
+_KUMIMOJI = ' kumimoji="0"'
+
+
 def _font_markup(look: TextLook) -> tuple[str, str]:
     """What Characters.Font writes on a run or a paragraph's end: its attributes and its children."""
+    if look.font_pasted:
+        return f'{_KUMIMOJI} sz="{round(look.font_size * 100)}" b="{1 if look.font_bold else 0}"{_PASTED_ATTRIBUTES}', _PASTED_CHILDREN
     attributes = f' sz="{round(look.font_size * 100)}"'
     if look.font_bold is not None:
         attributes += f' b="{1 if look.font_bold else 0}"'
@@ -1928,7 +1938,8 @@ def text_run_spans(shape: Shape) -> list[tuple[int, int]]:
 
 
 def _props(tag: str, markup: tuple[str, str]) -> str:
-    return f'<{tag} lang="en-US"{markup[0]}>{markup[1]}</{tag}>' if markup[1] else f'<{tag} lang="en-US"{markup[0]}/>'
+    head = f'{_KUMIMOJI} lang="en-US"{markup[0][len(_KUMIMOJI):]}' if markup[0].startswith(_KUMIMOJI) else f' lang="en-US"{markup[0]}'
+    return f'<{tag}{head}>{markup[1]}</{tag}>' if markup[1] else f'<{tag}{head}/>'
 
 
 def _marked_paragraphs(shape: Shape, look: TextLook) -> str | None:

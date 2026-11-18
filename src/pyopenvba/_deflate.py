@@ -20,8 +20,12 @@ to 6 alone.
 
 from __future__ import annotations
 
+import hashlib
+import threading
 import zlib
+from collections import OrderedDict
 from dataclasses import dataclass, field
+
 
 MIN_MATCH = 3
 MAX_MATCH = 258
@@ -676,6 +680,45 @@ def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
     """The deflate blocks alone, without zlib's header or its trailer.
 
     This is what a ZIP entry carries.  The defaults are what Excel uses
-    for the parts of a Power Query package.
+    for the parts of a Power Query package.  The same bytes always deflate
+    the same way, and this port takes seconds a megabyte, so what it gives
+    is kept, by the input's digest, for a part saved again: a picture, or
+    the theme and styles every save writes.
     """
-    return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+    key = (hashlib.sha256(data).digest(), level, memlevel)
+    with _CACHE_LOCK:
+        found = _CACHE.get(key)
+        if found is not None:
+            _CACHE.move_to_end(key)
+            return found
+    body = compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+    _keep(key, body)
+    return body
+
+
+#: The most deflated bytes kept, oldest used going first. Only what deflate gave is kept, never the input, and nothing larger
+#: than this. What is kept stays, after its workbook is saved and closed too, until newer parts push it out.
+CACHE_LIMIT = 32 << 20
+_CACHE: OrderedDict[tuple[bytes, int, int], bytes] = OrderedDict()
+_CACHE_LOCK = threading.Lock()
+
+
+def _keep(key: tuple[bytes, int, int], body: bytes) -> None:
+    if len(body) > CACHE_LIMIT:
+        return
+    with _CACHE_LOCK:
+        _CACHE[key] = body
+        _CACHE.move_to_end(key)
+        while _held() > CACHE_LIMIT:
+            _CACHE.popitem(last=False)
+
+
+def cached_bytes() -> int:
+    """The deflated bytes the cache holds now."""
+    with _CACHE_LOCK:
+        return _held()
+
+
+def _held() -> int:
+    """The deflated bytes kept, read while the cache's lock is held."""
+    return sum(len(body) for body in _CACHE.values())

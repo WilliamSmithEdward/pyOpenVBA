@@ -147,6 +147,8 @@ class OpcFile:
         """Replace a part, or add one.  A new part goes after `after` when
         that part is there, which is where Excel keeps a customXml item:
         beside the ones already in the package."""
+        if any(entry.name == name and entry.read() == data for entry in self.entries):
+            return
         body = raw_compress(data)
         fresh = Entry(
             name=name,
@@ -160,8 +162,6 @@ class OpcFile:
         )
         for index, entry in enumerate(self.entries):
             if entry.name == name:
-                if entry.read() == data:
-                    return
                 fresh.dos_time, fresh.dos_date = entry.dos_time, entry.dos_date
                 fresh.flags = entry.flags
                 self.entries[index] = fresh

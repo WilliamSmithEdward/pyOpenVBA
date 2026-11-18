@@ -56,6 +56,7 @@ from pyopenvba.apps.excel._visible import unmeasured, visible, visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text, split_sheet, tokenize, transpose_text
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
+from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool
 
 if TYPE_CHECKING:
@@ -160,12 +161,43 @@ _RACING = ((9, 11, 45), CHART_AREA_FORMATS)
 
 
 def cells_copied(application: Application, clip: Clip) -> None:
-    """Cells copied or cut onto the clipboard, ``clip``, which ends what was held there before."""
+    """Cells copied or cut onto the clipboard, ``clip``, which ends what was held there before, text copied from a shape too."""
     held = application.held_formats
     racing = held is not None and held[1] is application.clipboard and held[0] in _RACING
     application.racing_clip = clip if racing else None
     application.clipboard = clip
     application.held_formats = None
+    application.copied_text = None
+
+
+#: What a shape's text copied leaves on the clipboard (tests/fixtures/text_range2_round_9.json).
+TEXT_FORMATS = (0, 2, 7, 9, 44, 45, 50, 51, 52, 53)
+
+
+@dataclass(frozen=True)
+class TextClip:
+    """Part of a shape's text copied or cut: its characters, each one's settings, and whether it was the whole text, which
+    brings its paragraph's end along when pasted."""
+
+    text: str
+    marks: tuple[dict[str, object], ...]
+    whole: bool
+
+
+def text_copied(application: Application, clip: TextClip) -> None:
+    """A shape's text on the clipboard. It ends a copy of cells, CutCopyMode reading 0, and is ended by one, by cells copied
+    straight to a destination, and by a chart or picture copied; CutCopyMode = False leaves it (tests/fixtures/text_range2_round_9.json)."""
+    application.clipboard = None
+    application.copied_chart = None
+    application.copied_picture = None
+    application.copied_text = (clip, application.clipboard)
+    hold_formats(application, TEXT_FORMATS)
+
+
+def held_text(application: Application) -> TextClip | None:
+    """The text a shape's Copy or Cut put on the clipboard, while it is still there."""
+    held = application.copied_text
+    return held[0] if held is not None and held[1] is application.clipboard else None
 
 
 def clipboard_formats(application: Application) -> tuple[int, ...]:
@@ -260,8 +292,10 @@ def copy_range(target: Range, destination: object) -> object:
             Range(target.sheet, [first]).copy_to(Range(destination.sheet, [area]))
     # The cells copied to change, as Excel reports them.
     after_edit(Range(destination.sheet, [landed]))
-    # A copy straight to somewhere ends what was on the clipboard (tests/fixtures/excel_everyday_7.json).
+    # A copy straight to somewhere ends what was on the clipboard (tests/fixtures/excel_everyday_7.json), a shape's text too
+    # (tests/fixtures/text_range2_round_9.json).
     target.sheet.book.application.clipboard = None
+    target.sheet.book.application.copied_text = None
     return True
 
 
@@ -351,6 +385,10 @@ def _clip(target: Range, empty: str = "There is nothing to paste") -> Clip:
     clip = application.clipboard
     if clip is None and picture_held(application):
         raise VBAUnsupportedError("pasting the picture CopyPicture made is not implemented")
+    if clip is None and held_text(application) is not None:
+        # PasteSpecial of a shape's text: xlPasteValues pasted nothing, xlPasteAll failed once and pasted a shape once
+        # (tests/fixtures/text_range2_round_9.json, text_range2_round_10.json).
+        raise VBAUnsupportedError("Range.PasteSpecial of a shape's text copied is not implemented")
     if clip is None:
         raise error(1004, empty)
     if clip.orphaned:
@@ -391,6 +429,9 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
             raise error(1004, "Paste needs a selection on this sheet")
     if not isinstance(destination, Range):
         raise error(1004, "Paste needs a range to paste into")
+    copied_text = held_text(sheet.book.application)
+    if copied_text is not None and sheet.book.application.clipboard is None:
+        return _text_pasted(destination, copied_text)
     clip = _clip(destination)
     if not admit_write(destination.sheet):
         return False
@@ -403,6 +444,38 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
         return True
     unmeasured(destination, "Worksheet.Paste")
     return paste_block(clip.source.sheet, clip.block, destination)
+
+
+def _text_pasted(destination: Range, copied: TextClip) -> object:
+    """A shape's text pasted onto a sheet: each line into a cell down from the destination's corner, as if typed there, and a
+    run all bold made bold. A wider destination takes it once, and the text stays on the clipboard
+    (tests/fixtures/text_range2_round_9.json, text_range2_round_10.json)."""
+    from pyopenvba.apps.excel._model import Range
+
+    lines = copied.text.split("\n")
+    if copied.whole and lines[-1] == "":
+        lines.pop()
+    if any(character in copied.text for character in "\t\x0b\x0c"):
+        raise VBAUnsupportedError("Worksheet.Paste of a shape's text with a tab or a line break in it is not implemented")
+    if any(len(line) > 1 and line[0] == "0" and line[1].isdigit() for line in lines):
+        # "007" pasted as 7 once and failed with 1004 once (tests/fixtures/text_range2_round_10.json).
+        raise VBAUnsupportedError("Worksheet.Paste of a shape's text that starts with a zero is not implemented")
+    boldness = {bool(mark.get("font_bold")) for mark in copied.marks}
+    if len(boldness) > 1 or any(set(mark) - {"font_bold"} for mark in copied.marks):
+        raise VBAUnsupportedError("Worksheet.Paste of a shape's text with settings other than bold all through is not implemented")
+    if not admit_write(destination.sheet):
+        return False
+    corner = destination.areas[0]
+    landing = Area(corner.top, corner.left, corner.top + max(len(lines), 1) - 1, corner.left)
+    whole(destination.sheet, [landing], "Pasting")
+    for offset, line in enumerate(lines):
+        cell = Range(destination.sheet, [Area(corner.top + offset, corner.left, corner.top + offset, corner.left)])
+        cell.vba_set("Formula", line)
+        if True in boldness:
+            font = cell.Font()
+            assert isinstance(font, VBAObject)
+            font.vba_set("Bold", True)
+    return True
 
 
 def landed_selection(sheet: Worksheet) -> Range | None:

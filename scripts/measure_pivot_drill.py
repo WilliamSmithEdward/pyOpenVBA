@@ -69,8 +69,8 @@ What look 4 showed: R1 to R4 all wrong. Every order, these ten and the scrambled
 by swapping leaves: Excel goes through the records from the front, and each one the value does not count it
 replaces with the last record, shortening the list, then looks again at that place. b a b a b a b a gives 8, 2, 6, 4;
 the earlier 2, 4, 7 from b a c a b c a b gives 7, 2, 4. What is left is grouped as the grand total's records are.
-Held-out rounds C (52 to 56) and D (57 to 61) test that on ten shuffled records, predicted by the model before they
-ran.
+Held-out rounds C (52 to 56) and D (57 to 61) tested that on ten shuffled records, predicted by the model on 2c727c73
+(sha256 debdee64fac19104) before they ran: 10 of 10.
 
     python scripts/measure_pivot_drill.py
 

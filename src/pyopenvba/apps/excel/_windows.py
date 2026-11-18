@@ -1556,6 +1556,36 @@ class Window(ExcelObject):
                 _scroll_to(self._changing(), axis, min(max(self._scrolled(axis) + moved, 1), last))
         return True
 
+    # -- the grid's size, what it shows, and scrolling by it
+
+    def _unmeasured_display(self, member: str) -> VBAUnsupportedError:
+        """UsableWidth, UsableHeight, VisibleRange, LargeScroll and ScrollIntoView follow _window_geometry's rules,
+        which depend on the display's DPI and were measured at 144 DPI only; the model lays sheets out at 96 DPI."""
+        return VBAUnsupportedError(f"Window.{member} depends on the display's DPI; it was measured at 144 DPI only, "
+                                   "and the model lays sheets out at 96 DPI")
+
+    @member
+    def UsableWidth(self) -> object:
+        raise self._unmeasured_display("UsableWidth")
+
+    @member
+    def UsableHeight(self) -> object:
+        raise self._unmeasured_display("UsableHeight")
+
+    @member
+    def VisibleRange(self) -> object:
+        raise self._unmeasured_display("VisibleRange")
+
+    @method
+    def LargeScroll(self, Down: object = MISSING, Up: object = MISSING, ToRight: object = MISSING,
+                    ToLeft: object = MISSING) -> object:
+        raise self._unmeasured_display("LargeScroll")
+
+    @method
+    def ScrollIntoView(self, Left: object = MISSING, Top: object = MISSING, Width: object = MISSING,
+                       Height: object = MISSING, Start: object = MISSING) -> object:
+        raise self._unmeasured_display("ScrollIntoView")
+
     def _scrolled(self, axis: int) -> int:
         view = self.view()
         split = view.rows if axis == 0 else view.columns

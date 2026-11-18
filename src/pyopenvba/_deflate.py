@@ -697,7 +697,7 @@ def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
 
 
 #: The most deflated bytes kept, oldest used going first. Only what deflate gave is kept, never the input, and nothing larger
-#: than this, so a workbook's pictures are not held once it is saved and closed.
+#: than this. What is kept stays, after its workbook is saved and closed too, until newer parts push it out.
 CACHE_LIMIT = 32 << 20
 _CACHE: OrderedDict[tuple[bytes, int, int], bytes] = OrderedDict()
 _CACHE_LOCK = threading.Lock()
@@ -709,10 +709,16 @@ def _keep(key: tuple[bytes, int, int], body: bytes) -> None:
     with _CACHE_LOCK:
         _CACHE[key] = body
         _CACHE.move_to_end(key)
-        while cached_bytes() > CACHE_LIMIT:
+        while _held() > CACHE_LIMIT:
             _CACHE.popitem(last=False)
 
 
 def cached_bytes() -> int:
     """The deflated bytes the cache holds now."""
+    with _CACHE_LOCK:
+        return _held()
+
+
+def _held() -> int:
+    """The deflated bytes kept, read while the cache's lock is held."""
     return sum(len(body) for body in _CACHE.values())

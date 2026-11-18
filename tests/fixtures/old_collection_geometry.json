@@ -1,0 +1,1927 @@
+{
+"measured_at": "2026-11-17T18:43:22.037673+00:00",
+"standard_height": 14.5,
+"driver": "Private Function Items(ws As Object) As String\n    Dim x As Object, s As String\n    On Error Resume Next\n    For Each x In ws.{c}\n        Err.Clear\n        s = s & \";\" & x.Left & \",\" & x.Top & \",\" & x.Width & \",\" & x.Height\n        If Err.Number Then s = s & \"E\" & Err.Number\n    Next\n    Items = Mid(s, 2)\nEnd Function\n\nPrivate Function Whole(o As {declared}) As String\n    Dim v As Variant\n    On Error Resume Next\n    v = o.{m}\n    If Err.Number Then Whole = \"E\" & Err.Number Else Whole = Show(v)\nEnd Function\n\nPublic Function Row(ByVal path As String, ByVal saved As String, ByVal picture As String) As String\n    Dim wb As Workbook, ws As Object, o As {declared}, e As Long, s As String, before As String\n    Application.DisplayAlerts = False\n    {open}\n    Set ws = wb.Worksheets(1)\n    before = ws.StandardHeight\n    Set o = ws.{c}\n    s = Whole(o)\n    On Error Resume Next\n    o.{m} = {v}\n    e = Err.Number\n    Err.Clear\n    On Error GoTo 0\n    s = s & \"|E\" & e & \"|\" & Whole(o) & \"|\" & Items(ws)\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    s = s & \"|reopened \" & Items(wb.Worksheets(1)) & \"|\" & before & \",\" & wb.Worksheets(1).StandardHeight\n    wb.Close False\n    Row = s\nEnd Function\n",
+"cases": [
+{
+"collection": "Arcs",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,68,60.0001564025879,106.25;59.9997634887695,126,60.0001564025879,164.25|reopened 59.9998435974121,68,60.0001564025879,106.25;59.9997634887695,126,60.0001564025879,164.25|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,68,60.0001564025879,106.25;59.9997634887695,126,60.0001564025879,164.25|reopened 59.9998435974121,68,60.0001564025879,106.25;59.9997634887695,126,60.0001564025879,164.25|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,70,60.0001564025879,110;59.9997634887695,130,60.0002365112305,170|reopened 59.9998435974121,70,60.0001564025879,110;59.9997634887695,130,60.0002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,70,60.0001564025879,110;59.9997634887695,130,60.0002365112305,170|reopened 59.9998435974121,70,60.0001564025879,110;59.9997634887695,130,60.0002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,70,60.0001564025879,110;59.9997634887695,130,60.0002365112305,170|reopened 59.9998435974121,70,60.0001564025879,110;59.9997634887695,130,60.0002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,106.25;59.9997634887695,58,60.0001564025879,164.25|reopened 59.9998435974121,0,60.0001564025879,106.25;59.9997634887695,58,60.0001564025879,164.25|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,106.25;59.9997634887695,58,60.0001564025879,164.25|reopened 59.9998435974121,0,60.0001564025879,106.25;59.9997634887695,58,60.0001564025879,164.25|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,110;59.9997634887695,60,60.0002365112305,170|reopened 59.9998435974121,0,60.0001564025879,110;59.9997634887695,60,60.0002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,110;59.9997634887695,60,60.0002365112305,170|reopened 59.9998435974121,0,60.0001564025879,110;59.9997634887695,60,60.0002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,110;59.9997634887695,60,60.0002365112305,170|reopened 59.9998435974121,0,60.0001564025879,110;59.9997634887695,60,60.0002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|37.4998435974121,68,37.5001564025879,106.25;37.4997634887695,126,37.5002365112305,164.25|reopened 37.4998435974121,68,37.5001564025879,106.25;37.4997634887695,126,37.5002365112305,164.25|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|37.4998435974121,68,37.5001564025879,106.25;37.4997634887695,126,37.5002365112305,164.25|reopened 37.4998435974121,68,37.5001564025879,106.25;37.4997634887695,126,37.5002365112305,164.25|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|37.4998435974121,70,37.5001564025879,110;37.4997634887695,130,37.5002365112305,170|reopened 37.4998435974121,70,37.5001564025879,110;37.4997634887695,130,37.5002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|37.4998435974121,70,37.5001564025879,110;37.4997634887695,130,37.5002365112305,170|reopened 37.4998435974121,70,37.5001564025879,110;37.4997634887695,130,37.5002365112305,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|15.625039100647,70,15.625039100647,110;15.625039100647,130,15.625039100647,170|reopened 15.625039100647,70,15.625039100647,110;15.625039100647,130,15.625039100647,170|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|60,68,60,18.75;60,126,60,18.75|reopened 60,68,60,18.75;60,126,60,18.75|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|60,68,60,18.75;60,126,60,18.75|reopened 60,68,60,18.75;60,126,60,18.75|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|60,70,60,18.75;60,130,60,18.75|reopened 60,70,60,18.75;60,130,60,18.75|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|60,70,60,18.75;60,130,60,18.75|reopened 60,70,60,18.75;60,130,60,18.75|14.5,14.5"
+},
+{
+"collection": "Arcs",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|60,70.0000762939453,60,15.625039100647;60,130.000076293945,60,15.625039100647|reopened 60,70.0000762939453,60,15.625039100647;60,130.000076293945,60,15.625039100647|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31,70,60,30;31,130,60,30|reopened 31,70,60,30;31,130,60,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|100,0,60,29;100,58,60,29|reopened 100,0,60,29;100,58,60,29|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,0,60,29;100,58,60,29|reopened 100,0,60,29;100,58,60,29|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|100,0,60,30;100,60,60,30|reopened 100,0,60,30;100,60,60,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,0,60,30;100,60,60,30|reopened 100,0,60,30;100,60,60,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,0,60,30;100,60,60,30|reopened 100,0,60,30;100,60,60,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|100,68,75,29;100,126,75,29|reopened 100,68,75,29;100,126,75,29|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,68,75,29;100,126,75,29|reopened 100,68,75,29;100,126,75,29|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|100,70,75,30;100,130,75,30|reopened 100,70,75,30;100,130,75,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,70,75,30;100,130,75,30|reopened 100,70,75,30;100,130,75,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,70,31,30;100,130,31,30|reopened 100,70,31,30;100,130,31,30|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|100,68,60,37.5;100,126,60,37.5|reopened 100,68,60,37.5;100,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,68,60,37.5;100,126,60,37.5|reopened 100,68,60,37.5;100,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|100,70,60,37.5;100,130,60,37.5|reopened 100,70,60,37.5;100,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,70,60,37.5;100,130,60,37.5|reopened 100,70,60,37.5;100,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Buttons",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|100,70,60,31;100,130,60,31|reopened 100,70,60,31;100,130,60,31|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31,70,60,30;31,130,60,30|reopened 31,70,60,30;31,130,60,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|180,0,60,29;180,58,60,29|reopened 180,0,60,29;180,58,60,29|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,0,60,29;180,58,60,29|reopened 180,0,60,29;180,58,60,29|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|180,0,60,30;180,60,60,30|reopened 180,0,60,30;180,60,60,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,0,60,30;180,60,60,30|reopened 180,0,60,30;180,60,60,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,0,60,30;180,60,60,30|reopened 180,0,60,30;180,60,60,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|180,68,75,29;180,126,75,29|reopened 180,68,75,29;180,126,75,29|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,68,75,29;180,126,75,29|reopened 180,68,75,29;180,126,75,29|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|180,70,75,30;180,130,75,30|reopened 180,70,75,30;180,130,75,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,70,75,30;180,130,75,30|reopened 180,70,75,30;180,130,75,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,70,31,30;180,130,31,30|reopened 180,70,31,30;180,130,31,30|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|180,68,60,37.5;180,126,60,37.5|reopened 180,68,60,37.5;180,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,68,60,37.5;180,126,60,37.5|reopened 180,68,60,37.5;180,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|180,70,60,37.5;180,130,60,37.5|reopened 180,70,60,37.5;180,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,70,60,37.5;180,130,60,37.5|reopened 180,70,60,37.5;180,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "CheckBoxes",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|180,70,60,31;180,130,60,31|reopened 180,70,60,31;180,130,60,31|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,19;45,126,60,19|reopened 45,68,60,19;45,126,60,19|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,19;45,126,60,19|reopened 45,68,60,19;45,126,60,19|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,20;45,130,60,20|reopened 45,70,60,20;45,130,60,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,20;45,130,60,20|reopened 45,70,60,20;45,130,60,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31,70,60,20;31,130,60,20|reopened 31,70,60,20;31,130,60,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|259.5,0,60,19;259.5,58,60,19|reopened 259.5,0,60,19;259.5,58,60,19|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|259.5,0,60,19;259.5,58,60,19|reopened 259.5,0,60,19;259.5,58,60,19|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|260,0,60,20;260,60,60,20|reopened 260,0,60,20;260,60,60,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|260,0,60,20;260,60,60,20|reopened 260,0,60,20;260,60,60,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|260,0,60,20;260,60,60,20|reopened 260,0,60,20;260,60,60,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|259.5,68,75,19;259.5,126,75,19|reopened 259.5,68,75,19;259.5,126,75,19|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|259.5,68,75,19;259.5,126,75,19|reopened 259.5,68,75,19;259.5,126,75,19|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|260,70,75,20;260,130,75,20|reopened 260,70,75,20;260,130,75,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|260,70,75,20;260,130,75,20|reopened 260,70,75,20;260,130,75,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|260,70,31,20;260,130,31,20|reopened 260,70,31,20;260,130,31,20|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|259.5,68,60,37.5;259.5,126,60,37.5|reopened 259.5,68,60,37.5;259.5,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|259.5,68,60,37.5;259.5,126,60,37.5|reopened 259.5,68,60,37.5;259.5,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|260,70,60,37.5;260,130,60,37.5|reopened 260,70,60,37.5;260,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|260,70,60,37.5;260,130,60,37.5|reopened 260,70,60,37.5;260,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "DropDowns",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|260,70,60,31;260,130,60,31|reopened 260,70,60,31;260,130,60,31|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31.25,70,60,30;31.25,130,60,30|reopened 31.25,70,60,30;31.25,130,60,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|340,0,60,29;340,58,60,29|reopened 340,0,60,29;340,58,60,29|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,0,60,29;340,58,60,29|reopened 340,0,60,29;340,58,60,29|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|340,0,60,30;340,60,60,30|reopened 340,0,60,30;340,60,60,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,0,60,30;340,60,60,30|reopened 340,0,60,30;340,60,60,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,0,60,30;340,60,60,30|reopened 340,0,60,30;340,60,60,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|340,68,75,29;340,126,75,29|reopened 340,68,75,29;340,126,75,29|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,68,75,29;340,126,75,29|reopened 340,68,75,29;340,126,75,29|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|340,70,75,30;340,130,75,30|reopened 340,70,75,30;340,130,75,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,70,75,30;340,130,75,30|reopened 340,70,75,30;340,130,75,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340.000091552734,70,31.25,30;340.000091552734,130,31.25,30|reopened 340.000091552734,70,31.25,30;340.000091552734,130,31.25,30|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|340,68,60,37.5;340,126,60,37.5|reopened 340,68,60,37.5;340,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,68,60,37.5;340,126,60,37.5|reopened 340,68,60,37.5;340,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|340,70,60,37.5;340,130,60,37.5|reopened 340,70,60,37.5;340,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,70,60,37.5;340,130,60,37.5|reopened 340,70,60,37.5;340,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Lines",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|340,70,60,31.25;340,130,60,31.25|reopened 340,70,60,31.25;340,130,60,31.25|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,49.5;45,126,60,49.5|reopened 45,68,60,49.5;45,126,60,49.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,49.5;45,126,60,49.5|reopened 45,68,60,49.5;45,126,60,49.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,54.5;45,130,60,54.5|reopened 45,70,60,54.5;45,130,60,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,54.5;45,130,60,54.5|reopened 45,70,60,54.5;45,130,60,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31,70,60,54.5;31,130,60,54.5|reopened 31,70,60,54.5;31,130,60,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|420,0,60,49.5;420,58,60,49.5|reopened 420,0,60,49.5;420,58,60,49.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,0,60,49.5;420,58,60,49.5|reopened 420,0,60,49.5;420,58,60,49.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|420,0,60,54.5;420,60,60,54.5|reopened 420,0,60,54.5;420,60,60,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,0,60,54.5;420,60,60,54.5|reopened 420,0,60,54.5;420,60,60,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,0,60,54.5;420,60,60,54.5|reopened 420,0,60,54.5;420,60,60,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|420,68,75,49.5;420,126,75,49.5|reopened 420,68,75,49.5;420,126,75,49.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,68,75,49.5;420,126,75,49.5|reopened 420,68,75,49.5;420,126,75,49.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|420,70,75,54.5;420,130,75,54.5|reopened 420,70,75,54.5;420,130,75,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,70,75,54.5;420,130,75,54.5|reopened 420,70,75,54.5;420,130,75,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,70,31,54.5;420,130,31,54.5|reopened 420,70,31,54.5;420,130,31,54.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|420,68,60,37.5;420,126,60,37.5|reopened 420,68,60,37.5;420,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,68,60,37.5;420,126,60,37.5|reopened 420,68,60,37.5;420,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|420,70,60,37.5;420,130,60,37.5|reopened 420,70,60,37.5;420,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,70,60,37.5;420,130,60,37.5|reopened 420,70,60,37.5;420,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "ListBoxes",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|420,70,60,31;420,130,60,31|reopened 420,70,60,31;420,130,60,31|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31,70,60,30;31,130,60,30|reopened 31,70,60,30;31,130,60,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|499.5,0,60,29;499.5,58,60,29|reopened 499.5,0,60,29;499.5,58,60,29|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|499.5,0,60,29;499.5,58,60,29|reopened 499.5,0,60,29;499.5,58,60,29|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|500,0,60,30;500,60,60,30|reopened 500,0,60,30;500,60,60,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|500,0,60,30;500,60,60,30|reopened 500,0,60,30;500,60,60,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|500,0,60,30;500,60,60,30|reopened 500,0,60,30;500,60,60,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|499.5,68,75,29;499.5,126,75,29|reopened 499.5,68,75,29;499.5,126,75,29|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|499.5,68,75,29;499.5,126,75,29|reopened 499.5,68,75,29;499.5,126,75,29|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|500,70,75,30;500,130,75,30|reopened 500,70,75,30;500,130,75,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|500,70,75,30;500,130,75,30|reopened 500,70,75,30;500,130,75,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|500,70,31,30;500,130,31,30|reopened 500,70,31,30;500,130,31,30|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|499.5,68,60,37.5;499.5,126,60,37.5|reopened 499.5,68,60,37.5;499.5,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|499.5,68,60,37.5;499.5,126,60,37.5|reopened 499.5,68,60,37.5;499.5,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|500,70,60,37.5;500,130,60,37.5|reopened 500,70,60,37.5;500,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|500,70,60,37.5;500,130,60,37.5|reopened 500,70,60,37.5;500,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "OptionButtons",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|500,70,60,31;500,130,60,31|reopened 500,70,60,31;500,130,60,31|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31.25,70,60,30;31.25,130,60,30|reopened 31.25,70,60,30;31.25,130,60,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|580,0,60,29;580,58,60,29|reopened 580,0,60,29;580,58,60,29|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,0,60,29;580,58,60,29|reopened 580,0,60,29;580,58,60,29|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|580,0,60,30;580,60,60,30|reopened 580,0,60,30;580,60,60,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,0,60,30;580,60,60,30|reopened 580,0,60,30;580,60,60,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,0,60,30;580,60,60,30|reopened 580,0,60,30;580,60,60,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|580,68,75,29;580,126,75,29|reopened 580,68,75,29;580,126,75,29|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,68,75,29;580,126,75,29|reopened 580,68,75,29;580,126,75,29|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|580,70,75,30;580,130,75,30|reopened 580,70,75,30;580,130,75,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,70,75,30;580,130,75,30|reopened 580,70,75,30;580,130,75,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580.000061035156,70,31.25,30;580.000061035156,130,31.25,30|reopened 580.000061035156,70,31.25,30;580.000061035156,130,31.25,30|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|580,68,60,37.5;580,126,60,37.5|reopened 580,68,60,37.5;580,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,68,60,37.5;580,126,60,37.5|reopened 580,68,60,37.5;580,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|580,70,60,37.5;580,130,60,37.5|reopened 580,70,60,37.5;580,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,70,60,37.5;580,130,60,37.5|reopened 580,70,60,37.5;580,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Ovals",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|580,70,60,31.25;580,130,60,31.25|reopened 580,70,60,31.25;580,130,60,31.25|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,20,19;45,126,20,19|reopened 45,68,20,19;45,126,20,19|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,20,19;45,126,20,19|reopened 45,68,20,19;45,126,20,19|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,20,20;45,130,20,20|reopened 45,70,20,20;45,130,20,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,20,20;45,130,20,20|reopened 45,70,20,20;45,130,20,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31.25,70,20,20;31.25,130,20,20|reopened 31.25,70,20,20;31.25,130,20,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|820,0,20,19;820,58,20,19|reopened 820,0,20,19;820,58,20,19|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,0,20,19;820,58,20,19|reopened 820,0,20,19;820,58,20,19|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|820,0,20,20;820,60,20,20|reopened 820,0,20,20;820,60,20,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,0,20,20;820,60,20,20|reopened 820,0,20,20;820,60,20,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,0,20,20;820,60,20,20|reopened 820,0,20,20;820,60,20,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|820,68,75,19;820,126,75,19|reopened 820,68,75,19;820,126,75,19|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,68,75,19;820,126,75,19|reopened 820,68,75,19;820,126,75,19|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|820,70,75,20;820,130,75,20|reopened 820,70,75,20;820,130,75,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,70,75,20;820,130,75,20|reopened 820,70,75,20;820,130,75,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,70,31.25,20;820,130,31.25,20|reopened 820,70,31.25,20;820,130,31.25,20|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|820,68,20,37.5;820,126,20,37.5|reopened 820,68,20,37.5;820,126,20,37.5|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,68,20,37.5;820,126,20,37.5|reopened 820,68,20,37.5;820,126,20,37.5|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|820,70,20,37.5;820,130,20,37.5|reopened 820,70,20,37.5;820,130,20,37.5|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,70,20,37.5;820,130,20,37.5|reopened 820,70,20,37.5;820,130,20,37.5|14.5,14.5"
+},
+{
+"collection": "Pictures",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|820,70,20,31.25;820,130,20,31.25|reopened 820,70,20,31.25;820,130,20,31.25|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31.25,70,60,30;31.25,130,60,30|reopened 31.25,70,60,30;31.25,130,60,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|660,0,60,29;660,58,60,29|reopened 660,0,60,29;660,58,60,29|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,0,60,29;660,58,60,29|reopened 660,0,60,29;660,58,60,29|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|660,0,60,30;660,60,60,30|reopened 660,0,60,30;660,60,60,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,0,60,30;660,60,60,30|reopened 660,0,60,30;660,60,60,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,0,60,30;660,60,60,30|reopened 660,0,60,30;660,60,60,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|660,68,75,29;660,126,75,29|reopened 660,68,75,29;660,126,75,29|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,68,75,29;660,126,75,29|reopened 660,68,75,29;660,126,75,29|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|660,70,75,30;660,130,75,30|reopened 660,70,75,30;660,130,75,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,70,75,30;660,130,75,30|reopened 660,70,75,30;660,130,75,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660.000061035156,70,31.25,30;660.000061035156,130,31.25,30|reopened 660.000061035156,70,31.25,30;660.000061035156,130,31.25,30|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|660,68,60,37.5;660,126,60,37.5|reopened 660,68,60,37.5;660,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,68,60,37.5;660,126,60,37.5|reopened 660,68,60,37.5;660,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|660,70,60,37.5;660,130,60,37.5|reopened 660,70,60,37.5;660,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,70,60,37.5;660,130,60,37.5|reopened 660,70,60,37.5;660,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "Rectangles",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|660,70,60,31.25;660,130,60,31.25|reopened 660,70,60,31.25;660,130,60,31.25|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,68,60,29;45,126,60,29|reopened 45,68,60,29;45,126,60,29|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|45,70,60,30;45,130,60,30|reopened 45,70,60,30;45,130,60,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|31.25,70,60,30;31.25,130,60,30|reopened 31.25,70,60,30;31.25,130,60,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|740,0,60,29;740,58,60,29|reopened 740,0,60,29;740,58,60,29|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,0,60,29;740,58,60,29|reopened 740,0,60,29;740,58,60,29|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|740,0,60,30;740,60,60,30|reopened 740,0,60,30;740,60,60,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,0,60,30;740,60,60,30|reopened 740,0,60,30;740,60,60,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,0,60,30;740,60,60,30|reopened 740,0,60,30;740,60,60,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|740,68,75,29;740,126,75,29|reopened 740,68,75,29;740,126,75,29|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,68,75,29;740,126,75,29|reopened 740,68,75,29;740,126,75,29|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|740,70,75,30;740,130,75,30|reopened 740,70,75,30;740,130,75,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,70,75,30;740,130,75,30|reopened 740,70,75,30;740,130,75,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740.000061035156,70,31.25,30;740.000061035156,130,31.25,30|reopened 740.000061035156,70,31.25,30;740.000061035156,130,31.25,30|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|740,68,60,37.5;740,126,60,37.5|reopened 740,68,60,37.5;740,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,68,60,37.5;740,126,60,37.5|reopened 740,68,60,37.5;740,126,60,37.5|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|740,70,60,37.5;740,130,60,37.5|reopened 740,70,60,37.5;740,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,70,60,37.5;740,130,60,37.5|reopened 740,70,60,37.5;740,130,60,37.5|14.5,14.5"
+},
+{
+"collection": "TextBoxes",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|740,70,60,31.25;740,130,60,31.25|reopened 740,70,60,31.25;740,130,60,31.25|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,68,60.0001564025879,106.25;0,68,60,29;80,68,60,29;159.5,68,60,19;280.000244140625,68,60,29;320,68,60,49.5;399.5,68,60,29;520.000244140625,68,60,29;600.000244140625,68,60,29;680.000244140625,68,60,29;760.000244140625,68,20,19;59.9997634887695,126,60.0001564025879,164.25;0,126,60,29;80,126,60,29;159.5,126,60,19;280.000244140625,126,60,29;320,126,60,49.5;399.5,126,60,29;520.000244140625,126,60,29;600.000244140625,126,60,29;680.000244140625,126,60,29;760.000244140625,126,20,19|reopened 59.9998435974121,68,60.0001564025879,106.25;0,68,60,29;80,68,60,29;159.5,68,60,19;280.000244140625,68,60,29;320,68,60,49.5;399.5,68,60,29;520.000244140625,68,60,29;600.000244140625,68,60,29;680.000244140625,68,60,29;760.000244140625,68,20,19;59.9997634887695,126,60.0001564025879,164.25;0,126,60,29;80,126,60,29;159.5,126,60,19;280.000244140625,126,60,29;320,126,60,49.5;399.5,126,60,29;520.000244140625,126,60,29;600.000244140625,126,60,29;680.000244140625,126,60,29;760.000244140625,126,20,19|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Left",
+"value": "45",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,68,60.0001564025879,106.25;0,68,60,29;80,68,60,29;159.5,68,60,19;280.000244140625,68,60,29;320,68,60,49.5;399.5,68,60,29;520.000244140625,68,60,29;600.000244140625,68,60,29;680.000244140625,68,60,29;760.000244140625,68,20,19;59.9997634887695,126,60.0001564025879,164.25;0,126,60,29;80,126,60,29;159.5,126,60,19;280.000244140625,126,60,29;320,126,60,49.5;399.5,126,60,29;520.000244140625,126,60,29;600.000244140625,126,60,29;680.000244140625,126,60,29;760.000244140625,126,20,19|reopened 59.9998435974121,68,60.0001564025879,106.25;0,68,60,29;80,68,60,29;159.5,68,60,19;280.000244140625,68,60,29;320,68,60,49.5;399.5,68,60,29;520.000244140625,68,60,29;600.000244140625,68,60,29;680.000244140625,68,60,29;760.000244140625,68,20,19;59.9997634887695,126,60.0001564025879,164.25;0,126,60,29;80,126,60,29;159.5,126,60,19;280.000244140625,126,60,29;320,126,60,49.5;399.5,126,60,29;520.000244140625,126,60,29;600.000244140625,126,60,29;680.000244140625,126,60,29;760.000244140625,126,20,19|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,70,60.0001564025879,110;0,70,60,30;80,70,60,30;160,70,60,20;280.000244140625,70,60,30;320,70,60,54.5;400,70,60,30;520.000244140625,70,60,30;600.000244140625,70,60,30;680.000244140625,70,60,30;760.000244140625,70,20,20;59.9997634887695,130,60.0002365112305,170;0,130,60,30;80,130,60,30;160,130,60,20;280.000244140625,130,60,30;320,130,60,54.5;400,130,60,30;520.000244140625,130,60,30;600.000244140625,130,60,30;680.000244140625,130,60,30;760.000244140625,130,20,20|reopened 59.9998435974121,70,60.0001564025879,110;0,70,60,30;80,70,60,30;160,70,60,20;280.000244140625,70,60,30;320,70,60,54.5;400,70,60,30;520.000244140625,70,60,30;600.000244140625,70,60,30;680.000244140625,70,60,30;760.000244140625,70,20,20;59.9997634887695,130,60.0002365112305,170;0,130,60,30;80,130,60,30;160,130,60,20;280.000244140625,130,60,30;320,130,60,54.5;400,130,60,30;520.000244140625,130,60,30;600.000244140625,130,60,30;680.000244140625,130,60,30;760.000244140625,130,20,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Left",
+"value": "45",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,70,60.0001564025879,110;0,70,60,30;80,70,60,30;160,70,60,20;280.000244140625,70,60,30;320,70,60,54.5;400,70,60,30;520.000244140625,70,60,30;600.000244140625,70,60,30;680.000244140625,70,60,30;760.000244140625,70,20,20;59.9997634887695,130,60.0002365112305,170;0,130,60,30;80,130,60,30;160,130,60,20;280.000244140625,130,60,30;320,130,60,54.5;400,130,60,30;520.000244140625,130,60,30;600.000244140625,130,60,30;680.000244140625,130,60,30;760.000244140625,130,20,20|reopened 59.9998435974121,70,60.0001564025879,110;0,70,60,30;80,70,60,30;160,70,60,20;280.000244140625,70,60,30;320,70,60,54.5;400,70,60,30;520.000244140625,70,60,30;600.000244140625,70,60,30;680.000244140625,70,60,30;760.000244140625,70,20,20;59.9997634887695,130,60.0002365112305,170;0,130,60,30;80,130,60,30;160,130,60,20;280.000244140625,130,60,30;320,130,60,54.5;400,130,60,30;520.000244140625,130,60,30;600.000244140625,130,60,30;680.000244140625,130,60,30;760.000244140625,130,20,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Left",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,70,60.0001564025879,110;0,70,60,30;80,70,60,30;160,70,60,20;280.000244140625,70,60,30;320,70,60,54.5;400,70,60,30;520.000244140625,70,60,30;600.000244140625,70,60,30;680.000244140625,70,60,30;760.000244140625,70,20,20;59.9997634887695,130,60.0002365112305,170;0,130,60,30;80,130,60,30;160,130,60,20;280.000244140625,130,60,30;320,130,60,54.5;400,130,60,30;520.000244140625,130,60,30;600.000244140625,130,60,30;680.000244140625,130,60,30;760.000244140625,130,20,20|reopened 59.9998435974121,70,60.0001564025879,110;0,70,60,30;80,70,60,30;160,70,60,20;280.000244140625,70,60,30;320,70,60,54.5;400,70,60,30;520.000244140625,70,60,30;600.000244140625,70,60,30;680.000244140625,70,60,30;760.000244140625,70,20,20;59.9997634887695,130,60.0002365112305,170;0,130,60,30;80,130,60,30;160,130,60,20;280.000244140625,130,60,30;320,130,60,54.5;400,130,60,30;520.000244140625,130,60,30;600.000244140625,130,60,30;680.000244140625,130,60,30;760.000244140625,130,20,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,106.25;100,0,60,29;180,0,60,29;259.5,0,60,19;340,0,60,29;420,0,60,49.5;499.5,0,60,29;580,0,60,29;660,0,60,29;740,0,60,29;820,0,20,19;59.9997634887695,58,60.0001564025879,164.25;100,58,60,29;180,58,60,29;259.5,58,60,19;340,58,60,29;420,58,60,49.5;499.5,58,60,29;580,58,60,29;660,58,60,29;740,58,60,29;820,58,20,19|reopened 59.9998435974121,0,60.0001564025879,106.25;100,0,60,29;180,0,60,29;259.5,0,60,19;340,0,60,29;420,0,60,49.5;499.5,0,60,29;580,0,60,29;660,0,60,29;740,0,60,29;820,0,20,19;59.9997634887695,58,60.0001564025879,164.25;100,58,60,29;180,58,60,29;259.5,58,60,19;340,58,60,29;420,58,60,49.5;499.5,58,60,29;580,58,60,29;660,58,60,29;740,58,60,29;820,58,20,19|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Top",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,106.25;100,0,60,29;180,0,60,29;259.5,0,60,19;340,0,60,29;420,0,60,49.5;499.5,0,60,29;580,0,60,29;660,0,60,29;740,0,60,29;820,0,20,19;59.9997634887695,58,60.0001564025879,164.25;100,58,60,29;180,58,60,29;259.5,58,60,19;340,58,60,29;420,58,60,49.5;499.5,58,60,29;580,58,60,29;660,58,60,29;740,58,60,29;820,58,20,19|reopened 59.9998435974121,0,60.0001564025879,106.25;100,0,60,29;180,0,60,29;259.5,0,60,19;340,0,60,29;420,0,60,49.5;499.5,0,60,29;580,0,60,29;660,0,60,29;740,0,60,29;820,0,20,19;59.9997634887695,58,60.0001564025879,164.25;100,58,60,29;180,58,60,29;259.5,58,60,19;340,58,60,29;420,58,60,49.5;499.5,58,60,29;580,58,60,29;660,58,60,29;740,58,60,29;820,58,20,19|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,110;100,0,60,30;180,0,60,30;260,0,60,20;340,0,60,30;420,0,60,54.5;500,0,60,30;580,0,60,30;660,0,60,30;740,0,60,30;820,0,20,20;59.9997634887695,60,60.0002365112305,170;100,60,60,30;180,60,60,30;260,60,60,20;340,60,60,30;420,60,60,54.5;500,60,60,30;580,60,60,30;660,60,60,30;740,60,60,30;820,60,20,20|reopened 59.9998435974121,0,60.0001564025879,110;100,0,60,30;180,0,60,30;260,0,60,20;340,0,60,30;420,0,60,54.5;500,0,60,30;580,0,60,30;660,0,60,30;740,0,60,30;820,0,20,20;59.9997634887695,60,60.0002365112305,170;100,60,60,30;180,60,60,30;260,60,60,20;340,60,60,30;420,60,60,54.5;500,60,60,30;580,60,60,30;660,60,60,30;740,60,60,30;820,60,20,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Top",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,110;100,0,60,30;180,0,60,30;260,0,60,20;340,0,60,30;420,0,60,54.5;500,0,60,30;580,0,60,30;660,0,60,30;740,0,60,30;820,0,20,20;59.9997634887695,60,60.0002365112305,170;100,60,60,30;180,60,60,30;260,60,60,20;340,60,60,30;420,60,60,54.5;500,60,60,30;580,60,60,30;660,60,60,30;740,60,60,30;820,60,20,20|reopened 59.9998435974121,0,60.0001564025879,110;100,0,60,30;180,0,60,30;260,0,60,20;340,0,60,30;420,0,60,54.5;500,0,60,30;580,0,60,30;660,0,60,30;740,0,60,30;820,0,20,20;59.9997634887695,60,60.0002365112305,170;100,60,60,30;180,60,60,30;260,60,60,20;340,60,60,30;420,60,60,54.5;500,60,60,30;580,60,60,30;660,60,60,30;740,60,60,30;820,60,20,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Top",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|59.9998435974121,0,60.0001564025879,110;100,0,60,30;180,0,60,30;260,0,60,20;340,0,60,30;420,0,60,54.5;500,0,60,30;580,0,60,30;660,0,60,30;740,0,60,30;820,0,20,20;59.9997634887695,60,60.0002365112305,170;100,60,60,30;180,60,60,30;260,60,60,20;340,60,60,30;420,60,60,54.5;500,60,60,30;580,60,60,30;660,60,60,30;740,60,60,30;820,60,20,20|reopened 59.9998435974121,0,60.0001564025879,110;100,0,60,30;180,0,60,30;260,0,60,20;340,0,60,30;420,0,60,54.5;500,0,60,30;580,0,60,30;660,0,60,30;740,0,60,30;820,0,20,20;59.9997634887695,60,60.0002365112305,170;100,60,60,30;180,60,60,30;260,60,60,20;340,60,60,30;420,60,60,54.5;500,60,60,30;580,60,60,30;660,60,60,30;740,60,60,30;820,60,20,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|37.4998435974121,68,37.5001564025879,106.25;100,68,75,29;180,68,75,29;259.5,68,75,19;340,68,75,29;420,68,75,49.5;499.5,68,75,29;580,68,75,29;660,68,75,29;740,68,75,29;820,68,75,19;37.4997634887695,126,37.5002365112305,164.25;100,126,75,29;180,126,75,29;259.5,126,75,19;340,126,75,29;420,126,75,49.5;499.5,126,75,29;580,126,75,29;660,126,75,29;740,126,75,29;820,126,75,19|reopened 37.4998435974121,68,37.5001564025879,106.25;100,68,75,29;180,68,75,29;259.5,68,75,19;340,68,75,29;420,68,75,49.5;499.5,68,75,29;580,68,75,29;660,68,75,29;740,68,75,29;820,68,75,19;37.4997634887695,126,37.5002365112305,164.25;100,126,75,29;180,126,75,29;259.5,126,75,19;340,126,75,29;420,126,75,49.5;499.5,126,75,29;580,126,75,29;660,126,75,29;740,126,75,29;820,126,75,19|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Width",
+"value": "75",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|37.4998435974121,68,37.5001564025879,106.25;100,68,75,29;180,68,75,29;259.5,68,75,19;340,68,75,29;420,68,75,49.5;499.5,68,75,29;580,68,75,29;660,68,75,29;740,68,75,29;820,68,75,19;37.4997634887695,126,37.5002365112305,164.25;100,126,75,29;180,126,75,29;259.5,126,75,19;340,126,75,29;420,126,75,49.5;499.5,126,75,29;580,126,75,29;660,126,75,29;740,126,75,29;820,126,75,19|reopened 37.4998435974121,68,37.5001564025879,106.25;100,68,75,29;180,68,75,29;259.5,68,75,19;340,68,75,29;420,68,75,49.5;499.5,68,75,29;580,68,75,29;660,68,75,29;740,68,75,29;820,68,75,19;37.4997634887695,126,37.5002365112305,164.25;100,126,75,29;180,126,75,29;259.5,126,75,19;340,126,75,29;420,126,75,49.5;499.5,126,75,29;580,126,75,29;660,126,75,29;740,126,75,29;820,126,75,19|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|37.4998435974121,70,37.5001564025879,110;100,70,75,30;180,70,75,30;260,70,75,20;340,70,75,30;420,70,75,54.5;500,70,75,30;580,70,75,30;660,70,75,30;740,70,75,30;820,70,75,20;37.4997634887695,130,37.5002365112305,170;100,130,75,30;180,130,75,30;260,130,75,20;340,130,75,30;420,130,75,54.5;500,130,75,30;580,130,75,30;660,130,75,30;740,130,75,30;820,130,75,20|reopened 37.4998435974121,70,37.5001564025879,110;100,70,75,30;180,70,75,30;260,70,75,20;340,70,75,30;420,70,75,54.5;500,70,75,30;580,70,75,30;660,70,75,30;740,70,75,30;820,70,75,20;37.4997634887695,130,37.5002365112305,170;100,130,75,30;180,130,75,30;260,130,75,20;340,130,75,30;420,130,75,54.5;500,130,75,30;580,130,75,30;660,130,75,30;740,130,75,30;820,130,75,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Width",
+"value": "75",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|37.4998435974121,70,37.5001564025879,110;100,70,75,30;180,70,75,30;260,70,75,20;340,70,75,30;420,70,75,54.5;500,70,75,30;580,70,75,30;660,70,75,30;740,70,75,30;820,70,75,20;37.4997634887695,130,37.5002365112305,170;100,130,75,30;180,130,75,30;260,130,75,20;340,130,75,30;420,130,75,54.5;500,130,75,30;580,130,75,30;660,130,75,30;740,130,75,30;820,130,75,20|reopened 37.4998435974121,70,37.5001564025879,110;100,70,75,30;180,70,75,30;260,70,75,20;340,70,75,30;420,70,75,54.5;500,70,75,30;580,70,75,30;660,70,75,30;740,70,75,30;820,70,75,20;37.4997634887695,130,37.5002365112305,170;100,130,75,30;180,130,75,30;260,130,75,20;340,130,75,30;420,130,75,54.5;500,130,75,30;580,130,75,30;660,130,75,30;740,130,75,30;820,130,75,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Width",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|15.625039100647,70,15.625039100647,110;100,70,31,30;180,70,31,30;260,70,31,20;340.000091552734,70,31.25,30;420,70,31,54.5;500,70,31,30;580.000061035156,70,31.25,30;660.000061035156,70,31.25,30;740.000061035156,70,31.25,30;820,70,31.25,20;15.625039100647,130,15.625039100647,170;100,130,31,30;180,130,31,30;260,130,31,20;340.000091552734,130,31.25,30;420,130,31,54.5;500,130,31,30;580.000061035156,130,31.25,30;660.000061035156,130,31.25,30;740.000061035156,130,31.25,30;820,130,31.25,20|reopened 15.625039100647,70,15.625039100647,110;100,70,31,30;180,70,31,30;260,70,31,20;340.000091552734,70,31.25,30;420,70,31,54.5;500,70,31,30;580.000061035156,70,31.25,30;660.000061035156,70,31.25,30;740.000061035156,70,31.25,30;820,70,31.25,20;15.625039100647,130,15.625039100647,170;100,130,31,30;180,130,31,30;260,130,31,20;340.000091552734,130,31.25,30;420,130,31,54.5;500,130,31,30;580.000061035156,130,31.25,30;660.000061035156,130,31.25,30;740.000061035156,130,31.25,30;820,130,31.25,20|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|60,68,60,18.75;100,68,60,37.5;180,68,60,37.5;259.5,68,60,37.5;340,68,60,37.5;420,68,60,37.5;499.5,68,60,37.5;580,68,60,37.5;660,68,60,37.5;740,68,60,37.5;820,68,20,37.5;60,126,60,18.75;100,126,60,37.5;180,126,60,37.5;259.5,126,60,37.5;340,126,60,37.5;420,126,60,37.5;499.5,126,60,37.5;580,126,60,37.5;660,126,60,37.5;740,126,60,37.5;820,126,20,37.5|reopened 60,68,60,18.75;100,68,60,37.5;180,68,60,37.5;259.5,68,60,37.5;340,68,60,37.5;420,68,60,37.5;499.5,68,60,37.5;580,68,60,37.5;660,68,60,37.5;740,68,60,37.5;820,68,20,37.5;60,126,60,18.75;100,126,60,37.5;180,126,60,37.5;259.5,126,60,37.5;340,126,60,37.5;420,126,60,37.5;499.5,126,60,37.5;580,126,60,37.5;660,126,60,37.5;740,126,60,37.5;820,126,20,37.5|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Height",
+"value": "37.5",
+"book": "saved",
+"binding": "Late",
+"excel": "E1004|E0|E1004|60,68,60,18.75;100,68,60,37.5;180,68,60,37.5;259.5,68,60,37.5;340,68,60,37.5;420,68,60,37.5;499.5,68,60,37.5;580,68,60,37.5;660,68,60,37.5;740,68,60,37.5;820,68,20,37.5;60,126,60,18.75;100,126,60,37.5;180,126,60,37.5;259.5,126,60,37.5;340,126,60,37.5;420,126,60,37.5;499.5,126,60,37.5;580,126,60,37.5;660,126,60,37.5;740,126,60,37.5;820,126,20,37.5|reopened 60,68,60,18.75;100,68,60,37.5;180,68,60,37.5;259.5,68,60,37.5;340,68,60,37.5;420,68,60,37.5;499.5,68,60,37.5;580,68,60,37.5;660,68,60,37.5;740,68,60,37.5;820,68,20,37.5;60,126,60,18.75;100,126,60,37.5;180,126,60,37.5;259.5,126,60,37.5;340,126,60,37.5;420,126,60,37.5;499.5,126,60,37.5;580,126,60,37.5;660,126,60,37.5;740,126,60,37.5;820,126,20,37.5|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Typed",
+"excel": "E1004|E0|E1004|60,70,60,18.75;100,70,60,37.5;180,70,60,37.5;260,70,60,37.5;340,70,60,37.5;420,70,60,37.5;500,70,60,37.5;580,70,60,37.5;660,70,60,37.5;740,70,60,37.5;820,70,20,37.5;60,130,60,18.75;100,130,60,37.5;180,130,60,37.5;260,130,60,37.5;340,130,60,37.5;420,130,60,37.5;500,130,60,37.5;580,130,60,37.5;660,130,60,37.5;740,130,60,37.5;820,130,20,37.5|reopened 60,70,60,18.75;100,70,60,37.5;180,70,60,37.5;260,70,60,37.5;340,70,60,37.5;420,70,60,37.5;500,70,60,37.5;580,70,60,37.5;660,70,60,37.5;740,70,60,37.5;820,70,20,37.5;60,130,60,18.75;100,130,60,37.5;180,130,60,37.5;260,130,60,37.5;340,130,60,37.5;420,130,60,37.5;500,130,60,37.5;580,130,60,37.5;660,130,60,37.5;740,130,60,37.5;820,130,20,37.5|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Height",
+"value": "37.5",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|60,70,60,18.75;100,70,60,37.5;180,70,60,37.5;260,70,60,37.5;340,70,60,37.5;420,70,60,37.5;500,70,60,37.5;580,70,60,37.5;660,70,60,37.5;740,70,60,37.5;820,70,20,37.5;60,130,60,18.75;100,130,60,37.5;180,130,60,37.5;260,130,60,37.5;340,130,60,37.5;420,130,60,37.5;500,130,60,37.5;580,130,60,37.5;660,130,60,37.5;740,130,60,37.5;820,130,20,37.5|reopened 60,70,60,18.75;100,70,60,37.5;180,70,60,37.5;260,70,60,37.5;340,70,60,37.5;420,70,60,37.5;500,70,60,37.5;580,70,60,37.5;660,70,60,37.5;740,70,60,37.5;820,70,20,37.5;60,130,60,18.75;100,130,60,37.5;180,130,60,37.5;260,130,60,37.5;340,130,60,37.5;420,130,60,37.5;500,130,60,37.5;580,130,60,37.5;660,130,60,37.5;740,130,60,37.5;820,130,20,37.5|14.5,14.5"
+},
+{
+"collection": "DrawingObjects",
+"member": "Height",
+"value": "31.25",
+"book": "made",
+"binding": "Late",
+"excel": "E1004|E0|E1004|60,70.0000762939453,60,15.625039100647;100,70,60,31;180,70,60,31;260,70,60,31;340,70,60,31.25;420,70,60,31;500,70,60,31;580,70,60,31.25;660,70,60,31.25;740,70,60,31.25;820,70,20,31.25;60,130.000076293945,60,15.625039100647;100,130,60,31;180,130,60,31;260,130,60,31;340,130,60,31.25;420,130,60,31;500,130,60,31;580,130,60,31.25;660,130,60,31.25;740,130,60,31.25;820,130,20,31.25|reopened 60,70.0000762939453,60,15.625039100647;100,70,60,31;180,70,60,31;260,70,60,31;340,70,60,31.25;420,70,60,31;500,70,60,31;580,70,60,31.25;660,70,60,31.25;740,70,60,31.25;820,70,20,31.25;60,130.000076293945,60,15.625039100647;100,130,60,31;180,130,60,31;260,130,60,31;340,130,60,31.25;420,130,60,31;500,130,60,31;580,130,60,31.25;660,130,60,31.25;740,130,60,31.25;820,130,20,31.25|14.5,14.5"
+}
+]
+}

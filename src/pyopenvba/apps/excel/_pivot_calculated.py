@@ -323,6 +323,12 @@ def list_formulas(table: PivotTable) -> None:
     from pyopenvba.apps.excel._typing import Typed
 
     owner = table.entry
+    book = owner.sheet.book
+    if book.application.active_book is not book:
+        from pyopenvba.exceptions import VBAUnsupportedError
+
+        # Excel adds the sheet, raises -2147417848 and leaves a book it then cannot close (tests/fixtures/list_formulas_close.json).
+        raise VBAUnsupportedError('PivotTable.ListFormulas with another workbook in front is not implemented')
     calculated = [(to_text(item.vba_get('Name')), to_text(item.vba_get('Formula')))
                   for item in CalculatedFields(table).vba_items() if isinstance(item, PivotField)]
     items: list[tuple[str, str]] = []

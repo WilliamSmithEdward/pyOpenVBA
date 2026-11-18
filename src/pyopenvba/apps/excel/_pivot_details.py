@@ -153,12 +153,17 @@ def drill(table: PivotTable, target: Range, value: object, *, select: bool) -> N
     off, True is error 1004. Otherwise a new sheet goes in before the active one, as Worksheets.Add puts one, and
     takes the records behind the value as a table at A1: the cache fields' names over the records' values, every cell
     General, in the workbook's default table style, the columns left at the width they had; the table's range is
-    selected. The grand total's records, all a table counts, come grouped by the items of the row fields, then those
-    of the column fields, in the order the table shows them, each group in the source's order.
+    selected.
 
-    A part of the table's records, one item's or one line's, comes in an order not worked out (source order where
-    the item is the first record's, else not), so its detail is not built. Nor are tables with a filter, hidden or
-    collapsed items, grouped or calculated fields, or records holding dates or errors."""
+    The records come in the order Excel leaves them in. It takes the cache's records in source order and goes
+    through them from the front; each one the value does not count -- another item's, or one a page field leaves
+    out -- it replaces with the last record, shortening the list, and looks at that one in its place. What is left
+    it groups by the items of the row fields, then those of the column fields, the innermost field first on each
+    axis, in the order the table shows them; a group keeps the order the removals left. So b, a, b, a, b, a, b, a
+    gives a's records as 8, 2, 6, 4 (tests/fixtures/pivot_drill.json, look 4).
+
+    Not built: tables with a filter, hidden or collapsed items, grouped or calculated fields, or records holding
+    dates or errors."""
     from pyopenvba.apps.excel._model import Range as Cells
 
     entry = table.entry
@@ -174,8 +179,7 @@ def drill(table: PivotTable, target: Range, value: object, *, select: bool) -> N
         return
     if entry.root.get('enableDrill', '1') in ('0', 'false'):
         raise error(1004, _UNABLE_SET)
-    _refuse_a_part(target)
-    records = _detail_records(entry)
+    records = _detail_records(entry, _value_items(target))
     style = sheet.book.stylesheet.table_style_default('table')
     if style is None:
         raise VBAUnsupportedError('ShowDetail in a workbook with no default table style is not implemented')
@@ -226,21 +230,20 @@ def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
     cell.value = value
 
 
-def _refuse_a_part(target: Range) -> None:
-    """Refuse a value whose records are a part of the table's, whose order is not worked out."""
+def _value_items(target: Range) -> dict[int, int]:
+    """The items a value stands at, each field's place in its items, by field: none for the grand total."""
     from pyopenvba.apps.excel._pivot_cells import owner
 
     at = target.first
     found = owner(target.sheet, at.top, at.left)
     assert found is not None
     role = found[1]
-    if (role.rows or ()) or (role.columns or ()):
-        raise VBAUnsupportedError("ShowDetail on a pivot table value standing for part of its records, which Excel "
-                                  "lists in an order not worked out, is not implemented")
+    return {field: place for field, place in (*(role.rows or ()), *(role.columns or ())) if field >= 0 and place >= 0}
 
 
-def _detail_records(table: PivotTable) -> list[list[object]]:
-    """The records a table counts, in the order its grand total's detail lists them, each with its values."""
+def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[object]]:
+    """The records behind a value standing at ``standing``'s items, in the order its detail lists them, each with
+    its values (see drill)."""
     from pyopenvba.apps.excel._pivot_aggregate import records
     from pyopenvba.apps.excel._pivot_layout import cache_layout
     from pyopenvba.apps.excel._pivot_reports import PivotLine, axis_lines
@@ -300,16 +303,27 @@ def _detail_records(table: PivotTable) -> list[list[object]]:
             key.append(ranked[depth][place])
         return tuple(key)
 
+    # The value's own items and the page fields' choices, as cache items, are what a record must stand at.
+    wanted = dict(pages)
+    for field, place in standing.items():
+        items = pivot_fields[field].findall(f'{NS}items/{NS}item')
+        wanted[field] = int(items[place].get('x', '-1'))
+    # Each record the value does not count gives its place to the last record, which is looked at in its turn.
+    numbers = list(range(len(ids)))
+    position = 0
+    while position < len(numbers):
+        record = ids[numbers[position]]
+        if all(record[field] == item for field, item in wanted.items()):
+            position += 1
+        else:
+            numbers[position] = numbers[-1]
+            numbers.pop()
     row_ranks = ranks(axis_lines(root, 'rowItems'), rows)
     column_ranks = ranks(axis_lines(root, 'colItems'), columns)
-    kept: list[tuple[tuple[tuple[int, ...], tuple[int, ...], int], list[object]]] = []
-    for number, (record, values) in enumerate(zip(ids, found, strict=True)):
-        if any(record[field] != item for field, item in pages.items()):
-            continue
-        key = (order(rows, row_places, row_ranks, record), order(columns, column_places, column_ranks, record), number)
-        kept.append((key, [_cached(value) for value in values]))
-    kept.sort(key=lambda pair: pair[0])
-    return [values for _, values in kept]
+    # Grouped as the table shows its items; sorted stably, so a group keeps the order the removals left.
+    numbers.sort(key=lambda number: (order(rows, row_places, row_ranks, ids[number]),
+                                     order(columns, column_places, column_ranks, ids[number])))
+    return [[_cached(value) for value in found[number]] for number in numbers]
 
 
 def _cached(entry: XmlElement) -> object:

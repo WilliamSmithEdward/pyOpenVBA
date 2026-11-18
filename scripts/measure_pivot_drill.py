@@ -56,6 +56,22 @@ Held-out round A (cases 32 to 36, the grand total), predicted on 89a6e51d (sha25
 had two fields on the rows, k outside g: Excel grouped the records by g first, then k. Within an axis the innermost
 field now leads. Held-out round B (cases 37 to 41) tests that on new layouts, predicted by the model before it ran.
 
+Round B: 5 of 5. Look 4 (cases 42 to 51), written before it ran, settles one item's order where nothing else groups
+the records: k on the rows, g the same throughout, v each record's number, a's own value drilled. The rivals, over
+a's source places p1 < ... < pn:
+- R1: source order (the item first in the source keeps it).
+- R2: the last first, then the rest in source order (7, 2, 4 from 2, 4, 7).
+- R3: a max-heap's array after inserting them in source order.
+- R4: the order depends on whether a is the first record's item: source order if so, R2 if not.
+Predict R4.
+
+What look 4 showed: R1 to R4 all wrong. Every order, these ten and the scrambled ones before, is what a removal
+by swapping leaves: Excel goes through the records from the front, and each one the value does not count it
+replaces with the last record, shortening the list, then looks again at that place. b a b a b a b a gives 8, 2, 6, 4;
+the earlier 2, 4, 7 from b a c a b c a b gives 7, 2, 4. What is left is grouped as the grand total's records are.
+Held-out rounds C (52 to 56) and D (57 to 61) test that on ten shuffled records, predicted by the model before they
+ran.
+
     python scripts/measure_pivot_drill.py
 
 writes tests/fixtures/pivot_drill.json.
@@ -106,6 +122,21 @@ K_G = (ROWS + 'pt.PivotFields("k").Orientation = xlRowField: pt.PivotFields("g")
        'pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ')
 #: GO turns events on, after a case has set its sheet up with them off.
 GO = 'Application.EnableEvents = True: '
+def ordered(keys: str) -> str:
+    """Look 4's case: records whose k are ``keys``, g x throughout and v each record's number, a pivot table with k on
+    the rows, and a's own value drilled."""
+    count = len(keys)
+    values = ';'.join(f'""{key}"",""x"",{number}' for number, key in enumerate(keys, start=1))
+    return (f'ws.Range("A1:C5").ClearContents: ws.Range("A1:C1").Value = Array("k", "g", "v"): '
+            f'ws.Range("A2:C{count + 1}").Value = ws.Evaluate("{{{values}}}"): '
+            f'Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range("A1:C{count + 1}")).CreatePivotTable(ws.Range("E1"), '
+            f'"P"): pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", '
+            f'xlSum: {GO}r = "{keys}": pt.PivotFields("k").PivotItems("a").DataRange.Cells(1).ShowDetail = True')
+
+
+#: Ten records shuffled, for held-out rounds C and D.
+SHUF = ('ws.Range("A2:C11").Value = ws.Evaluate("{""c"",""y"",1;""a"",""x"",2;""b"",""x"",3;""a"",""y"",4;'
+        '""c"",""x"",5;""b"",""y"",6;""a"",""x"",7;""c"",""y"",8;""b"",""x"",9;""a"",""y"",10}"): ')
 #: Nine records, seven of them a's, for look 3.
 MANY = ('ws.Range("A2:C10").Value = ws.Evaluate("{""a"",""y"",1;""a"",""x"",2;""a"",""z"",3;""a"",""x"",4;'
         '""a"",""y"",5;""a"",""x"",6;""b"",""x"",7;""a"",""z"",8;""b"",""y"",9}"): ')
@@ -196,6 +227,38 @@ CASES = [
     MANY + ROWS.replace('A1:C5', 'A1:C10') + 'pt.PivotFields("k").Orientation = xlRowField: '
     'pt.PivotFields("g").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
     'pt.RowAxisLayout xlTabularRow: ' + GO + 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True',
+    # Look 4: one item's detail where nothing else groups the records (g the same throughout, v the record's number),
+    # a's place among them varied.
+    *(ordered(keys) for keys in ('baaaa', 'babababa', 'abab', 'bbaaaaaa', 'ba', 'baa', 'baaa', 'cbaaaa', 'abba',
+                                 'bcabaca')),
+    # Held-out round C, a part's detail, predicted by the model before it ran.
+    SHUF + K_ROWS.replace('A1:C5', 'A1:C11') + GO + 'pt.PivotFields("k").PivotItems("b").DataRange.Cells(1).ShowDetail = True',
+    SHUF + K_G.replace('A1:C5', 'A1:C11') + GO + 'Application.Intersect(pt.PivotFields("k").PivotItems("c").DataRange, '
+    'pt.PivotFields("g").PivotItems("y").DataRange).ShowDetail = True',
+    SHUF + ROWS.replace('A1:C5', 'A1:C11') + 'pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'pt.PivotFields("g").PivotItems("y").DataRange.Cells(1).ShowDetail = True',
+    SHUF + ROWS.replace('A1:C5', 'A1:C11') + 'pt.PivotFields("k").Orientation = xlColumnField: '
+    'pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'pt.PivotFields("k").PivotItems("a").DataRange.Cells(1).ShowDetail = True',
+    SHUF + ROWS.replace('A1:C5', 'A1:C11') + 'pt.PivotFields("g").Orientation = xlPageField: '
+    'pt.PivotFields("g").CurrentPage = "y": pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'pt.PivotFields("k").PivotItems("a").DataRange.Cells(1).ShowDetail = True',
+    # Held-out round D, a part's detail, predicted by the model before it ran.
+    SHUF + ROWS.replace('A1:C5', 'A1:C11') + 'pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlColumnField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'Application.Intersect(pt.PivotFields("g").PivotItems("x").DataRange, '
+    'pt.PivotFields("k").PivotItems("b").DataRange).ShowDetail = True',
+    SHUF + K_ROWS.replace('A1:C5', 'A1:C11') + GO + 'pt.PivotFields("k").PivotItems("c").DataRange.Cells(1).Select: '
+    'Application.DoubleClick',
+    SHUF + ROWS.replace('A1:C5', 'A1:C11') + 'pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: ' + GO
+    + 'pt.PivotFields("k").PivotItems("a").DataRange.Cells(2).ShowDetail = True',
+    SHUF + K_ROWS.replace('A1:C5', 'A1:C11') + 'pt.AddDataField pt.PivotFields("v"), "Count of v", xlCount: ' + GO
+    + 'pt.PivotFields("k").PivotItems("c").DataRange.Cells(2).ShowDetail = True',
+    SHUF + K_ROWS.replace('A1:C5', 'A1:C11') + 'pt.PivotFields("k").AutoSort xlDescending, "k": ' + GO
+    + 'pt.PivotFields("k").PivotItems("a").DataRange.Cells(1).ShowDetail = True',
 ]
 PROBE = '''Private Function Digest(wb As Workbook) As String
     Dim s As String, sh As Worksheet, lo As ListObject, cell As Range, c As Long

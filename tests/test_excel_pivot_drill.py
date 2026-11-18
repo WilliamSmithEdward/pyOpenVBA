@@ -22,8 +22,6 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/pivot_drill.json').read_text(encoding='utf-8'))
 CASES: list[list[Any]] = RECORD['cases']
-#: Values standing for part of a table's records, which Excel lists in an order not worked out: not built.
-PARTS = {0, 2, 3, 4, 6, 7, 8, 9, 10, 15, 21, 22, 25, 26, 27, 28, 29}
 #: ShowDetail on a cell beside the table, which Excel refuses with 1004; the model takes it for an outline's and
 #: reports outlines over part of a row unsupported.
 BESIDE = {14}
@@ -61,18 +59,12 @@ def _table(text: str) -> str:
     return _UID.sub('', re.sub(r' xmlns:(mc|xr|xr3)="[^"]*"| mc:Ignorable="[^"]*"| xr3:uid="[^"]*"', '', text))
 
 
-@pytest.mark.parametrize('index', sorted(set(range(len(CASES))) - PARTS - BESIDE), ids=str)
+@pytest.mark.parametrize('index', sorted(set(range(len(CASES))) - BESIDE), ids=str)
 def test_a_values_detail_is_excels(index: int, tmp_path: Path) -> None:
     answer, parts = _run(index, tmp_path)
     assert _dpi_free(answer) == _dpi_free(CASES[index][1])
     excel = {name: _table(text) for name, text in CASES[index][2].items() if name.startswith('xl/tables/')}
     assert {name: _table(text) for name, text in parts.items()} == excel
-
-
-@pytest.mark.parametrize('index', sorted(PARTS), ids=str)
-def test_a_part_of_the_records_reports_itself(index: int, tmp_path: Path) -> None:
-    with pytest.raises(VBAUnsupportedError, match='part of its records'):
-        _run(index, tmp_path)
 
 
 @pytest.mark.parametrize('index', sorted(BESIDE), ids=str)

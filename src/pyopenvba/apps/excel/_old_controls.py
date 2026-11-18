@@ -180,17 +180,17 @@ def _new_control(name: str, value: object) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-def _taken_on_new(name: str, value: object) -> MemberSpec:
-    """A setting a new control takes and keeps nothing of, reading ``value`` before and after and writing nothing
-    (tests/fixtures/new_control_edits.json); on a control loaded from a file what a set writes is not measured, and it is refused."""
+def _taken_as_flag(name: str, value: object) -> MemberSpec:
+    """A Boolean setting a control takes and keeps nothing of, reading ``value`` before and after and writing nothing, new or loaded
+    from a file (tests/fixtures/new_control_edits.json, old_collection_leftovers.json)."""
 
     def get(item: OldControl) -> object:
         del item
         return value
 
     def put(item: OldControl, wanted: object) -> None:
-        if item.shape.control is None or item.shape.source:
-            raise VBAUnsupportedError(f'Setting {name} on a form control in a file is not implemented')
+        if item.shape.control is None:
+            raise VBAUnsupportedError(f'Setting {name} on this form control is not implemented')
         to_bool(wanted)
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
@@ -416,7 +416,7 @@ def _text_frame(name: str) -> MemberSpec:
     return MemberSpec(name=name, kind='property', getter=get, setter=put)
 
 
-for _spec in (_new_control('AutoSize', False), _taken_on_new('AutoScaleFont', False), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
+for _spec in (_new_control('AutoSize', False), _taken_as_flag('AutoScaleFont', False), *(_button_flag(_name) for _name in _BUTTON_FLAGS),
               *(_text_frame(_name) for _name in ('HorizontalAlignment', 'VerticalAlignment', 'Orientation')),
               _taken_on_loaded('ReadingOrder', VBAInt(27, 'Long'), (-5004, -5003, -5002)), _new_control('Formula', '')):
     Button.vba_add_member(_spec)
@@ -843,6 +843,27 @@ class OldControls(VBACollection, Created):
             return not getattr(items[0], 'shape').hidden
         return self.several[lower]
 
+    def _place(self, lower: str, value: object, items: list[object]) -> None:
+        """Left, Top, Width or Height set on several items (tests/fixtures/old_collection_geometry.json, old_collection_top_split.json).
+        A size goes to each item, an arc taking half. A place moves them together, as setting each in turn while all move would: the last
+        lands on the value, the rest keep their distance from it, and the whole lot shifts back so none is above or left of the sheet."""
+        name = lower.capitalize()
+        arcs = [getattr(one, 'vba_type_name') == 'Arc' for one in items]
+        if lower in ('width', 'height'):
+            wanted = float(to_number(value))
+            for item, arc in zip(items, arcs, strict=True):
+                getattr(item, 'vba_set')(name, wanted / 2 if arc else wanted)
+            return
+        if any(arcs) and lower == 'left' or self.vba_type_name == 'DrawingObjects':
+            # Arcs moved to a Left of 200 at 96 DPI (tests/fixtures/old_drawings.json) but kept theirs for 45 at 144 DPI; and over every
+            # drawing each kind moves its own way. Neither rule is worked out.
+            raise VBAUnsupportedError(f'{self.vba_type_name}.{name} set over arcs or every drawing is not implemented')
+        places = [float(to_number(getattr(one, 'vba_get')(name, []))) for one in items]
+        shift = float(to_number(value)) - places[-1]
+        shift += max(0.0, -min(place + shift for place in places))
+        for item, place in zip(items, places, strict=True):
+            getattr(item, 'vba_set')(name, place + shift)
+
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
         """A member set on every item, though not a name, which they cannot share, nor a whole List, which is 1004 before any item changes, as
         its read is. A list with nothing in it takes no Value or ListIndex, and the others still do. What ``lost_sets`` names is taken and
@@ -853,6 +874,9 @@ class OldControls(VBACollection, Created):
         items = self.vba_items()
         if not items:
             raise VBAUnsupportedError(f'{self.vba_type_name}.{name} with nothing in the collection is not implemented')
+        if lower in ('left', 'top', 'width', 'height') and len(items) > 1:
+            self._place(lower, value, items)
+            return
         if lower == 'list' and not args:
             raise error(*_NOT_THERE)
         if lower in self.lost_sets:
@@ -865,8 +889,8 @@ class OldControls(VBACollection, Created):
 class Buttons(OldControls):
     vba_type_name = 'Buttons'
     kind = 'Button'
-    spread_reads = frozenset({'Accelerator', 'AddIndent', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Enabled', 'Font', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'VerticalAlignment', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'AddIndent', 'CancelButton', 'Caption', 'DefaultButton', 'DismissButton', 'Enabled', 'HelpButton', 'HorizontalAlignment', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'VerticalAlignment', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'AddIndent', 'AutoScaleFont', 'CancelButton', 'Caption', 'Characters', 'DefaultButton', 'DismissButton', 'Enabled', 'Font', 'Height', 'HelpButton', 'HorizontalAlignment', 'Left', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'ShapeRange', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'AddIndent', 'AutoScaleFont', 'CancelButton', 'Caption', 'DefaultButton', 'DismissButton', 'Enabled', 'Height', 'HelpButton', 'HorizontalAlignment', 'Left', 'Locked', 'LockedText', 'Orientation', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ReadingOrder', 'Text', 'Top', 'VerticalAlignment', 'Visible', 'Width'})
     parts = frozenset({'Characters', 'Font'})
     several = {'visible': True, 'autoscalefont': False, 'readingorder': VBAInt(27, 'Long')}
     lost_sets = frozenset({'autoscalefont'})
@@ -905,16 +929,16 @@ class ValueDefault(OldControls):
 class CheckBoxes(ValueDefault):
     vba_type_name = 'CheckBoxes'
     kind = 'CheckBox'
-    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'Caption', 'Display3DShading', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'Height', 'Interior', 'Left', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Top', 'Value', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Display3DShading', 'Enabled', 'Height', 'Left', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'Text', 'Top', 'Value', 'Visible', 'Width'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
 
 
 class OptionButtons(ValueDefault):
     vba_type_name = 'OptionButtons'
     kind = 'Radio'
-    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'GroupBox', 'Interior', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Accelerator', 'Caption', 'Display3DShading', 'Enabled', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
+    spread_reads = frozenset({'Accelerator', 'Border', 'Caption', 'Characters', 'Display3DShading', 'Enabled', 'GroupBox', 'Height', 'Interior', 'Left', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'ShapeRange', 'Text', 'Top', 'Value', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'Accelerator', 'Caption', 'Display3DShading', 'Enabled', 'Height', 'Left', 'LinkedCell', 'Locked', 'LockedText', 'PhoneticAccelerator', 'Placement', 'PrintObject', 'Text', 'Top', 'Value', 'Visible', 'Width'})
     parts = frozenset({'Border', 'Characters', 'Interior'})
     several = {'visible': True, 'groupbox': NOTHING}
 
@@ -949,16 +973,16 @@ class ListedControls(OldControls):
 class DropDowns(ValueDefault, ListedControls):
     vba_type_name = 'DropDowns'
     kind = 'Drop'
-    spread_reads = frozenset({'Caption', 'Characters', 'Display3DShading', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Caption', 'Display3DShading', 'DropDownLines', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Text', 'Value', 'Visible'})
+    spread_reads = frozenset({'Caption', 'Characters', 'Display3DShading', 'DropDownLines', 'Enabled', 'Height', 'Left', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Text', 'Top', 'Value', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'Caption', 'Display3DShading', 'DropDownLines', 'Enabled', 'Height', 'Left', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'Placement', 'PrintObject', 'Text', 'Top', 'Value', 'Visible', 'Width'})
     parts = frozenset({'Characters'})
 
 
 class ListBoxes(ValueDefault, ListedControls):
     vba_type_name = 'ListBoxes'
     kind = 'List'
-    spread_reads = frozenset({'Display3DShading', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Value', 'Visible', 'ZOrder'})
-    spread_sets = frozenset({'Display3DShading', 'Enabled', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Value', 'Visible'})
+    spread_reads = frozenset({'Display3DShading', 'Enabled', 'Height', 'Left', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Selected', 'ShapeRange', 'Top', 'Value', 'Visible', 'Width', 'ZOrder'})
+    spread_sets = frozenset({'Display3DShading', 'Enabled', 'Left', 'LinkedCell', 'List', 'ListFillRange', 'ListIndex', 'Locked', 'MultiSelect', 'Placement', 'PrintObject', 'Top', 'Value', 'Visible', 'Width'})
 
 
 def collection(sheet: Worksheet, kind: type[OldControls], index: object) -> Any:

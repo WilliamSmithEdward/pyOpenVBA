@@ -41,7 +41,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   nowhere, as in Excel. A line's old `ArrowHeadStyle`, `ArrowHeadLength` and `ArrowHeadWidth` set its ends as Excel
   does, alone and through `Lines`. The hidden `_Default` of `CheckBoxes`, `OptionButtons`, `DropDowns`, `ListBoxes`
   and `DrawingObjects` is their items' `Value`, as Excel answers it typed. `RoundedCorners = True` rounds a new or
-  loaded rectangle or text box, and renames a rectangle as Excel does.
+  loaded rectangle or text box, and renames a rectangle as Excel does. A picture takes `Shadow = True`, a loaded button
+  `AutoScaleFont`, and `DrawingObjects.Visible` reads the sheet's first form control's, as Excel does. `Left`, `Top`,
+  `Width` and `Height` over a whole old collection read 1004 and set as Excel does: a size goes to each item, an arc
+  taking half, and a place moves the items together so the last lands on the value. Measured at 144 DPI.
+  `DrawingObjects.Vertices` and `Reshape` answer 1004, and `DrawingObjects.Ungroup`, which answered 1004 where Excel
+  succeeds, now says it is not implemented.
   `Duplicate` on a collection of shapes read from a file, form controls or lines says it is not implemented.
 - `Range.Insert` with something on the clipboard is Insert Copied Cells or Insert Cut Cells:
   `Rows(3).Copy: Rows(6).Insert` duplicates the row and `Rows(3).Cut: Rows(6).Insert` moves it. Measured in live Excel

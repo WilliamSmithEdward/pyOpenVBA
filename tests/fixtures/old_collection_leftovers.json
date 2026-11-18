@@ -1,0 +1,66 @@
+{
+ "measured_at": "2026-11-17T17:09:10.131599+00:00",
+ "source": "Public Function Row(ByVal path As String, ByVal saved As String, ByVal picture As String, ByVal which As String) As String\n    Dim wb As Workbook, ws As Object, o As Object, e As Long, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set ws = wb.Worksheets(1)\n    If which = \"new picture\" Or which = \"new picture base\" Then\n        Set o = ws.Pictures.Insert(picture)\n    ElseIf which = \"button\" Or which = \"button base\" Then\n        Set o = ws.Buttons(1)\n    Else\n        Set o = ws.Pictures(1)\n    End If\n    On Error Resume Next\n    If which = \"button\" Then\n        o.AutoScaleFont = True\n        e = Err.Number: Err.Clear\n        s = \"E\" & e & \"|\" & TypeName(o.AutoScaleFont) & \" \" & o.AutoScaleFont\n    ElseIf which = \"new picture\" Or which = \"loaded picture\" Then\n        o.Shadow = True\n        e = Err.Number: Err.Clear\n        s = \"E\" & e & \"|\" & TypeName(o.Shadow) & \" \" & o.Shadow & \" \" & o.ShapeRange.Shadow.Visible\n    End If\n    If Err.Number Then s = s & \" E\" & Err.Number\n    On Error GoTo 0\n    wb.SaveAs saved, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(saved, 0)\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    If which = \"button\" Then\n        s = s & \"|reopened \" & ws.Buttons(1).AutoScaleFont\n    ElseIf which = \"new picture\" Then\n        s = s & \"|reopened \" & ws.Pictures(ws.Pictures.Count).Shadow\n    ElseIf which = \"loaded picture\" Then\n        s = s & \"|reopened \" & ws.Pictures(1).Shadow\n    End If\n    If Err.Number Then s = s & \" E\" & Err.Number\n    wb.Close False\n    Row = s\nEnd Function\n\nPrivate Function Whole(o As {declared}) As String\n    Dim v As Variant\n    On Error Resume Next\n    v = o.Visible\n    If Err.Number Then Whole = \"E\" & Err.Number Else Whole = TypeName(v) & \" \" & v\nEnd Function\n\nPublic Function Visibles(ByVal path As String) As String\n    Dim wb As Workbook, ws As Object, i As Long, j As Long, n As Long, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path, 0)\n    Set ws = wb.Worksheets(1)\n    n = ws.DrawingObjects.Count\n    For i = 1 To n\n        ws.DrawingObjects(i).Visible = True\n    Next\n    s = n & \"|none \" & Whole(ws.DrawingObjects)\n    For i = 1 To n\n        ws.DrawingObjects(i).Visible = False\n        s = s & \"|\" & i & \" \" & TypeName(ws.DrawingObjects(i)) & \" \" & Whole(ws.DrawingObjects)\n        ws.DrawingObjects(i).Visible = True\n    Next\n    For i = 1 To n\n        ws.DrawingObjects(i).Visible = False\n    Next\n    s = s & \"|all \" & Whole(ws.DrawingObjects)\n    wb.Close False\n    Visibles = s\nEnd Function\n\nPublic Function Made() As String\n    Dim wb As Workbook, ws As Object, i As Long, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Rectangles.Add 10, 10, 40, 20: ws.Ovals.Add 60, 10, 40, 20: ws.Lines.Add 110, 10, 150, 30\n    ws.CheckBoxes.Add 160, 10, 40, 20: ws.Buttons.Add 210, 10, 40, 20: ws.Buttons.Add 260, 10, 40, 20\n    s = ws.DrawingObjects.Count & \"|none \" & Whole(ws.DrawingObjects)\n    For i = 1 To ws.DrawingObjects.Count\n        ws.DrawingObjects(i).Visible = False\n        s = s & \"|\" & i & \" \" & TypeName(ws.DrawingObjects(i)) & \" \" & Whole(ws.DrawingObjects)\n        ws.DrawingObjects(i).Visible = True\n    Next\n    wb.Close False\n    Made = s\nEnd Function\n",
+ "saves": [
+  {
+   "which": "button",
+   "excel": "E0|Boolean False|reopened False",
+   "parts": {}
+  },
+  {
+   "which": "new picture",
+   "excel": "E0|Boolean True -1|reopened True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "replace",
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{4C1F3CDA-87C0-B9B8-DEAB-E98ACE08E92D}\"/>"
+      ],
+      [
+       "<a16:creationId xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\" id=\"{72B79303-681B-9247-AAC9-60C784E60B89}\"/>"
+      ]
+     ],
+     [
+      "insert",
+      [],
+      [
+       "<a:effectLst>",
+       "<a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\">",
+       "<a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/>",
+       "</a:outerShdw>",
+       "</a:effectLst>"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "which": "loaded picture",
+   "excel": "E0|Boolean True -1|reopened True",
+   "parts": {
+    "xl/drawings/drawing1.xml": [
+     [
+      "insert",
+      [],
+      [
+       "<a:effectLst>",
+       "<a:outerShdw blurRad=\"63500\" dist=\"37357\" dir=\"2700000\" rotWithShape=\"0\">",
+       "<a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/>",
+       "</a:outerShdw>",
+       "</a:effectLst>"
+      ]
+     ]
+    ]
+   }
+  }
+ ],
+ "visibles": {
+  "Typed": "22|none Boolean True|1 Arc Boolean True|2 Button Boolean False|3 CheckBox Boolean True|4 DropDown Boolean True|5 Line Boolean True|6 ListBox Boolean True|7 OptionButton Boolean True|8 Oval Boolean True|9 Rectangle Boolean True|10 TextBox Boolean True|11 Picture Boolean True|12 Arc Boolean True|13 Button Boolean True|14 CheckBox Boolean True|15 DropDown Boolean True|16 Line Boolean True|17 ListBox Boolean True|18 OptionButton Boolean True|19 Oval Boolean True|20 Rectangle Boolean True|21 TextBox Boolean True|22 Picture Boolean True|all Boolean False",
+  "Late": "22|none Boolean True|1 Arc Boolean True|2 Button Boolean False|3 CheckBox Boolean True|4 DropDown Boolean True|5 Line Boolean True|6 ListBox Boolean True|7 OptionButton Boolean True|8 Oval Boolean True|9 Rectangle Boolean True|10 TextBox Boolean True|11 Picture Boolean True|12 Arc Boolean True|13 Button Boolean True|14 CheckBox Boolean True|15 DropDown Boolean True|16 Line Boolean True|17 ListBox Boolean True|18 OptionButton Boolean True|19 Oval Boolean True|20 Rectangle Boolean True|21 TextBox Boolean True|22 Picture Boolean True|all Boolean False"
+ },
+ "made": {
+  "Typed": "6|none Boolean True|1 Rectangle Boolean True|2 Oval Boolean True|3 Line Boolean True|4 CheckBox Boolean False|5 Button Boolean True|6 Button Boolean True",
+  "Late": "6|none Boolean True|1 Rectangle Boolean True|2 Oval Boolean True|3 Line Boolean True|4 CheckBox Boolean False|5 Button Boolean True|6 Button Boolean True"
+ }
+}

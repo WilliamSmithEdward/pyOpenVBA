@@ -20,7 +20,6 @@ to 6 alone.
 
 from __future__ import annotations
 
-import hashlib
 import threading
 import zlib
 from collections import OrderedDict
@@ -680,18 +679,28 @@ def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
     """The deflate blocks alone, without zlib's header or its trailer.
 
     This is what a ZIP entry carries.  The defaults are what Excel uses
-    for the parts of a Power Query package.  The same bytes always deflate
-    the same way, and this port takes seconds a megabyte, so what it gives
-    is kept, by the input's digest, for a part saved again: a picture, or
-    the theme and styles every save writes.
+    for the parts of a Power Query package.  Nothing is kept: see
+    kept_raw_compress for the parts a cache is for.
     """
-    key = (hashlib.sha256(data).digest(), level, memlevel)
+    return compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+
+
+def kept_raw_compress(data: bytes) -> bytes:
+    """raw_compress at its defaults, keeping what it gives for the same bytes saved again.
+
+    The same bytes always deflate the same way, and this port takes seconds a megabyte. Only a package's pictures, themes and
+    styles come here (OpcFile.write decides by the part's name), never a part that may hold a password or a connection. A
+    deflated part is found by its length and CRC-32 and taken only if it inflates to these bytes, so two parts that share
+    those can never swap.
+    """
+    key = (len(data), zlib.crc32(data))
     with _CACHE_LOCK:
         found = _CACHE.get(key)
         if found is not None:
             _CACHE.move_to_end(key)
-            return found
-    body = compress(data, level=level, wbits=15, memlevel=memlevel)[2:-4]
+    if found is not None and zlib.decompress(found, -15) == data:
+        return found
+    body = raw_compress(data)
     _keep(key, body)
     return body
 
@@ -699,11 +708,11 @@ def raw_compress(data: bytes, level: int = 6, memlevel: int = 8) -> bytes:
 #: The most deflated bytes kept, oldest used going first. Only what deflate gave is kept, never the input, and nothing larger
 #: than this. What is kept stays, after its workbook is saved and closed too, until newer parts push it out.
 CACHE_LIMIT = 32 << 20
-_CACHE: OrderedDict[tuple[bytes, int, int], bytes] = OrderedDict()
+_CACHE: OrderedDict[tuple[int, int], bytes] = OrderedDict()
 _CACHE_LOCK = threading.Lock()
 
 
-def _keep(key: tuple[bytes, int, int], body: bytes) -> None:
+def _keep(key: tuple[int, int], body: bytes) -> None:
     if len(body) > CACHE_LIMIT:
         return
     with _CACHE_LOCK:

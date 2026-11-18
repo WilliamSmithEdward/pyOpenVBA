@@ -16,7 +16,7 @@ import struct
 import zlib
 from dataclasses import dataclass, field
 
-from pyopenvba._deflate import raw_compress
+from pyopenvba._deflate import kept_raw_compress, raw_compress
 from pyopenvba.exceptions import PowerQueryError
 
 _LOCAL = b"PK\x03\x04"
@@ -32,6 +32,15 @@ _NEEDED = 20
 #: Where Excel's file recovery parks the parts it threw out.  Not a legal
 #: OPC part name, and Excel will not open a package holding one.
 _RESERVED = "[trash]/"
+#: The parts whose deflated bytes are kept for a save of the same bytes again: pictures and other media, themes and styles.
+#: Nothing else is kept, as any other part may hold a password, a connection string or protection data.
+_KEPT_FOLDERS = ("xl/media/", "word/media/", "ppt/media/", "xl/theme/", "word/theme/", "ppt/theme/")
+_KEPT_PARTS = ("xl/styles.xml", "word/styles.xml")
+
+
+def kept_part(name: str) -> bool:
+    """Whether a part's deflated bytes may be kept, by its name."""
+    return name.startswith(_KEPT_FOLDERS) or name in _KEPT_PARTS
 
 
 @dataclass
@@ -149,7 +158,7 @@ class OpcFile:
         beside the ones already in the package."""
         if any(entry.name == name and entry.read() == data for entry in self.entries):
             return
-        body = raw_compress(data)
+        body = kept_raw_compress(data) if kept_part(name) else raw_compress(data)
         fresh = Entry(
             name=name,
             body=body,

@@ -33,8 +33,8 @@ from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
 from pyopenvba.shapes._read_look import read_picture, with_fill_line
 from pyopenvba.shapes._read_text import loaded_text, read_text
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, FillPicture, Shape, ShapeEffects, TextLine,
-                                      TextLook, child_space, emu, points, to_child)
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, FillPicture, Shape, ShapeEffects, ShapeThreeD,
+                                      TextLine, TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -1691,8 +1691,45 @@ def _fill_line(shape: Shape) -> str:
                        + "</a:ext>")
     effect_list, hidden = _effect_lists(look.extra)
     extensions += hidden
-    return (fill + line + (effect_list or ("<a:effectLst/>" if look.effects else ""))
+    scene, hidden = _three_d(look.three_d)
+    extensions += hidden
+    return (fill + line + (effect_list or ("<a:effectLst/>" if look.effects else "")) + scene
             + (f"<a:extLst>{extensions}</a:extLst>" if extensions else ""))
+
+
+def _three_d(three_d: ShapeThreeD | None) -> tuple[str, str]:
+    """The shape's scene3d and sp3d, or while ThreeD is not visible the extensions that keep them, as Excel writes them
+    (tests/fixtures/three_d_round_1.json)."""
+    if three_d is None:
+        return "", ""
+    rotation = three_d.rotation or ((0, 0, 0) if three_d.perspective else None)
+    turned = "" if rotation is None else f'<a:rot lat="{rotation[0]}" lon="{rotation[1]}" rev="{rotation[2]}"/>'
+    camera = "legacyPerspectiveFront" if three_d.perspective else "orthographicFront"
+    light = "" if three_d.light_rev is None else f'<a:rot lat="0" lon="0" rev="{three_d.light_rev}"/>'
+    scene = (f'<a:camera prst="{camera}">{turned}</a:camera>' if turned else f'<a:camera prst="{camera}"/>') + (
+        f'<a:lightRig rig="threePt" dir="t">{light}</a:lightRig>' if light else '<a:lightRig rig="threePt" dir="t"/>')
+    body_attributes = "".join(f' {name}="{value}"' for name, value in (
+        ("z", three_d.z), ("extrusionH", three_d.extrusion_h), ("contourW", three_d.contour_w)) if value is not None)
+    inside = ""
+    for tag, bevel in (("bevelT", three_d.bevel_top), ("bevelB", three_d.bevel_bottom)):
+        if bevel is not None:
+            preset, width, height = bevel
+            inside += f"<a:{tag}" + "".join(f' {name}="{value}"' for name, value in (
+                ("w", width), ("h", height), ("prst", preset)) if value is not None) + "/>"
+    for tag, rgb in (("extrusionClr", three_d.extrusion_rgb), ("contourClr", three_d.contour_rgb)):
+        if rgb is not None:
+            inside += f'<a:{tag}><a:srgbClr val="{rgb}"/></a:{tag}>'
+    if three_d.visible:
+        body = ""
+        if three_d.body:
+            body = f"<a:sp3d{body_attributes}>{inside}</a:sp3d>" if inside else f"<a:sp3d{body_attributes}/>"
+        return f"<a:scene3d>{scene}</a:scene3d>{body}", ""
+    hidden = f'<a:ext uri="{{31F19639-BCED-4A60-ADC4-E9642A236FB7}}"><a14:hiddenScene3d {_A14}>{scene}</a14:hiddenScene3d></a:ext>'
+    if three_d.body:
+        hidden += (f'<a:ext uri="{{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}}">'
+                   + (f"<a14:hiddenSp3d {_A14}{body_attributes}>{inside}</a14:hiddenSp3d>" if inside
+                      else f"<a14:hiddenSp3d {_A14}{body_attributes}/>") + "</a:ext>")
+    return "", hidden
 
 
 def _effect_colour(rgb: str | None, scheme: str | None, alpha: int | None) -> str:

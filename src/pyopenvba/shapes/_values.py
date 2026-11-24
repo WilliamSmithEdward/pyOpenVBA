@@ -315,6 +315,28 @@ class ShapeEffects:
     reflection_blur: int | None = None
 
 
+@dataclass(slots=True)
+class ShapeThreeD:
+    """A shape's ThreeDFormat once anything was set, as the file spells it (tests/fixtures/three_d_round_1.json): the scene3d's
+    camera and light, and the sp3d once a member of the body was set. Lengths in EMU, angles in sixty-thousandths of a degree."""
+
+    visible: bool = True
+    perspective: bool = False
+    #: The camera's rot as lat, lon and rev, once a rotation was set.
+    rotation: tuple[int, int, int] | None = None
+    light_rev: int | None = None
+    #: Whether the sp3d is written, and what it holds.
+    body: bool = False
+    extrusion_h: int | None = None
+    contour_w: int | None = None
+    z: int | None = None
+    contour_rgb: str | None = None
+    extrusion_rgb: str | None = None
+    #: Each bevel once set: its prst (None for circle), w and h.
+    bevel_top: tuple[str | None, int | None, int | None] | None = None
+    bevel_bottom: tuple[str | None, int | None, int | None] | None = None
+
+
 @dataclass(frozen=True, slots=True)
 class GradientPoint:
     """One stop of a gradient fill: its position and alpha in thousandths of a percent, and its colour."""
@@ -427,6 +449,8 @@ class FillLine:
     effects: bool = False
     #: Its Shadow, Glow, SoftEdge and Reflection, once any was set.
     extra: ShapeEffects | None = None
+    #: Its ThreeD, once anything of it was set.
+    three_d: ShapeThreeD | None = None
     #: On a chart element, the one effect set: its member and value (tests/fixtures/chart_protection.json).
     chart_effect: tuple[str, object] | None = None
     #: A line that has been hidden writes a line shape's absent fill as noFill.

@@ -1698,38 +1698,59 @@ def _fill_line(shape: Shape) -> str:
 
 
 def _three_d(three_d: ShapeThreeD | None) -> tuple[str, str]:
-    """The shape's scene3d and sp3d, or while ThreeD is not visible the extensions that keep them, as Excel writes them
-    (tests/fixtures/three_d_round_1.json)."""
+    """The shape's scene3d and sp3d, each once a member of it was set, and the extensions that keep what Visible = msoFalse
+    put away, as Excel writes them (tests/fixtures/three_d_round_1.json, three_d_round_2.json)."""
     if three_d is None:
         return "", ""
-    rotation = three_d.rotation or ((0, 0, 0) if three_d.perspective else None)
-    turned = "" if rotation is None else f'<a:rot lat="{rotation[0]}" lon="{rotation[1]}" rev="{rotation[2]}"/>'
-    camera = "legacyPerspectiveFront" if three_d.perspective else "orthographicFront"
-    light = "" if three_d.light_rev is None else f'<a:rot lat="0" lon="0" rev="{three_d.light_rev}"/>'
-    scene = (f'<a:camera prst="{camera}">{turned}</a:camera>' if turned else f'<a:camera prst="{camera}"/>') + (
-        f'<a:lightRig rig="threePt" dir="t">{light}</a:lightRig>' if light else '<a:lightRig rig="threePt" dir="t"/>')
-    body_attributes = "".join(f' {name}="{value}"' for name, value in (
-        ("z", three_d.z), ("extrusionH", three_d.extrusion_h), ("contourW", three_d.contour_w)) if value is not None)
+    scene, body = _three_d_parts(three_d)
+    hidden = ""
+    if three_d.hidden is not None:
+        kept_scene, kept_body = _three_d_parts(three_d.hidden)
+        if kept_scene:
+            hidden += (f'<a:ext uri="{{31F19639-BCED-4A60-ADC4-E9642A236FB7}}"><a14:hiddenScene3d {_A14}>{kept_scene}'
+                       "</a14:hiddenScene3d></a:ext>")
+        if kept_body:
+            attributes, inside = kept_body
+            hidden += (f'<a:ext uri="{{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}}">'
+                       + (f"<a14:hiddenSp3d {_A14}{attributes}>{inside}</a14:hiddenSp3d>" if inside
+                          else f"<a14:hiddenSp3d {_A14}{attributes}/>") + "</a:ext>")
+    shown = f"<a:scene3d>{scene}</a:scene3d>" if scene else ""
+    if body:
+        attributes, inside = body
+        shown += f"<a:sp3d{attributes}>{inside}</a:sp3d>" if inside else f"<a:sp3d{attributes}/>"
+    return shown, hidden
+
+
+def _three_d_parts(three_d: ShapeThreeD) -> tuple[str, tuple[str, str] | None]:
+    """What the scene3d holds, if it is written, and the sp3d's attributes and children, if it is."""
+    scene = ""
+    if three_d.scene:
+        rotation = three_d.rotation
+        turned = "" if rotation is None else f'<a:rot lat="{rotation[0]}" lon="{rotation[1]}" rev="{rotation[2]}"/>'
+        fov = "" if three_d.fov is None else f' fov="{three_d.fov}"'
+        light = "" if three_d.light_rev is None else f'<a:rot lat="0" lon="0" rev="{three_d.light_rev}"/>'
+        rig = f'rig="{three_d.rig}" dir="{three_d.rig_dir}"'
+        scene = (f'<a:camera prst="{three_d.camera}"{fov}>{turned}</a:camera>' if turned
+                 else f'<a:camera prst="{three_d.camera}"{fov}/>') + (
+            f"<a:lightRig {rig}>{light}</a:lightRig>" if light else f"<a:lightRig {rig}/>")
+    if not three_d.body:
+        return scene, None
+    attributes = "".join(f' {name}="{value}"' for name, value in (
+        ("z", three_d.z), ("extrusionH", three_d.extrusion_h), ("contourW", three_d.contour_w),
+        ("prstMaterial", three_d.material)) if value is not None)
     inside = ""
     for tag, bevel in (("bevelT", three_d.bevel_top), ("bevelB", three_d.bevel_bottom)):
         if bevel is not None:
             preset, width, height = bevel
             inside += f"<a:{tag}" + "".join(f' {name}="{value}"' for name, value in (
                 ("w", width), ("h", height), ("prst", preset)) if value is not None) + "/>"
-    for tag, rgb in (("extrusionClr", three_d.extrusion_rgb), ("contourClr", three_d.contour_rgb)):
-        if rgb is not None:
+    for tag, rgb, scheme in (("extrusionClr", three_d.extrusion_rgb, three_d.extrusion_scheme),
+                             ("contourClr", three_d.contour_rgb, three_d.contour_scheme)):
+        if scheme is not None:
+            inside += f'<a:{tag}><a:schemeClr val="{scheme}"/></a:{tag}>'
+        elif rgb is not None:
             inside += f'<a:{tag}><a:srgbClr val="{rgb}"/></a:{tag}>'
-    if three_d.visible:
-        body = ""
-        if three_d.body:
-            body = f"<a:sp3d{body_attributes}>{inside}</a:sp3d>" if inside else f"<a:sp3d{body_attributes}/>"
-        return f"<a:scene3d>{scene}</a:scene3d>{body}", ""
-    hidden = f'<a:ext uri="{{31F19639-BCED-4A60-ADC4-E9642A236FB7}}"><a14:hiddenScene3d {_A14}>{scene}</a14:hiddenScene3d></a:ext>'
-    if three_d.body:
-        hidden += (f'<a:ext uri="{{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}}">'
-                   + (f"<a14:hiddenSp3d {_A14}{body_attributes}>{inside}</a14:hiddenSp3d>" if inside
-                      else f"<a14:hiddenSp3d {_A14}{body_attributes}/>") + "</a:ext>")
-    return "", hidden
+    return scene, (attributes, inside)
 
 
 def _effect_colour(rgb: str | None, scheme: str | None, alpha: int | None) -> str:

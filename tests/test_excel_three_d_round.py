@@ -1,5 +1,5 @@
 """Shape.ThreeD as live Excel answered held-out rounds (scripts/measure_three_d_round.py): each case run alone, its reads and the
-shape's saved spPr. Round 1 measured every scalar member before the model had any of them."""
+shape's saved spPr. Round 1 measured every scalar member before the model had any of them, round 2 the preset tables."""
 from __future__ import annotations
 
 import importlib.util
@@ -15,7 +15,7 @@ _SPEC = importlib.util.spec_from_file_location('measure_three_d_round', ROOT / '
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 2)
+ROUNDS = range(1, 3)
 
 
 def _record(number: int) -> dict[str, Any]:

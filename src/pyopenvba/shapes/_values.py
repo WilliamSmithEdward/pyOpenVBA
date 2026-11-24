@@ -317,24 +317,41 @@ class ShapeEffects:
 
 @dataclass(slots=True)
 class ShapeThreeD:
-    """A shape's ThreeDFormat once anything was set, as the file spells it (tests/fixtures/three_d_round_1.json): the scene3d's
-    camera and light, and the sp3d once a member of the body was set. Lengths in EMU, angles in sixty-thousandths of a degree."""
+    """A shape's ThreeDFormat once anything was set, as the file spells it (tests/fixtures/three_d_round_1.json,
+    three_d_round_2.json): the scene3d's camera and light, and the sp3d, each written once a member of it was set. Lengths in EMU,
+    angles in sixty-thousandths of a degree."""
 
-    visible: bool = True
-    perspective: bool = False
-    #: The camera's rot as lat, lon and rev, once a rotation was set.
+    #: Whether the scene3d is written: its camera, the camera's fov and rot, and its light rig.
+    scene: bool = False
+    camera: str = 'orthographicFront'
+    fov: int | None = None
     rotation: tuple[int, int, int] | None = None
+    rig: str = 'threePt'
+    rig_dir: str = 't'
     light_rev: int | None = None
     #: Whether the sp3d is written, and what it holds.
     body: bool = False
+    z: int | None = None
     extrusion_h: int | None = None
     contour_w: int | None = None
-    z: int | None = None
-    contour_rgb: str | None = None
-    extrusion_rgb: str | None = None
+    material: str | None = None
     #: Each bevel once set: its prst (None for circle), w and h.
     bevel_top: tuple[str | None, int | None, int | None] | None = None
     bevel_bottom: tuple[str | None, int | None, int | None] | None = None
+    #: Each colour as RRGGBB or a theme colour's name.
+    extrusion_rgb: str | None = None
+    extrusion_scheme: str | None = None
+    contour_rgb: str | None = None
+    contour_scheme: str | None = None
+    #: PresetThreeDFormat, while SetThreeDFormat's preset stands.
+    preset: int = -2
+    #: ProjectText, which the file does not keep.
+    project_text: bool = True
+    #: What Visible = msoFalse put away in the file's hidden extensions.
+    hidden: ShapeThreeD | None = None
+
+    def blank(self) -> bool:
+        return not self.scene and not self.body
 
 
 @dataclass(frozen=True, slots=True)

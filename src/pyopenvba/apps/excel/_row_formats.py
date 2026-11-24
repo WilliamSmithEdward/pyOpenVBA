@@ -522,12 +522,18 @@ def refuse_wide_border(sheet: Worksheet, areas: Iterable[Area], index: int, *, a
     """Refuse a border set on more than half the sheet's columns where Excel's lines are not yet worked out
     (tests/fixtures/border_rounds.json, rounds 16001 and 16002): a top edge on such whole columns short of
     B:XFD's shape, which Excel draws over A:XFC and not over B:XFD; and, set alone to the last column over cells or columns
-    formatted apart, an inside border or a right edge, or a left edge while a cell stands in the last row. BorderAround's
+    formatted apart, an inside border or a right edge, or a left edge while a cell stands in the last row or the last
+    column has a format of its own. BorderAround's
     edges there are measured (tests/fixtures/used_range.json)."""
     for area in areas:
         whole_wide = area.top == 1 and area.bottom == MAX_ROWS and area.columns > MAX_COLUMNS // 2
         if whole_wide and index == 8 and area.columns < MAX_COLUMNS and not wide_columns(area):
             raise VBAUnsupportedError("a top edge on more than half the columns, short of the whole sheet, "
+                                      "is not implemented")
+        # A left edge there while the last column has a format of its own gives every plain row that column's lines
+        # (round 16006 #72), the rows side of the whole-sheet rule.
+        if alone and wide_columns(area) and index == 7 and sheet.dims.column_style(MAX_COLUMNS) is not None:
+            raise VBAUnsupportedError("a left edge on more than half the columns, to a last column formatted apart, "
                                       "is not implemented")
         if not alone or not wide_columns(area) or not holds_content(sheet, area):
             continue
@@ -674,7 +680,12 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
             if index == 7:
                 # A colour on the left edge of the sheet shows only with something in the first column; a line or a weight
                 # always does (tests/fixtures/border_gaps.json).
-                if _along_first_column(sheet) or changes_line(change):
+                if area.top == MAX_ROWS and _along_first_column(sheet) and not changes_line(change):
+                    # On the last row, with something in the first column, a colour alone gives every cell the left line,
+                    # each cell's right showing its neighbour's (probe 29).
+                    new = change(current_side([effective_side(sheet, MAX_ROWS, 1, "left")]))
+                    format_rows(sheet, MAX_ROWS, MAX_ROWS, lambda style: _sides(style, left=new))
+                elif _along_first_column(sheet) or changes_line(change):
                     new = change(current_side(effective_side(sheet, row, 1, "left") for row in range(area.top, area.bottom + 1)))
                     for row in range(area.top, area.bottom + 1):
                         change_side(sheet, row, 1, 7, lambda _: new)  # noqa: B023

@@ -1091,10 +1091,13 @@ def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
         # A formatted column holds the columns beside it, with a line or none (tests/fixtures/border_neighbours.json).
         if record.style is not None:
             columns += [max(column - 1, 1), column, min(column + 1, MAX_COLUMNS)]
-    for row, column in sheet.cells_:
+    # Cells dropped since UsedRange was last read still hold, as Excel keeps them until then (probe 28).
+    held = [((row, column), sheet.style_at(row, column)) for row, column in sheet.cells_]
+    held += [(place, style) for place, style in sheet.unread_dropped.items() if place not in sheet.cells_]
+    for (row, column), style in held:
         rows.add(row)
         columns.append(column)
-        border = sheet.style_at(row, column).border
+        border = style.border
         if any(side.style for side in (border.left, border.top, border.bottom, border.right)):
             if row < MAX_ROWS:
                 rows.add(row + 1)
@@ -1208,6 +1211,11 @@ def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Cal
         theirs = sheet.style_at(row, column)
         cleared = replace(theirs.border, **{opposite: S.NO_SIDE})
         sheet.restyle(row, column, S.applying(theirs, "border", border=cleared))
+
+
+def _coloured(side: S.Side) -> bool:
+    """A line with a colour of its own, not the automatic one however it is spelled."""
+    return bool(side.style) and side.color is not None and side.color.kind != "auto" and side.color != S.FOREGROUND
 
 
 def _automatic(side: S.Side) -> S.Side:
@@ -1458,16 +1466,31 @@ class Border(ExcelObject):
         if self.index in (5, 6) and (len(areas) > 1 or areas[0].rows * areas[0].columns > 1):
             # A diagonal on a union first copies outlines to its later areas as an edge does, whatever it sets
             # (tests/fixtures/border_union.json).
+            block = sheet.used_bounds()
             self._copy_outlines(areas)
             self._many_diagonals(areas, change)
+            last = areas[0]
+            if (len(areas) == 1 and _row_formats.whole(last) == "columns" and last.left == MAX_COLUMNS
+                    and block is not None and block[1] == 1 and block[3] == MAX_COLUMNS):
+                # On the last column, with the used block across every column, the column loses its left line, in
+                # its format and its cells (probe 29).
+                _row_formats.format_columns(sheet, MAX_COLUMNS, MAX_COLUMNS,
+                                            lambda style: S.applying(style, "border", border=replace(style.border, left=S.NO_SIDE)))
             return
         parts = [area for area in areas if not _row_formats.border_area(sheet, area, self.index, change, together=self.together)]
         _within_limit(parts)
         if self.index in EDGES and len(parts) > 1:
             self._across_areas(parts, change)
             return
+        # A bottom or right edge on several rows of cells, with the used block reaching below them, gives each of the rows
+        # the left line the first cell has of its own (probe 29).
+        block = sheet.used_bounds() if self.index in (9, 10) and len(parts) == 1 and parts[0].rows > 1 else None
+        first_left = own_side(sheet, parts[0].top, parts[0].left, "left") if block is not None else S.NO_SIDE
         if self.index in EDGES or self.index in (11, 12):
             self._touch(parts)
+        if block is not None and block[2] > parts[0].bottom and first_left.style:
+            for row in range(parts[0].top + 1, parts[0].bottom + 1):
+                change_side(sheet, row, parts[0].left, 7, _exactly(first_left), clear_neighbour=False)
         for area in parts:
             if self.index in (5, 6):
                 for row in range(area.top, area.bottom + 1):
@@ -1710,13 +1733,16 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         # A line style or weight set through the collection draws a horizontal line in the automatic colour, whatever colour
         # it had, where the range spans more than one row, and a vertical line where it spans more than one column
         # (tests/fixtures/used_range.json, tests/fixtures/border_rounds.json).
+        # On whole rows or columns a line that has a colour of its own keeps it (probe 27).
         restyling = what in ("LineStyle", "Weight")
+        whole = all(_row_formats.whole(area) for area in self.target.areas)
         for index in self._indexes():
             border = Border(self.target, index, together=True, collection=True)
             horizontal = index in (8, 9, 12)
             if restyling and any((area.rows if horizontal else area.columns) > 1 for area in self.target.areas):
                 change = side_change(what, value)
-                border.apply(lambda side, change=change: _automatic(change(side)))  # type: ignore[misc]
+                border.apply(lambda side, change=change: change(side) if whole and _coloured(side)  # type: ignore[misc]
+                             else _automatic(change(side)))
             else:
                 border.assign(what, value)
         if colour:

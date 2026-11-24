@@ -3720,6 +3720,9 @@ class Worksheet(ExcelObject):
         #: macro added, which Excel leaves without one.
         self.code_name = ""
         self.cells_: dict[tuple[int, int], Cell] = {}
+        # Formatted cells dropped as saying nothing since UsedRange was last read, with the format each had: Excel keeps
+        # them until a read of UsedRange, and a union's later area still sees them (probe 28, round 16006 #38).
+        self.unread_dropped: dict[tuple[int, int], Style] = {}
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
         self.shared_groups: dict[int, Area] = {}
@@ -4328,6 +4331,7 @@ class Worksheet(ExcelObject):
 
     @member
     def UsedRange(self) -> object:
+        self.unread_dropped.clear()
         bounds = self.used_bounds()
         if bounds is None:
             return Range(self, [Area(1, 1, 1, 1, self.name)])
@@ -4825,6 +4829,8 @@ class Worksheet(ExcelObject):
         """Drop the cell at a position if it no longer says anything."""
         found = self.cells_.get((row, column))
         if found is not None and not self.holds(row, column, found):
+            if found.style is not None:
+                self.unread_dropped[(row, column)] = found.style
             del self.cells_[(row, column)]
 
     def restyle(self, row: int, column: int, style: Style) -> None:

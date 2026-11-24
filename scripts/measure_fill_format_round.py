@@ -234,7 +234,8 @@ def _run(case: list[Any], index: int, folder: Path, reads: list[str], reopen: bo
 
 def alone(case: list[Any], index: int, folder: Path) -> list[str]:
     """The model's answer to one case run by itself, and the shape's saved spPr. A read the model refuses answers "refused" in its own
-    place, so the others still answer: the reads go together where none is refused, else one at a time."""
+    place, so the others still answer: the reads go together where none is refused, else one at a time, those before the save
+    together where they all answer there."""
     extra = 1 if ROUND >= 2 else 0
     whole = _run(case, index, folder, READS)
     if whole is not None:
@@ -246,7 +247,15 @@ def alone(case: list[Any], index: int, folder: Path) -> list[str]:
         return ['refused', '', *([[]] * extra)]
     xml, held = shape_xml(folder, index), package(folder, index) if extra else []
     before, after = [], []
-    for read in READS:
+    # Where every read answers before the save, as when only the book opened again refuses them, one run gives them all,
+    # and each read then runs alone only in the book opened again: half the runs of trying each both ways.
+    unsaved = _run(case, index, folder, READS, reopen=False)
+    for at, read in enumerate(READS):
+        if unsaved is not None:
+            again = _run(case, index, folder, [read])
+            before.append(unsaved[1 + at])
+            after.append('refused' if again is None else again[2])
+            continue
         got = _run(case, index, folder, [read]) or _run(case, index, folder, [read], reopen=False)
         before.append('refused' if got is None else got[1])
         after.append('refused' if got is None else got[2])

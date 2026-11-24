@@ -305,8 +305,20 @@ def _set_table_default(root: XmlElement, repeat: bool) -> None:
     ordered(options, OPTIONS_ORDER, others_first=False)
 
 
+def is_classic(root: XmlElement) -> bool:
+    """Whether a table is the wizard's classic one: no createdVersion, its drop zones in the grid
+    (tests/fixtures/pivot_wizard.json)."""
+    return 'createdVersion' not in root.attrib and root.get('gridDropZones') in ('1', 'true')
+
+
+def grand_attributes(root: XmlElement) -> tuple[str, str]:
+    """The attributes RowGrand and ColumnGrand keep their flags in: rowGrandTotals and colGrandTotals, the other way
+    round in the wizard's classic table, whose file Excel writes so (tests/fixtures/pivot_wizard.json)."""
+    return ('colGrandTotals', 'rowGrandTotals') if is_classic(root) else ('rowGrandTotals', 'colGrandTotals')
+
+
 def set_table_flag(table: PivotTable, name: str, value: object) -> None:
-    """RowGrand (rowGrandTotals) or ColumnGrand (colGrandTotals)."""
+    """RowGrand (rowGrandTotals) or ColumnGrand (colGrandTotals), or the other way round (see grand_attributes)."""
     table = table.entry
     root = deepcopy(table.root)
     set_flag(root, name, to_bool(value), True, TABLE_ORDER)

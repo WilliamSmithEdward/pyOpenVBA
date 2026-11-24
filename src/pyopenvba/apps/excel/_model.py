@@ -887,6 +887,22 @@ class Application(ExcelObject):
         return windows if Index is MISSING else windows.vba_get("Item", [Index])
 
     @method
+    def DoubleClick(self) -> object:
+        """A double-click on the active cell, as a macro gives one in an Excel not shown
+        (tests/fixtures/double_click.json): anywhere but a pivot table it does nothing at all, raising no
+        BeforeDoubleClick. In a pivot table, where Excel shows a value's detail on a new sheet or opens its Show
+        Detail dialog, it reports itself unsupported."""
+        from pyopenvba.apps.excel._pivot_cells import double_clicked
+
+        sheet = self.active_book.active_sheet if self.active_book is not None else None
+        if not isinstance(sheet, Worksheet):
+            raise VBAUnsupportedError("Application.DoubleClick with no worksheet active is not implemented")
+        cell = sheet.active_cell
+        if isinstance(cell, Range):
+            double_clicked(cell)
+        return EMPTY
+
+    @method
     def Goto(self, Reference: object = MISSING, Scroll: object = MISSING) -> object:
         from pyopenvba.apps.excel._windows import goto
 
@@ -4379,6 +4395,23 @@ class Worksheet(ExcelObject):
         # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
         return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
 
+    @method
+    def PivotTableWizard(self, SourceType: object = MISSING, SourceData: object = MISSING,  # noqa: N803
+                         TableDestination: object = MISSING, TableName: object = MISSING,  # noqa: N803
+                         RowGrand: object = MISSING, ColumnGrand: object = MISSING, SaveData: object = MISSING,  # noqa: N803
+                         HasAutoFormat: object = MISSING, AutoPage: object = MISSING, Reserved: object = MISSING,  # noqa: N803
+                         BackgroundQuery: object = MISSING, OptimizeCache: object = MISSING,  # noqa: N803
+                         PageFieldOrder: object = MISSING, PageFieldWrapCount: object = MISSING,  # noqa: N803
+                         ReadData: object = MISSING, Connection: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._pivot_create import wizard
+
+        return wizard(self, SourceType, SourceData, TableDestination, TableName,
+                      {"RowGrand": RowGrand, "ColumnGrand": ColumnGrand, "SaveData": SaveData,
+                       "HasAutoFormat": HasAutoFormat}, ReadData,
+                      {"AutoPage": AutoPage, "Reserved": Reserved, "BackgroundQuery": BackgroundQuery,
+                       "OptimizeCache": OptimizeCache, "PageFieldOrder": PageFieldOrder,
+                       "PageFieldWrapCount": PageFieldWrapCount, "Connection": Connection})
+
     @member
     def PrintedCommentPages(self) -> object:
         return VBAInt(0, "Long")
@@ -6592,12 +6625,25 @@ class Range(ExcelObject):
     def ShowDetail(self) -> object:
         from pyopenvba.apps.excel._outline import read_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import read_value_detail, value_cell
+
+            if value_cell(self) is not None:
+                read_value_detail()
         return read_detail(self)
 
     @setter('ShowDetail')
     def _set_show_detail(self, value: object) -> None:
         from pyopenvba.apps.excel._outline import set_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import drill, value_cell
+
+            # A pivot table's value shows the records behind it (drill-through).
+            table = value_cell(self)
+            if table is not None:
+                drill(table, self, value, select=True)
+                return
         set_detail(self, value)
 
     @member

@@ -726,23 +726,27 @@ class PivotTable(HeldPart, ExcelObject):
 
     @member
     def RowGrand(self) -> object:
-        return self.root.get('rowGrandTotals', '1') not in ('0', 'false')
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes
+
+        return self.root.get(grand_attributes(self.root)[0], '1') not in ('0', 'false')
 
     @member
     def ColumnGrand(self) -> object:
-        return self.root.get('colGrandTotals', '1') not in ('0', 'false')
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes
+
+        return self.root.get(grand_attributes(self.root)[1], '1') not in ('0', 'false')
 
     @setter('RowGrand')
     def set_row_grand(self, value: object) -> None:
-        from pyopenvba.apps.excel._pivot_forms import set_table_flag
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes, set_table_flag
 
-        set_table_flag(self, 'rowGrandTotals', value)
+        set_table_flag(self, grand_attributes(self.root)[0], value)
 
     @setter('ColumnGrand')
     def set_column_grand(self, value: object) -> None:
-        from pyopenvba.apps.excel._pivot_forms import set_table_flag
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes, set_table_flag
 
-        set_table_flag(self, 'colGrandTotals', value)
+        set_table_flag(self, grand_attributes(self.root)[1], value)
 
     @method
     def RowAxisLayout(self, RowLayout: object) -> object:

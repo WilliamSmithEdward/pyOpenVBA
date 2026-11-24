@@ -1354,8 +1354,10 @@ class Border(ExcelObject):
             last = name in ("bottom", "right")
             kind = _row_formats.whole(area)
             # Whole rows read their right edge in their first row's first column, whole columns their bottom edge in their
-            # first column's first row (tests/fixtures/border_gaps.json, tests/fixtures/used_range.json).
-            first = (kind == "rows" and name == "right") or (kind == "columns" and name == "bottom")
+            # first column's first row, and the sheet both in A1 (tests/fixtures/border_gaps.json,
+            # tests/fixtures/used_range.json, tests/fixtures/border_rounds.json).
+            first = ((kind == "rows" and name == "right") or (kind == "columns" and name == "bottom")
+                     or (kind == "sheet" and last))
             if first:
                 # What that cell stores, not a neighbour's line showing there.
                 return own_side(sheet, area.top, area.left, name)

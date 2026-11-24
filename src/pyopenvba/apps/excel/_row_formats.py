@@ -674,7 +674,7 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
             record = sheet.dims.rows.get(edge_row)
             along = (record is not None and record.style is not None) or any(row == edge_row for row, _ in sheet.cells_)
             format_columns(sheet, area.left, area.right, _touch)
-            if along:
+            if along and index == 8:
                 # A cell or a format along that row brings the border to every column's cell there; past the last row nothing
                 # shows, and any line goes (tests/fixtures/border_gaps.json).
                 new = change(current_side(own_side(sheet, edge_row, column, "top") for column in range(area.left, area.right + 1))) if index == 8 else S.NO_SIDE
@@ -692,6 +692,12 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
             elif along and index == 8:
                 new = change(current_side(effective_side(sheet, 1, column, "top") for column in sample_columns(sheet, 1, MAX_COLUMNS, 0, 2)))
                 format_rows(sheet, 1, 1, lambda style: _sides(style, top=new))
+            last = sheet.dims.rows.get(MAX_ROWS)
+            if index == 9 and last is not None and last.style is not None and last.style.border.bottom.style:
+                # Past the last row nothing shows, and the last row's own format loses the line it had there, the row no
+                # longer counting toward UsedRange once nothing else is left in it (tests/fixtures/border_rounds.json).
+                plain = _sides(last.style, bottom=S.NO_SIDE)
+                _set_row(sheet, MAX_ROWS, None if plain == sheet_format(sheet) else plain)
         else:
             styles = _shown_styles(sheet)
             first, second = ("bottom", "top") if index == 12 else ("right", "left")

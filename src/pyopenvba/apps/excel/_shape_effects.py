@@ -397,6 +397,11 @@ class ReflectionFormat(_Effect):
     vba_type_name = 'ReflectionFormat'
 
     @member
+    def Parent(self) -> object:
+        # As a glow's and a soft edge's (tests/fixtures/shape_format_rows.json).
+        raise error(438, "Object doesn't support this property or method")
+
+    @member
     def Type(self) -> object:
         return VBAInt(self.held().reflection_type, 'Long')
 
@@ -471,6 +476,7 @@ class _RangeEffect(_Effect):
     """An effect through a ShapeRange (tests/fixtures/shape_range_effects.json): a set reaches every shape, and a read
     gives what they share, or the mixed value for its type."""
 
+    vba_type_name = ''
     #: The format each of its shapes has, and what a measurement they do not share reads.
     single: type[_Effect] = _Effect
     mixed_measure = -2147483648.0

@@ -150,6 +150,8 @@ class Table:
     #: The part as the file had it, kept while nothing about the table changes.
     xml: str = ""
     changed: bool = False
+    #: Whether an XML import left it with no rows, which a save marks insertRow (tests/fixtures/xml_infer.json).
+    xml_emptied: bool = False
     view: ListObject | None = dataclass_field(default=None, repr=False)
     #: The query table of a table over a database, read from a file (see _query_databases.ListQueryTable).
     query: Any = dataclass_field(default=None, repr=False)
@@ -287,7 +289,7 @@ def base_table_xml(table: Table) -> str:
     elif table.kind == "xml":
         # A table mapped to XML: each column named uniquely by its leaf, or by its id where it has none, and its mapping
         # (tests/fixtures/xml_maps.json).
-        typed = ' tableType="xml"'
+        typed = ' tableType="xml"' + (' insertRow="1"' if table.xml_emptied else "")
         columns = "".join(_patched_column(
             f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" uniqueName="{escape(column.xml_name) if column.xml_name else column.id}" '
             f'name="">' + (f'<xmlColumnPr mapId="{column.xml[0].id}" xpath="{escape(column.xml[1].path)}" xmlDataType="{column.xml[1].kind}"/>'
@@ -753,6 +755,13 @@ def all_tables(sheet: Worksheet) -> list[Table]:
     return [table for one in sheet.book.sheets_ for table in one.tables]
 
 
+def next_part_id(sheet: Worksheet) -> int:
+    """The id the next table or XML-mapped single cell takes: they count on from one another's, in the order they were made
+    (tests/fixtures/xml_infer.json)."""
+    singles = (single.number for one in sheet.book.sheets_ for single in one.xml_cells.values())
+    return max(max((table.id for table in all_tables(sheet)), default=0), max(singles, default=0)) + 1
+
+
 def table_at(sheet: Worksheet, row: int, column: int) -> Table | None:
     return next((table for table in sheet.tables if table.area.contains(row, column)), None)
 
@@ -833,7 +842,12 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
             cell.value, cell.formula, cell.stale, cell.shared = name, "", False, None
             sheet.cell_changed(area.top, area.left + offset)
     uid = guid()
-    table = Table(sheet=sheet, id=max((one.id for one in all_tables(sheet)), default=0) + 1, name=_free_name(sheet),
+    number = next_part_id(sheet)
+    name = _free_name(sheet)
+    if any(one.xml_cells for one in sheet.book.sheets_) and f"table{number}" not in {one.name.lower() for one in all_tables(sheet)}:
+        # Beside XML-mapped single cells a table is named after the id it takes (tests/fixtures/xml_infer.json).
+        name = f"Table{number}"
+    table = Table(sheet=sheet, id=number, name=name,
                   area=area, columns=[TableColumn(name, index + 1, guid()) for index, name in enumerate(names)],
                   style=style, uid=uid, changed=True)
     sheet.tables.append(table)

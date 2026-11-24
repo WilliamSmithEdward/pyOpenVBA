@@ -21,6 +21,7 @@ from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import method, member, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
+from pyopenvba.shapes._read_look import read_three_d
 from pyopenvba.shapes._values import FillLine, ShapeThreeD
 
 if TYPE_CHECKING:
@@ -155,6 +156,20 @@ def _old_default(three_d: ShapeThreeD) -> None:
     three_d.bevel_top = three_d.bevel_bottom = ('angle', 13500, 13500)
 
 
+def _loaded(source: str) -> ShapeThreeD | None:
+    """What a shape's file holds of its ThreeD, where every name in it is one Excel was seen to write."""
+    three_d = read_three_d(source)
+    for one in (three_d, None if three_d is None else three_d.hidden):
+        if one is None:
+            continue
+        bevels = [bevel[0] for bevel in (one.bevel_top, one.bevel_bottom) if bevel is not None]
+        schemes = [scheme for scheme in (one.extrusion_scheme, one.contour_scheme) if scheme is not None]
+        if (one.camera not in _CAMERA_NUMBERS or one.rig not in _RIGS or one.rig_dir not in _QUARTERS or one.material not in _MATERIALS
+                or any(bevel not in _BEVELS.values() for bevel in bevels) or any(scheme not in _ACCENTS.values() for scheme in schemes)):
+            raise VBAUnsupportedError("This ThreeD of a shape from a file is not implemented")
+    return three_d
+
+
 class ThreeDFormat(HeldPart):
     vba_type_name = 'ThreeDFormat'
 
@@ -163,15 +178,32 @@ class ThreeDFormat(HeldPart):
 
     def admit(self) -> None:
         shape = self.owner.shape
-        if shape.source or shape.kind not in STYLE:
+        if shape.kind not in STYLE:
             raise VBAUnsupportedError('The ThreeD of this shape is not implemented')
         if self.owner.sheet.book.stylesheet.colors.theme != DEFAULT_THEME:
             raise VBAUnsupportedError('The ThreeD of a shape under another theme is not implemented')
 
     def held(self) -> ShapeThreeD | None:
+        """What is set: a shape from a file holds what its file says until a change keeps it."""
         self.admit()
-        look = self.owner.shape.fill_line
-        return None if look is None else look.three_d
+        shape = self.owner.shape
+        look = shape.fill_line
+        if look is not None and look.three_d is not None:
+            return look.three_d
+        return _loaded(shape.source) if shape.source else None
+
+    def keep(self) -> ShapeThreeD:
+        """What is set, kept on the shape for a change."""
+        shape = self.owner.shape
+        if shape.source and not any(shape is one for one in self.owner.sheet.shapes_):
+            # A save writes the group's markup as it came, so the change would be lost.
+            raise VBAUnsupportedError('Changing the ThreeD of a shape in a group from a file is not implemented')
+        three_d = self.held() or ShapeThreeD()
+        self.owner.guard('ThreeD')
+        if shape.fill_line is None:
+            shape.fill_line = FillLine()
+        shape.fill_line.three_d = three_d
+        return three_d
 
     def scene(self) -> ShapeThreeD | None:
         """What is set, where the scene3d is written."""
@@ -186,14 +218,7 @@ class ThreeDFormat(HeldPart):
     def change(self, *, scene: bool = True, body: bool = False) -> ShapeThreeD:
         """What is set, for a change to the scene3d, the sp3d or both. Once the format was hidden only the sp3d is written
         again."""
-        self.admit()
-        self.owner.guard('ThreeD')
-        shape = self.owner.shape
-        if shape.fill_line is None:
-            shape.fill_line = FillLine()
-        if shape.fill_line.three_d is None:
-            shape.fill_line.three_d = ShapeThreeD()
-        three_d = shape.fill_line.three_d
+        three_d = self.keep()
         if three_d.hidden is not None and three_d.blank() and scene and not body:
             raise VBAUnsupportedError('A change to the camera or light of a hidden ThreeD is not implemented')
         if scene and three_d.hidden is None:
@@ -243,7 +268,7 @@ class ThreeDFormat(HeldPart):
             if three_d.hidden is not None:
                 raise VBAUnsupportedError('ThreeD hidden twice is not implemented')
             kept = ShapeThreeD(hidden=replace(three_d, hidden=None))
-        self.owner.guard('ThreeD')
+        self.keep()
         look = self.owner.shape.fill_line
         assert look is not None
         look.three_d = kept

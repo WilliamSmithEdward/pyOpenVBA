@@ -34,7 +34,7 @@ from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
 from pyopenvba.shapes._read_look import read_picture, with_fill_line
 from pyopenvba.shapes._read_text import loaded_text, read_text
 from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, FillPicture, Shape, ShapeEffects, ShapeThreeD,
-                                      TextLine, TextLook, child_space, emu, points, to_child)
+                                      TextLine, TextLook, only_three_d, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -1626,7 +1626,7 @@ def _picture_fill(picture: FillPicture, relationship: str) -> str:
             f'{"<a:srcRect/>" if picture.edited else ""}{how}</a:blipFill>')
 
 
-def _fill_line(shape: Shape) -> str:
+def _fill_line(shape: Shape, three_d: bool = True) -> str:
     """The fill and line a shape's spPr holds: a text box's own, and only what Shape.Fill and Shape.Line set on top of
     the style, as Excel writes them (tests/fixtures/shape_fill_line.json)."""
     look = shape.fill_line
@@ -1691,7 +1691,7 @@ def _fill_line(shape: Shape) -> str:
                        + "</a:ext>")
     effect_list, hidden = _effect_lists(look.extra)
     extensions += hidden
-    scene, hidden = _three_d(look.three_d)
+    scene, hidden = _three_d(look.three_d) if three_d else ("", "")
     extensions += hidden
     return (fill + line + (effect_list or ("<a:effectLst/>" if look.effects else "")) + scene
             + (f"<a:extLst>{extensions}</a:extLst>" if extensions else ""))
@@ -1719,6 +1719,31 @@ def _three_d(three_d: ShapeThreeD | None) -> tuple[str, str]:
         attributes, inside = body
         shown += f"<a:sp3d{attributes}>{inside}</a:sp3d>" if inside else f"<a:sp3d{attributes}/>"
     return shown, hidden
+
+
+_HIDDEN_THREE_D = re.compile(r'<a:ext uri="\{(?:31F19639-BCED-4A60-ADC4-E9642A236FB7|E45631CC-5BF2-4C18-A39C-3461C7D3F71A)\}">.*?</a:ext>',
+                             re.DOTALL)
+
+
+def with_three_d(markup: str, three_d: ShapeThreeD) -> str:
+    """A loaded shape's spPr with its scene3d, sp3d and the extensions that keep them hidden written again from ``three_d``,
+    and what else it holds kept."""
+    span = dml.element_span(markup, "xdr:spPr")
+    if span is None:
+        return markup
+    body = markup[span[0]:span[1]]
+    body = re.sub(r"<a:scene3d>.*?</a:scene3d>", "", body, flags=re.DOTALL)
+    body = re.sub(r"<a:sp3d\b[^>]*/>|<a:sp3d\b[^>]*>.*?</a:sp3d>", "", body, flags=re.DOTALL)
+    body = _HIDDEN_THREE_D.sub("", body).replace("<a:extLst></a:extLst>", "")
+    shown, hidden = _three_d(three_d)
+    close = body.rfind("</xdr:spPr>")
+    if body[:close].endswith("</a:extLst>"):
+        # The spPr's own extLst is its last child.
+        start = body.rfind("<a:extLst>", 0, close)
+        body = body[:start] + shown + body[start:close - len("</a:extLst>")] + hidden + "</a:extLst>" + body[close:]
+    else:
+        body = body[:close] + shown + (f"<a:extLst>{hidden}</a:extLst>" if hidden else "") + body[close:]
+    return markup[:span[0]] + body + markup[span[1]:]
 
 
 def _three_d_parts(three_d: ShapeThreeD) -> tuple[str, tuple[str, str] | None]:
@@ -2314,7 +2339,10 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
             markup = markup.replace("</a:extLst></xdr:cNvPr>", _ADEC.replace("{value}", value)
                                     + "</a:extLst></xdr:cNvPr>", 1)
     if shape.fill_line is not None:
-        markup = with_fill_line(markup, _fill_line(shape))
+        if not only_three_d(shape.fill_line):
+            markup = with_fill_line(markup, _fill_line(shape, three_d=False))
+        if shape.fill_line.three_d is not None:
+            markup = with_three_d(markup, shape.fill_line.three_d)
     # A control's VML says False where its drawing has no spLocks to say anything, and None; either way the aspect is free.
     free = shape.kind == "formControl" and not shape.lock_aspect and not was.lock_aspect
     if shape.lock_aspect != was.lock_aspect and not free:

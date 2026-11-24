@@ -25,6 +25,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SEPARATOR = '%%'
+#: Between what a case sets, before its book is saved and opened again, and what it does after.
+AGAIN = ' || '
 SHAPES = {'rect': 'ws.Shapes.AddShape(msoShapeRectangle, 20, 20, 120, 60)', 'oval': 'ws.Shapes.AddShape(msoShapeOval, 20, 20, 120, 60)',
           'text': 'ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 20, 20, 120, 60)', 'line': 'ws.Shapes.AddLine(20, 20, 140, 80)'}
 READS = ['TypeName(t)', 'TypeName(t.Parent)', 't.Visible', 't.BevelTopType', 't.BevelTopDepth', 't.BevelTopInset', 't.BevelBottomType',
@@ -62,9 +64,17 @@ ROUNDS: dict[int, list[str]] = {
         't.ContourColor.ObjectThemeColor = msoThemeColorAccent2',
         't.Depth = 10: t.Z = 5: t.ContourWidth = 2: t.BevelTopType = 6: t.BevelBottomType = 4: t.ExtrusionColor.RGB = RGB(1, 2, 3): '
         't.ContourColor.RGB = RGB(4, 5, 6)', 't.RotationX = 10: t.RotationY = 20: t.RotationZ = 30: t.LightAngle = 40'],
+    # Round 3: what was set, saved, the book opened again, read and changed.
+    3: [f'{before}{AGAIN}{after}' for before in (
+        '', 't.Depth = 10', 't.BevelTopType = msoBevelAngle: t.BevelTopDepth = 3', 't.SetThreeDFormat 5', 't.SetPresetCamera 25',
+        't.PresetLighting = 20', 't.PresetLightingDirection = 3',
+        't.ExtrusionColor.RGB = RGB(1, 2, 3): t.ContourColor.ObjectThemeColor = msoThemeColorAccent2', 't.RotationX = 30: t.LightAngle = 20',
+        't.Perspective = msoTrue: t.FieldOfView = 30', 't.Depth = 10: t.Visible = msoFalse', 't.Depth = 10: t.Visible = msoFalse: t.Depth = 20',
+        't.BevelTopType = msoBevelNone', 't.ProjectText = msoFalse')
+        for after in ('', 't.Depth = 20', 't.RotationY = 15', 't.Visible = msoFalse', 't.Visible = msoTrue')],
 }
 #: The shapes of each round where not all of them.
-ROUND_SHAPES = {2: ['rect', 'text']}
+ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text']}
 ROUND = 1
 
 
@@ -83,7 +93,13 @@ CHOSEN: list[str] | None = None
 def _case(case: list[Any], index: int) -> str:
     shape, statement, _typed = case
     lines = ['    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)', f'    Set sh = {SHAPES[shape]}', '    sh.Name = "S"',
-             '    Set t = sh.ThreeD', '    Err.Clear', f'    {statement}', '    s = "e" & Err.Number']
+             '    Set t = sh.ThreeD']
+    if AGAIN in statement:
+        before, statement = statement.split(AGAIN)
+        lines += [f'    {before}', f'    wb.SaveAs folder & Application.PathSeparator & "a{index}.xlsx", xlOpenXMLWorkbook',
+                  '    wb.Close SaveChanges:=False', f'    Set wb = Workbooks.Open(folder & Application.PathSeparator & "a{index}.xlsx")',
+                  '    Set ws = wb.Worksheets(1)', '    Set sh = ws.Shapes("S")', '    Set t = sh.ThreeD']
+    lines += ['    Err.Clear', f'    {statement}', '    s = "e" & Err.Number']
     for read in READS if CHOSEN is None else CHOSEN:
         lines += ['    Err.Clear: v = Empty', f'    v = {read}', '    s = s & "|" & Show(v)']
     lines += [f'    wb.SaveAs folder & Application.PathSeparator & "t{index}.xlsx", xlOpenXMLWorkbook', '    wb.Close SaveChanges:=False',

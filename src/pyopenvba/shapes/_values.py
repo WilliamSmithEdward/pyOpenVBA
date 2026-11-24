@@ -13,7 +13,7 @@ hold a macro" stay apart.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 #: English Metric Units in one point.  Office measures a shape in EMU
 #: in the file and in points through the object model, and 12700 is the
@@ -352,6 +352,11 @@ class ShapeThreeD:
 
     def blank(self) -> bool:
         return not self.scene and not self.body
+
+
+def only_three_d(look: FillLine) -> bool:
+    """Whether a look holds a ThreeD and nothing else: a loaded shape's fill and line are still the file's."""
+    return look.three_d is not None and replace(look, three_d=None) == FillLine()
 
 
 @dataclass(frozen=True, slots=True)

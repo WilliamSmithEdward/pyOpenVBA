@@ -561,6 +561,13 @@ def border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.Si
     return done
 
 
+def _column_side(sheet: Worksheet, column: int, name: str) -> S.Side:
+    """Where the Borders collection's inside line on whole columns starts from: the column's own format, whatever its
+    cells hold (probe 24)."""
+    style = sheet.dims.column_style(column)
+    return getattr(style.border, name) if style is not None else S.NO_SIDE
+
+
 def _past_the_edge(sheet: Worksheet, index: int, first: int, last: int, *, records: bool) -> None:
     """A bottom edge reaching the last row, or a right edge the last column, draws nothing there, and takes away the
     bottom or right line a cell there has of its own, from column or row first to last, unless the cell also has a top or
@@ -695,8 +702,9 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
             new = change(_current_pair(sheet, [(row, area.left, row, area.left + 1) for row in rows], "right", "left"))
             format_columns(sheet, area.left, area.right, lambda style: _sides(style, left=new, right=new))
         elif index == 11:
+            # One line, from the first pair of columns, goes between every pair, whatever the others held (probe 26).
+            new = change(_current_pair(sheet, [(row, area.left, row, area.left + 1) for row in rows], "right", "left"))
             for column in range(area.left, area.right):
-                new = change(_current_pair(sheet, [(row, column, row, column + 1) for row in rows], "right", "left"))
                 format_columns(sheet, column, column, lambda style: _sides(style, right=new))  # noqa: B023
                 format_columns(sheet, column + 1, column + 1, lambda style: _sides(style, left=new))  # noqa: B023
         elif index == 12:
@@ -704,8 +712,8 @@ def _border_area(sheet: Worksheet, area: Area, index: int, change: Callable[[S.S
                      for row in rows if row < MAX_ROWS]
             # Set with the Borders collection, the line starts from the column's own format, whatever its cells hold
             # (probe 24).
-            new = change(sheet.dims.column_style(area.left).border.bottom if together and sheet.dims.column_style(area.left)
-                         else S.NO_SIDE if together else _current_pair(sheet, pairs, "bottom", "top"))
+            new = change(_column_side(sheet, area.left, "bottom") if together
+                         else _current_pair(sheet, pairs, "bottom", "top"))
             # What stands in the first row keeps what it has above it (tests/fixtures/border_gaps.json).
             # Set with the Borders collection, the first row takes the line too (tests/fixtures/border_rounds.json).
             kept = {column: own_side(sheet, 1, column, "top") for column in range(area.left, area.right + 1)} \

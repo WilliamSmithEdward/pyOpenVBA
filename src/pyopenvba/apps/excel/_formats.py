@@ -1442,6 +1442,13 @@ class Border(ExcelObject):
                 row, column = places[-1] if name in ("bottom", "right") else places[0]
                 if effective_side(sheet, row, column, name).style:
                     return
+        elif (self.index in (11, 12) and _leaves_lines(change) and len(areas) == 1 and not self.collection
+              and not _row_formats.whole(areas[0]) and (areas[0].columns if self.index == 11 else areas[0].rows) > 2):
+            # Across several pairs, no colour on an inside border changes nothing where its first pair shows a line, and
+            # takes every line between the cells away where it shows none (probe 26).
+            if self.side().style:
+                return
+            change = _exactly(S.NO_SIDE)
         if self.index in EDGES and not self.collection:
             # An edge set alone across more than half the sheet to its last column or row can draw nothing
             # (tests/fixtures/used_range.json).

@@ -2482,5 +2482,1100 @@
    "refused",
    ""
   ]
+ ],
+ "measured_at": "2026-11-24T22:11:48.070246+00:00",
+ "standard_height": [
+  "14.5",
+  "14.5"
+ ],
+ "excel": [
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:6|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:6|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:6|Single:6|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB prst=\"angle\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:3|Single:6|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB h=\"38100\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:3|Single:6|Single:2|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelB w=\"25400\"/></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:10|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"127000\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:2|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"25400\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:1|Long:255|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d contourW=\"12700\"><a:contourClr><a:srgbClr val=\"FF0000\"/></a:contourClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:6|Single:0|Long:0|Long:16711680|Long:2|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"76200\"><a:extrusionClr><a:srgbClr val=\"0000FF\"/></a:extrusionClr></a:sp3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:20|Long:0|Long:19|Long:5|Long:13|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"><a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/></a:lightRig></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:65|Single:0|Long:-1|Long:14|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"legacyPerspectiveFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:30|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19800000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:20|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"1200000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:5|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d z=\"63500\"/></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"21000000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:10|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"600000\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:10|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"0\" rev=\"21000000\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:-10|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"600000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:-10.00002|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"20999999\" lon=\"0\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:1|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d extrusionH=\"12700\"/></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:-2|Long:-2|Long:-1|Single:40|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"><a:rot lat=\"0\" lon=\"19200000\" rev=\"0\"/></a:camera><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d></xdr:spPr>"
+  ],
+  [
+   "e-2147024809|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:0|Long:1|Single:0|Single:0|Long:1|Single:0|Single:0|Single:36|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:-2.147484E+09|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:extLst><a:ext uri=\"{31F19639-BCED-4A60-ADC4-E9642A236FB7}\"><a14:hiddenScene3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a14:hiddenScene3d></a:ext><a:ext uri=\"{E45631CC-5BF2-4C18-A39C-3461C7D3F71A}\"><a14:hiddenSp3d xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" extrusionH=\"127000\"/></a:ext></a:extLst></xdr:spPr>"
+  ],
+  [
+   "e0|String:ThreeDFormat|String:Shape|Long:-1|Long:3|Single:5|Single:4|Long:1|Single:0|Single:0|Single:0|Single:0|Long:0|Long:16777215|Long:1|Single:45|Single:0|Long:0|Long:19|Long:5|Long:13|Long:2|Long:-2|Long:8|Long:-2|Long:-1|Single:0|Single:0|Single:0|Single:0|String:ColorFormat",
+   "<xdr:spPr><a:xfrm><a:off x=\"254000\" y=\"254000\"/><a:ext cx=\"1524000\" cy=\"762000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:scene3d><a:camera prst=\"orthographicFront\"/><a:lightRig rig=\"threePt\" dir=\"t\"/></a:scene3d><a:sp3d><a:bevelT w=\"50800\" h=\"63500\"/></a:sp3d></xdr:spPr>"
+  ]
  ]
 }

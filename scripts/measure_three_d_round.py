@@ -42,7 +42,29 @@ ROUNDS: dict[int, list[str]] = {
         't.IncrementRotationHorizontal 10', 't.IncrementRotationVertical 10', 't.RotationX = 30: t.ResetRotation', 't.Depth = -1',
         't.BevelTopDepth = 2000', 't.RotationX = 400', 't.FieldOfView = 200', 't.Depth = 10: t.Visible = msoFalse',
         't.BevelTopType = msoBevelCircle: t.BevelTopDepth = 5: t.BevelTopInset = 4'],
+    # Round 2: every preset table from an untouched shape, the other bevels, the bounds, and what round 1 left open.
+    2: [*(f't.SetThreeDFormat {n}' for n in range(1, 21)), *(f't.SetPresetCamera {n}' for n in range(1, 63)),
+        *(f't.PresetLighting = {n}' for n in range(1, 28)), *(f't.PresetLightingDirection = {n}' for n in range(1, 10)),
+        *(f't.PresetLightingSoftness = {n}' for n in range(1, 4)), *(f't.PresetMaterial = {n}' for n in range(1, 16)),
+        *(f't.SetExtrusionDirection {n}' for n in range(1, 10)),
+        *(f't.BevelTopType = {n}' for n in (1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13)), 't.BevelTopType = 3: t.BevelTopType = 1',
+        't.BevelBottomType = 12: t.BevelBottomDepth = 0', 't.Depth = -5', 't.Depth = 0', 't.Depth = 1584', 't.Depth = 1585',
+        't.BevelTopDepth = 1584', 't.BevelTopDepth = 1585', 't.BevelTopDepth = -1', 't.BevelTopInset = 0', 't.FieldOfView = 180',
+        't.FieldOfView = 181', 't.FieldOfView = 0', 't.LightAngle = 400', 't.LightAngle = -20', 't.Z = -5', 't.Z = 2000',
+        't.ContourWidth = 2000', 't.ContourWidth = 0', 't.Perspective = msoTrue: t.FieldOfView = 30',
+        't.Perspective = msoTrue: t.RotationX = 30', 't.RotationX = 30: t.Perspective = msoTrue',
+        't.Perspective = msoTrue: t.Perspective = msoFalse', 't.Perspective = msoFalse', 't.ProjectText = msoFalse',
+        't.Depth = 10: t.ProjectText = msoFalse', 't.ExtrusionColor.RGB = RGB(0, 0, 255): t.ExtrusionColorType = msoExtrusionColorAutomatic',
+        't.Depth = 10: t.Visible = msoFalse: t.Visible = msoTrue', 't.RotationX = 30: t.Visible = msoFalse',
+        't.Depth = 10: t.Visible = msoFalse: t.Depth = 20', 't.ResetRotation', 't.IncrementRotationVertical 20',
+        't.IncrementRotationVertical 45', 't.RotationY = 30: t.IncrementRotationVertical 10', 't.IncrementRotationHorizontal 45',
+        't.RotationX = 180', 't.RotationX = -180', 't.RotationY = 90', 't.RotationY = 270', 't.RotationZ = 190',
+        't.ContourColor.ObjectThemeColor = msoThemeColorAccent2',
+        't.Depth = 10: t.Z = 5: t.ContourWidth = 2: t.BevelTopType = 6: t.BevelBottomType = 4: t.ExtrusionColor.RGB = RGB(1, 2, 3): '
+        't.ContourColor.RGB = RGB(4, 5, 6)', 't.RotationX = 10: t.RotationY = 20: t.RotationZ = 30: t.LightAngle = 40'],
 }
+#: The shapes of each round where not all of them.
+ROUND_SHAPES = {2: ['rect', 'text']}
 ROUND = 1
 
 
@@ -51,7 +73,7 @@ def out() -> Path:
 
 
 def cases() -> list[list[Any]]:
-    return [[shape, statement, typed] for typed in (False, True) for shape in SHAPES for statement in ROUNDS[ROUND]]
+    return [[shape, statement, typed] for typed in (False, True) for shape in ROUND_SHAPES.get(ROUND, SHAPES) for statement in ROUNDS[ROUND]]
 
 
 #: The reads a model run makes, where it reads one of READS alone; None for all of them.

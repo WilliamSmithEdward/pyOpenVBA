@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
-from pyopenvba.apps.excel._styles import applying
+from pyopenvba.apps.excel._styles import applying, same_automatic
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -3717,6 +3717,13 @@ class Worksheet(ExcelObject):
             spec = super(ExcelObject, self).vba_member(name)
             raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' "
                                      "failed")
+        if self.book.closed:
+            # Held past its workbook's close, a member is 424 through an Object and the same automation error through a
+            # Worksheet; TypeName still answers (tests/fixtures/used_range.json, held_sheet).
+            spec = super(ExcelObject, self).vba_member(name)
+            if BINDING.late:
+                raise error(424, "Object required")
+            raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' failed")
         return super().vba_member(name)
 
     def __init__(self, book: Workbook, name: str) -> None:
@@ -4840,11 +4847,14 @@ class Worksheet(ExcelObject):
         """Whether a cell says anything: a value, a formula, or a format apart from the one it would inherit.
 
         Excel keeps a cell with nothing in it only while its format differs
-        from its row's or column's, and lets it go the moment it does not.
+        from its row's or column's, and lets it go the moment it does not. A
+        border line in the automatic colour is the same line however the file
+        spells it (tests/fixtures/border_rounds.json).
         """
         if cell.value is not EMPTY or cell.formula or cell.html_id or cell.ignored_errors:
             return True
-        return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
+        mine, inherited = cell.style or self.book.stylesheet.default, self.inherited_style(row, column)
+        return mine != inherited and same_automatic(mine) != same_automatic(inherited)
 
     def settle(self, row: int, column: int) -> None:
         """Drop the cell at a position if it no longer says anything."""
@@ -4889,7 +4899,7 @@ class Worksheet(ExcelObject):
         live.extend(self.notes)
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
-        rows.extend(self.dims.shaped_rows())
+        rows.extend(self.dims.shaped_rows() - self.dims.opened_shapes)
         columns = [column for _, column in live]
         columns.extend(self.dims.used_columns())
         if not rows and not columns:

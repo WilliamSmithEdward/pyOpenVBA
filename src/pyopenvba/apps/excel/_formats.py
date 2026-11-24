@@ -82,6 +82,7 @@ XL_AUTOMATIC = -4105
 #: Borders(1) to Borders(4) are the old names for the four edges.
 _INDEX = {1: 7, 2: 10, 3: 8, 4: 9, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12}
 EDGES = {7: "left", 8: "top", 9: "bottom", 10: "right"}
+_INDEX_OF_EDGE = {name: index for index, name in EDGES.items()}
 _OPPOSITE = {"left": ("right", 0, -1), "right": ("left", 0, 1), "top": ("bottom", -1, 0), "bottom": ("top", 1, 0)}
 
 
@@ -119,8 +120,9 @@ def restyle(target: Range, change: Callable[[S.Style], S.Style]) -> None:
     On a filtered sheet only the visible cells change, as _visible has it.
     """
     sheet = target.sheet
-    parts = [area for area in visible_areas(target) or target.areas
-             if not _row_formats.format_area(sheet, area, change)]
+    areas = visible_areas(target) or target.areas
+    _row_formats.refuse_past_half(areas)
+    parts = [area for area in areas if not _row_formats.format_area(sheet, area, change)]
     for row, column in _positions(parts):
         sheet.restyle(row, column, change(sheet.style_at(row, column)))
 
@@ -1046,23 +1048,86 @@ _LINE_STRENGTH: Final = ("hair", "dashDotDot", "dashDot", "dotted", "dashed", "t
 
 
 def _stronger(colors: S.Colors, one: S.Side, other: S.Side) -> S.Side:
-    """Which of two sides shows on an edge: the stronger line style, then the darker colour, 2R + 5G + B."""
+    """Which of two sides shows on an edge: the stronger line style, then the darker colour, 2R + 5G + B, then the one with
+    more blue, then more red (tests/fixtures/border_gaps.json)."""
 
-    def strength(side: S.Side) -> tuple[int, int]:
+    def strength(side: S.Side) -> tuple[int, int, int, int]:
         rrggbb = colors.rrggbb(side.color, "000000")
         red, green, blue = (int(rrggbb[index:index + 2], 16) for index in (0, 2, 4))
-        return _LINE_STRENGTH.index(side.style) if side.style in _LINE_STRENGTH else -1, -(2 * red + 5 * green + blue)
+        return _LINE_STRENGTH.index(side.style) if side.style in _LINE_STRENGTH else -1, -(2 * red + 5 * green + blue), blue, red
 
-    first, second = strength(one), strength(other)
-    if first == second:
-        raise VBAUnsupportedError("which of two borders shows on an edge two cells draw in different colours of "
-                                  "one darkness is not implemented")
-    return one if first > second else other
+    return one if strength(one) >= strength(other) else other
 
 
 def _diagonal(border: S.Border, index: int) -> S.Side:
     shown = border.diagonal_down if index == 5 else border.diagonal_up
     return border.diagonal if shown else S.NO_SIDE
+
+
+def _row_style(sheet: Worksheet, row: int) -> S.Style | None:
+    record = sheet.dims.rows.get(row)
+    return record.style if record is not None else None
+
+
+def _edge_places(area: Area, name: str) -> list[tuple[int, int]]:
+    """The cells along one edge of an area."""
+    if name in ("top", "bottom"):
+        row = area.top if name == "top" else area.bottom
+        return [(row, column) for column in range(area.left, area.right + 1)]
+    column = area.left if name == "left" else area.right
+    return [(row, column) for row in range(area.top, area.bottom + 1)]
+
+
+def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
+    """The rows holding a cell or a row record, and the first and last columns holding a cell, as an edge set on
+    several areas sees them: a cell with a line holds the cells to its left, its right and below it too."""
+    rows = set(sheet.dims.rows)
+    for row, record in sheet.dims.rows.items():
+        border = record.style.border if record.style is not None else None
+        if border is not None and row < MAX_ROWS and any(side.style for side in (border.left, border.top, border.bottom, border.right)):
+            rows.add(row + 1)
+    columns: list[int] = []
+    for column, record in sheet.dims.columns.items():
+        # A formatted column holds the columns beside it, with a line or none (tests/fixtures/border_neighbours.json).
+        if record.style is not None:
+            columns += [max(column - 1, 1), column, min(column + 1, MAX_COLUMNS)]
+    for row, column in sheet.cells_:
+        rows.add(row)
+        columns.append(column)
+        border = sheet.style_at(row, column).border
+        if any(side.style for side in (border.left, border.top, border.bottom, border.right)):
+            if row < MAX_ROWS:
+                rows.add(row + 1)
+            columns += [max(column - 1, 1), min(column + 1, MAX_COLUMNS)]
+    if not columns:
+        return rows, MAX_COLUMNS + 1, 0
+    return rows, min(columns), max(columns)
+
+
+def _every_column_formatted(sheet: Worksheet) -> bool:
+    """Whether every column of the sheet has a format of its own, as a whole sheet's format gives them."""
+    return sum(sheet.dims.column_groups().values()) >= MAX_COLUMNS
+
+
+def _one_line(sides: list[S.Side]) -> S.Side:
+    """The line every place along an edge shows, or none where they differ."""
+    return sides[0] if len(set(sides)) == 1 else S.NO_SIDE
+
+
+def _leaves_lines(change: Callable[[S.Side], S.Side]) -> bool:
+    """Whether a change leaves a line and no line alone, as no colour does."""
+    sample = S.Side("mediumDashDot", S.Color("auto"))
+    return change(sample) == sample and change(S.NO_SIDE) == S.NO_SIDE
+
+
+def _only_colour(change: Callable[[S.Side], S.Side]) -> bool:
+    """Whether a change leaves a line's style alone."""
+    return not _row_formats.changes_line(change) and change(S.NO_SIDE) != S.NO_SIDE
+
+
+def _shared_diagonal(border: S.Border) -> S.Side:
+    """The one line a cell's two diagonals share, if either shows it."""
+    return border.diagonal if border.diagonal_up or border.diagonal_down else S.NO_SIDE
 
 
 def with_diagonal(border: S.Border, index: int, change: Callable[[S.Side], S.Side]) -> S.Border:
@@ -1071,7 +1136,8 @@ def with_diagonal(border: S.Border, index: int, change: Callable[[S.Side], S.Sid
     Both diagonals share one line: xlDiagonalDown (5) and xlDiagonalUp (6)
     only say which of them show it.
     """
-    side = change(_diagonal(border, index))
+    # A colour changes the line the two share; a line or a weight starts from this diagonal's own.
+    side = change(_shared_diagonal(border) if _only_colour(change) else _diagonal(border, index))
     up, down = border.diagonal_up, border.diagonal_down
     if index == 6:
         up = bool(side.style)
@@ -1079,6 +1145,43 @@ def with_diagonal(border: S.Border, index: int, change: Callable[[S.Side], S.Sid
         down = bool(side.style)
     shared = side if side.style else (border.diagonal if up or down else S.NO_SIDE)
     return replace(border, diagonal=shared, diagonal_up=up, diagonal_down=down)
+
+
+def _many_diagonals(first: S.Border, shown: Iterable[S.Side], index: int, change: Callable[[S.Side], S.Side]) -> Callable[[S.Border], S.Border] | None:
+    """What a diagonal set on several cells does to each: they take one line, from what they show together, each keeping
+    its other diagonal, which then shows that line too. A colour also brings whichever the first cell shows. A change that
+    leaves a line and no line alone, no colour, does nothing where the first cell has a line, and else takes that diagonal off
+    them all (tests/fixtures/border_gaps.json)."""
+    if _leaves_lines(change):
+        if _diagonal(first, index).style:
+            return None
+        line = S.NO_SIDE
+    else:
+        sides = list(shown)
+        line = change(sides[0] if len(set(sides)) == 1 else S.Side(sides[0].style or "thin", S.Color("auto")))
+    colour_only = _only_colour(change)
+
+    def applied(border: S.Border) -> S.Border:
+        up, down = border.diagonal_up, border.diagonal_down
+        if colour_only:
+            up, down = up or first.diagonal_up, down or first.diagonal_down
+        if index == 6:
+            up = bool(line.style)
+        else:
+            down = bool(line.style)
+        shared = line if line.style else (border.diagonal if up or down else S.NO_SIDE)
+        return replace(border, diagonal=shared, diagonal_up=up, diagonal_down=down)
+
+    return applied
+
+
+
+def _touch_cells(sheet: Worksheet, area: Area) -> None:
+    """Each cell of an area given the border part as it stands: changed in nothing, but a cell of its own."""
+    for row in range(area.top, area.bottom + 1):
+        for column in range(area.left, area.right + 1):
+            style = sheet.style_at(row, column)
+            sheet.restyle(row, column, S.applying(style, "border"))
 
 
 def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Callable[[S.Side], S.Side],
@@ -1097,10 +1200,20 @@ def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Cal
         return
     opposite, down, across = _OPPOSITE[name]
     row, column = row + down, column + across
-    if 1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS and own_side(sheet, row, column, opposite).style:
+    # The cell above is cleared where it is a cell or its column has a format, short of a format on every column, as a
+    # whole sheet's is (tests/fixtures/border_union.json).
+    if 1 <= row <= MAX_ROWS and 1 <= column <= MAX_COLUMNS and own_side(sheet, row, column, opposite).style and (
+            (row, column) in sheet.cells_ or (sheet.dims.column_style(column) is not None and not _every_column_formatted(sheet)
+                                              if down < 0 else across < 0 and _row_style(sheet, row) is not None)):
         theirs = sheet.style_at(row, column)
         cleared = replace(theirs.border, **{opposite: S.NO_SIDE})
         sheet.restyle(row, column, S.applying(theirs, "border", border=cleared))
+
+
+def _automatic(side: S.Side) -> S.Side:
+    """A line in the automatic colour, which Excel writes ``indexed="64"`` here; no line stays none
+    (tests/fixtures/row_formats/row_formats.json)."""
+    return S.Side(side.style, S.FOREGROUND) if side.style else side
 
 
 def inside_current(upper: S.Side, lower: S.Side) -> S.Side:
@@ -1108,13 +1221,13 @@ def inside_current(upper: S.Side, lower: S.Side) -> S.Side:
 
     When only one of them stores it, Excel keeps its line and weight but
     not its colour, which becomes automatic and is written ``auto="1"``.
+    When they store different lines it does the same with the first's
+    (tests/fixtures/border_gaps.json).
     """
     if upper == lower:
         return upper
-    if not upper.style or not lower.style:
-        found = upper if upper.style else lower
-        return S.Side(found.style, S.Color("auto"))
-    raise VBAUnsupportedError("an inside border whose two cells store different lines is not implemented")
+    found = upper if upper.style else lower
+    return S.Side(found.style, S.Color("auto"))
 
 
 def with_line_style(side: S.Side, line_style: int) -> S.Side:
@@ -1215,9 +1328,14 @@ class Border(ExcelObject):
 
     vba_type_name = "Border"
 
-    def __init__(self, target: Range, index: int) -> None:
+    def __init__(self, target: Range, index: int, *, together: bool = False, collection: bool = False) -> None:
         self.target = target
         self.index = index
+        # Set as one of the Borders collection's or BorderAround's edges, which on whole rows or columns leave the
+        # neighbours' facing sides alone.
+        self.together = together
+        # Set as one of the Borders collection's, which draws even where an edge set alone draws nothing (_wide).
+        self.collection = collection
 
     def guard_set(self, member: str) -> None:
         from pyopenvba.apps.excel._protection import check_format_set
@@ -1234,15 +1352,68 @@ class Border(ExcelObject):
         if self.index in EDGES:
             name = EDGES[self.index]
             last = name in ("bottom", "right")
-            return effective_side(sheet, area.bottom if last else area.top, area.right if last else area.left, name)
-        if self.index == 11:
-            return effective_side(sheet, area.top, area.left, "right") if area.columns > 1 else S.NO_SIDE
-        if self.index == 12:
-            return effective_side(sheet, area.top, area.left, "bottom") if area.rows > 1 else S.NO_SIDE
+            kind = _row_formats.whole(area)
+            # Whole rows read their right edge in their first row's first column, whole columns their bottom edge in their
+            # first column's first row (tests/fixtures/border_gaps.json, tests/fixtures/used_range.json).
+            first = (kind == "rows" and name == "right") or (kind == "columns" and name == "bottom")
+            if first:
+                # What that cell stores, not a neighbour's line showing there.
+                return own_side(sheet, area.top, area.left, name)
+            row = area.top if not last else area.bottom
+            column = area.left if not last else area.right
+            return effective_side(sheet, row, column, name)
+        if self.index in (11, 12):
+            # What the first cell stores on that side, whatever the next cell's shows (tests/fixtures/border_gaps.json).
+            name = "right" if self.index == 11 else "bottom"
+            if (area.columns if self.index == 11 else area.rows) <= 1:
+                return S.NO_SIDE
+            return own_side(sheet, area.top, area.left, name)
         return _diagonal(sheet.style_at(area.top, area.left).border, self.index)
 
+    def _many_diagonals(self, areas: list[Area], change: Callable[[S.Side], S.Side]) -> None:
+        sheet = self.target.sheet
+        index = self.index
+
+        def read(border: S.Border) -> S.Side:
+            return _shared_diagonal(border) if _only_colour(change) else _diagonal(border, index)
+
+        shown = [read(sheet.style_at(areas[0].top, areas[0].left).border)]
+        shown += [read(style.border) for area in areas for style in _row_formats.distinct_styles(sheet, area)]
+        apply = _many_diagonals(sheet.style_at(areas[0].top, areas[0].left).border, shown, self.index, change)
+        if apply is None:
+            return
+        def restyled(style: S.Style) -> S.Style:
+            return S.applying(style, "border", border=apply(style.border))
+
+        for area in areas:
+            if not _row_formats.format_area(sheet, area, restyled):
+                for row in range(area.top, area.bottom + 1):
+                    for column in range(area.left, area.right + 1):
+                        sheet.restyle(row, column, restyled(sheet.style_at(row, column)))
+
     def answer(self, what: str) -> object:
-        return side_answer(_colors(self.target), self.side(), what)
+        if self.index in (5, 6) and self.target.first.rows * self.target.first.columns > 1:
+            # On several cells a diagonal's colour reads as none, whatever they hold (tests/fixtures/border_gaps.json).
+            if what == "Color":
+                return 0.0
+            if what == "ColorIndex":
+                return VBAInt(-4142, "Long")
+            if what in ("ThemeColor", "TintAndShade"):
+                return NULL
+        first = self.target.first
+        side = self.side()
+        along_whole = self.index in EDGES and _row_formats.whole(first)
+        inside = self.index in (11, 12) and not _row_formats.whole(first) and first.rows * first.columns > 2
+        if (along_whole or inside) and not side.style:
+            # The automatic colour is one colour however it is spelled (see S.same_automatic).
+            shown = {S.Side(each.style, S.FOREGROUND) if each.color is not None and each.color.kind == "auto" else each
+                     for each in self.sides()}
+            if len(shown) > 1:
+                # Along whole rows or columns, or an inside border, whose lines differ, where the first shows none
+                # (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
+                answers: dict[str, object] = {"LineStyle": VBAInt(-4142, "Long"), "Weight": VBAInt(2, "Long"), "Color": 0.0, "ColorIndex": VBAInt(-4142, "Long")}
+                return answers.get(what, NULL)
+        return side_answer(_colors(self.target), side, what)
 
     def assign(self, what: str, value: object) -> None:
         self.apply(side_change(what, value))
@@ -1250,9 +1421,44 @@ class Border(ExcelObject):
     def apply(self, change: Callable[[S.Side], S.Side]) -> None:
         """Set the border on each area -- each visible area, on a filtered sheet, measured for the bottom edge."""
         sheet = self.target.sheet
-        parts = [area for area in visible_areas(self.target) or self.target.areas
-                 if not _row_formats.border_area(sheet, area, self.index, change)]
+        areas = visible_areas(self.target) or self.target.areas
+        _row_formats.refuse_past_half(areas)
+        if not self.collection:
+            _row_formats.refuse_wide_border(sheet, areas, self.index, alone=not self.together)
+        if self.index not in (5, 6) and _leaves_lines(change) and all(_row_formats.whole(area) for area in areas):
+            # No colour along whole rows or columns changes nothing where the border reads a line, and otherwise takes
+            # every line along it away (tests/fixtures/border_gaps.json, tests/fixtures/border_rounds.json).
+            if self.side().style:
+                return
+            change = _exactly(S.NO_SIDE)
+        elif self.index in EDGES and _leaves_lines(change) and len(areas) == 1:
+            # Along several cells no colour changes nothing, not even which cells hold a format, where the edge reads a
+            # line: from its last cell for a bottom or right edge, else from its first (tests/fixtures/used_range.json).
+            name = EDGES[self.index]
+            places = _edge_places(areas[0], name)
+            if len(places) > 1:
+                row, column = places[-1] if name in ("bottom", "right") else places[0]
+                if effective_side(sheet, row, column, name).style:
+                    return
+        if self.index in EDGES and not self.collection:
+            # An edge set alone across more than half the sheet to its last column or row can draw nothing
+            # (tests/fixtures/used_range.json).
+            areas = [area for area in areas if not _row_formats.edge_past_half(sheet, area, self.index)]
+            if not areas:
+                return
+        if self.index in (5, 6) and (len(areas) > 1 or areas[0].rows * areas[0].columns > 1):
+            # A diagonal on a union first copies outlines to its later areas as an edge does, whatever it sets
+            # (tests/fixtures/border_union.json).
+            self._copy_outlines(areas)
+            self._many_diagonals(areas, change)
+            return
+        parts = [area for area in areas if not _row_formats.border_area(sheet, area, self.index, change, together=self.together)]
         _within_limit(parts)
+        if self.index in EDGES and len(parts) > 1:
+            self._across_areas(parts, change)
+            return
+        if self.index in EDGES or self.index in (11, 12):
+            self._touch(parts)
         for area in parts:
             if self.index in (5, 6):
                 for row in range(area.top, area.bottom + 1):
@@ -1260,22 +1466,72 @@ class Border(ExcelObject):
                         change_side(sheet, row, column, self.index, change)
             elif self.index in EDGES:
                 name = EDGES[self.index]
-                if name in ("top", "bottom"):
-                    row = area.top if name == "top" else area.bottom
-                    for column in range(area.left, area.right + 1):
-                        change_side(sheet, row, column, self.index, change)
-                else:
-                    column = area.left if name == "left" else area.right
-                    for row in range(area.top, area.bottom + 1):
-                        change_side(sheet, row, column, self.index, change)
+                places = _edge_places(area, name)
+                # Along several cells one line goes on all, from what they show together (tests/fixtures/border_gaps.json).
+                one = change if len(places) == 1 or _leaves_lines(change) else _exactly(change(_row_formats.current_side(
+                    (effective_side(sheet, row, column, name) for row, column in places), last=name in ("bottom", "right"))))
+                for row, column in places:
+                    change_side(sheet, row, column, self.index, one)
             else:
-                # An inside border is written on both of the cells it separates.
-                for (row, column), (other_row, other_column) in _inside_pairs(area, self.index):
-                    first, second = (9, 8) if self.index == 12 else (10, 7)
-                    wanted = change(inside_current(own_side(sheet, row, column, EDGES[first]),
-                                                   own_side(sheet, other_row, other_column, EDGES[second])))
+                # An inside border is written on both of the cells it separates, one line on all of them.
+                pairs = _inside_pairs(area, self.index)
+                first, second = (9, 8) if self.index == 12 else (10, 7)
+                if _leaves_lines(change):
+                    continue
+                wanted = change(_row_formats.pairs_current(
+                    [(own_side(sheet, row, column, EDGES[first]), own_side(sheet, other_row, other_column, EDGES[second]))
+                     for (row, column), (other_row, other_column) in pairs])) if pairs else S.NO_SIDE
+                for (row, column), (other_row, other_column) in pairs:
                     change_side(sheet, row, column, first, _exactly(wanted), clear_neighbour=False)
                     change_side(sheet, other_row, other_column, second, _exactly(wanted), clear_neighbour=False)
+
+    def _across_areas(self, parts: list[Area], change: Callable[[S.Side], S.Side]) -> None:
+        """An edge set on several areas (tests/fixtures/border_gaps.json).
+
+        One line goes along every area, from the first area's line where they differ. No colour does nothing at all
+        where the first place stores a line, and otherwise takes every line away.
+
+        Before that, each later area takes the edges of the area before it that show one line all along, on its own
+        outline (tests/fixtures/border_union.json): its top and bottom where all its columns lie outside the columns
+        the sheet holds cells in, and its left and right where none of its rows holds a cell or a row record. A cell
+        with a line holds its neighbours to the left, to the right and below as well."""
+        sheet, name = self.target.sheet, EDGES[self.index]
+        places = [place for area in parts for place in _edge_places(area, name)]
+        # The first area's edge reads from its first place, or its last for a bottom or right edge.
+        first_places = _edge_places(parts[0], name)
+        reads = first_places[-1] if name in ("bottom", "right") else first_places[0]
+        if _leaves_lines(change) and effective_side(sheet, *reads, name).style:
+            self._touch(parts)
+            return
+        # The later areas copy from the sheet as it stood, before the set made cells of them.
+        self._copy_outlines(parts)
+        self._touch(parts)
+        found = [effective_side(sheet, row, column, name) for row, column in places]
+        current = found[0] if len(set(found)) == 1 else S.Side(effective_side(sheet, *reads, name).style or "thin", S.Color("auto"))
+        new = S.NO_SIDE if _leaves_lines(change) else change(current)
+        for row, column in places:
+            change_side(sheet, row, column, self.index, _exactly(new))
+
+    def _touch(self, parts: list[Area]) -> None:
+        """Every cell of the range takes the border part, along the border or not, so each counts toward UsedRange until
+        a save (tests/fixtures/used_range.json)."""
+        for area in parts:
+            _touch_cells(self.target.sheet, area)
+
+    def _copy_outlines(self, parts: list[Area]) -> None:
+        """Each later area of a union takes the edges of the area before it that show one line all along, as
+        _across_areas tells."""
+        sheet = self.target.sheet
+        for before, area in zip(parts, parts[1:]):
+            outline = {edge: _one_line([effective_side(sheet, row, column, edge) for row, column in _edge_places(before, edge)])
+                       for edge in ("left", "top", "bottom", "right")}
+            rows, left, right = _held_rows_and_columns(sheet)
+            across = area.right < left or area.left > right
+            down = not any(area.top <= row <= area.bottom for row in rows)
+            for edge, taken in (("top", across), ("bottom", across), ("left", down), ("right", down)):
+                if taken:
+                    for row, column in _edge_places(area, edge):
+                        change_side(sheet, row, column, _INDEX_OF_EDGE[edge], _exactly(outline[edge]))
 
     def sides(self) -> list[S.Side]:
         """Every side along this border, which a property of the whole collection answers over."""
@@ -1393,7 +1649,7 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
     def _all(self, what: str) -> object:
         """Every cell along every edge and inside edge; mixed is Null, and a mixed Color is 0."""
         colors = _colors(self.target)
-        sides = [side for index in self._indexes() for side in Border(self.target, index).sides()]
+        sides = self._record_sides() or [side for index in self._indexes() for side in Border(self.target, index).sides()]
         if what in ("ColorIndex", "ThemeColor", "TintAndShade"):
             # These answer the first edge when the edges differ (tests/fixtures/format_properties.json).
             return side_answer(colors, sides[0], what)
@@ -1402,14 +1658,60 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         found = uniform(side_answer(colors, side, what) for side in sides)
         return 0.0 if found is NULL and what == "Color" else found
 
+    def _record_sides(self) -> list[S.Side]:
+        """Over whole rows or whole columns, the sides their own formats give, which the collection answers over whatever
+        cells across them show (tests/fixtures/border_neighbours.json); none for any other range."""
+        sheet, area = self.target.sheet, self.target.first
+        kind = _row_formats.whole(area)
+        if kind not in ("rows", "columns"):
+            return []
+        base = _row_formats.sheet_format(sheet)
+        if kind == "columns":
+            styles = [sheet.dims.column_style(column) or base for column in range(area.left, area.right + 1)]
+        else:
+            def row_style(row: int) -> S.Style:
+                record = sheet.dims.rows.get(row)
+                return record.style if record is not None and record.style is not None else base
+
+            # The first and last rows in place, the rows between them standing for each other by their formats.
+            between = [record.style for row, record in sorted(sheet.dims.rows.items())
+                       if area.top < row < area.bottom and record.style is not None]
+            styles = [row_style(area.top)] + between + ([base] if len(between) < area.rows - 2 else []) + (
+                [row_style(area.bottom)] if area.rows > 1 else [])
+        borders = [style.border for style in styles]
+        found: dict[int, list[S.Side]] = {
+            7: [borders[0].left] if kind == "columns" else [b.left for b in borders],
+            10: [borders[-1].right] if kind == "columns" else [b.right for b in borders],
+            8: [b.top for b in borders] if kind == "columns" else [borders[0].top],
+            9: [b.bottom for b in borders] if kind == "columns" else [borders[-1].bottom],
+            11: [side for b in borders for side in (b.left, b.right)],
+            12: [side for b in borders for side in (b.top, b.bottom)]}
+        return [side for index in self._indexes() for side in found[index]]
+
     def _set_all(self, what: str, value: object) -> None:
+        # A colour set over the whole collection, whatever the colour, marks the fill applied as well: an invisible
+        # difference that keeps a cell apart from a row or column format otherwise equal to its own, and that Excel
+        # writes as applyFill (tests/fixtures/used_range.json).
+        colour = what in ("Color", "ColorIndex")
         if what == "ColorIndex" and value is not NULL and _whole(value) in (XL_NONE, -1):
             # Over the whole collection these take the lines away (tests/fixtures/format_properties.json).
             what, value = "LineStyle", XL_NONE
         elif what == "Color" and value is not NULL and value is not True and int(to_integer(value, "Long")) == -1:
             what, value = "ColorIndex", XL_AUTOMATIC
+        # A line style or weight set through the collection draws a horizontal line in the automatic colour, whatever colour
+        # it had, where the range spans more than one row, and a vertical line where it spans more than one column
+        # (tests/fixtures/used_range.json, tests/fixtures/border_rounds.json).
+        restyling = what in ("LineStyle", "Weight")
         for index in self._indexes():
-            Border(self.target, index).assign(what, value)
+            border = Border(self.target, index, together=True, collection=True)
+            horizontal = index in (8, 9, 12)
+            if restyling and any((area.rows if horizontal else area.columns) > 1 for area in self.target.areas):
+                change = side_change(what, value)
+                border.apply(lambda side, change=change: _automatic(change(side)))  # type: ignore[misc]
+            else:
+                border.assign(what, value)
+        if colour:
+            restyle(self.target, lambda style: S.applying(style, "fill"))
 
     @member
     def LineStyle(self) -> object:
@@ -1480,7 +1782,7 @@ def border_around(target: Range, line_style: object, weight: object, color_index
                   theme_color: object) -> None:
     """Range.BorderAround: the four edges, each set to the line, weight and colour given."""
     for index in (7, 8, 9, 10):
-        border = Border(target, index)
+        border = Border(target, index, together=True)
         border.assign("LineStyle", 1 if line_style is MISSING else line_style)
         for what, given in (("Weight", weight), ("ColorIndex", color_index), ("Color", color),
                             ("ThemeColor", theme_color)):

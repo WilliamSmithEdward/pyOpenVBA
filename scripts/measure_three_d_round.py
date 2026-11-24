@@ -72,6 +72,30 @@ ROUNDS: dict[int, list[str]] = {
         't.Perspective = msoTrue: t.FieldOfView = 30', 't.Depth = 10: t.Visible = msoFalse', 't.Depth = 10: t.Visible = msoFalse: t.Depth = 20',
         't.BevelTopType = msoBevelNone', 't.ProjectText = msoFalse')
         for after in ('', 't.Depth = 20', 't.RotationY = 15', 't.Visible = msoFalse', 't.Visible = msoTrue')],
+    # Round 4, held out: presets over what is set, hiding and showing in turn, the bounds, a ShapeRange, and where ProjectText goes.
+    4: ['t.ProjectText = msoFalse', 't.Depth = 5: t.ProjectText = msoFalse: t.ProjectText = msoTrue', 't.SetPresetCamera 25: t.RotationX = 10',
+        't.SetPresetCamera 49: t.RotationZ = 5', 't.SetPresetCamera 3: t.SetPresetCamera 40', 't.RotationX = 20: t.SetPresetCamera 19',
+        't.SetThreeDFormat 7: t.Depth = 5', 't.SetThreeDFormat 2: t.SetThreeDFormat 9', 't.Depth = 5: t.SetThreeDFormat 1',
+        't.PresetLighting = 3: t.PresetLightingDirection = 6', 't.PresetLighting = 7: t.PresetLightingSoftness = 1',
+        't.PresetLightingDirection = 3: t.PresetLighting = 15', 't.PresetLighting = 14: t.PresetLightingDirection = 2',
+        't.Depth = 5: t.PresetMaterial = 3', 't.PresetMaterial = 6: t.PresetMaterial = 8', 't.RotationX = 10: t.SetExtrusionDirection 4',
+        't.Depth = 5: t.SetExtrusionDirection 2', 't.SetPresetCamera 12: t.SetExtrusionDirection 9', 't.SetPresetCamera 4: t.Perspective = msoTrue',
+        't.SetPresetCamera 16: t.Perspective = msoFalse', 't.SetPresetCamera 48: t.FieldOfView = 50', 't.SetPresetCamera 11: t.FieldOfView = 50',
+        't.Perspective = msoTrue: t.ResetRotation', 't.Depth = 5: t.Visible = msoFalse: t.RotationX = 10: t.Visible = msoTrue',
+        't.RotationX = 10: t.Visible = msoFalse: t.Depth = 5: t.Visible = msoTrue', 't.Depth = 5: t.RotationX = 10: t.Visible = msoFalse: t.Visible = msoTrue',
+        't.Depth = 5: t.Visible = msoFalse: t.Depth = 9: t.Visible = msoFalse', 't.ExtrusionColor.ObjectThemeColor = msoThemeColorAccent4',
+        't.ContourColor.RGB = RGB(9, 8, 7): t.ContourWidth = 0', 't.ExtrusionColor.RGB = RGB(9, 8, 7): t.Depth = 0', 't.BevelBottomType = msoBevelNone',
+        't.BevelTopInset = 3: t.BevelTopType = msoBevelNone: t.BevelTopDepth = 2', 't.Z = 3: t.Visible = msoFalse',
+        't.LightAngle = 45: t.PresetLighting = 20', 't.PresetLighting = 20: t.LightAngle = 45', 't.RotationY = 350: t.IncrementRotationY 20',
+        't.IncrementRotationX -30', 't.IncrementRotationZ 400', 't.RotationY = 40: t.IncrementRotationVertical 40', 't.Depth = 1585.5',
+        't.ContourWidth = 1584', 't.FieldOfView = 179', 't.Perspective = msoTrue: t.FieldOfView = 179.5', 't.Z = -2000',
+        'Set t = ws.Shapes.Range(Array("S")).ThreeD: t.Depth = 7', 'Set t = ws.Shapes.Range(Array("S")).ThreeD: t.SetPresetCamera 20',
+        'Set t = ws.Shapes.Range(Array("S")).ThreeD',
+        't.BevelTopType = msoBevelCircle: t.BevelBottomType = msoBevelCross: t.BevelTopDepth = 0: t.BevelBottomInset = 1584',
+        't.SetThreeDFormat 12: t.Visible = msoFalse', 't.SetPresetCamera 30: t.RotationY = 5', 't.PresetLightingSoftness = 2: t.PresetLightingDirection = 8',
+        't.SetExtrusionDirection 6: t.PresetLightingDirection = 1', 't.PresetMaterial = 11: t.BevelTopType = msoBevelNone',
+        't.Depth = 3: t.ContourWidth = 1: t.ExtrusionColor.RGB = RGB(1, 1, 1): t.ExtrusionColorType = msoExtrusionColorAutomatic',
+        't.SetPresetCamera 59', 't.SetThreeDFormat 20', 't.SetPresetCamera 14: t.RotationX = 15'],
 }
 #: The shapes of each round where not all of them.
 ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text']}
@@ -129,14 +153,15 @@ def macro(chosen: list[tuple[int, list[Any]]]) -> str:
 
 
 def shape_xml(folder: Path, index: int) -> str:
-    """The saved shape's spPr, or "" where the book or its drawing is not there."""
+    """The saved shape's spPr, and from round 4 its text's bodyPr after it, or "" where the book or its drawing is not there."""
     try:
         with zipfile.ZipFile(folder / f't{index}.xlsx') as package:
             drawing = package.read('xl/drawings/drawing1.xml').decode('utf-8')
     except (FileNotFoundError, KeyError):
         return ''
     found = re.findall(r'<xdr:spPr>.*?</xdr:spPr>|<xdr:spPr/>', drawing, re.S)
-    return found[0] if found else ''
+    text = re.findall(r'<a:bodyPr\b[^>]*/>|<a:bodyPr\b.*?</a:bodyPr>', drawing, re.S) if ROUND >= 4 else []
+    return (found[0] if found else '') + (text[0] if text else '')
 
 
 def _run(case: list[Any], index: int, folder: Path, reads: list[str] | None) -> list[str] | None:

@@ -343,8 +343,6 @@ class ShapeThreeD:
     extrusion_scheme: str | None = None
     contour_rgb: str | None = None
     contour_scheme: str | None = None
-    #: PresetThreeDFormat, while SetThreeDFormat's preset stands.
-    preset: int = -2
     #: ProjectText, which the file does not keep.
     project_text: bool = True
     #: What Visible = msoFalse put away in the file's hidden extensions.

@@ -167,7 +167,21 @@ def _loaded(source: str) -> ShapeThreeD | None:
         if (one.camera not in _CAMERA_NUMBERS or one.rig not in _RIGS or one.rig_dir not in _QUARTERS or one.material not in _MATERIALS
                 or any(bevel not in _BEVELS.values() for bevel in bevels) or any(scheme not in _ACCENTS.values() for scheme in schemes)):
             raise VBAUnsupportedError("This ThreeD of a shape from a file is not implemented")
+    if three_d is not None and three_d.body and three_d.hidden is not None and three_d.hidden.body:
+        # Excel drops the hidden body when it opens such a file, and writes it so when it saves, changed or not.
+        raise VBAUnsupportedError("A ThreeD from a file with a hidden body beside its own is not implemented")
     return three_d
+
+
+#: The scene3d's members and the sp3d's, each with the flag that says it is written.
+_PARTS = ((('scene', 'camera', 'fov', 'rotation', 'rig', 'rig_dir', 'light_rev'), 'scene'),
+          (('body', 'z', 'extrusion_h', 'contour_w', 'material', 'bevel_top', 'bevel_bottom', 'extrusion_rgb', 'extrusion_scheme',
+            'contour_rgb', 'contour_scheme', 'project_text'), 'body'))
+
+
+def _move(source: ShapeThreeD, target: ShapeThreeD, part: tuple[str, ...]) -> None:
+    for name in part:
+        setattr(target, name, getattr(source, name))
 
 
 class ThreeDFormat(HeldPart):
@@ -216,15 +230,14 @@ class ThreeDFormat(HeldPart):
         return three_d if three_d is not None and three_d.body else None
 
     def change(self, *, scene: bool = True, body: bool = False) -> ShapeThreeD:
-        """What is set, for a change to the scene3d, the sp3d or both. Once the format was hidden only the sp3d is written
-        again."""
+        """What is set, for a change to the scene3d, the sp3d or both. A change to the body of a hidden format writes the sp3d
+        alone; a change to its camera or light writes a scene3d of its own."""
         three_d = self.keep()
-        if three_d.hidden is not None and three_d.blank() and scene and not body:
-            raise VBAUnsupportedError('A change to the camera or light of a hidden ThreeD is not implemented')
-        if scene and three_d.hidden is None:
+        if body:
+            three_d.body = True
+            three_d.scene = three_d.scene or scene and three_d.hidden is None
+        elif scene:
             three_d.scene = True
-        three_d.body = three_d.body or body
-        three_d.preset = -2
         self.owner.restyled()
         return three_d
 
@@ -256,22 +269,26 @@ class ThreeDFormat(HeldPart):
             # Neither way changes a format nothing was set on.
             return
         wanted = int(to_integer(value, 'Long')) != 0
+        if wanted and three_d.hidden is None:
+            return
+        if not wanted and three_d.blank():
+            return
+        three_d = self.keep()
         if wanted:
-            if three_d.hidden is None:
-                return
-            if not three_d.blank():
-                raise VBAUnsupportedError('ThreeD shown again over what was set while hidden is not implemented')
-            kept = three_d.hidden
+            # Each part comes back where nothing was set in its place since; what was set wins.
+            assert three_d.hidden is not None
+            for part, flag in _PARTS:
+                if getattr(three_d.hidden, flag) and not getattr(three_d, flag):
+                    _move(three_d.hidden, three_d, part)
+            three_d.hidden = None
         else:
-            if three_d.blank():
-                return
-            if three_d.hidden is not None:
-                raise VBAUnsupportedError('ThreeD hidden twice is not implemented')
-            kept = ShapeThreeD(hidden=replace(three_d, hidden=None))
-        self.keep()
-        look = self.owner.shape.fill_line
-        assert look is not None
-        look.three_d = kept
+            # Each part shown goes in place of what was hidden of it before.
+            hidden = three_d.hidden or ShapeThreeD()
+            for part, flag in _PARTS:
+                if getattr(three_d, flag):
+                    _move(three_d, hidden, part)
+                    _move(ShapeThreeD(), three_d, part)
+            three_d.hidden = hidden
         self.owner.restyled()
 
     # The bevels.
@@ -413,8 +430,10 @@ class ThreeDFormat(HeldPart):
 
     @setter('ProjectText')
     def _project_text(self, value: object) -> None:
-        # Either way writes the sp3d, with nothing in it to tell them apart.
-        self.change(body=True).project_text = int(to_integer(value, 'Long')) != 0
+        # Off is kept somewhere a file opened again reads it from, not in the spPr (tests/fixtures/three_d_round_3.json).
+        if int(to_integer(value, 'Long')) == 0:
+            raise VBAUnsupportedError('ProjectText set off is not implemented')
+        self.change(body=True)
 
     @member
     def PresetMaterial(self) -> object:
@@ -562,8 +581,15 @@ class ThreeDFormat(HeldPart):
 
     @member
     def PresetThreeDFormat(self) -> object:
+        # Whichever preset what is set is, as a file opened again reads it.
         three_d = self.held()
-        return VBAInt(-2 if three_d is None else three_d.preset, 'Long')
+        if three_d is None or not three_d.scene or not three_d.body:
+            return VBAInt(-2, 'Long')
+        plain = replace(three_d, camera='orthographicFront', rotation=None, extrusion_h=None, material=None, hidden=None)
+        if plain != replace(ShapeThreeD(scene=True, body=True), project_text=three_d.project_text):
+            return VBAInt(-2, 'Long')
+        found = (three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material)
+        return VBAInt(next((number for number, preset in _FORMATS.items() if preset == found), -2), 'Long')
 
     @method
     def SetThreeDFormat(self, PresetThreeDFormat: object) -> object:  # noqa: N803 - native named argument
@@ -575,7 +601,6 @@ class ThreeDFormat(HeldPart):
             raise VBAUnsupportedError('SetThreeDFormat over a ThreeD already set is not implemented')
         three_d = self.change(body=True)
         three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material = _FORMATS[wanted]
-        three_d.preset = wanted
         return EMPTY
 
     # The light.
@@ -653,39 +678,43 @@ class ThreeDFormat(HeldPart):
     # The camera's rotation: RotationX turns its lon the other way, RotationY is its lat and RotationZ its rev the other way.
 
     def _rotation(self) -> tuple[int, int, int] | None:
-        """The camera's own rot, or None where it reads the camera's preset rotation."""
+        """The rot the camera turns from: its own, or the one its preset reads where that is whole degrees; None where the
+        preset's is not."""
         three_d = self.scene()
         if three_d is None:
             return (0, 0, 0)
+        if three_d.rotation is not None:
+            return three_d.rotation
         implied = _CAMERAS[_CAMERA_NUMBERS[three_d.camera]][4]
-        if implied is not None:
-            if three_d.rotation is not None:
-                raise VBAUnsupportedError(f'A rotation of the {three_d.camera} camera is not implemented')
+        if implied is None:
+            return (0, 0, 0)
+        if any(angle != int(angle) for angle in implied):
             return None
-        return three_d.rotation or (0, 0, 0)
+        # A turn writes the preset's rotation out, with the one turned.
+        return (_stored(implied[1]), _stored(-implied[0]), _stored(-implied[2]))
 
     def _read_turn(self, at: int, sign: int, implied_at: int) -> object:
-        rotation = self._rotation()
-        if rotation is None:
-            three_d = self.scene()
-            assert three_d is not None
+        three_d = self.scene()
+        if three_d is not None and three_d.rotation is None:
             implied = _CAMERAS[_CAMERA_NUMBERS[three_d.camera]][4]
-            assert implied is not None
-            return VBASingle(implied[implied_at])
+            if implied is not None:
+                return VBASingle(implied[implied_at])
+        rotation = self._rotation()
+        assert rotation is not None
         return VBASingle(_degrees(rotation[at], sign))
 
-    def _turned(self, at: int, sign: int) -> float:
+    def _start(self) -> tuple[int, int, int]:
         rotation = self._rotation()
         if rotation is None:
-            raise VBAUnsupportedError('Turning a camera with a rotation of its own is not implemented')
-        return _degrees(rotation[at], sign)
+            raise VBAUnsupportedError('Turning a camera whose preset is turned by part of a degree is not implemented')
+        return rotation
+
+    def _turned(self, at: int, sign: int) -> float:
+        return _degrees(self._start()[at], sign)
 
     def _turn(self, at: int, angle: int) -> None:
-        three_d = self.held()
-        if three_d is not None and three_d.scene and _CAMERAS[_CAMERA_NUMBERS[three_d.camera]][4] is not None:
-            raise VBAUnsupportedError(f'A rotation of the {three_d.camera} camera is not implemented')
+        rotation = list(self._start())
         three_d = self.change()
-        rotation = list(three_d.rotation or (0, 0, 0))
         rotation[at] = angle
         three_d.rotation = (rotation[0], rotation[1], rotation[2])
 
@@ -736,10 +765,7 @@ class ThreeDFormat(HeldPart):
     @method
     def IncrementRotationVertical(self, Increment: object) -> object:  # noqa: N803 - native named argument
         # Turned down past nothing, Excel writes the lat one short some of the time (10 and 20, not 45): not known.
-        rotation = self._rotation()
-        if rotation is None:
-            raise VBAUnsupportedError('Turning a camera with a rotation of its own is not implemented')
-        degrees = rotation[0] / _ANGLE - float(to_number(Increment))
+        degrees = self._start()[0] / _ANGLE - float(to_number(Increment))
         if not 0 <= degrees < 360:
             raise VBAUnsupportedError('IncrementRotationVertical past nothing is not implemented')
         self._turn(0, round(degrees * _ANGLE))

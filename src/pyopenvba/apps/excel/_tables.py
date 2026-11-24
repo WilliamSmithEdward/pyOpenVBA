@@ -100,6 +100,10 @@ class TableColumn:
     totals_formula: str = ""
     #: A calculated column's formula, which a row the table gains takes; "" for a column of values.
     calculated: str = ""
+    #: The XML map and leaf the column is mapped to (see _xml_maps), or None, and the leaf's name, which it keeps as its
+    #: uniqueName once cleared.
+    xml: Any = None
+    xml_name: str = ""
 
 
 @dataclass
@@ -146,6 +150,8 @@ class Table:
     #: The part as the file had it, kept while nothing about the table changes.
     xml: str = ""
     changed: bool = False
+    #: Whether an XML import left it with no rows, which a save marks insertRow (tests/fixtures/xml_infer.json).
+    xml_emptied: bool = False
     view: ListObject | None = dataclass_field(default=None, repr=False)
     #: The query table of a table over a database, read from a file (see _query_databases.ListQueryTable).
     query: Any = dataclass_field(default=None, repr=False)
@@ -280,6 +286,14 @@ def base_table_xml(table: Table) -> str:
                                           f'name="" queryTableFieldId="{field}"/>', column, names)
                           for column, field in zip(table.columns, fields, strict=True))
         typed = ' tableType="queryTable"' + (' insertRow="1"' if query.placeholder else "")
+    elif table.kind == "xml":
+        # A table mapped to XML: each column named uniquely by its leaf, or by its id where it has none, and its mapping
+        # (tests/fixtures/xml_maps.json).
+        typed = ' tableType="xml"' + (' insertRow="1"' if table.xml_emptied else "")
+        columns = "".join(_patched_column(
+            f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" uniqueName="{escape(column.xml_name) if column.xml_name else column.id}" '
+            f'name="">' + (f'<xmlColumnPr mapId="{column.xml[0].id}" xpath="{escape(column.xml[1].path)}" xmlDataType="{column.xml[1].kind}"/>'
+                           if column.xml else "") + '</tableColumn>', column, names) for column in table.columns)
     else:
         typed = ""
         columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column,
@@ -741,6 +755,13 @@ def all_tables(sheet: Worksheet) -> list[Table]:
     return [table for one in sheet.book.sheets_ for table in one.tables]
 
 
+def next_part_id(sheet: Worksheet) -> int:
+    """The id the next table or XML-mapped single cell takes: they count on from one another's, in the order they were made
+    (tests/fixtures/xml_infer.json)."""
+    singles = (single.number for one in sheet.book.sheets_ for single in one.xml_cells.values())
+    return max(max((table.id for table in all_tables(sheet)), default=0), max(singles, default=0)) + 1
+
+
 def table_at(sheet: Worksheet, row: int, column: int) -> Table | None:
     return next((table for table in sheet.tables if table.area.contains(row, column)), None)
 
@@ -821,7 +842,12 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
             cell.value, cell.formula, cell.stale, cell.shared = name, "", False, None
             sheet.cell_changed(area.top, area.left + offset)
     uid = guid()
-    table = Table(sheet=sheet, id=max((one.id for one in all_tables(sheet)), default=0) + 1, name=_free_name(sheet),
+    number = next_part_id(sheet)
+    name = _free_name(sheet)
+    if any(one.xml_cells for one in sheet.book.sheets_) and f"table{number}" not in {one.name.lower() for one in all_tables(sheet)}:
+        # Beside XML-mapped single cells a table is named after the id it takes (tests/fixtures/xml_infer.json).
+        name = f"Table{number}"
+    table = Table(sheet=sheet, id=number, name=name,
                   area=area, columns=[TableColumn(name, index + 1, guid()) for index, name in enumerate(names)],
                   style=style, uid=uid, changed=True)
     sheet.tables.append(table)
@@ -1320,7 +1346,10 @@ class ListObject(HeldPart, ExcelObject):
 
     @member
     def XmlMap(self) -> object:
-        return NOTHING
+        """The XML map its columns are mapped to, or Nothing (see _xml_maps)."""
+        from pyopenvba.apps.excel._xml_maps import table_map
+
+        return table_map(self.table)
 
     @method
     def Unlink(self) -> object:
@@ -1442,34 +1471,15 @@ class ListColumns(VBACollection, ItemDefault, _TablePart, ExcelObject):
         return ListColumn(self.table, add_column(self.table, where))
 
 
-class XPathOfCells(ExcelObject):
-    """The XML mapping of cells with none (tests/fixtures/small_rows.json)."""
-
-    vba_type_name = "XPath"
-
-    @member(default=True)
-    def Value(self) -> object:
-        return ""
-
-    @member
-    def Repeating(self) -> object:
-        raise error(1004, "Unable to get the Repeating property of the XPath class")
-
-    @member
-    def Map(self) -> object:
-        raise error(-2147467259, "Automation error\nUnspecified error")
-
-    @method
-    def Clear(self) -> object:
-        return EMPTY
-
-
 class ListColumn(HeldPart, ExcelObject):
     vba_type_name = "ListColumn"
 
     @member
     def XPath(self) -> object:
-        return XPathOfCells()
+        """The column's XML mapping (see _xml_maps)."""
+        from pyopenvba.apps.excel._xml_maps import column_xpath
+
+        return column_xpath(self.table, self.held)
 
     def __init__(self, table: Table, index: int) -> None:
         self.table = table

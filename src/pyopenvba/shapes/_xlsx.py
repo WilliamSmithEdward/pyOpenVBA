@@ -1551,7 +1551,7 @@ def _new_picture(shape: Shape) -> str:
         f'<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" {blip}<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
         f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
-        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}</xdr:spPr></xdr:pic>")
+        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}{OLD_SHADOW if shape.shadow_added else ''}</xdr:spPr></xdr:pic>")
 
 
 def _new_element(shape: Shape) -> str:

@@ -1,0 +1,866 @@
+{
+ "measured_at": "2026-11-17T20:28:09.499920+00:00",
+ "source": "Public Function Go(ByVal which As Long) As String\n    Dim wb As Workbook, s As String, state As Long, wide As Double, high As Double, across As Double\n    Dim down As Double, formulas As Boolean, status As Boolean\n    Application.Visible = True\n    Application.ScreenUpdating = True\n    state = Application.WindowState\n    Application.WindowState = xlNormal\n    wide = ActiveWindow.Width: high = ActiveWindow.Height\n    across = ActiveWindow.Left: down = ActiveWindow.Top\n    formulas = Application.DisplayFormulaBar: status = Application.DisplayStatusBar\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Activate\n    s = \"dpi=\" & wb.Worksheets(1).StandardHeight\n    Application.Width = 800: Application.Height = 600: Application.Left = 20: Application.Top = 20\n    wb.Windows(1).WindowState = xlNormal\n    wb.Windows(1).Left = 0: wb.Windows(1).Top = 0: wb.Windows(1).Width = 700: wb.Windows(1).Height = 500\n    On Error Resume Next\n    Select Case which\n    Case 0: s = s & Case0(wb.Windows(1))\n    Case 1: s = s & Case1(wb.Windows(1))\n    Case 2: s = s & Case2(wb.Windows(1))\n    Case 3: s = s & Case3(wb.Windows(1))\n    Case 4: s = s & Case4(wb.Windows(1))\n    Case 5: s = s & Case5(wb.Windows(1))\n    Case 6: s = s & Case6(wb.Windows(1))\n    Case 7: s = s & Case7(wb.Windows(1))\n    Case 8: s = s & Case8(wb.Windows(1))\n    Case 9: s = s & Case9(wb.Windows(1))\n    Case 10: s = s & Case10(wb.Windows(1))\n    Case 11: s = s & Case11(wb.Windows(1))\n    Case 12: s = s & Case12(wb.Windows(1))\n    Case 13: s = s & Case13(wb.Windows(1))\n    Case 14: s = s & Case14(wb.Windows(1))\n    Case 15: s = s & Case15(wb.Windows(1))\n    Case 16: s = s & Case16(wb.Windows(1))\n    Case 17: s = s & Case17(wb.Windows(1))\n    Case 18: s = s & Case18(wb.Windows(1))\n    Case 19: s = s & Case19(wb.Windows(1))\n    Case 20: s = s & Case20(wb.Windows(1))\n    Case 21: s = s & Case21(wb.Windows(1))\n    Case 22: s = s & Case22(wb.Windows(1))\n    Case 23: s = s & Case23(wb.Windows(1))\n    Case 24: s = s & Case24(wb.Windows(1))\n    Case 25: s = s & Case25(wb.Windows(1))\n    Case 26: s = s & Case26(wb.Windows(1))\n    Case 27: s = s & Case27(wb.Windows(1))\n    Case 28: s = s & Case28(wb.Windows(1))\n    Case 29: s = s & Case29(wb.Windows(1))\n    Case 30: s = s & Case30(wb.Windows(1))\n    Case 31: s = s & Case31(wb.Windows(1))\n    Case 32: s = s & Case32(wb.Windows(1))\n    Case 33: s = s & Case33(wb.Windows(1))\n    Case 34: s = s & Case34(wb.Windows(1))\n    Case 35: s = s & Case35(wb.Windows(1))\n    Case 36: s = s & Case36(wb.Windows(1))\n    Case 37: s = s & Case37(wb.Windows(1))\n    Case 38: s = s & Case38(wb.Windows(1))\n    Case 39: s = s & Case39(wb.Windows(1))\n    End Select\n    Err.Clear\n    s = s & \" dpi=\" & wb.Worksheets(1).StandardHeight\n    wb.Close False\n    Application.DisplayFormulaBar = formulas\n    Application.DisplayStatusBar = status\n    Application.WindowState = xlNormal\n    ActiveWindow.Width = wide: ActiveWindow.Height = high\n    ActiveWindow.Left = across: ActiveWindow.Top = down\n    Application.WindowState = state\n    Go = s\nEnd Function\n\nPrivate Function Case0(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 678\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 314\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 13\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 12\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2043, 2673, 89, 213, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case0 = r\nEnd Function\n\nPrivate Function Case1(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 739\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 587\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHorizontalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=1, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case1 = r\nEnd Function\n\nPrivate Function Case2(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 754\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 579\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Cells(6, 1).Select\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.FreezePanes = True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 1776, 2368, 230, 80, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case2 = r\nEnd Function\n\nPrivate Function Case3(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 528\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 359\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 33\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 18\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=2, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case3 = r\nEnd Function\n\nPrivate Function Case4(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 444\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 463\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Cells(2, 1).Select\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.FreezePanes = True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 150\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 20\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 1217, 2894, 2, 31\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case4 = r\nEnd Function\n\nPrivate Function Case5(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 853\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 553\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 77\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 17\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2542, 37, 176, 189\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case5 = r\nEnd Function\n\nPrivate Function Case6(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 430\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 353\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHorizontalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 103\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 15\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 190, 872, 281, 15\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case6 = r\nEnd Function\n\nPrivate Function Case7(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 714\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 265\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 79\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 16\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2580, 2719, 260, 42\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case7 = r\nEnd Function\n\nPrivate Function Case8(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 341\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 527\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2634, 1321, 289, 284, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case8 = r\nEnd Function\n\nPrivate Function Case9(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 350\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 255\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=3, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case9 = r\nEnd Function\n\nPrivate Function Case10(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 315\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 535\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 69\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 8\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case10 = r\nEnd Function\n\nPrivate Function Case11(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 424\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 405\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Cells(2, 3).Select\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.FreezePanes = True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 111\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 21\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=2, ToLeft:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case11 = r\nEnd Function\n\nPrivate Function Case12(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 843\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 272\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case12 = r\nEnd Function\n\nPrivate Function Case13(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 800\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 319\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Cells(2, 3).Select\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.FreezePanes = True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 107\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 21\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=3\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case13 = r\nEnd Function\n\nPrivate Function Case14(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 338\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 613\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHeadings = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHorizontalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case14 = r\nEnd Function\n\nPrivate Function Case15(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 420\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 271\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHeadings = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHorizontalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=2, ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case15 = r\nEnd Function\n\nPrivate Function Case16(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 501\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 349\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 33\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 12\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=3\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case16 = r\nEnd Function\n\nPrivate Function Case17(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 442\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 246\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2875, 1119, 9, 118, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case17 = r\nEnd Function\n\nPrivate Function Case18(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 771\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 375\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 17\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case18 = r\nEnd Function\n\nPrivate Function Case19(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 883\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 541\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 43\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=2, ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case19 = r\nEnd Function\n\nPrivate Function Case20(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 548\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 511\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 150\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 3\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=1, ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case20 = r\nEnd Function\n\nPrivate Function Case21(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 592\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 358\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 768, 2447, 24, 20, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case21 = r\nEnd Function\n\nPrivate Function Case22(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 583\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 308\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHorizontalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=2, ToLeft:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case22 = r\nEnd Function\n\nPrivate Function Case23(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 340\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 624\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 138\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 13\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=2, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case23 = r\nEnd Function\n\nPrivate Function Case24(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 423\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 268\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Cells(2, 1).Select\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.FreezePanes = True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 684, 551, 185, 38\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case24 = r\nEnd Function\n\nPrivate Function Case25(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 665\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 450\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHeadings = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=1, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case25 = r\nEnd Function\n\nPrivate Function Case26(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 779\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 306\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 79\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 6\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=3\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case26 = r\nEnd Function\n\nPrivate Function Case27(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 361\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 266\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 121\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 16\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 1061, 101, 153, 114, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case27 = r\nEnd Function\n\nPrivate Function Case28(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 477\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 449\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 1797, 2986, 45, 57, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case28 = r\nEnd Function\n\nPrivate Function Case29(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 545\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 520\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 84\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 21\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 586, 253, 169, 43, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case29 = r\nEnd Function\n\nPrivate Function Case30(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 471\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 616\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case30 = r\nEnd Function\n\nPrivate Function Case31(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 801\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 268\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHorizontalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 9\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 12\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2454, 2882, 223, 141, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case31 = r\nEnd Function\n\nPrivate Function Case32(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 655\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 580\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Cells(1, 3).Select\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.FreezePanes = True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Up:=1, ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case32 = r\nEnd Function\n\nPrivate Function Case33(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 605\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 457\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=1, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case33 = r\nEnd Function\n\nPrivate Function Case34(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 597\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 557\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 65\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 7\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=2, ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case34 = r\nEnd Function\n\nPrivate Function Case35(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 756\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 284\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 2564, 411, 25, 77\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case35 = r\nEnd Function\n\nPrivate Function Case36(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 388\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 363\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollRow = 105\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollColumn = 5\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=3, ToLeft:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case36 = r\nEnd Function\n\nPrivate Function Case37(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 893\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 595\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=1, ToRight:=2\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case37 = r\nEnd Function\n\nPrivate Function Case38(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 671\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 313\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayHeadings = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayVerticalScrollBar = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 40\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.ScrollIntoView 1921, 2075, 217, 156, True\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case38 = r\nEnd Function\n\nPrivate Function Case39(w As Object) As String\n    Dim v As Variant, r As String\n    On Error Resume Next\n    Err.Clear\n    w.Width = 784\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Height = 333\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.Zoom = 100\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.DisplayWorkbookTabs = False\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    ActiveSheet.Rows(\"1:600\").RowHeight = 22\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    w.LargeScroll Down:=2, ToRight:=1\n    If Err.Number <> 0 Then r = r & \"[\" & Err.Number & \":\" & Err.Description & \"]\"\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Columns(1).Width\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = ActiveSheet.Rows(1).Height\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableWidth\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.UsableHeight\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.VisibleRange.Address(False, False)\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollRow\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Err.Clear\n    v = Empty\n    v = w.ScrollColumn\n    If Err.Number <> 0 Then r = r & \"|E\" & Err.Number Else r = r & \"|\" & TypeName(v) & \":\" & CStr(v)\n    Case39 = r\nEnd Function\n",
+ "cases": [
+  [
+   "held 7.0",
+   [
+    "w.Width = 678",
+    "w.Height = 314",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40",
+    "w.ScrollRow = 13",
+    "w.ScrollColumn = 12",
+    "w.ScrollIntoView 2043, 2673, 89, 213, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:651.5|Double:105|String:V34:AI36|Double:34|Double:22 dpi=14.5"
+  ],
+  [
+   "held 7.1",
+   [
+    "w.Width = 739",
+    "w.Height = 587",
+    "w.Zoom = 100",
+    "w.DisplayHorizontalScrollBar = False",
+    "w.DisplayWorkbookTabs = False",
+    "w.LargeScroll Up:=1, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:712.5|Double:402|String:O1:AC27|Double:1|Double:15 dpi=14.5"
+  ],
+  [
+   "held 7.2",
+   [
+    "w.Width = 754",
+    "w.Height = 579",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "ActiveSheet.Cells(6, 1).Select",
+    "w.FreezePanes = True",
+    "w.ScrollIntoView 1776, 2368, 230, 80, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:727.5|Double:370|String:S54:AG65|Double:54|Double:19 dpi=14.5"
+  ],
+  [
+   "held 7.3",
+   [
+    "w.Width = 528",
+    "w.Height = 359",
+    "w.Zoom = 100",
+    "w.ScrollRow = 33",
+    "w.ScrollColumn = 18",
+    "w.LargeScroll Down:=2, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:501.5|Double:150|String:AB51:AL60|Double:51|Double:28 dpi=14.5"
+  ],
+  [
+   "held 7.4",
+   [
+    "w.Width = 444",
+    "w.Height = 463",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40",
+    "ActiveSheet.Cells(2, 1).Select",
+    "w.FreezePanes = True",
+    "w.ScrollRow = 150",
+    "w.ScrollColumn = 20",
+    "w.ScrollIntoView 1217, 2894, 2, 31"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:417.5|Double:254|String:M37:U41|Double:37|Double:13 dpi=14.5"
+  ],
+  [
+   "held 7.5",
+   [
+    "w.Width = 853",
+    "w.Height = 553",
+    "w.Zoom = 100",
+    "w.ScrollRow = 77",
+    "w.ScrollColumn = 17",
+    "w.ScrollIntoView 2542, 37, 176, 189"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:826.5|Double:344|String:AA2:AQ24|Double:2|Double:27 dpi=14.5"
+  ],
+  [
+   "held 7.6",
+   [
+    "w.Width = 430",
+    "w.Height = 353",
+    "w.Zoom = 100",
+    "w.DisplayHorizontalScrollBar = False",
+    "w.ScrollRow = 103",
+    "w.ScrollColumn = 15",
+    "w.ScrollIntoView 190, 872, 281, 15"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:403.5|Double:144|String:B31:I39|Double:31|Double:2 dpi=14.5"
+  ],
+  [
+   "held 7.7",
+   [
+    "w.Width = 714",
+    "w.Height = 265",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40",
+    "w.ScrollRow = 79",
+    "w.ScrollColumn = 16",
+    "w.ScrollIntoView 2580, 2719, 260, 42"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:703|Double:56|String:AA34:AO35|Double:34|Double:27 dpi=14.5"
+  ],
+  [
+   "held 7.8",
+   [
+    "w.Width = 341",
+    "w.Height = 527",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "w.ScrollIntoView 2634, 1321, 289, 284, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:314.5|Double:318|String:AB46:AH66|Double:46|Double:28 dpi=14.5"
+  ],
+  [
+   "held 7.9",
+   [
+    "w.Width = 350",
+    "w.Height = 255",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.LargeScroll Down:=3, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:339|Double:46|String:G4:M5|Double:4|Double:7 dpi=14.5"
+  ],
+  [
+   "held 7.10",
+   [
+    "w.Width = 315",
+    "w.Height = 535",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "w.ScrollRow = 69",
+    "w.ScrollColumn = 8",
+    "w.LargeScroll"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:304|Double:326|String:H69:M90|Double:69|Double:8 dpi=14.5"
+  ],
+  [
+   "held 7.11",
+   [
+    "w.Width = 424",
+    "w.Height = 405",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "ActiveSheet.Cells(2, 3).Select",
+    "w.FreezePanes = True",
+    "w.ScrollRow = 111",
+    "w.ScrollColumn = 21",
+    "w.LargeScroll Up:=2, ToLeft:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:397.5|Double:196|String:P97:U104|Double:97|Double:16 dpi=14.5"
+  ],
+  [
+   "held 7.12",
+   [
+    "w.Width = 843",
+    "w.Height = 272",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:832|Double:63|String:A1:Q4|Double:1|Double:1 dpi=14.5"
+  ],
+  [
+   "held 7.13",
+   [
+    "w.Width = 800",
+    "w.Height = 319",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "ActiveSheet.Cells(2, 3).Select",
+    "w.FreezePanes = True",
+    "w.ScrollRow = 107",
+    "w.ScrollColumn = 21",
+    "w.LargeScroll Down:=3"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:789|Double:110|String:U116:AI119|Double:116|Double:21 dpi=14.5"
+  ],
+  [
+   "held 7.14",
+   [
+    "w.Width = 338",
+    "w.Height = 613",
+    "w.Zoom = 100",
+    "w.DisplayHeadings = False",
+    "w.DisplayHorizontalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.LargeScroll ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:311.5|Double:404|String:M1:S19|Double:1|Double:13 dpi=14.5"
+  ],
+  [
+   "held 7.15",
+   [
+    "w.Width = 420",
+    "w.Height = 271",
+    "w.Zoom = 100",
+    "w.DisplayHeadings = False",
+    "w.DisplayHorizontalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.LargeScroll Down:=2, ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:393.5|Double:62|String:Q5:Y7|Double:5|Double:17 dpi=14.5"
+  ],
+  [
+   "held 7.16",
+   [
+    "w.Width = 501",
+    "w.Height = 349",
+    "w.Zoom = 100",
+    "w.ScrollRow = 33",
+    "w.ScrollColumn = 12",
+    "w.LargeScroll Down:=3"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:474.5|Double:140|String:L57:U65|Double:57|Double:12 dpi=14.5"
+  ],
+  [
+   "held 7.17",
+   [
+    "w.Width = 442",
+    "w.Height = 246",
+    "w.Zoom = 100",
+    "w.ScrollIntoView 2875, 1119, 9, 118, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:415.5|Double:37|String:AD39:AL40|Double:39|Double:30 dpi=14.5"
+  ],
+  [
+   "held 7.18",
+   [
+    "w.Width = 771",
+    "w.Height = 375",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.ScrollRow = 17",
+    "w.ScrollColumn = 2",
+    "w.LargeScroll Up:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:744.5|Double:166|String:B11:Q17|Double:11|Double:2 dpi=14.5"
+  ],
+  [
+   "held 7.19",
+   [
+    "w.Width = 883",
+    "w.Height = 541",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40",
+    "w.ScrollRow = 43",
+    "w.ScrollColumn = 1",
+    "w.LargeScroll Up:=2, ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:856.5|Double:332|String:AI29:AZ36|Double:29|Double:35 dpi=14.5"
+  ],
+  [
+   "held 7.20",
+   [
+    "w.Width = 548",
+    "w.Height = 511",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "w.ScrollRow = 150",
+    "w.ScrollColumn = 3",
+    "w.LargeScroll Up:=1, ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:537|Double:302|String:W131:AG150|Double:131|Double:23 dpi=14.5"
+  ],
+  [
+   "held 7.21",
+   [
+    "w.Width = 592",
+    "w.Height = 358",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.ScrollIntoView 768, 2447, 24, 20, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:565.5|Double:149|String:I56:T62|Double:56|Double:9 dpi=14.5"
+  ],
+  [
+   "held 7.22",
+   [
+    "w.Width = 583",
+    "w.Height = 308",
+    "w.Zoom = 100",
+    "w.DisplayHorizontalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.LargeScroll Down:=2, ToLeft:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:556.5|Double:99|String:A7:L10|Double:7|Double:1 dpi=14.5"
+  ],
+  [
+   "held 7.23",
+   [
+    "w.Width = 340",
+    "w.Height = 624",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "w.ScrollRow = 138",
+    "w.ScrollColumn = 13",
+    "w.LargeScroll Up:=2, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:313.5|Double:415|String:S84:Y111|Double:84|Double:19 dpi=14.5"
+  ],
+  [
+   "held 7.24",
+   [
+    "w.Width = 423",
+    "w.Height = 268",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "w.DisplayWorkbookTabs = False",
+    "ActiveSheet.Cells(2, 1).Select",
+    "w.FreezePanes = True",
+    "w.ScrollIntoView 684, 551, 185, 38"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:412|Double:59|String:H20:P22|Double:20|Double:8 dpi=14.5"
+  ],
+  [
+   "held 7.25",
+   [
+    "w.Width = 665",
+    "w.Height = 450",
+    "w.Zoom = 100",
+    "w.DisplayHeadings = False",
+    "w.LargeScroll Down:=1, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:638.5|Double:241|String:N17:AA33|Double:17|Double:14 dpi=14.5"
+  ],
+  [
+   "held 7.26",
+   [
+    "w.Width = 779",
+    "w.Height = 306",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "w.ScrollRow = 79",
+    "w.ScrollColumn = 6",
+    "w.LargeScroll Down:=3"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:752.5|Double:97|String:F94:U99|Double:94|Double:6 dpi=14.5"
+  ],
+  [
+   "held 7.27",
+   [
+    "w.Width = 361",
+    "w.Height = 266",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "w.ScrollRow = 121",
+    "w.ScrollColumn = 16",
+    "w.ScrollIntoView 1061, 101, 153, 114, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:334.5|Double:57|String:L4:R6|Double:4|Double:12 dpi=14.5"
+  ],
+  [
+   "held 7.28",
+   [
+    "w.Width = 477",
+    "w.Height = 449",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40",
+    "w.ScrollIntoView 1797, 2986, 45, 57, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:450.5|Double:240|String:S38:AA43|Double:38|Double:19 dpi=14.5"
+  ],
+  [
+   "held 7.29",
+   [
+    "w.Width = 545",
+    "w.Height = 520",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "w.ScrollRow = 84",
+    "w.ScrollColumn = 21",
+    "w.ScrollIntoView 586, 253, 169, 43, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:518.5|Double:311|String:G9:Q29|Double:9|Double:7 dpi=14.5"
+  ],
+  [
+   "held 7.30",
+   [
+    "w.Width = 471",
+    "w.Height = 616",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "w.DisplayWorkbookTabs = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:460|Double:407|String:A1:J10|Double:1|Double:1 dpi=14.5"
+  ],
+  [
+   "held 7.31",
+   [
+    "w.Width = 801",
+    "w.Height = 268",
+    "w.Zoom = 100",
+    "w.DisplayHorizontalScrollBar = False",
+    "w.DisplayWorkbookTabs = False",
+    "w.ScrollRow = 9",
+    "w.ScrollColumn = 12",
+    "w.ScrollIntoView 2454, 2882, 223, 141, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:774.5|Double:83|String:Z100:AO104|Double:100|Double:26 dpi=14.5"
+  ],
+  [
+   "held 7.32",
+   [
+    "w.Width = 655",
+    "w.Height = 580",
+    "w.Zoom = 100",
+    "ActiveSheet.Cells(1, 3).Select",
+    "w.FreezePanes = True",
+    "w.LargeScroll Up:=1, ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:628.5|Double:371|String:W1:AG25|Double:1|Double:23 dpi=14.5"
+  ],
+  [
+   "held 7.33",
+   [
+    "w.Width = 605",
+    "w.Height = 457",
+    "w.Zoom = 100",
+    "w.LargeScroll Down:=1, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:578.5|Double:248|String:L17:W33|Double:17|Double:12 dpi=14.5"
+  ],
+  [
+   "held 7.34",
+   [
+    "w.Width = 597",
+    "w.Height = 557",
+    "w.Zoom = 100",
+    "w.DisplayVerticalScrollBar = False",
+    "w.ScrollRow = 65",
+    "w.ScrollColumn = 7",
+    "w.LargeScroll Down:=2, ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:586|Double:348|String:AC111:AN133|Double:111|Double:29 dpi=14.5"
+  ],
+  [
+   "held 7.35",
+   [
+    "w.Width = 756",
+    "w.Height = 284",
+    "w.Zoom = 100",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.ScrollIntoView 2564, 411, 25, 77"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:729.5|Double:75|String:AA10:AO12|Double:10|Double:27 dpi=14.5"
+  ],
+  [
+   "held 7.36",
+   [
+    "w.Width = 388",
+    "w.Height = 363",
+    "w.Zoom = 100",
+    "w.ScrollRow = 105",
+    "w.ScrollColumn = 5",
+    "w.LargeScroll Down:=3, ToLeft:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:361.5|Double:154|String:A132:H141|Double:132|Double:1 dpi=14.5"
+  ],
+  [
+   "held 7.37",
+   [
+    "w.Width = 893",
+    "w.Height = 595",
+    "w.Zoom = 100",
+    "w.LargeScroll Down:=1, ToRight:=2"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:14.5|Double:866.5|Double:386|String:AI26:AZ51|Double:26|Double:35 dpi=14.5"
+  ],
+  [
+   "held 7.38",
+   [
+    "w.Width = 671",
+    "w.Height = 313",
+    "w.Zoom = 100",
+    "w.DisplayHeadings = False",
+    "w.DisplayVerticalScrollBar = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 40",
+    "w.ScrollIntoView 1921, 2075, 217, 156, True"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:40|Double:660|Double:104|String:U26:AH28|Double:26|Double:21 dpi=14.5"
+  ],
+  [
+   "held 7.39",
+   [
+    "w.Width = 784",
+    "w.Height = 333",
+    "w.Zoom = 100",
+    "w.DisplayWorkbookTabs = False",
+    "ActiveSheet.Rows(\"1:600\").RowHeight = 22",
+    "w.LargeScroll Down:=2, ToRight:=1"
+   ],
+   [
+    "ActiveSheet.Columns(1).Width",
+    "ActiveSheet.Rows(1).Height",
+    "w.UsableWidth",
+    "w.UsableHeight",
+    "w.VisibleRange.Address(False, False)",
+    "w.ScrollRow",
+    "w.ScrollColumn"
+   ],
+   "dpi=14.5|Double:48|Double:22|Double:757.5|Double:124|String:P11:AE15|Double:11|Double:16 dpi=14.5"
+  ]
+ ]
+}

@@ -275,6 +275,13 @@ def load_workbook(application: Application, path: Path, *, _passed: object = Non
 
             read_tab(sheet, sheet_xml)
     book.next_sheet_id = max((sheet.sheet_id for sheet in book.tabs()), default=0) + 1
+    for sheet in book.sheets_:
+        if sheet.part_name:
+            sheet.xml_cells_part = next((_resolved(target) for kind, target in _sheet_relationships(package, sheet.part_name).values()
+                                         if kind == "tableSingleCells"), "")
+    from pyopenvba.apps.excel._xml_maps import read_parts as read_xml_maps
+
+    read_xml_maps(book, package, {})
     _read_threads(book, package)
     book.held_kinds = {kind.rsplit("/", 1)[-1] for _, kind in _relationships(package).values()} | {
         marker for marker in ("customWorkbookViews", "webPublishObjects") if f"<{marker}" in workbook_xml}
@@ -1868,6 +1875,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     _resize_loaded_tables(book, package)
     _drop_gone_tables(book, package)
     _write_tables(book, package)
+    from pyopenvba.apps.excel._xml_maps import write_parts as write_xml_maps
+
+    write_xml_maps(book, package, _add_sheet_relationship)
     _drop_gone_pivot_tables(book, package)
     from pyopenvba.apps.excel._pivot_create import write as write_pivots
     from pyopenvba.apps.excel._pivots import number_parts

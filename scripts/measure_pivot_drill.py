@@ -91,7 +91,8 @@ rounds E (72 to 76) and F (77 to 81) test these on twelve new records, predicted
 Rounds E and F, predicted on 1f15c729 (sha256 b668f9c3ee96d0a3): 9 of 10. The miss, a top-2 value filter's grand
 total, grouped every item in the field's own order, a, b, c, d, the two the filter hides among them, where the model
 ranked the items by the lines the table shows. A value filter's field now ranks by its items' order. Held-out rounds
-G (82 to 86) and H (87 to 91) test it on eleven new records, predicted by the model before they ran.
+G (82 to 86) and H (87 to 91) tested it on eleven new records, predicted by the model on 629eecb4 (sha256
+a11de309d46c3bbc) before they ran: 10 of 10.
 
     python scripts/measure_pivot_drill.py
 

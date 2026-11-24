@@ -286,6 +286,7 @@ def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[ob
     lists = carried(root, cache_fields, list(fields), axes, {}, positions)
     found_rules = rules(root)
     counted = set(passing(ids, lists, axes, choices(root, lists), label_hidden(found_rules, list(fields), axes)))
+    valued = {rule.field for rule in found_rules if rule.measure is not None}
     rows, columns = [one for one in rows if one >= 0], [one for one in columns if one >= 0]
 
     def places(index: int) -> dict[int, int]:
@@ -306,6 +307,13 @@ def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[ob
                 if place >= 0:
                     found_ranks[depth].setdefault(place, len(found_ranks[depth]))
         for depth, field in enumerate(axis):
+            if field in valued:
+                # A value filter's field groups its records in its own items' order, those the filter hides among
+                # them, whatever lines it shows (tests/fixtures/pivot_drill.json, held-out round F).
+                if pivot_fields[field].get('sortType', 'manual') != 'manual':
+                    raise VBAUnsupportedError('ShowDetail on a value of a pivot table with a value filter on a sorted '
+                                              'field is not implemented')
+                found_ranks[depth] = {}
             for place in sorted(places(field).values()):
                 found_ranks[depth].setdefault(place, len(found_ranks[depth]))
         return found_ranks

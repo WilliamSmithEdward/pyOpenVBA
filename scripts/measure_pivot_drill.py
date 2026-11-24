@@ -88,6 +88,11 @@ leaves out nothing: the grand total's detail under one held all ten records, the
 order. C1 held, and so did G1; the second range's value gave 10, 9, 8, 7, 6, the removal by swapping again. Held-out
 rounds E (72 to 76) and F (77 to 81) test these on twelve new records, predicted by the model before they ran.
 
+Rounds E and F, predicted on 1f15c729 (sha256 b668f9c3ee96d0a3): 9 of 10. The miss, a top-2 value filter's grand
+total, grouped every item in the field's own order, a, b, c, d, the two the filter hides among them, where the model
+ranked the items by the lines the table shows. A value filter's field now ranks by its items' order. Held-out rounds
+G (82 to 86) and H (87 to 91) test it on eleven new records, predicted by the model before they ran.
+
     python scripts/measure_pivot_drill.py
 
 writes tests/fixtures/pivot_drill.json.
@@ -152,6 +157,9 @@ def ordered(keys: str) -> str:
 
 #: The table's last value, its grand total's.
 TOTAL = 'pt.DataBodyRange.Cells(pt.DataBodyRange.Count).ShowDetail = True'
+#: Eleven records shuffled, for held-out rounds G and H.
+ELEVEN = ('ws.Range("A2:C12").Value = ws.Evaluate("{""b"",""y"",1;""c"",""x"",2;""a"",""x"",3;""b"",""x"",4;'
+          '""a"",""y"",5;""c"",""y"",6;""b"",""x"",7;""a"",""x"",8;""c"",""x"",9;""b"",""y"",10;""a"",""y"",11}"): ')
 #: Twelve records shuffled, four items, for held-out rounds E and F.
 TWELVE = ('ws.Range("A2:C13").Value = ws.Evaluate("{""d"",""x"",1;""a"",""y"",2;""b"",""x"",3;""c"",""y"",4;'
           '""a"",""x"",5;""d"",""y"",6;""b"",""y"",7;""c"",""x"",8;""a"",""x"",9;""b"",""x"",10;""d"",""y"",11;'
@@ -341,6 +349,36 @@ CASES = [
     TWELVE + ROWS.replace('A1:C5', 'A1:C13') + 'pt.PivotFields("g").Orientation = xlRowField: '
     'pt.PivotFields("k").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
     'pt.PivotFields("g").PivotItems("x").ShowDetail = False: ' + GO + TOTAL,
+    # Held-out round G, predicted by the model before it ran.
+    ELEVEN + K_ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("k").PivotFilters.Add Type:=xlBottomCount, '
+    'DataField:=pt.DataFields(1), Value1:=1: ' + GO + TOTAL,
+    ELEVEN + K_ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("k").PivotFilters.Add Type:=xlValueIsLessThan, '
+    'DataField:=pt.DataFields(1), Value1:=20: ' + GO + 'pt.DataBodyRange.Cells(1).ShowDetail = True',
+    ELEVEN + K_G.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("g").PivotFilters.Add Type:=xlCaptionEquals, '
+    'Value1:="y": ' + GO + TOTAL,
+    ELEVEN + ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.PivotFields("g").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
+    'pt.PivotFields("k").PivotItems("a").ShowDetail = False: pt.PivotFields("g").PivotItems("x").Visible = False: '
+    + GO + TOTAL,
+    ELEVEN + ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("v").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("k"), "Count of k", xlCount: '
+    'pt.PivotFields("v").DataRange.Cells(1).Group Start:=1, End:=11, By:=3: ' + GO
+    + 'pt.DataBodyRange.Cells(2).ShowDetail = True',
+    # Held-out round H, predicted by the model before it ran.
+    ELEVEN + ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("g").Orientation = xlPageField: '
+    'pt.PivotFields("g").CurrentPage = "x": pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: pt.PivotFields("k").PivotItems("a").Visible = False: '
+    + GO + TOTAL,
+    ELEVEN + ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("g").Orientation = xlRowField: '
+    'pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: pt.PivotFields("g").PivotFilters.Add Type:=xlTopCount, '
+    'DataField:=pt.DataFields(1), Value1:=1: ' + GO + TOTAL,
+    ELEVEN + K_ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("k").PivotFilters.Add Type:=xlValueIsGreaterThan, '
+    'DataField:=pt.DataFields(1), Value1:=15: ' + GO + 'pt.DataBodyRange.Cells(1).Select: Application.DoubleClick',
+    ELEVEN + ROWS.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("k").Orientation = xlRowField: '
+    'pt.PivotFields("g").Orientation = xlRowField: pt.AddDataField pt.PivotFields("v"), "Sum of v", xlSum: '
+    'pt.PivotFields("k").PivotItems("a").ShowDetail = False: ' + GO
+    + 'pt.PivotFields("k").PivotItems("b").DataRange.Cells(1).ShowDetail = True',
+    ELEVEN + K_G.replace('A1:C5', 'A1:C12') + 'pt.PivotFields("g").PivotItems("y").Visible = False: ' + GO + TOTAL,
 ]
 PROBE = '''Private Function Digest(wb As Workbook) As String
     Dim s As String, sh As Worksheet, lo As ListObject, cell As Range, c As Long

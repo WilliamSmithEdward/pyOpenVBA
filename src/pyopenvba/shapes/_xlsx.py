@@ -33,7 +33,7 @@ from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
 from pyopenvba.shapes._read_look import read_picture, with_fill_line
 from pyopenvba.shapes._read_text import loaded_text, read_text
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, FillPicture, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
@@ -1551,7 +1551,7 @@ def _new_picture(shape: Shape) -> str:
         f'<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" {blip}<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
         f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
-        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}</xdr:spPr></xdr:pic>")
+        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}{OLD_SHADOW if shape.shadow_added else ''}</xdr:spPr></xdr:pic>")
 
 
 def _new_element(shape: Shape) -> str:
@@ -1617,6 +1617,15 @@ def _new_element(shape: Shape) -> str:
     )
 
 
+def _picture_fill(picture: FillPicture, relationship: str) -> str:
+    """A fill of a picture from a file, as Excel writes it (tests/fixtures/fill_format_round_2.json)."""
+    edited = ' dpi="0" rotWithShape="1"' if picture.edited else ""
+    how = (f'<a:tile tx="{picture.tx}" ty="{picture.ty}" sx="{picture.sx}" sy="{picture.sy}" flip="{picture.flip}" algn="{picture.align}"/>'
+           if picture.tiled else "<a:stretch><a:fillRect/></a:stretch>")
+    return (f'<a:blipFill{edited}><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="{relationship}"/>'
+            f'{"<a:srcRect/>" if picture.edited else ""}{how}</a:blipFill>')
+
+
 def _fill_line(shape: Shape) -> str:
     """The fill and line a shape's spPr holds: a text box's own, and only what Shape.Fill and Shape.Line set on top of
     the style, as Excel writes them (tests/fixtures/shape_fill_line.json)."""
@@ -1635,7 +1644,9 @@ def _fill_line(shape: Shape) -> str:
     if look.fill_gradient is not None:
         fill_paint = _gradient(look.fill_gradient)
     fill = ""
-    if look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
+    if look.fill_picture is not None and shape.image_relationship:
+        fill = _picture_fill(look.fill_picture, shape.image_relationship)
+    elif look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
         fill = "<a:noFill/>"
     elif look.fill_bare:
         pass  # A picture with no fill of its own stays without one (tests/fixtures/shape_settings_kept.json).

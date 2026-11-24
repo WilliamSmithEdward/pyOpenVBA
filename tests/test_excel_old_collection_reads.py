@@ -24,15 +24,11 @@ tiny_png: Any = getattr(_script, 'tiny_png')
 SCALAR: dict[tuple[str, str], bool] = {(collection, member): scalar for collection, found in members().items() for member, scalar in found}
 #: Members the model does not yet answer as Excel did in every state and binding, each with why (step (b) of the old collections lane).
 NOT_YET: dict[str, str] = {
-    'Buttons.AutoScaleFont': 'an item setter it needs reports itself',
     'Buttons.AutoSize': 'an item setter it needs reports itself',
     'Buttons.Formula': 'an item setter it needs reports itself',
     'TextBoxes.Formula': "linking again the text box whose file links its text reports itself: what Excel writes is not measured",
     'DrawingObjects.AutoSize': 'an item setter it needs reports itself',
-    'DrawingObjects.Shadow': 'an item setter it needs reports itself',
-    'DrawingObjects.Visible': 'reports itself: Excel reads True as the book stands though an item is hidden, False with the second hidden; a split probe comes first',
     'Pictures.Formula': 'an item setter it needs reports itself',
-    'Pictures.Shadow': 'an item setter it needs reports itself',
     'TextBoxes.AutoSize': 'an item setter it needs reports itself',
 }
 WALKS: dict[tuple[str, str, str, str], list[dict[str, Any]]] = {}

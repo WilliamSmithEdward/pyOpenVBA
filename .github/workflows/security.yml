@@ -21,10 +21,10 @@ on:
 permissions:
   contents: read
 
-# A new push to a pull request cancels the run it replaces. Every other run,
-# a release's call included, has a group of its own.
+# A new push to a pull request cancels its older runs. A push to main waits
+# for the run before it, and only the newest waiting run starts.
 concurrency:
-  group: security-${{ github.event.pull_request.number || github.run_id }}
+  group: security-${{ github.workflow }}-${{ (github.event_name == 'pull_request' || github.event_name == 'push') && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -44,13 +44,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: github/codeql-action/init@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4.39.2
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
 
-      - uses: github/codeql-action/analyze@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4.39.2
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           category: /language:${{ matrix.language }}
           output: sarif
@@ -98,7 +98,7 @@ jobs:
           --sarif-output=semgrep.sarif
           src .github scripts/security
 
-      - uses: github/codeql-action/upload-sarif@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4.39.2
+      - uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: semgrep.sarif
           category: semgrep
@@ -144,7 +144,7 @@ jobs:
           zizmor --format plain .github/workflows || true
           exit "$status"
 
-      - uses: github/codeql-action/upload-sarif@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4.39.2
+      - uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         if: ${{ !cancelled() }}
         with:
           sarif_file: zizmor.sarif

@@ -385,14 +385,14 @@
    "change": "Fill.Transparency = 0.25",
    "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports The fill transparency of a line, under a hidden line, or of a fill hidden bare, "
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",
    "change": "Fill.Solid",
    "excel": "E-2147024809@0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
    "reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0",
-   "model_reopened": "reports Solid on this kind of shape, or with the fill or line hidden, is not implemented"
+   "model_reopened": "0|-2|0|-2|-2|1|-2|-1|8544277|5|1.5|1|0|1|2|0"
   },
   {
    "target": "Joined",

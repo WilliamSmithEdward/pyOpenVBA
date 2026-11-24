@@ -20,9 +20,10 @@ on:
 permissions:
   contents: read
 
-# A new push to a pull request cancels the run it replaces.
+# A new push to a pull request cancels its older runs. A push to main waits
+# for the run before it, and only the newest waiting run starts.
 concurrency:
-  group: fuzz-${{ github.event.pull_request.number || github.run_id }}
+  group: fuzz-${{ github.workflow }}-${{ (github.event_name == 'pull_request' || github.event_name == 'push') && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

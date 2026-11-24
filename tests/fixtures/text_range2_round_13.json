@@ -1,0 +1,513 @@
+{
+ "cases": [
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(4, 2).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(4, 2).Length"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(4, 2).Start"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(5, 1).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(5, 1).Start"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(6, 1).Length"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(3, 10).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "v = tr.Characters(0, 2).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "tr.Characters(4, 2).Copy: v = tr.Characters(tr.Length + 1, 0).Paste.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "tr.Characters(3, 10).Copy: v = tr.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "tr.Characters(5, 1).Copy: v = tr.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "tr.Characters(4, 2).Cut: v = tr.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(4, 2).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(4, 2).Length"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(4, 2).Start"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(5, 1).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(5, 1).Start"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(6, 1).Length"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(3, 10).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: v = t.Characters(0, 2).Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: t.Characters(4, 2).Copy: v = t.Characters(t.Length + 1, 0).Paste.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: t.Characters(3, 10).Copy: v = t.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: t.Characters(5, 1).Copy: v = t.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"wxyz\"",
+   null,
+   "do",
+   "Set t = tr: t.Characters(4, 2).Cut: v = t.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(4, 2).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(4, 2).Length"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(4, 2).Start"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(5, 1).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(5, 1).Start"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(6, 1).Length"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(3, 10).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "v = tr.Characters(0, 2).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Characters(4, 2).Copy: v = tr.Characters(tr.Length + 1, 0).Paste.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Characters(3, 10).Copy: v = tr.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Characters(5, 1).Copy: v = tr.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "tr.Characters(4, 2).Cut: v = tr.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(4, 2).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(4, 2).Length"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(4, 2).Start"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(5, 1).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(5, 1).Start"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(6, 1).Length"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(3, 10).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: v = t.Characters(0, 2).Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: t.Characters(4, 2).Copy: v = t.Characters(t.Length + 1, 0).Paste.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: t.Characters(3, 10).Copy: v = t.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: t.Characters(5, 1).Copy: v = t.Characters(2, 0).Paste.Text"
+  ],
+  [
+   "\"ab cd\"",
+   [
+    1,
+    2
+   ],
+   "do",
+   "Set t = tr: t.Characters(4, 2).Cut: v = t.Text"
+  ]
+ ],
+ "model": [
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:cd|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:2|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:4|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:d|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:5|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:cd|String:ab cdcd|Long:7|Long:3|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "refused",
+  "e0=String:ab |String:ab |Long:3|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:cd|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:2|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:4|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:d|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:5|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:cd|String:ab cdcd|Long:7|Long:3|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "refused",
+  "e0=String:ab |String:ab |Long:3|Long:2|Long:1|Long:-2|Long:0"
+ ],
+ "model_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> d</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>bc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t>ef</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>ef</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>bc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>abc</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>de</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abbc c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "tries": [
+  1,
+  1
+ ],
+ "excel_markup": [
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> d</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>bc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t>ef</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>a</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>ef</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>bc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> </a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"1\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>abc</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abc</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r><a:r><a:rPr kumimoji=\"0\" lang=\"en-US\" sz=\"1100\" b=\"0\" i=\"0\" u=\"none\" strike=\"noStrike\" kern=\"0\" cap=\"none\" spc=\"0\" normalizeH=\"0\" baseline=\"0\" noProof=\"0\"><a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val=\"white\"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/><a:latin typeface=\"+mn-lt\"/><a:ea typeface=\"+mn-ea\"/><a:cs typeface=\"+mn-cs\"/></a:rPr><a:t>de</a:t></a:r><a:endParaRPr lang=\"en-US\" sz=\"1100\"/></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>abbc c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ],
+  [
+   "<xdr:txBody><a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:lstStyle/><a:p><a:pPr algn=\"l\"/><a:r><a:rPr lang=\"en-US\" sz=\"1100\" b=\"1\"/><a:t>c</a:t></a:r><a:r><a:rPr lang=\"en-US\" sz=\"1100\"/><a:t> def</a:t></a:r></a:p></xdr:txBody>"
+  ]
+ ],
+ "standard_height": [
+  "14.5",
+  "14.5"
+ ],
+ "measured_at": "2026-11-17T21:11:36.147930+00:00",
+ "excel": [
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e-2147024809=e-2147024809|String:wxyz|Long:4|Long:1|Long:1|Long:0|Long:0",
+  "e0=String:cd|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:2|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:4|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:d|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:5|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:cd|String:ab cdcd|Long:7|Long:3|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:d|String:adb cd|Long:6|Long:4|Long:1|Long:-2|Long:0",
+  "e0=String:ab |String:ab |Long:3|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:cd|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:2|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:4|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:d|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=Long:5|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:cd|String:ab cdcd|Long:7|Long:3|Long:1|Long:-2|Long:0",
+  "e-2147024809=e-2147024809|String:ab cd|Long:5|Long:2|Long:1|Long:-2|Long:0",
+  "e0=String:d|String:adb cd|Long:6|Long:4|Long:1|Long:-2|Long:0",
+  "e0=String:ab |String:ab |Long:3|Long:2|Long:1|Long:-2|Long:0"
+ ]
+}

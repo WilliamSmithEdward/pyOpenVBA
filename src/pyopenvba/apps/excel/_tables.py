@@ -987,6 +987,9 @@ class ListObjects(VBACollection, ItemDefault, ExcelObject):
             raise error(1004, "The table's range must be on this sheet")
         headers = GUESS if XlListObjectHasHeaders is MISSING else int(to_integer(XlListObjectHasHeaders, "Long"))
         style = self._default_style() if TableStyleName is MISSING else to_text(TableStyleName)
+        if not style:
+            # An empty style name makes no table (tests/fixtures/table_widen.json).
+            raise error(5, "Invalid procedure call or argument")
         return view(add(self.sheet, Source, headers, style))
 
     def _default_style(self) -> str:

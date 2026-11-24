@@ -366,7 +366,11 @@ def next_table_name(sheet: Worksheet) -> str:
     return f'PivotTable{number}'
 
 
-def create_table(cache: PivotCache, destination: object, name: object, read: object, version: object) -> PivotTable:
+def create_table(cache: PivotCache, destination: object, name: object, read: object, version: object, *,
+                 classic: bool = False) -> PivotTable:
+    """A new table over ``cache`` at ``destination``. ``classic`` makes the table Worksheet.PivotTableWizard makes, as
+    Excel 2000 laid tables out: tabular, its drop zones in the grid, no style, and an empty one 2 cells by 2
+    (tests/fixtures/pivot_wizard.json)."""
     if read is not MISSING and not to_bool(read):
         raise error(1004)
     if version is not MISSING:
@@ -388,7 +392,8 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
             str(table.Name()).casefold() == caption.casefold() for table in target.sheet.pivot_tables)):
         raise error(1004)
     first = target.first
-    area = Area(first.top, first.left, first.top + 17, first.left + 2, target.sheet.name)
+    area = Area(first.top, first.left, first.top + (1 if classic else 17), first.left + (1 if classic else 2),
+                target.sheet.name)
     if any(merged.contains(first.top, first.left) for merged in target.sheet.merged_areas):
         raise error(1004)
     for table in target.sheet.pivot_tables:
@@ -409,34 +414,55 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
     if cache.index == 0:
         materialize(cache)
     current = str(cache.Version())
-    # The attributes Excel gives a table a macro makes, in its order (tests/fixtures/pivot_layouts/ compact).
-    root = part_root('pivotTableDefinition', {'name': encoded(caption), 'cacheId': str(cache.cache_id),
-                                       'applyNumberFormats': '0', 'applyBorderFormats': '0', 'applyFontFormats': '0',
-                                       'applyPatternFormats': '0', 'applyAlignmentFormats': '0',
-                                       'applyWidthHeightFormats': '1', 'dataCaption': 'Values',
-                                       'updatedVersion': current, 'minRefreshableVersion': str(min(int(current), 3)),
-                                       'useAutoFormatting': '1', 'itemPrintTitles': '1', 'createdVersion': current,
-                                       'indent': '0', 'outline': '1', 'outlineData': '1',
-                                       'multipleFieldFilters': '0'})
+    formats = {'applyNumberFormats': '0', 'applyBorderFormats': '0', 'applyFontFormats': '0',
+               'applyPatternFormats': '0', 'applyAlignmentFormats': '0', 'applyWidthHeightFormats': '1'}
+    if classic:
+        # The attributes Excel gives the wizard's table, in its order: no createdVersion, which reads as Version 0
+        # (tests/fixtures/pivot_wizard.json).
+        root = part_root('pivotTableDefinition', {'name': encoded(caption), 'cacheId': str(cache.cache_id),
+                                                  'dataOnRows': '1', **formats, 'dataCaption': 'Data',
+                                                  'updatedVersion': current, 'showItems': '0',
+                                                  'showMultipleLabel': '0', 'showMemberPropertyTips': '0',
+                                                  'useAutoFormatting': '1', 'itemPrintTitles': '1',
+                                                  'showDropZones': '0', 'indent': '0', 'compact': '0',
+                                                  'compactData': '0', 'gridDropZones': '1'})
+    else:
+        # The attributes Excel gives a table a macro makes, in its order (tests/fixtures/pivot_layouts/ compact).
+        root = part_root('pivotTableDefinition', {'name': encoded(caption), 'cacheId': str(cache.cache_id),
+                                                  **formats, 'dataCaption': 'Values', 'updatedVersion': current,
+                                                  'minRefreshableVersion': str(min(int(current), 3)),
+                                                  'useAutoFormatting': '1', 'itemPrintTitles': '1',
+                                                  'createdVersion': current, 'indent': '0', 'outline': '1',
+                                                  'outlineData': '1', 'multipleFieldFilters': '0'})
     root.append(node('location', {'ref': area.address(absolute=False), 'firstHeaderRow': str(int(not blocked)),
-                                 'firstDataRow': str(int(not blocked)), 'firstDataCol': '0'}))
+                                 'firstDataRow': str(int(not blocked)), 'firstDataCol': str(int(classic))}))
     fields = cache.root.find(NS + 'cacheFields')
     assert fields is not None
     pivots = node('pivotFields', {'count': str(len(fields))})
     for field in fields:
         # Each pivot field shows its items in its cache field's format (tests/fixtures/pivot_date_filters/).
         identifier = field.get('numFmtId', '0')
-        pivots.append(node('pivotField', {'numFmtId': identifier, 'showAll': '0'} if identifier != '0'
-                           else {'showAll': '0'}))
+        # In the schema's order: compact, numFmtId, outline, showAll, includeNewItemsInFilter.
+        attributes = {'compact': '0'} if classic else {}
+        if identifier != '0':
+            attributes['numFmtId'] = identifier
+        if classic:
+            attributes['outline'] = '0'
+        attributes['showAll'] = '0'
+        if classic:
+            attributes['includeNewItemsInFilter'] = '1'
+        pivots.append(node('pivotField', attributes))
     root.append(pivots)
-    root.append(node('pivotTableStyleInfo', {'name': 'PivotStyleLight16', 'showRowHeaders': '1',
-                                         'showColHeaders': '1', 'showRowStripes': '0', 'showColStripes': '0', 'showLastColumn': '1'}))
+    style = {} if classic else {'name': 'PivotStyleLight16'}
+    root.append(node('pivotTableStyleInfo', {**style, 'showRowHeaders': '1', 'showColHeaders': '1',
+                                             'showRowStripes': '0', 'showColStripes': '0', 'showLastColumn': '1'}))
     from pyopenvba.apps.excel._pivot_aggregate import default_layout, hide_values_row
 
     default_layout(root)
-    # A new table hides the Values row, which the layout honours from then on (tests/fixtures/pivot_options/
-    # values_row).
-    hide_values_row(root)
+    if not classic:
+        # A new table hides the Values row, which the layout honours from then on (tests/fixtures/pivot_options/
+        # values_row).
+        hide_values_row(root)
     table = PivotTable(target.sheet, cache, root)
     table.changed = True
     cleared = Range(target.sheet, [area])
@@ -459,6 +485,82 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
 
     _events.after_edit(cleared)
     _events.pivot_updated(table)
+    return table
+
+
+#: XlPivotTableSourceType's xlDatabase, the only source the wizard is built for.
+_DATABASE = 1
+
+
+def wizard(sheet: Worksheet, source_type: object, source: object, destination: object, name: object,
+           flags: dict[str, object], read: object, unbuilt: dict[str, object]) -> PivotTable:
+    """Worksheet.PivotTableWizard: a classic table over a list (tests/fixtures/pivot_wizard.json).
+
+    With no SourceData the source is the active cell's current region; with no TableDestination the table goes at A1
+    of a new sheet put in before the active one. The table is named and made as CreatePivotTable makes one, but as
+    Excel 2000 laid tables out (see create_table), RowGrand, ColumnGrand, HasAutoFormat and SaveData set as given, and
+    the table's first cell becomes the active cell. Called with nothing while the active cell is in a table, it gives
+    that table back. Given anything then, Excel works on that table -- moving it to a new TableDestination -- which
+    is not built, nor are the arguments that shape a source other than a list."""
+    from pyopenvba.apps.excel._pivot_forms import TABLE_ORDER, grand_attributes, ordered, set_flag
+    from pyopenvba.apps.excel._pivot_options import CACHE_ORDER
+
+    book = sheet.book
+    given = [source_type, source, destination, name, *flags.values(), read, *unbuilt.values()]
+    active = book.active_sheet
+    cell = active.active_cell if active is not None else None
+    if isinstance(cell, Range):
+        at = cell.first
+        for table in getattr(cell.sheet, 'pivot_tables', []):
+            covered = table.TableRange2()
+            assert isinstance(covered, Range)
+            if any(area.contains(at.top, at.left) for area in covered.areas):
+                if all(one is MISSING for one in given):
+                    # Finishing the wizard again lays the table out again, its totals marked as a cache saved
+                    # without its records marks them (tests/fixtures/pivot_wizard.json).
+                    from pyopenvba.apps.excel._pivot_layout import render
+
+                    table.root.set('asteriskTotals', '1')
+                    ordered(table.root, TABLE_ORDER)
+                    table.changed = True
+                    render(table, deepcopy(table.root), list(table.root.findall(f'{NS}dataFields/{NS}dataField')))
+                    return table
+                raise VBAUnsupportedError('PivotTableWizard with the active cell in a pivot table, which works on '
+                                          'that table, is not implemented')
+    named = [key for key, value in unbuilt.items() if value is not MISSING]
+    if named:
+        raise VBAUnsupportedError(f"PivotTableWizard's {', '.join(named)} is not implemented")
+    if read is not MISSING and not to_bool(read):
+        raise error(1004, "Method 'PivotTableWizard' of object '_Worksheet' failed")
+    if source_type is not MISSING and int(to_integer(source_type, 'Long')) != _DATABASE:
+        raise VBAUnsupportedError('PivotTableWizard from a source other than a list is not implemented')
+    if source is MISSING:
+        if not isinstance(cell, Range):
+            raise error(1004)
+        source = cell.vba_get('CurrentRegion', [])
+    cache = create_cache(book, _DATABASE, source, MISSING)
+    if destination is MISSING:
+        from pyopenvba.apps.excel._model import Sheets, Worksheet as Sheet
+
+        added = Sheets(book, worksheets=True).vba_call('Add')
+        assert isinstance(added, Sheet)
+        destination = added.vba_get('Range', ['A1'])
+    table = create_table(cache, destination, name, read, MISSING, classic=True)
+    row_grand, column_grand = grand_attributes(table.root)
+    for key, attribute in (('RowGrand', row_grand), ('ColumnGrand', column_grand),
+                           ('HasAutoFormat', 'useAutoFormatting')):
+        value = flags[key]
+        if value is not MISSING and not to_bool(value):
+            set_flag(table.root, attribute, False, attribute != 'useAutoFormatting', TABLE_ORDER)
+    if flags['SaveData'] is not MISSING and not to_bool(flags['SaveData']):
+        cache.root.set('saveData', '0')
+        ordered(cache.root, CACHE_ORDER)
+    covered = table.TableRange2()
+    assert isinstance(covered, Range)
+    first = covered.first
+    if book.active_sheet is not table.sheet:
+        book.activate_sheet(table.sheet)
+    Range(table.sheet, [Area(first.top, first.left, first.top, first.left, table.sheet.name)]).select_as_excel_does()
     return table
 
 

@@ -7,7 +7,8 @@ are generated. The status, evidence and note columns are kept from the
 file already there, so rerunning this after a change only adds rows and
 reconciles statuses the registry contradicts.
 
-Usage (the default path is the sibling checkout):
+Usage (with no path, the pyVBAReference checkout beside this one, or beside the checkout a
+worktree belongs to; a path with no Excel dump under it stops with exit status 1):
 
     python scripts/build_excel_checklist.py [path\\to\\pyVBAReference]
 
@@ -27,7 +28,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-DEFAULT_REFERENCE = ROOT.parent / "pyVBAReference"
+#: Where pyVBAReference is looked for with no path given: beside this checkout, or beside the checkout a worktree
+#: under .claude/worktrees belongs to.
+DEFAULT_REFERENCES = tuple(parent / "pyVBAReference" for parent in ROOT.parents)
 CHECKLIST = ROOT / "docs" / "excel_checklist.csv"
 COLUMNS = ("object", "member", "kind", "signature", "interface_gaps", "status", "evidence", "note")
 IMPLEMENTED = ("VERIFIED", "PARTIAL", "UNASSESSED")
@@ -210,10 +213,28 @@ def build(reference: Path) -> list[dict[str, str]]:
     return rows
 
 
+def dumped(reference: Path) -> bool:
+    return (reference / "reference" / "excel" / "json").is_dir()
+
+
+def reference_from(arguments: list[str]) -> Path:
+    """The pyVBAReference checkout to read: the one given, or the nearest one beside this checkout or the one it is
+    a worktree of. A path with no Excel dump under it stops the build with a message and exit status 1, before the
+    checklist is touched."""
+    if arguments:
+        reference = Path(arguments[0])
+        if not dumped(reference):
+            raise SystemExit(f"no Excel type-library dump under {reference}")
+        return reference
+    found = next((one for one in DEFAULT_REFERENCES if dumped(one)), None)
+    if found is None:
+        raise SystemExit("no Excel type-library dump in a pyVBAReference checkout beside this one; give its path: "
+                         "python scripts/build_excel_checklist.py <path to pyVBAReference>")
+    return found
+
+
 def main() -> None:
-    reference = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_REFERENCE
-    if not (reference / "reference" / "excel" / "json").is_dir():
-        raise SystemExit(f"no Excel type-library dump under {reference}")
+    reference = reference_from(sys.argv[1:])
     rows = build(reference)
     with CHECKLIST.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=COLUMNS, lineterminator="\n")

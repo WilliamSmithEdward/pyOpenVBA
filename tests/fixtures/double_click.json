@@ -1,0 +1,63 @@
+{
+ "measured_at": "2026-11-17T22:42:17.541465+00:00",
+ "log": "Public Log As String\nPublic WantCancel As Boolean\n",
+ "sink": "Public WithEvents Book As Workbook\n\nPrivate Sub Book_SheetBeforeDoubleClick(ByVal Sh As Object, ByVal Target As Range, Cancel As Boolean)\n    Log = Log & \"[BeforeDoubleClick \" & Sh.Name & \" \" & Target.Address(False, False) & \" \" & Cancel & \"]\"\n    If WantCancel Then Cancel = True\nEnd Sub\n\nPrivate Sub Book_SheetChange(ByVal Sh As Object, ByVal Target As Range)\n    Log = Log & \"[Change \" & Sh.Name & \" \" & Target.Address(False, False) & \"]\"\nEnd Sub\n\nPrivate Sub Book_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)\n    Log = Log & \"[SelectionChange \" & Sh.Name & \" \" & Target.Address(False, False) & \"]\"\nEnd Sub\n\nPrivate Sub Book_NewSheet(ByVal Sh As Object)\n    Log = Log & \"[NewSheet \" & Sh.Name & \"]\"\nEnd Sub\n\nPrivate Sub Book_SheetActivate(ByVal Sh As Object)\n    Log = Log & \"[Activate \" & Sh.Name & \"]\"\nEnd Sub\n",
+ "source": "Private Function Digest(wb As Workbook) As String\n    Dim s As String, sh As Worksheet, cell As Range\n    On Error Resume Next\n    s = \"ready \" & Application.Ready & \" visible \" & Application.Visible & \" sheets\"\n    For Each sh In wb.Worksheets\n        s = s & \" \" & sh.Name\n    Next\n    s = s & \" active \" & ActiveSheet.Name & \"!\" & ActiveCell.Address(False, False) & \" sel \" & Selection.Address(False, False)\n    For Each cell In wb.Worksheets(wb.Worksheets.Count).Range(\"A1:F8\")\n        If Not IsEmpty(cell.Value) Then s = s & \" \" & cell.Address(False, False) & \"=\" & cell.Text\n    Next\n    Digest = s\nEnd Function\n\nFunction Probe(ByVal which As Long, ByVal cancels As Boolean) As String\n    Dim sink As New ExcelSink, wb As Workbook, ws As Worksheet, pt As PivotTable, r As Variant, failure As String\n    Application.EnableEvents = False\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Activate\n    Set sink.Book = wb\n    Log = \"\"\n    WantCancel = cancels\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 1\n        ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 2\n        ws.Range(\"A1\").Formula = \"=1+1\": ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 3\n        ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 4\n        ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E2\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 5\n        ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E2\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 6\n        ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E2\").Select: Application.DoubleClick\n    Case 7\n        ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E4\").Select: Application.EnableEvents = True: Application.DoubleClick\n    Case 8\n        ws.Range(\"A1:B2\").Select: ws.Range(\"B2\").Activate: Application.EnableEvents = True: Application.DoubleClick\n    Case 9\n        ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick: Application.DoubleClick\n    Case 10\n        ws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B3\"), , xlYes: ws.Range(\"A2\").Select: Application.EnableEvents = True: Application.DoubleClick\n    End Select\nAnswered:\n    On Error GoTo 0\n    Application.EnableEvents = False\n    Probe = Log & \"|\" & CStr(r) & failure & \"|\" & Digest(wb)\n    Application.EnableEvents = True\n    wb.Close False\n    Exit Function\nFailed:\n    failure = \"!E\" & Err.Number & \" \" & Err.Description\n    Resume Answered\nEnd Function\n",
+ "cases": [
+  [
+   "ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet1 active Sheet1!A1 sel A1"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet1 active Sheet1!A1 sel A1 A1=5"
+  ],
+  [
+   "ws.Range(\"A1\").Formula = \"=1+1\": ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet1 active Sheet1!A1 sel A1 A1=2"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   true,
+   "||ready True visible False sheets Sheet1 active Sheet1!A1 sel A1 A1=5"
+  ],
+  [
+   "ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E2\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "[NewSheet Sheet2][Activate Sheet2][SelectionChange Sheet2 A1:B3]||ready True visible False sheets Sheet2 Sheet1 active Sheet2!A1 sel A1:B3 A1=k B1=v D1=Row Labels E1=Sum of v A2=a B2=1 D2=a E2=4 A3=b B3=2 D3=b E3=6 A4=a B4=3 D4=Grand Total E4=10 A5=b B5=4"
+  ],
+  [
+   "ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E2\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   true,
+   "[NewSheet Sheet2][Activate Sheet2][SelectionChange Sheet2 A1:B3]||ready True visible False sheets Sheet2 Sheet1 active Sheet2!A1 sel A1:B3 A1=k B1=v D1=Row Labels E1=Sum of v A2=a B2=1 D2=a E2=4 A3=b B3=2 D3=b E3=6 A4=a B4=3 D4=Grand Total E4=10 A5=b B5=4"
+  ],
+  [
+   "ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E2\").Select: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet2 Sheet1 active Sheet2!A1 sel A1:B3 A1=k B1=v D1=Row Labels E1=Sum of v A2=a B2=1 D2=a E2=4 A3=b B3=2 D3=b E3=6 A4=a B4=3 D4=Grand Total E4=10 A5=b B5=4"
+  ],
+  [
+   "ws.Range(\"A1:B5\").Value = ws.Evaluate(\"{\"\"k\"\",\"\"v\"\";\"\"a\"\",1;\"\"b\"\",2;\"\"a\"\",3;\"\"b\"\",4}\"): Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"D1\"), \"P\"): pt.PivotFields(\"k\").Orientation = xlRowField: pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum: ws.Range(\"E4\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "[NewSheet Sheet2][Activate Sheet2][SelectionChange Sheet2 A1:B5]||ready True visible False sheets Sheet2 Sheet1 active Sheet2!A1 sel A1:B5 A1=k B1=v D1=Row Labels E1=Sum of v A2=a B2=1 D2=a E2=4 A3=b B3=2 D3=b E3=6 A4=a B4=3 D4=Grand Total E4=10 A5=b B5=4"
+  ],
+  [
+   "ws.Range(\"A1:B2\").Select: ws.Range(\"B2\").Activate: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet1 active Sheet1!B2 sel A1:B2"
+  ],
+  [
+   "ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").Select: Application.EnableEvents = True: Application.DoubleClick: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet1 active Sheet1!A1 sel A1 A1=5"
+  ],
+  [
+   "ws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B3\"), , xlYes: ws.Range(\"A2\").Select: Application.EnableEvents = True: Application.DoubleClick",
+   false,
+   "||ready True visible False sheets Sheet1 active Sheet1!A2 sel A2 A1=Column1 B1=Column2"
+  ]
+ ]
+}

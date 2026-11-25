@@ -89,9 +89,14 @@ def test_repeated_star_literal_masks_are_evaluated_once_per_input_character(monk
 
 
 def test_repeated_star_miss_finishes_in_isolated_process() -> None:
-    source = ("from pyopenvba.apps.excel._autofilter import Seen, _like;"
-              "assert not _like(Seen('a'*2048,None,'a'*2048,False),'*a'*60+'b')")
+    """A backtracking matcher would never finish this miss, and nothing in the test's own process can stop it, so it runs in a
+    process of its own. That process starts Python and imports the package with no bytecode, which took 5 seconds on an idle
+    machine and more than 10 under a full parallel run. So the limit on the process only stops a hang, and the bound is on the
+    CPU time of the match alone, which a busy machine does not inflate: about 0.02 seconds."""
+    source = ("import time;from pyopenvba.apps.excel._autofilter import Seen, _like;start=time.process_time();"
+              "assert not _like(Seen('a'*2048,None,'a'*2048,False),'*a'*60+'b');print(time.process_time()-start)")
     environment = dict(os.environ, PYTHONPATH=str(Path(__file__).parents[1] / 'src'), PYTHONDONTWRITEBYTECODE='1')
     result = subprocess.run([sys.executable, '-B', '-c', source], env=environment,
-                            capture_output=True, text=True, timeout=10, check=False)
+                            capture_output=True, text=True, timeout=600, check=False)
     assert result.returncode == 0, result.stderr
+    assert float(result.stdout) < 2.0, f'the miss took {result.stdout.strip()} CPU seconds'

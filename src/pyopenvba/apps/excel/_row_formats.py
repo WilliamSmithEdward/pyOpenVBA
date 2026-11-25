@@ -31,9 +31,11 @@ was measured in live Excel (scripts/measure_row_formats.py):
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+import contextlib
+import functools
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _styles as S
@@ -169,6 +171,38 @@ def keep_shown(sheet: Worksheet, area: Area, *, vertical: bool, delete: bool) ->
                 cell.style = shown
 
 
+_Formatter = TypeVar("_Formatter", bound=Callable[..., None])
+
+
+@contextlib.contextmanager
+def one_statement(sheet: Worksheet) -> Iterator[None]:
+    """One change a macro makes: the cells standing before it are the ones Excel has (see Worksheet.unread_dropped).
+    Nested calls keep the outermost snapshot."""
+    if sheet.statement_cells is not None:
+        yield
+        return
+    sheet.statement_cells = frozenset(sheet.cells_)
+    try:
+        yield
+    finally:
+        sheet.statement_cells = None
+
+
+def _formats_whole(function: _Formatter) -> _Formatter:
+    """Mark the sheet as taking a format on whole rows, columns or itself while the function runs, so the cells it leaves
+    saying nothing are remembered until UsedRange is read (see Worksheet.unread_dropped)."""
+    @functools.wraps(function)
+    def run(sheet: Worksheet, *args: Any, **kwargs: Any) -> None:
+        with one_statement(sheet):
+            sheet.formatting_whole += 1
+            try:
+                function(sheet, *args, **kwargs)
+            finally:
+                sheet.formatting_whole -= 1
+    return cast("_Formatter", run)
+
+
+@_formats_whole
 def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change, *, crossings: bool = True) -> None:
     """Whole rows formatted: each row's format and each of its cells change from what they show; with crossings False,
     the places where a formatted column crosses a row with no format of its own keep what they show."""
@@ -202,6 +236,7 @@ def format_rows(sheet: Worksheet, top: int, bottom: int, change: Change, *, cros
         sheet.dims.fonts_changed(row)
 
 
+@_formats_whole
 def format_columns(sheet: Worksheet, left: int, right: int, change: Change, *, crossings: bool = True) -> None:
     """Whole columns formatted: a formatted row across one keeps its format there only in a cell; with crossings False,
     those places keep what they show."""
@@ -235,6 +270,7 @@ def format_columns(sheet: Worksheet, left: int, right: int, change: Change, *, c
     sheet.dims.column_fonts_changed()
 
 
+@_formats_whole
 def format_sheet(sheet: Worksheet, change: Change) -> None:
     """The whole sheet formatted: every column, every formatted row and every cell."""
     change = shared(change)

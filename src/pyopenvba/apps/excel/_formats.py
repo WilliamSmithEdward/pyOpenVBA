@@ -1430,6 +1430,10 @@ class Border(ExcelObject):
 
     def apply(self, change: Callable[[S.Side], S.Side]) -> None:
         """Set the border on each area -- each visible area, on a filtered sheet, measured for the bottom edge."""
+        with _row_formats.one_statement(self.target.sheet):
+            self._apply(change)
+
+    def _apply(self, change: Callable[[S.Side], S.Side]) -> None:
         sheet = self.target.sheet
         areas = visible_areas(self.target) or self.target.areas
         _row_formats.refuse_past_half(areas)
@@ -1721,6 +1725,10 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         return [side for index in self._indexes() for side in found[index]]
 
     def _set_all(self, what: str, value: object) -> None:
+        with _row_formats.one_statement(self.target.sheet):
+            self._set_each(what, value)
+
+    def _set_each(self, what: str, value: object) -> None:
         # A colour set over the whole collection, whatever the colour, marks the fill applied as well: an invisible
         # difference that keeps a cell apart from a row or column format otherwise equal to its own, and that Excel
         # writes as applyFill (tests/fixtures/used_range.json).
@@ -1733,16 +1741,18 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         # A line style or weight set through the collection draws a horizontal line in the automatic colour, whatever colour
         # it had, where the range spans more than one row, and a vertical line where it spans more than one column
         # (tests/fixtures/used_range.json, tests/fixtures/border_rounds.json).
-        # On whole rows or columns a line that has a colour of its own keeps it (probe 27).
         restyling = what in ("LineStyle", "Weight")
-        whole = all(_row_formats.whole(area) for area in self.target.areas)
         for index in self._indexes():
             border = Border(self.target, index, together=True, collection=True)
             horizontal = index in (8, 9, 12)
+            # The colour stays where the lines run across every row (horizontal) or every column (vertical): a column's
+            # inside horizontals, a row's inside verticals (probe 27); two rows' inside horizontal goes automatic
+            # (round 16002 #109).
+            keeps = all((area.rows == MAX_ROWS) if horizontal else (area.columns == MAX_COLUMNS) for area in self.target.areas)
             if restyling and any((area.rows if horizontal else area.columns) > 1 for area in self.target.areas):
                 change = side_change(what, value)
-                border.apply(lambda side, change=change: change(side) if whole and _coloured(side)  # type: ignore[misc]
-                             else _automatic(change(side)))
+                border.apply(lambda side, change=change, keeps=keeps: change(side)  # type: ignore[misc]
+                             if keeps and _coloured(side) else _automatic(change(side)))
             else:
                 border.assign(what, value)
         if colour:

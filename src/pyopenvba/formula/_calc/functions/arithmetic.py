@@ -25,7 +25,7 @@ from pyopenvba.formula._calc.evaluator import Context, power
 from pyopenvba.formula._calc.functions.common import matrix, numbers, pairs
 from pyopenvba.formula._calc.numbers import normal, total
 from pyopenvba.formula._calc.registry import A, R, V, function
-from pyopenvba.formula._calc.values import DIV0, NUM, VALUE, Array, ExcelError, Scalar, Value
+from pyopenvba.formula._calc.values import DIV0, NUM, VALUE, Array, ExcelError, Reference, Scalar, Value
 from pyopenvba.formula._calc.cells import CellError
 
 #: Enough digits for any double written out in full.
@@ -360,6 +360,15 @@ def PERMUT(context: Context, number: Scalar, chosen: Scalar) -> Value:
 
 
 def _whole_numbers(context: Context, args: tuple[Value, ...]) -> list[int]:
+    """GCD's and LCM's numbers. Measured: a text or a logical in a range or an array is ``#VALUE!``, where SUM passes it
+    over, and a blank cell is passed over (pyOpenVBA's tests/fixtures/worksheet_function_rivals.json)."""
+    for arg in args:
+        if isinstance(arg, (Reference, Array)):
+            for value, _ in context.scalars(arg):
+                if isinstance(value, CellError):
+                    raise ExcelError(value)
+                if isinstance(value, (str, bool)):
+                    raise ExcelError(VALUE)
     found: list[int] = []
     for value in numbers(context, args):
         if value < 0 or value >= 2.0**53:

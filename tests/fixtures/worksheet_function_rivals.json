@@ -1,0 +1,3600 @@
+{
+ "about": "Rival rules for the wrong answers WorksheetFunction rounds 60101 (probes 1 to 5) and 60102 (probes 6 and 7) and 60103 (probe 8) and 60104 (probe 9) found, each prediction written before Excel answered (live Excel, 2026-11-24 and 25). The cases of one probe run in order in one macro, on one new book's sheet that tests/fixtures/worksheet_functions_more.json fills, so a setup stays for the cases after it; once with f typed As WorksheetFunction, once As Object. Each case clears M1, runs its setup, and reads its expression into v; a cell formula case reads M1 back. Answers are as that fixture's Show writes them, E and a number for an error raised.",
+ "cases": [
+  {
+   "probe": 1,
+   "case": "ztest cell empty sigma",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ZTEST(A1:A5,4,)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "Error:2007",
+    "left out": "Double:0.104"
+   },
+   "late": "Error:2036",
+   "typed": "Error:2036"
+  },
+  {
+   "probe": 1,
+   "case": "ztest cell blank sigma",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ZTEST(A1:A5,4,K9)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "Error:2007",
+    "left out": "Double:0.104"
+   },
+   "late": "Error:2036",
+   "typed": "Error:2036"
+  },
+  {
+   "probe": 1,
+   "case": "ztest wf empty sigma",
+   "setup": "",
+   "expression": "f.ZTest(ws.Range(\"A1:A5\"), 4, Empty)",
+   "rivals": {
+    "zero": "E1004",
+    "left out": "Double:0.104"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "ztest wf blank sigma",
+   "setup": "",
+   "expression": "f.ZTest(ws.Range(\"A1:A5\"), 4, ws.Range(\"K9\"))",
+   "rivals": {
+    "zero": "E1004",
+    "left out": "Double:0.104"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "ifna cell empty",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=IFNA(NA(),)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "iferror cell empty",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=IFERROR(1/0,)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "ifna cell blank cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=IFNA(NA(),K9)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "ifna wf empty",
+   "setup": "",
+   "expression": "f.IfNa(CVErr(xlErrNA), Empty)",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "iferror wf empty",
+   "setup": "",
+   "expression": "f.IfError(CVErr(xlErrDiv0), Empty)",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "ifna wf blank cell",
+   "setup": "",
+   "expression": "f.IfNa(CVErr(xlErrNA), ws.Range(\"K9\"))",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "iferror wf blank cell",
+   "setup": "",
+   "expression": "f.IfError(CVErr(xlErrDiv0), ws.Range(\"K9\"))",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "choose wf empty",
+   "setup": "",
+   "expression": "f.Choose(2, 1, Empty)",
+   "rivals": {
+    "zero": "Double:0",
+    "blank": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "bahttext wf empty",
+   "setup": "",
+   "expression": "f.BahtText(Empty)",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "blank": "E1004"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 1,
+   "case": "bahttext wf blank cell",
+   "setup": "",
+   "expression": "f.BahtText(ws.Range(\"K9\"))",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "blank": "E1004"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 1,
+   "case": "bahttext cell blank",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=BAHTTEXT(K9)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "blank": "Error:2015"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 1,
+   "case": "roman wf empty",
+   "setup": "",
+   "expression": "f.Roman(Empty)",
+   "rivals": {
+    "zero": "String:",
+    "blank": "E1004"
+   },
+   "late": "String:",
+   "typed": "String:"
+  },
+  {
+   "probe": 1,
+   "case": "dollar wf empty",
+   "setup": "",
+   "expression": "f.Dollar(Empty)",
+   "rivals": {
+    "zero": "String:$0.00",
+    "blank": "E1004"
+   },
+   "late": "String:$0.00",
+   "typed": "String:$0.00"
+  },
+  {
+   "probe": 1,
+   "case": "frequency true",
+   "setup": "",
+   "expression": "f.Frequency(ws.Range(\"A1:A5\"), True)",
+   "rivals": {
+    "no bound": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+    "as 1": "Array(1 To 2, 1 To 1) Double:1 Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+   "typed": "Array(1 To 2, 1 To 1) Double:0 Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "frequency true signed",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), True)",
+   "rivals": {
+    "no bound": "Array(1 To 2, 1 To 1) Double:0 Double:4",
+    "as 1": "Array(1 To 2, 1 To 1) Double:3 Double:1",
+    "as 0": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "frequency false signed",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), False)",
+   "rivals": {
+    "no bound": "Array(1 To 2, 1 To 1) Double:0 Double:4",
+    "as 0": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "frequency text 3",
+   "setup": "",
+   "expression": "f.Frequency(ws.Range(\"A1:A5\"), \"3\")",
+   "rivals": {
+    "no bound": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+    "as 3": "Array(1 To 2, 1 To 1) Double:3 Double:2"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+   "typed": "Array(1 To 2, 1 To 1) Double:0 Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "frequency text abc",
+   "setup": "",
+   "expression": "f.Frequency(ws.Range(\"A1:A5\"), \"abc\")",
+   "rivals": {
+    "no bound": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+   "typed": "Array(1 To 2, 1 To 1) Double:0 Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "frequency cell true",
+   "setup": "",
+   "expression": "f.Frequency(ws.Range(\"A1:A5\"), ws.Range(\"C4\"))",
+   "rivals": {
+    "no bound": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+    "dropped": "Array(1 To 1, 1 To 1) Double:5"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+   "typed": "Array(1 To 2, 1 To 1) Double:0 Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "frequency array true 3",
+   "setup": "",
+   "expression": "f.Frequency(ws.Range(\"A1:A5\"), Array(True, 3))",
+   "rivals": {
+    "slot": "Array(1 To 3, 1 To 1) Double:0 Double:3 Double:2",
+    "dropped": "Array(1 To 2, 1 To 1) Double:3 Double:2"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:3 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:3 Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "frequency cell formula true",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY(A1:A5,TRUE))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "no bound": "String:0, 5",
+    "as 1": "String:1, 4"
+   },
+   "late": "String:0, 5",
+   "typed": "String:0, 5"
+  },
+  {
+   "probe": 1,
+   "case": "frequency cell formula c4",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY(A1:A5,C4))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "no bound": "String:0, 5",
+    "dropped": "String:5"
+   },
+   "late": "String:0, 5",
+   "typed": "String:0, 5"
+  },
+  {
+   "probe": 1,
+   "case": "dsum field range",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), ws.Range(\"A1:A2\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "error": "E1004",
+    "per cell": "Array(1 To 2, 1 To 1) Double:1 Double:2"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "dget field array",
+   "setup": "",
+   "expression": "f.DGet(ws.Range(\"G1:J2\"), Array(1, 2), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "error": "E1004",
+    "per item": "Array(1 To 2) Double:1 Double:2"
+   },
+   "late": "Array(1 To 2) Double:1 Double:2",
+   "typed": "Array(1 To 2) Double:1 Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "dcount field range",
+   "setup": "",
+   "expression": "f.DCount(ws.Range(\"G1:J2\"), ws.Range(\"A1:A2\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "error": "E1004",
+    "per cell": "Array(1 To 2, 1 To 1) Double:1 Double:1"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "dsum cell field range",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(DSUM(G1:J2,A1:A2,G1:G2))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "error": "String:#VALUE!",
+    "per cell": "String:1, 2"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 1,
+   "case": "dsum field one cell",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), ws.Range(\"A2\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "one": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "countifs null",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), Null)",
+   "rivals": {
+    "every": "Double:10",
+    "non-blank": "Double:5",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "countif null",
+   "setup": "",
+   "expression": "f.CountIf(ws.Range(\"A1:A10\"), Null)",
+   "rivals": {
+    "every": "Double:10",
+    "non-blank": "Double:5",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "sumifs null",
+   "setup": "",
+   "expression": "f.SumIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), Null)",
+   "rivals": {
+    "every": "Double:15",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "averageifs null first",
+   "setup": "",
+   "expression": "f.AverageIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), Null, ws.Range(\"A1:A5\"), \">1\")",
+   "rivals": {
+    "every": "Double:3.5",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "averageif null",
+   "setup": "",
+   "expression": "f.AverageIf(ws.Range(\"A1:A5\"), Null)",
+   "rivals": {
+    "every": "Double:3",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "countifs empty",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), Empty)",
+   "rivals": {
+    "blank": "Double:5",
+    "zero": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "countifs cell empty",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=COUNTIFS(A1:A10,)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "blank": "Double:5",
+    "zero": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "sum null",
+   "setup": "",
+   "expression": "f.Sum(1, Null)",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:1"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 0.67 b3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1.5, 3)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 0.67 b1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1.5, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 1.33",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.75, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.5, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 2.5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.4, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:937",
+   "typed": "Double:937"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 3, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:981",
+   "typed": "Double:981"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 3.33",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.3, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:902",
+   "typed": "Double:902"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.25, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:776",
+   "typed": "Double:776"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 4.55",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.22, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:886",
+   "typed": "Double:886"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.2, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:820",
+   "typed": "Double:820"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 5.5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 5.5, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:756",
+   "typed": "Double:756"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 6, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:702",
+   "typed": "Double:702"
+  },
+  {
+   "probe": 1,
+   "case": "amordegrc life 6.67",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.15, 1)",
+   "rivals": {
+    "number": "Double:",
+    "num": "E1004"
+   },
+   "late": "Double:776",
+   "typed": "Double:776"
+  },
+  {
+   "probe": 1,
+   "case": "lcm text cell",
+   "setup": "",
+   "expression": "f.Lcm(5, ws.Range(\"C2\"))",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "gcd text cell",
+   "setup": "",
+   "expression": "f.Gcd(5, ws.Range(\"C2\"))",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "lcm range with text",
+   "setup": "",
+   "expression": "f.Lcm(5, ws.Range(\"C1:C2\"))",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:10"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "lcm logical cell",
+   "setup": "",
+   "expression": "f.Lcm(5, ws.Range(\"C4\"))",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "lcm blank cell",
+   "setup": "",
+   "expression": "f.Lcm(5, ws.Range(\"K9\"))",
+   "rivals": {
+    "zero": "Double:0",
+    "skipped": "Double:5"
+   },
+   "late": "Double:5",
+   "typed": "Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "lcm text",
+   "setup": "",
+   "expression": "f.Lcm(5, \"abc\")",
+   "rivals": {
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "lcm cell text cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=LCM(5,C2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "error": "Error:2015",
+    "skipped": "Double:5"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 1,
+   "case": "gcd cell range with text",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=GCD(5,C1:C2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "error": "Error:2015",
+    "skipped": "Double:5"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 1,
+   "case": "lcm cell logical cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=LCM(5,C4)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "error": "Error:2015",
+    "skipped": "Double:5"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 1,
+   "case": "lcm cell blank cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=LCM(5,K9)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "Double:0",
+    "skipped": "Double:5"
+   },
+   "late": "Double:5",
+   "typed": "Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "trend row y column x",
+   "setup": "",
+   "expression": "f.Trend(Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array(1 To 5) ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "trend column y row x",
+   "setup": "",
+   "expression": "f.Trend(ws.Range(\"A1:A5\"), Array(1, 2, 3, 4, 5))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array(1 To 5, 1 To 1) ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "growth row y column x",
+   "setup": "",
+   "expression": "f.Growth(Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "linest row y column x",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array(1 To 2) Double:0.6 Double:2.2"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "logest row y column x",
+   "setup": "",
+   "expression": "f.LogEst(Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "trend row y row x",
+   "setup": "",
+   "expression": "f.Trend(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5))",
+   "rivals": {
+    "count": "Array(1 To 5) ..."
+   },
+   "late": "Array(1 To 5) Double:2.8 Double:3.4 Double:4 Double:4.6 Double:5.2",
+   "typed": "Array(1 To 5) Double:2.8 Double:3.4 Double:4 Double:4.6 Double:5.2"
+  },
+  {
+   "probe": 1,
+   "case": "trend cell row y column x",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(TREND({2,4,5,4,5},A1:A5))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "shape": "String:#REF!",
+    "count": "String:2.8, ..."
+   },
+   "late": "Error:2023",
+   "typed": "Error:2023"
+  },
+  {
+   "probe": 1,
+   "case": "trend row y column x new",
+   "setup": "",
+   "expression": "f.Trend(Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"), 6)",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Double:5.8"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 1,
+   "case": "slope row y column x",
+   "setup": "",
+   "expression": "f.Slope(Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "count": "Double:0.6"
+   },
+   "late": "Double:0.6",
+   "typed": "Double:0.6"
+  },
+  {
+   "probe": 1,
+   "case": "forecast row y column x",
+   "setup": "",
+   "expression": "f.Forecast(6, Array(2, 4, 5, 4, 5), ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "count": "Double:5.8"
+   },
+   "late": "Double:5.8",
+   "typed": "Double:5.8"
+  },
+  {
+   "probe": 1,
+   "case": "transpose cell",
+   "setup": "ws.Range(\"K1\").Value = 5",
+   "expression": "f.Transpose(ws.Range(\"K1\"))",
+   "rivals": {
+    "item": "Double:5",
+    "array": "Array(1 To 1) Double:5"
+   },
+   "late": "Double:5",
+   "typed": "Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "transpose text cell",
+   "setup": "",
+   "expression": "f.Transpose(ws.Range(\"C2\"))",
+   "rivals": {
+    "item": "String:x",
+    "array": "Array(1 To 1) String:x"
+   },
+   "late": "String:x",
+   "typed": "String:x"
+  },
+  {
+   "probe": 1,
+   "case": "transpose blank cell",
+   "setup": "",
+   "expression": "f.Transpose(ws.Range(\"K9\"))",
+   "rivals": {
+    "item": "Empty",
+    "item 0": "Double:0",
+    "array": "Array(1 To 1) Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "transpose array of one",
+   "setup": "",
+   "expression": "f.Transpose(Array(5))",
+   "rivals": {
+    "item": "Double:5",
+    "array": "Array(1 To 1, 1 To 1) Double:5"
+   },
+   "late": "Array(1 To 1) Double:5",
+   "typed": "Array(1 To 1) Double:5"
+  },
+  {
+   "probe": 1,
+   "case": "mmult cells",
+   "setup": "",
+   "expression": "f.MMult(ws.Range(\"A2\"), ws.Range(\"A3\"))",
+   "rivals": {
+    "item": "Double:6",
+    "array": "Array(1 To 1) Double:6"
+   },
+   "late": "Array(1 To 1) Double:6",
+   "typed": "Array(1 To 1) Double:6"
+  },
+  {
+   "probe": 1,
+   "case": "minverse cell",
+   "setup": "",
+   "expression": "f.MInverse(ws.Range(\"A2\"))",
+   "rivals": {
+    "item": "Double:0.5",
+    "array": "Array(1 To 1) Double:0.5"
+   },
+   "late": "Array(1 To 1) Double:0.5",
+   "typed": "Array(1 To 1) Double:0.5"
+  },
+  {
+   "probe": 1,
+   "case": "munit cell",
+   "setup": "",
+   "expression": "f.MUnit(ws.Range(\"F2\"))",
+   "rivals": {
+    "item": "Double:1",
+    "array": "Array(1 To 1) Double:1"
+   },
+   "late": "Array(1 To 1) Double:1",
+   "typed": "Array(1 To 1) Double:1"
+  },
+  {
+   "probe": 1,
+   "case": "sort cell",
+   "setup": "",
+   "expression": "f.Sort(ws.Range(\"A2\"))",
+   "rivals": {
+    "item": "Double:2",
+    "array": "Array(1 To 1) Double:2"
+   },
+   "late": "Array(1 To 1) Double:2",
+   "typed": "Array(1 To 1) Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "unique cell",
+   "setup": "",
+   "expression": "f.Unique(ws.Range(\"A2\"))",
+   "rivals": {
+    "item": "Double:2",
+    "array": "Array(1 To 1) Double:2"
+   },
+   "late": "Array(1 To 1) Double:2",
+   "typed": "Array(1 To 1) Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "trend cells",
+   "setup": "",
+   "expression": "f.Trend(ws.Range(\"A2\"), ws.Range(\"A3\"))",
+   "rivals": {
+    "item": "Double:2",
+    "array": "Array(1 To 1) Double:2"
+   },
+   "late": "Array(1 To 1) Double:2",
+   "typed": "Array(1 To 1) Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "linest cell",
+   "setup": "",
+   "expression": "f.LinEst(ws.Range(\"A2\"))",
+   "rivals": {
+    "item": "...",
+    "array": "Array ..."
+   },
+   "late": "Array(1 To 2) Double:0 Double:2",
+   "typed": "Array(1 To 2) Double:0 Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "frequency cells",
+   "setup": "",
+   "expression": "f.Frequency(ws.Range(\"A2\"), ws.Range(\"A3\"))",
+   "rivals": {
+    "array": "Array(1 To 2, 1 To 1) Double:1 Double:0"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:1 Double:0",
+   "typed": "Array(1 To 2, 1 To 1) Double:1 Double:0"
+  },
+  {
+   "probe": 1,
+   "case": "index cell",
+   "setup": "",
+   "expression": "f.Index(ws.Range(\"A2\"), 1, 1)",
+   "rivals": {
+    "item": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "transpose two cells",
+   "setup": "",
+   "expression": "f.Transpose(ws.Range(\"A1:A2\"))",
+   "rivals": {
+    "array": "Array(1 To 2) Double:1 Double:2"
+   },
+   "late": "Array(1 To 2) Double:1 Double:2",
+   "typed": "Array(1 To 2) Double:1 Double:2"
+  },
+  {
+   "probe": 1,
+   "case": "round cell",
+   "setup": "",
+   "expression": "f.Round(ws.Range(\"A2\"), 0)",
+   "rivals": {
+    "item": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 2.4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 2.4, 1)",
+   "rivals": {
+    "round": "E1004",
+    "ceil": "Double:1157",
+    "split last two": "Double:926"
+   },
+   "late": "Double:926",
+   "typed": "Double:926"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 2.5, probe 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.4, 1)",
+   "rivals": {
+    "round": "Double:1124",
+    "ceil": "Double:1124",
+    "split last two": "Double:937"
+   },
+   "late": "Double:937",
+   "typed": "Double:937"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 2.6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 2.6, 1)",
+   "rivals": {
+    "round": "Double:1092",
+    "ceil": "Double:1092",
+    "split last two": "Double:947"
+   },
+   "late": "Double:947",
+   "typed": "Double:947"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 3.5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 3.5, 1)",
+   "rivals": {
+    "round": "Double:867",
+    "ceil": "Double:867",
+    "split last two": "Double:867"
+   },
+   "late": "Double:867",
+   "typed": "Double:867"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 4.2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 4.2, 1)",
+   "rivals": {
+    "round": "Double:745",
+    "ceil": "Double:944",
+    "split last two": "Double:944"
+   },
+   "late": "Double:944",
+   "typed": "Double:944"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 4.5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 4.5, 1)",
+   "rivals": {
+    "round": "Double:893",
+    "ceil": "Double:893",
+    "split last two": "Double:893"
+   },
+   "late": "Double:893",
+   "typed": "Double:893"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 4.55, probe 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.22, 1)",
+   "rivals": {
+    "round": "Double:886",
+    "ceil": "Double:886",
+    "split last two": "Double:886"
+   },
+   "late": "Double:886",
+   "typed": "Double:886"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 6.2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 6.2, 1)",
+   "rivals": {
+    "round": "Double:683",
+    "ceil": "Double:825",
+    "split last two": "Double:825"
+   },
+   "late": "Double:825",
+   "typed": "Double:825"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 6.5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 6.5, 1)",
+   "rivals": {
+    "round": "Double:793",
+    "ceil": "Double:793",
+    "split last two": "Double:793"
+   },
+   "late": "Double:793",
+   "typed": "Double:793"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc life 0.5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 2, 1)",
+   "rivals": {
+    "round": "E1004",
+    "ceil": "E1004",
+    "split last two": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 0",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 0, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:527"
+   },
+   "late": "Double:527",
+   "typed": "Double:527"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:937"
+   },
+   "late": "Double:937",
+   "typed": "Double:937"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 2, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:937"
+   },
+   "late": "Double:937",
+   "typed": "Double:937"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 3, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 4, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 5, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 6, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 7",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 7, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 2.5 period 8",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 8, 0.4, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 0",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 0, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:395"
+   },
+   "late": "Double:395",
+   "typed": "Double:395"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:902"
+   },
+   "late": "Double:902",
+   "typed": "Double:902"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 2, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:552"
+   },
+   "late": "Double:551",
+   "typed": "Double:551"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 3, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:552"
+   },
+   "late": "Double:551",
+   "typed": "Double:551"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 4, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 5, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 6, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 7",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 7, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3.33 period 8",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 8, 0.3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 0",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 0, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:387"
+   },
+   "late": "Double:387",
+   "typed": "Double:387"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:886"
+   },
+   "late": "Double:886",
+   "typed": "Double:886"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 2, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:496"
+   },
+   "late": "Double:496",
+   "typed": "Double:496"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 3, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:316"
+   },
+   "late": "Double:316",
+   "typed": "Double:316"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 4, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:316"
+   },
+   "late": "Double:316",
+   "typed": "Double:316"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 5, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 6, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 7",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 7, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 4.55 period 8",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 8, 0.22, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 0",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 0, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:330"
+   },
+   "late": "Double:330",
+   "typed": "Double:330"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:776"
+   },
+   "late": "Double:776",
+   "typed": "Double:776"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 2, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:485"
+   },
+   "late": "Double:485",
+   "typed": "Double:485"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 3, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:303"
+   },
+   "late": "Double:303",
+   "typed": "Double:303"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 4, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:190"
+   },
+   "late": "Double:190",
+   "typed": "Double:190"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 5, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:158"
+   },
+   "late": "Double:158",
+   "typed": "Double:158"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 6, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:158"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 7",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 7, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 6.67 period 8",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 8, 0.15, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 0",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 0, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:439"
+   },
+   "late": "Double:439",
+   "typed": "Double:439"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 1",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 1, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:981"
+   },
+   "late": "Double:981",
+   "typed": "Double:981"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 2",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 2, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:981"
+   },
+   "late": "Double:981",
+   "typed": "Double:981"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 3",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 3, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 4",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 4, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 5",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 5, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 6",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 6, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 7",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 7, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "amordegrc sweep 3 period 8",
+   "setup": "",
+   "expression": "f.AmorDegrc(2400, #8/19/2008#, #12/31/2008#, 300, 8, 1 / 3, 1)",
+   "rivals": {
+    "split last two": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "frequency text range",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), ws.Range(\"B1:B2\"))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "one count": "Array(1 To 1, 1 To 1) Double:4",
+    "slots": "Array(1 To 3, 1 To 1) Double:0 Double:0 Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency blank cell",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), ws.Range(\"K9\"))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "one count": "Array(1 To 1, 1 To 1) Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency text cell",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), ws.Range(\"C2\"))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "one count": "Array(1 To 1, 1 To 1) Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency text array",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), Array(\"a\", \"b\"))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "one count": "Array(1 To 1, 1 To 1) Double:4",
+    "slots": "Array(1 To 3, 1 To 1) Double:0 Double:0 Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency logical array",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), Array(True, False))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "one count": "Array(1 To 1, 1 To 1) Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency abc",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), \"abc\")",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "one count": "Array(1 To 1, 1 To 1) Double:4"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency 1 as text",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), \"1\")",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+    "as 1": "Array(1 To 2, 1 To 1) Double:3 Double:1"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:2 Double:2",
+   "typed": "Array(1 To 2, 1 To 1) Double:2 Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency logical and 1",
+   "setup": "",
+   "expression": "f.Frequency(Array(-1, 0, 1, 2), Array(True, 1))",
+   "rivals": {
+    "dropped": "Array(1 To 2, 1 To 1) Double:3 Double:1"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:3 Double:1",
+   "typed": "Array(1 To 2, 1 To 1) Double:3 Double:1"
+  },
+  {
+   "probe": 2,
+   "case": "frequency cell text range",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY({-1,0,1,2},B1:B2))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:2, 2",
+    "one count": "String:4"
+   },
+   "late": "String:2, 2",
+   "typed": "String:2, 2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency cell abc",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY({-1,0,1,2},\"\"abc\"\"))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:2, 2",
+    "one count": "String:4"
+   },
+   "late": "String:2, 2",
+   "typed": "String:2, 2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency cell true, probe 2",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY({-1,0,1,2},TRUE))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:2, 2",
+    "as 1": "String:3, 1"
+   },
+   "late": "String:2, 2",
+   "typed": "String:2, 2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency cell 1 as text",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY({-1,0,1,2},\"\"1\"\"))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:2, 2",
+    "as 1": "String:3, 1"
+   },
+   "late": "String:2, 2",
+   "typed": "String:2, 2"
+  },
+  {
+   "probe": 2,
+   "case": "frequency cell blank",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(FREQUENCY({-1,0,1,2},K9))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:2, 2",
+    "one count": "String:4"
+   },
+   "late": "String:2, 2",
+   "typed": "String:2, 2"
+  },
+  {
+   "probe": 2,
+   "case": "ztest cell sigma 0",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ZTEST(A1:A5,4,0)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "num": "Error:2036",
+    "div0": "Error:2007"
+   },
+   "late": "Error:2036",
+   "typed": "Error:2036"
+  },
+  {
+   "probe": 2,
+   "case": "ztest cell sigma -1",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ZTEST(A1:A5,4,-1)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "num": "Error:2036",
+    "value": "Double:..."
+   },
+   "late": "Error:2036",
+   "typed": "Error:2036"
+  },
+  {
+   "probe": 2,
+   "case": "ztest cell flat data",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ZTEST({2,2,2},4)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "num": "Error:2036",
+    "div0": "Error:2007"
+   },
+   "late": "Error:2007",
+   "typed": "Error:2007"
+  },
+  {
+   "probe": 2,
+   "case": "ztest cell text sigma",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ZTEST(A1:A5,4,C2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "value": "Error:2015",
+    "num": "Error:2036"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 2,
+   "case": "ztest wf round case",
+   "setup": "k = Empty",
+   "expression": "f.ZTest(Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, k)",
+   "rivals": {
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "ztest wf array sigma 0",
+   "setup": "",
+   "expression": "f.ZTest(Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, 0)",
+   "rivals": {
+    "num": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "countifs null second",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A10\"), Null)",
+   "rivals": {
+    "dropped": "Double:9",
+    "blank": "Double:5",
+    "error": "E1004"
+   },
+   "late": "Double:4",
+   "typed": "Double:4"
+  },
+  {
+   "probe": 2,
+   "case": "sumifs null middle",
+   "setup": "",
+   "expression": "f.SumIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"), Null, ws.Range(\"A1:A5\"), \">2\")",
+   "rivals": {
+    "dropped": "Double:12",
+    "blank": "Double:0",
+    "error": "E1004"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "averageifs null range",
+   "setup": "",
+   "expression": "f.AverageIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", Null, \">3\")",
+   "rivals": {
+    "dropped": "Double:3.5",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "countifs odd count",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "dropped": "Double:4",
+    "error": "E1004"
+   },
+   "late": "Double:4",
+   "typed": "Double:4"
+  },
+  {
+   "probe": 2,
+   "case": "maxifs null second",
+   "setup": "",
+   "expression": "f.MaxIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \"<3\", ws.Range(\"A1:A5\"), Null)",
+   "rivals": {
+    "dropped": "Double:2",
+    "error": "E1004"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 2,
+   "case": "countifs empty second",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A10\"), Empty)",
+   "rivals": {
+    "zero": "Double:0",
+    "dropped": "Double:9"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "iferror blank first",
+   "setup": "",
+   "expression": "f.IfError(ws.Range(\"K9\"), 1)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "ifna blank first",
+   "setup": "",
+   "expression": "f.IfNa(ws.Range(\"K9\"), 1)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "transpose logical cell",
+   "setup": "",
+   "expression": "f.Transpose(ws.Range(\"C4\"))",
+   "rivals": {
+    "item": "Boolean:True",
+    "array": "Array(1 To 1) Boolean:True"
+   },
+   "late": "Boolean:True",
+   "typed": "Boolean:True"
+  },
+  {
+   "probe": 2,
+   "case": "transpose error cell",
+   "setup": "",
+   "expression": "f.Transpose(ws.Range(\"C5\"))",
+   "rivals": {
+    "error": "E1004",
+    "item": "Error:2042"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "dget field two headers",
+   "setup": "",
+   "expression": "f.DGet(ws.Range(\"G1:J2\"), ws.Range(\"G1:H1\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "dsum field two cells across",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), ws.Range(\"A1:B1\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "lcm text in array",
+   "setup": "",
+   "expression": "f.Lcm(5, Array(\"x\"))",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "lcm logical in array",
+   "setup": "",
+   "expression": "f.Lcm(5, Array(True))",
+   "rivals": {
+    "error": "E1004",
+    "skipped": "Double:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "lcm number text",
+   "setup": "",
+   "expression": "f.Lcm(5, \"3\")",
+   "rivals": {
+    "number": "Double:15",
+    "error": "E1004"
+   },
+   "late": "Double:15",
+   "typed": "Double:15"
+  },
+  {
+   "probe": 2,
+   "case": "lcm logical",
+   "setup": "",
+   "expression": "f.Lcm(5, True)",
+   "rivals": {
+    "error": "E1004",
+    "as 1": "Double:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "gcd cell logical cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=GCD(6,C4)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "error": "Error:2015",
+    "skipped": "Double:6"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 2,
+   "case": "trend y row x two columns",
+   "setup": "",
+   "expression": "f.Trend(Array(1, 2, 4), ws.Range(\"D1:E3\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "linest y column x two columns",
+   "setup": "",
+   "expression": "f.LinEst(ws.Range(\"A1:A3\"), ws.Range(\"D1:E3\"))",
+   "rivals": {
+    "fits": "Array ..."
+   },
+   "late": "Array(1 To 3) Double:0.5 Double:0 Double:0",
+   "typed": "Array(1 To 3) Double:0.5 Double:0 Double:0"
+  },
+  {
+   "probe": 2,
+   "case": "trend y range row x range column",
+   "setup": "",
+   "expression": "f.Trend(ws.Range(\"G2:J2\"), ws.Range(\"A1:A4\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 2,
+   "case": "trend y 2d x 2d",
+   "setup": "",
+   "expression": "f.Trend(ws.Range(\"D1:E2\"), ws.Range(\"D2:E3\"))",
+   "rivals": {
+    "fits": "Array ..."
+   },
+   "late": "Array(1 To 2, 1 To 2) Double:1 Double:2 Double:3 Double:4",
+   "typed": "Array(1 To 2, 1 To 2) Double:1 Double:2 Double:3 Double:4"
+  },
+  {
+   "probe": 2,
+   "case": "trend y 2d x transposed",
+   "setup": "",
+   "expression": "f.Trend(ws.Range(\"D1:E2\"), ws.Range(\"A1:A4\"))",
+   "rivals": {
+    "shape": "E1004",
+    "count": "Array ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 3,
+   "case": "countifs text dangling",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"B1:B10\"), \"<>b\", ws.Range(\"B1:B10\"))",
+   "rivals": {
+    "non-blank": "Double:4",
+    "numbers": "Double:0",
+    "dropped": "Double:9"
+   },
+   "late": "Double:4",
+   "typed": "Double:4"
+  },
+  {
+   "probe": 3,
+   "case": "countifs mixed dangling",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"C1:C5\"), \"<>q\", ws.Range(\"C1:C5\"))",
+   "rivals": {
+    "non-blank": "Double:4",
+    "numbers": "Double:1",
+    "dropped": "Double:5"
+   },
+   "late": "Double:5",
+   "typed": "Double:5"
+  },
+  {
+   "probe": 3,
+   "case": "sumifs text dangling",
+   "setup": "",
+   "expression": "f.SumIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"B1:B5\"))",
+   "rivals": {
+    "non-blank": "Double:14",
+    "numbers": "Double:0",
+    "dropped": "Double:14"
+   },
+   "late": "Double:14",
+   "typed": "Double:14"
+  },
+  {
+   "probe": 3,
+   "case": "sumifs blank dangling",
+   "setup": "",
+   "expression": "f.SumIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"K1:K5\"))",
+   "rivals": {
+    "non-blank": "Double:0",
+    "numbers": "Double:0",
+    "dropped": "Double:14"
+   },
+   "late": "Double:14",
+   "typed": "Double:14"
+  },
+  {
+   "probe": 3,
+   "case": "countifs null after text",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"B1:B10\"), \"<>b\", ws.Range(\"B1:B10\"), Null)",
+   "rivals": {
+    "non-blank": "Double:4",
+    "numbers": "Double:0",
+    "dropped": "Double:9"
+   },
+   "late": "Double:4",
+   "typed": "Double:4"
+  },
+  {
+   "probe": 3,
+   "case": "countifs other range dangling",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"B1:B10\"))",
+   "rivals": {
+    "non-blank": "Double:4",
+    "numbers": "Double:0",
+    "dropped": "Double:9"
+   },
+   "late": "Double:4",
+   "typed": "Double:4"
+  },
+  {
+   "probe": 3,
+   "case": "averageifs dangling",
+   "setup": "",
+   "expression": "f.AverageIfs(ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A2:A6\"))",
+   "rivals": {
+    "non-blank": "Double:3",
+    "numbers": "Double:3",
+    "dropped": "Double:3.5"
+   },
+   "late": "Double:3.5",
+   "typed": "Double:3.5"
+  },
+  {
+   "probe": 3,
+   "case": "countifs two dangling nulls",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A10\"), Null, ws.Range(\"A1:A10\"), Null)",
+   "rivals": {
+    "non-blank": "Double:4",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 3,
+   "case": "countifs dangling shape",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "value": "E1004",
+    "non-blank": "Double:4"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 4,
+   "case": "countifs no dangling",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\")",
+   "rivals": {
+    "used rows": "Double:4",
+    "non-blank": "Double:4",
+    "nothing": "Double:9"
+   },
+   "late": "Double:9",
+   "typed": "Double:9"
+  },
+  {
+   "probe": 4,
+   "case": "countifs dangling",
+   "setup": "",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A10\"))",
+   "rivals": {
+    "used rows": "Double:4",
+    "non-blank": "Double:4",
+    "nothing": "Double:9"
+   },
+   "late": "Double:4",
+   "typed": "Double:4"
+  },
+  {
+   "probe": 4,
+   "case": "countifs dangling used row 8",
+   "setup": "ws.Range(\"Z8\").Value = 1",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A10\"))",
+   "rivals": {
+    "used rows": "Double:7",
+    "non-blank": "Double:4",
+    "nothing": "Double:9"
+   },
+   "late": "Double:7",
+   "typed": "Double:7"
+  },
+  {
+   "probe": 4,
+   "case": "countifs dangling a8",
+   "setup": "ws.Range(\"A8\").Value = 7",
+   "expression": "f.CountIfs(ws.Range(\"A1:A10\"), \"<>3\", ws.Range(\"A1:A10\"))",
+   "rivals": {
+    "used rows": "Double:7",
+    "non-blank": "Double:5",
+    "nothing": "Double:9"
+   },
+   "late": "Double:7",
+   "typed": "Double:7"
+  },
+  {
+   "probe": 4,
+   "case": "countifs dangling used column",
+   "setup": "ws.Range(\"Z8\").Value = 1",
+   "expression": "f.CountIfs(ws.Range(\"AA1:AB2\"), \"<>3\", ws.Range(\"AA1:AB2\"))",
+   "rivals": {
+    "used rows": "Double:0",
+    "used rows only": "Double:4",
+    "nothing": "Double:4"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 4,
+   "case": "countif blanks",
+   "setup": "",
+   "expression": "f.CountIf(ws.Range(\"A1:A10\"), \"<>3\")",
+   "rivals": {
+    "used rows": "Double:4",
+    "nothing": "Double:9"
+   },
+   "late": "Double:9",
+   "typed": "Double:9"
+  },
+  {
+   "probe": 4,
+   "case": "countifs cell dangling",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=COUNTIFS(A1:A10,\"\"<>3\"\")\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "nothing": "Double:9"
+   },
+   "late": "Double:9",
+   "typed": "Double:9"
+  },
+  {
+   "probe": 5,
+   "case": "bahttext z99 formula2",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=BAHTTEXT(Z99)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "value": "Error:2015"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 5,
+   "case": "bahttext z99 formula",
+   "setup": "ws.Range(\"M1\").Formula = \"=BAHTTEXT(Z99)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "value": "Error:2015"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 5,
+   "case": "bahttext k9 formula",
+   "setup": "ws.Range(\"M1\").Formula = \"=BAHTTEXT(K9)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "value": "Error:2015"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 5,
+   "case": "bahttext empty text",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=BAHTTEXT(\"\"\"\")\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "value": "Error:2015",
+    "zero": "String:ศูนย์บาทถ้วน"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 5,
+   "case": "bahttext evaluate z99",
+   "setup": "",
+   "expression": "Application.Evaluate(\"BAHTTEXT(Z99)\")",
+   "rivals": {
+    "zero": "String:ศูนย์บาทถ้วน",
+    "value": "Error:2015"
+   },
+   "late": "String:ศูนย์บาทถ้วน",
+   "typed": "String:ศูนย์บาทถ้วน"
+  },
+  {
+   "probe": 5,
+   "case": "iferror blank joined",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=IFERROR(K9,1)&\"\"x\"\"\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "blank": "String:x",
+    "zero": "String:0x"
+   },
+   "late": "String:x",
+   "typed": "String:x"
+  },
+  {
+   "probe": 5,
+   "case": "ifna empty joined",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=IFNA(NA(),)&\"\"x\"\"\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "blank": "String:x",
+    "zero": "String:0x"
+   },
+   "late": "String:x",
+   "typed": "String:x"
+  },
+  {
+   "probe": 5,
+   "case": "iferror blank fallback joined",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=IFERROR(1/0,K9)&\"\"x\"\"\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "blank": "String:x",
+    "zero": "String:0x"
+   },
+   "late": "String:x",
+   "typed": "String:x"
+  },
+  {
+   "probe": 5,
+   "case": "iferror blank isblank",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ISBLANK(IFERROR(1/0,K9))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "blank": "Boolean:False"
+   },
+   "late": "Boolean:True",
+   "typed": "Boolean:True"
+  },
+  {
+   "probe": 6,
+   "case": "unichar true code",
+   "setup": "",
+   "expression": "AscW(f.Unichar(True))",
+   "rivals": {
+    "number": "Integer:1",
+    "space": "Integer:32"
+   },
+   "late": "Integer:1",
+   "typed": "E1004"
+  },
+  {
+   "probe": 6,
+   "case": "unichar 1 code",
+   "setup": "",
+   "expression": "AscW(f.Unichar(1))",
+   "rivals": {
+    "number": "Integer:1",
+    "space": "Integer:32"
+   },
+   "late": "Integer:1",
+   "typed": "Integer:1"
+  },
+  {
+   "probe": 6,
+   "case": "unichar true length",
+   "setup": "",
+   "expression": "Len(f.Unichar(True))",
+   "rivals": {
+    "one": "Long:1"
+   },
+   "late": "Long:1",
+   "typed": "E1004"
+  },
+  {
+   "probe": 6,
+   "case": "unichar 31 code",
+   "setup": "",
+   "expression": "AscW(f.Unichar(31))",
+   "rivals": {
+    "number": "Integer:31",
+    "space": "Integer:32"
+   },
+   "late": "Integer:31",
+   "typed": "Integer:31"
+  },
+  {
+   "probe": 6,
+   "case": "unichar 1 in a cell code",
+   "setup": "ws.Range(\"M2\").Formula = \"=UNICHAR(1)\"",
+   "expression": "AscW(ws.Range(\"M2\").Value)",
+   "rivals": {
+    "number": "Integer:1",
+    "space": "Integer:32"
+   },
+   "late": "Integer:1",
+   "typed": "Integer:1"
+  },
+  {
+   "probe": 6,
+   "case": "unichar false",
+   "setup": "",
+   "expression": "f.Unichar(False)",
+   "rivals": {
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 6,
+   "case": "char true code",
+   "setup": "",
+   "expression": "AscW(f.Char(True))",
+   "rivals": {
+    "number": "Integer:1",
+    "space": "Integer:32"
+   },
+   "late": "E438",
+   "typed": "E438"
+  },
+  {
+   "probe": 6,
+   "case": "clean true",
+   "setup": "",
+   "expression": "Len(f.Clean(f.Unichar(1)))",
+   "rivals": {
+    "control": "Long:0",
+    "kept": "Long:1"
+   },
+   "late": "Long:0",
+   "typed": "Long:0"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label number",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"A1:A5\"))",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label text",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"B1:B2\"))",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label number over text",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"C1:C2\"))",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label logical",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"C4:C5\"))",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0",
+    "error": "E1004"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label number cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=DSUM(G1:J2,\"\"q\"\",A1:A5)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label text cell",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=DSUM(G1:J2,\"\"q\"\",B1:B2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 6,
+   "case": "dcount label number",
+   "setup": "",
+   "expression": "f.DCountA(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"A1:A2\"))",
+   "rivals": {
+    "passed over": "Double:1",
+    "none": "Double:0"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 6,
+   "case": "dsum label number blank under",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"A1:A1\").Resize(2))",
+   "rivals": {
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats two cells",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"A1:A2\"))",
+   "rivals": {
+    "first": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 ...",
+    "each": "Array(1 To 2, 1 To 1) ..."
+   },
+   "late": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+   "typed": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats zero first",
+   "setup": "ws.Range(\"L1\").Value = 0: ws.Range(\"L2\").Value = 1",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"L1:L2\"))",
+   "rivals": {
+    "first": "Array(1 To 2) Double:0.6 Double:2.2",
+    "each": "Array(1 To 2, 1 To 1) ...",
+    "any": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 ..."
+   },
+   "late": "Array(1 To 2) Double:0.6 Double:2.2",
+   "typed": "Array(1 To 2) Double:0.6 Double:2.2"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats one first",
+   "setup": "ws.Range(\"L3\").Value = 1: ws.Range(\"L4\").Value = 0",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"L3:L4\"))",
+   "rivals": {
+    "first": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 ...",
+    "each": "Array(1 To 2, 1 To 1) ...",
+    "any": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 6,
+   "case": "linest const zero first",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), ws.Range(\"L1:L2\"))",
+   "rivals": {
+    "first": "Array(1 To 2) Double:1.25... Double:0",
+    "each": "Array ..."
+   },
+   "late": "Array(1 To 2) Double:1.2 Double:0",
+   "typed": "Array(1 To 2) Double:1.2 Double:0"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats blank cells",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"K5:K6\"))",
+   "rivals": {
+    "first": "Array(1 To 2) Double:0.6 Double:2.2",
+    "each": "Array ..."
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats array",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, Array(False, True))",
+   "rivals": {
+    "first": "Array(1 To 2) Double:0.6 Double:2.2",
+    "each": "Array ..."
+   },
+   "late": "Array(1 To 2) Double:0.6 Double:0.6",
+   "typed": "Array(1 To 2) Double:0.6 Double:0.6"
+  },
+  {
+   "probe": 6,
+   "case": "logest stats zero first",
+   "setup": "",
+   "expression": "f.LogEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"L1:L2\"))",
+   "rivals": {
+    "first": "Array(1 To 2) ...",
+    "each": "Array ..."
+   },
+   "late": "Array(1 To 2) Double:1.20112443398143 Double:2.19712108661224",
+   "typed": "Array(1 To 2) Double:1.20112443398143 Double:2.19712108661224"
+  },
+  {
+   "probe": 6,
+   "case": "trend const zero first",
+   "setup": "",
+   "expression": "f.Trend(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), Array(1, 2, 3, 4, 5), ws.Range(\"L1:L2\"))",
+   "rivals": {
+    "first": "Array(1 To 5) ...",
+    "each": "Array ..."
+   },
+   "late": "Array(1 To 5) Double:1.2 Double:2.4 Double:3.6 Double:4.8 Double:6",
+   "typed": "Array(1 To 5) Double:1.2 Double:2.4 Double:3.6 Double:4.8 Double:6"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats cell zero first",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(LINEST({2,4,5,4,5},{1,2,3,4,5},TRUE,L1:L2))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "first": "String:0.6, 2.2",
+    "each": "String:..."
+   },
+   "late": "String:0.6, 2.2",
+   "typed": "String:0.6, 2.2"
+  },
+  {
+   "probe": 6,
+   "case": "linest stats text cells",
+   "setup": "ws.Range(\"L5\").Value = \"x\": ws.Range(\"L6\").Value = 1",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"L5:L6\"))",
+   "rivals": {
+    "error": "E1004",
+    "first": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 6,
+   "case": "dsum number labels both",
+   "setup": "ws.Range(\"G1\").Value = 1",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"A1:A2\"))",
+   "rivals": {
+    "matched": "Double:0",
+    "passed over": "Double:2"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 6,
+   "case": "dsum number labels equal",
+   "setup": "ws.Range(\"A3\").Value = 1: ws.Range(\"A4\").Value = 1",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"A3:A4\"))",
+   "rivals": {
+    "matched": "Double:2",
+    "passed over": "Double:2",
+    "none": "Double:0"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 7,
+   "case": "linest stats row 1 across",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"A1:B1\"))",
+   "rivals": {
+    "intersect": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+    "first": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+   },
+   "late": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+   "typed": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+  },
+  {
+   "probe": 7,
+   "case": "linest stats row 1 off column",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"B1:C1\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 2) Double:0.6 Double:2.2"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 7,
+   "case": "linest stats column 1 off row",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"A2:A3\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+   },
+   "late": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+   "typed": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+  },
+  {
+   "probe": 7,
+   "case": "linest stats block",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"A1:B2\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+   },
+   "late": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+   "typed": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+  },
+  {
+   "probe": 7,
+   "case": "linest stats cell elsewhere",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"A3\"))",
+   "rivals": {
+    "one cell": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+   },
+   "late": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+   "typed": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+  },
+  {
+   "probe": 7,
+   "case": "linest const column 1 off row",
+   "setup": "",
+   "expression": "f.LinEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), ws.Range(\"A2:A3\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 2) Double:0.6 Double:2.2"
+   },
+   "late": "Array(1 To 2) Double:0.6 Double:2.2",
+   "typed": "Array(1 To 2) Double:0.6 Double:2.2"
+  },
+  {
+   "probe": 7,
+   "case": "trend const off row",
+   "setup": "",
+   "expression": "f.Trend(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), Array(1, 2, 3, 4, 5), ws.Range(\"A2:A3\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 5) ..."
+   },
+   "late": "Array(1 To 5) Double:2.8 Double:3.4 Double:4 Double:4.6 Double:5.2",
+   "typed": "Array(1 To 5) Double:2.8 Double:3.4 Double:4 Double:4.6 Double:5.2"
+  },
+  {
+   "probe": 7,
+   "case": "growth const off row",
+   "setup": "",
+   "expression": "f.Growth(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), Array(1, 2, 3, 4, 5), ws.Range(\"A2:A3\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 5) ..."
+   },
+   "late": "Array(1 To 5) Double:2.63901582154579 Double:3.16978638492223 Double:3.80730787743176 Double:4.57305051927326 Double:5.49280271653059",
+   "typed": "Array(1 To 5) Double:2.63901582154579 Double:3.16978638492223 Double:3.80730787743176 Double:4.57305051927326 Double:5.49280271653059"
+  },
+  {
+   "probe": 7,
+   "case": "logest stats off row",
+   "setup": "",
+   "expression": "f.LogEst(Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, ws.Range(\"A2:A3\"))",
+   "rivals": {
+    "intersect": "E1004",
+    "first": "Array(1 To 5, 1 To 2) ..."
+   },
+   "late": "Array(1 To 5, 1 To 2) Double:1.20112443398143 Double:2.19712108661224 Double:8.79423373887258E-02 Double:0.291671736305247 Double:0.591414665488605 Double:0.278098088907358 Double:4.34240744002116 Double:3 Double:0.33583548212739 Double:0.232015641161774",
+   "typed": "Array(1 To 5, 1 To 2) Double:1.20112443398143 Double:2.19712108661224 Double:8.79423373887258E-02 Double:0.291671736305247 Double:0.591414665488605 Double:0.278098088907358 Double:4.34240744002116 Double:3 Double:0.33583548212739 Double:0.232015641161774"
+  },
+  {
+   "probe": 7,
+   "case": "norm dist cumulative range",
+   "setup": "",
+   "expression": "f.Norm_Dist(1, 0, 1, ws.Range(\"A2:A3\"))",
+   "rivals": {
+    "each": "Array(1 To 2, 1 To 1) Double:0.841344746068543 Double:0.841344746068543",
+    "intersect": "E1004"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:0.841344746068543 Double:0.841344746068543",
+   "typed": "E13"
+  },
+  {
+   "probe": 7,
+   "case": "round places range",
+   "setup": "",
+   "expression": "f.Round(1.55, ws.Range(\"A1:A2\"))",
+   "rivals": {
+    "each": "Array(1 To 2, 1 To 1) Double:1.6 Double:1.55",
+    "intersect": "Double:1.6"
+   },
+   "late": "Array(1 To 2, 1 To 1) Double:1.6 Double:1.55",
+   "typed": "E13"
+  },
+  {
+   "probe": 7,
+   "case": "linest stats cell formula off row",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=ARRAYTOTEXT(LINEST({2,4,5,4,5},{1,2,3,4,5},TRUE,A2:A3))\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "intersect": "String:#VALUE!",
+    "first": "String:..."
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz 0",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = 0",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:0",
+    "never": "Double:0",
+    "number": "Double:2"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz -1",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = -1",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:2",
+    "never": "Double:0",
+    "number": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz 0.5",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = 0.5",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:2",
+    "never": "Double:0",
+    "number": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz true",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = True",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:2",
+    "never": "Double:0",
+    "number": "Double:0"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz false",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = False",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:0",
+    "never": "Double:0",
+    "number": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz text true",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = \"TRUE\"",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:0",
+    "never": "Double:0",
+    "read": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz text 1",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = \"1\"",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:0",
+    "never": "Double:0",
+    "read": "Double:2"
+   },
+   "late": "Double:2",
+   "typed": "Double:2"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz text 1 typed",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = \"'1\"",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:0",
+    "never": "Double:0",
+    "read": "Double:2"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz error",
+   "setup": "ws.Range(\"Q1\").Value = \"zz\": ws.Range(\"Q2\").Value = CVErr(xlErrNA)",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q2\"))",
+   "rivals": {
+    "truth": "Double:0",
+    "error": "E1004"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 7,
+   "case": "criteria zz two rows",
+   "setup": "ws.Range(\"Q3\").Value = 0",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"q\", ws.Range(\"Q1:Q3\"))",
+   "rivals": {
+    "either row": "Double:2",
+    "never": "Double:0"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 8,
+   "case": "db month 3.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 2, 3.5)",
+   "rivals": {
+    "cut": "Double:232088",
+    "as is": "Double:226102.666666667"
+   },
+   "late": "Double:232088",
+   "typed": "Double:232088"
+  },
+  {
+   "probe": 8,
+   "case": "db month 3.9",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 2, 3.9)",
+   "rivals": {
+    "cut": "Double:232088",
+    "rounded": "Double:220116.666666667"
+   },
+   "late": "Double:232088",
+   "typed": "Double:232088"
+  },
+  {
+   "probe": 8,
+   "case": "db month 3.5 period 1",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1, 3.5)",
+   "rivals": {
+    "cut": "Double:67000",
+    "as is": "Double:78166.6666666667"
+   },
+   "late": "Double:67000",
+   "typed": "Double:67000"
+  },
+  {
+   "probe": 8,
+   "case": "db month 0.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1, 0.5)",
+   "rivals": {
+    "cut to 0": "E1004",
+    "as is": "Double:11166.6666666667"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "db month 12.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1, 12.5)",
+   "rivals": {
+    "cut": "Double:268000",
+    "num": "E1004"
+   },
+   "late": "Double:268000",
+   "typed": "Double:268000"
+  },
+  {
+   "probe": 8,
+   "case": "db period 1.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1.5, 3)",
+   "rivals": {
+    "cut": "Double:67000",
+    "num": "E1004"
+   },
+   "late": "Double:67000",
+   "typed": "Double:67000"
+  },
+  {
+   "probe": 8,
+   "case": "db cell month 3.5",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=DB(500000,50000,3,2,3.5)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "cut": "Double:232088",
+    "as is": "Double:226102.666666667"
+   },
+   "late": "Currency:232088",
+   "typed": "Currency:232088"
+  },
+  {
+   "probe": 8,
+   "case": "transpose empty",
+   "setup": "",
+   "expression": "f.Transpose(Empty)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 8,
+   "case": "transpose empty variant",
+   "setup": "k = Empty",
+   "expression": "f.Transpose(k)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 8,
+   "case": "transpose null",
+   "setup": "",
+   "expression": "f.Transpose(Null)",
+   "rivals": {
+    "error": "E1004",
+    "zero": "Double:0"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "transpose empty array item",
+   "setup": "",
+   "expression": "f.Transpose(Array(Empty, 1))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:0 Double:1",
+    "empty": "Array(1 To 2, 1 To 1) Empty Double:1"
+   },
+   "late": "Array(1 To 2, 1 To 1) Empty Double:1",
+   "typed": "Array(1 To 2, 1 To 1) Empty Double:1"
+  },
+  {
+   "probe": 8,
+   "case": "index empty",
+   "setup": "",
+   "expression": "f.Index(Array(Empty, 1), 1)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Empty",
+   "typed": "Empty"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup text cell switch",
+   "setup": "",
+   "expression": "f.VLookup(9, ws.Range(\"A1:B5\"), 2, ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup text cell switch found",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup letter cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"B1\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup text switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, \"x\")",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup true text switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, \"TRUE\")",
+   "rivals": {
+    "read": "String:c",
+    "error": "E1004"
+   },
+   "late": "String:c",
+   "typed": "String:c"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup logical cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C4\"))",
+   "rivals": {
+    "read": "String:c"
+   },
+   "late": "String:c",
+   "typed": "String:c"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup number cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C1\"))",
+   "rivals": {
+    "read": "String:c"
+   },
+   "late": "String:c",
+   "typed": "String:c"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup error cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C5\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2042",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "hlookup text cell switch",
+   "setup": "",
+   "expression": "f.HLookup(1, ws.Range(\"D1:E3\"), 2, ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "match text cell type",
+   "setup": "",
+   "expression": "f.Match(3, ws.Range(\"A1:A5\"), ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "xlookup text cell mode",
+   "setup": "",
+   "expression": "f.XLookup(3, ws.Range(\"A1:A5\"), ws.Range(\"B1:B5\"), \"n\", ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup cell text cell switch",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=VLOOKUP(3,A1:B5,2,C2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "value": "Error:2015"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 9,
+   "case": "dproduct field true",
+   "setup": "",
+   "expression": "f.DProduct(ws.Range(\"G1:J2\"), True, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field true",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), True, ws.Range(\"H1:H2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field false",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), False, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "E1004",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "dget field true",
+   "setup": "",
+   "expression": "f.DGet(ws.Range(\"G1:J2\"), True, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dcount field true",
+   "setup": "",
+   "expression": "f.DCount(ws.Range(\"G1:J2\"), True, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field text 2",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"2\", ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "label": "E1004",
+    "number": "Double:2"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field logical cell",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), ws.Range(\"C4\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum cell field true",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=DSUM(G1:J2,TRUE,G1:G2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "number": "Double:1",
+    "error": "Error:2015"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext 2",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", 2)",
+   "rivals": {
+    "zero or one": "E1004",
+    "one quotes": "String:a"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext -1",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", -1)",
+   "rivals": {
+    "zero or one": "E1004",
+    "one quotes": "String:a"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext 1.5",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", 1.5)",
+   "rivals": {
+    "cut": "String:\"a\"",
+    "one quotes": "String:a"
+   },
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext 0.5",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", 0.5)",
+   "rivals": {
+    "cut": "String:a",
+    "one quotes": "String:a"
+   },
+   "late": "String:a",
+   "typed": "String:a"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext true",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", True)",
+   "rivals": {
+    "as 1": "String:\"a\"",
+    "error": "E1004"
+   },
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext text 1",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", \"1\")",
+   "rivals": {
+    "as 1": "String:\"a\"",
+    "error": "E1004"
+   },
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext empty",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", Empty)",
+   "rivals": {
+    "as 0": "String:a"
+   },
+   "late": "String:a",
+   "typed": "String:a"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext number 2",
+   "setup": "",
+   "expression": "f.ValueToText(5, 2)",
+   "rivals": {
+    "zero or one": "E1004",
+    "one quotes": "String:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext cell 2",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=VALUETOTEXT(\"\"a\"\",2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero or one": "Error:2015",
+    "one quotes": "String:a"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 9,
+   "case": "arraytotext 2",
+   "setup": "",
+   "expression": "f.ArrayToText(Array(\"a\", 1), 2)",
+   "rivals": {
+    "zero or one": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "arraytotext 1.5",
+   "setup": "",
+   "expression": "f.ArrayToText(Array(\"a\", 1), 1.5)",
+   "rivals": {
+    "cut": "String:{\"a\",1}",
+    "error": "E1004"
+   },
+   "late": "String:{\"a\",1}",
+   "typed": "String:{\"a\",1}"
+  }
+ ]
+}

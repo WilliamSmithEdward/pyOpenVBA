@@ -107,6 +107,10 @@ def pairs(context: Context, first: Value, second: Value) -> list[tuple[float, fl
 # ----------------------------------------------------------------------
 
 _OPERATORS = ("<=", ">=", "<>", "=", "<", ">")
+#: The criterion of a range a macro gives SUMIFS and its kin with no criterion after it: every cell up to the
+#: sheet's last used row and column matches, a blank one too, and none past them (pyOpenVBA's
+#: tests/fixtures/worksheet_function_rivals.json).
+UNASKED_OP = "unasked"
 
 
 @dataclass(frozen=True)
@@ -120,6 +124,8 @@ class Criterion:
 
     def matches(self, cell: Scalar, context: Context) -> bool:
         op, value = self.op, self.value
+        if op == UNASKED_OP:
+            return True
         if isinstance(value, Empty):
             # "" is blank or empty text; "=" only a cell with nothing in it,
             # and "<>" anything but that.
@@ -260,13 +266,14 @@ def matching(
         if all(test.matches(values[row][column], context) for values, (_, test) in zip(blocks, pairs, strict=True))
     ]
     beyond = 0
-    if all(test.matches(EMPTY, context) for _, test in pairs):
+    if all(test.matches(EMPTY, context) and test.op != UNASKED_OP for _, test in pairs):
         beyond = first.height * first.width - height * width
     return found, beyond
 
 
 __all__ = [
     "Criterion",
+    "UNASKED_OP",
     "area_of",
     "block",
     "bound",

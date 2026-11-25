@@ -661,7 +661,9 @@ def test_bahttext_spells_an_amount_as_excel_does(book: _Book) -> None:
     assert sheet.evaluate("BAHTTEXT(0.21)") == "ยี่สิบเอ็ดสตางค์"
     # A negative amount keeps its minus even when it rounds to nothing.
     assert sheet.evaluate("BAHTTEXT(-0.004)") == "ลบศูนย์บาทถ้วน"
-    assert sheet.evaluate("BAHTTEXT(Z99)") == CellError("#VALUE!")
+    # A blank cell is nothing, and "" no number (tests/fixtures/worksheet_function_rivals.json).
+    assert sheet.evaluate("BAHTTEXT(Z99)") == "ศูนย์บาทถ้วน"
+    assert sheet.evaluate('BAHTTEXT("")') == CellError("#VALUE!")
 
 
 def test_sheet_and_sheets_given_what_is_not_a_range(book: _Book) -> None:

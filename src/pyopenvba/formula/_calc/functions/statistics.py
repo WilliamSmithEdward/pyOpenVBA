@@ -37,6 +37,7 @@ from pyopenvba.formula._calc.values import (
     Array,
     Empty,
     ExcelError,
+    Reference,
     Scalar,
     Value,
 )
@@ -370,8 +371,16 @@ def SKEW_P(context: Context, *args: Value) -> Value:
 
 @function("FREQUENCY", R, R)
 def FREQUENCY(context: Context, data: Value, bins: Value) -> Value:
+    """Measured: the bounds are the numbers among the bins, a logical or a text given alone being none of them, TRUE
+    and "1" too, and bins with no number count as the one bound 0 (tests/fixtures/worksheet_function_rivals.json)."""
     values = numbers(context, (data,))
-    edges = numbers(context, (bins,))
+    if isinstance(bins, CellError):
+        return bins
+    if isinstance(bins, (Reference, Array)):
+        edges = numbers(context, (bins,))
+    else:
+        edges = [bins] if isinstance(bins, float) else []
+    edges = edges or [0.0]
     counts = [0] * (len(edges) + 1)
     order = sorted(range(len(edges)), key=lambda index: edges[index])
     for value in values:
@@ -530,18 +539,23 @@ def _least_squares(
 
 
 def _variables(context: Context, known_y: Value, known_x: Value | None) -> tuple[list[float], list[list[float]], bool]:
-    """The y values, the x variables as columns, and whether y runs down."""
+    """The y values, the x variables as columns, and whether y runs down.
+
+    Measured: one x variable has y's shape, a block of y included, so a row of y and a column of x as many is
+    ``#REF!``; several run along y (tests/fixtures/worksheet_function_rivals.json)."""
     grid = matrix(context, known_y)
     down = grid.width == 1
-    if grid.height != 1 and grid.width != 1:
-        raise ExcelError(REF)
     ys = _numbers(grid.items())
     count = len(ys)
     if known_x is None or isinstance(known_x, Empty):
+        if grid.height != 1 and grid.width != 1:
+            raise ExcelError(REF)
         return ys, [[float(index) for index in range(1, count + 1)]], down
     xs_grid = matrix(context, known_x)
-    if xs_grid.height * xs_grid.width == count:
+    if (xs_grid.height, xs_grid.width) == (grid.height, grid.width):
         return ys, [_numbers(xs_grid.items())], down
+    if grid.height != 1 and grid.width != 1:
+        raise ExcelError(REF)
     if down and xs_grid.height == count:
         return ys, [_numbers(row[column] for row in xs_grid.rows) for column in range(xs_grid.width)], down
     if not down and xs_grid.width == count:
@@ -625,7 +639,7 @@ def _statistics(fit: _Fit, first_row: list[Scalar], statistics: bool) -> Array:
     )
 
 
-@function("LINEST", R, R, V, V, minimum=1)
+@function("LINEST", R, R, V, V, minimum=1, intersected=(2, 3))
 def LINEST(
     context: Context,
     known_y: Value,
@@ -639,7 +653,7 @@ def LINEST(
     return _statistics(fit, first, _flag(context, stats, False))
 
 
-@function("LOGEST", R, R, V, V, minimum=1)
+@function("LOGEST", R, R, V, V, minimum=1, intersected=(2, 3))
 def LOGEST(
     context: Context,
     known_y: Value,
@@ -667,7 +681,10 @@ def _projection(
     one value for each observation, running the way y does."""
     fit, xs, down = _fit(context, known_y, known_x, constant, logarithm=logarithm)
     if fit.variables == 1:
-        if new_x is None or isinstance(new_x, Empty):
+        if (new_x is None or isinstance(new_x, Empty)) and known_x is not None and not isinstance(known_x, Empty):
+            # The known x, which has y's shape.
+            new = matrix(context, known_x)
+        elif new_x is None or isinstance(new_x, Empty):
             new = Array([[value] for value in xs[0]]) if down else Array([list(xs[0])])
         else:
             new = matrix(context, new_x)
@@ -695,7 +712,7 @@ def _predicted(fit: _Fit, row: list[float], logarithm: bool) -> Scalar:
     return checked(math.exp(value) if logarithm else value)
 
 
-@function("TREND", R, R, R, V, minimum=1)
+@function("TREND", R, R, R, V, minimum=1, intersected=(3,))
 def TREND(
     context: Context,
     known_y: Value,
@@ -706,7 +723,7 @@ def TREND(
     return _projection(context, known_y, known_x, new_x, constant, logarithm=False)
 
 
-@function("GROWTH", R, R, R, V, minimum=1)
+@function("GROWTH", R, R, R, V, minimum=1, intersected=(3,))
 def GROWTH(
     context: Context,
     known_y: Value,

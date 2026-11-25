@@ -11,6 +11,7 @@ from __future__ import annotations
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import checked
 from pyopenvba.formula._calc.functions.common import (
+    UNASKED_OP,
     Criterion,
     area_of,
     block,
@@ -21,15 +22,19 @@ from pyopenvba.formula._calc.functions.common import (
 from pyopenvba.formula._calc.numbers import total
 from pyopenvba.formula._calc.precise import summed
 from pyopenvba.formula._calc.registry import REF, V, function
-from pyopenvba.formula._calc.values import DIV0, VALUE, Area, ExcelError, Scalar, Value
+from pyopenvba.formula._calc.values import DIV0, EMPTY, VALUE, Area, ExcelError, Scalar, Value
 from pyopenvba.formula._calc.cells import CellError
 
 
 def _pairs(context: Context, args: tuple[Value, ...]) -> list[tuple[Area, Criterion]]:
-    if len(args) % 2:
+    if len(args) % 2 and not context.from_macro:
         raise ExcelError(VALUE)
     pairs: list[tuple[Area, Criterion]] = []
     for index in range(0, len(args), 2):
+        if index + 1 == len(args):
+            # A macro may give a last range with no criterion after it (see UNASKED_OP).
+            pairs.append((area_of(args[index]), Criterion(UNASKED_OP, EMPTY)))
+            break
         pairs.append((area_of(args[index]), criterion(context, context.first(args[index + 1]))))
     return pairs
 

@@ -955,6 +955,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Worksheet functions answer these edge cases as Excel does, from macros and in cells:
+  - `AmorDegrc` follows Excel's French depreciation over an asset's whole life. Its rate's coefficient now goes by
+    the life rounded up, a life of two years or less is error 1004, and the last two periods split what is left.
+  - `Frequency` with bins that hold no number counts against 0.
+  - `ZTest` with a sigma of 0 or less, `Empty` and a blank cell included, is error 1004.
+  - `IfError` and `IfNa` answer 0 for a blank.
+  - `BahtText` of a blank cell is zero baht.
+  - `Gcd` and `Lcm` are error 1004 for text or a logical in a range or an array.
+  - `Trend`, `Growth`, `LinEst` and `LogEst` refuse x of another shape than y, and fit a block of y with a block of x.
+  - The database functions refuse a field of several cells.
+  - `SumIfs`, `CountIfs`, `AverageIfs`, `MaxIfs` and `MinIfs` take a last range with no criterion after it, as a
+    trailing `Null` gives.
+  - `Transpose` of one cell gives back its value, and `Transpose(Empty)` is 0.
+  - `Db` cuts its month to a whole one, so 3.5 is 3.
+  - The database functions read a field given as a logical as its number, `True` being the first field.
+  - `ValueToText` cuts its format to a whole number and refuses any but 0 and 1, as `ArrayToText` does.
+  - `VLookup` and `HLookup` given a cell of text as range_lookup answer an array holding #VALUE!, as Excel does.
+  - In the database functions' criteria, a constant under a label that names no field selects every record when it
+    is a number other than 0 or TRUE, and none otherwise.
+  - In a cell, `LINEST`'s and `LOGEST`'s switches and `TREND`'s and `GROWTH`'s constant take the cell of a range in
+    the formula's row or column. From a macro, a range of several cells there says it is not implemented. Excel reads
+    most of them by their first cell, but not all.
 - `Range.End` and `SpecialCells(xlCellTypeLastCell)` see only visible lines, so a hidden or filtered last row is passed
   over. `End(xlUp)` coming across a gap stops at a table's last row even when that row is empty, as after
   `ListRows.Add`. `SpecialCells` on a protected sheet is error 1004.

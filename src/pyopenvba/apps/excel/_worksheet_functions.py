@@ -74,7 +74,9 @@ _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
 _BASE_CONVERSIONS: Final = frozenset({"bin2dec", "bin2hex", "bin2oct", "dec2bin", "dec2hex", "dec2oct", "hex2bin", "hex2dec", "hex2oct", "oct2bin", "oct2dec", "oct2hex"})
 _ONE_CELL_WHEN_LIFTED: Final = _BASE_CONVERSIONS | {"bitand", "bitor", "bitxor", "bitlshift", "bitrshift"}
 _ARRAY_OF_ONE: Final = frozenset({"sort", "sortby", "unique", "filter"})
-_SWITCHES: Final = {"sort": (3,), "unique": (1, 2)}
+#: Places where a cell of text answers an array of one #VALUE!: SORT's and UNIQUE's switches, and VLOOKUP's and
+#: HLOOKUP's range_lookup, where text itself is error 1004 (tests/fixtures/worksheet_function_rivals.json).
+_SWITCHES: Final = {"sort": (3,), "unique": (1, 2), "vlookup": (3,), "hlookup": (3,)}
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
     "choose", "dget", "encodeurl", "fieldvalue", "filter", "filterxml", "frequency", "growth", "hlookup",
@@ -95,6 +97,11 @@ _STRING: Final = frozenset({
 #: Functions whose one-item answer stays an array given single values: RandArray(1, 1) is a one-item array, where
 #: Transpose(5) is 5 (tests/fixtures/worksheet_functions_more.json).
 _ALWAYS_ARRAY: Final = frozenset({"randarray", "munit"})
+#: The functions that take ranges and criteria in pairs.
+_CRITERIA_PAIRS: Final = frozenset({"averageifs", "countifs", "maxifs", "minifs", "sumifs"})
+#: The places of the regression functions' switches: LINEST's and LOGEST's constant and statistics, TREND's and
+#: GROWTH's constant.
+_REGRESSION_SWITCHES: Final = {"linest": (2, 3), "logest": (2, 3), "trend": (3,), "growth": (3,)}
 def engine_name(name: str) -> str | None:
     """The formula engine's name for a WorksheetFunction member, where the engine has the function."""
     from pyopenvba.formula._calc import registry
@@ -172,6 +179,16 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and name.lower() not in _ALWAYS_ARRAY):
         # Given single values, a function whose answer is one item hands back the item: Transpose(5) is 5.
         found = found.rows[0][0]
+    elif (name.lower() == "transpose" and values and isinstance(values[0], Range) and values[0].single
+          and isinstance(found, Array) and found.height == found.width == 1):
+        # So does Transpose of one cell, a blank one being 0, where MMult and the rest of one cell answer an array of
+        # one (tests/fixtures/worksheet_function_rivals.json).
+        found = found.rows[0][0]
+        if isinstance(found, Empty):
+            found = 0.0
+    if name.lower() == "transpose" and isinstance(found, Empty):
+        # Transpose(Empty) is 0 as well, where an Empty in an array stays one (tests/fixtures/worksheet_function_rivals.json).
+        found = 0.0
     if raising and name.lower() == "index" and isinstance(values[0], (int, VBAInt)) and not isinstance(values[0], bool) \
             and isinstance(found, float):
         # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).
@@ -384,6 +401,11 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         lower = name.lower()
         if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if index in _REGRESSION_SWITCHES.get(lower, ()) and isinstance(value, Range) and not value.single:
+            # Excel reads most such ranges by their first cell, yet L3:L4 holding 1 and 0 is 1004, and no rule
+            # measured so far covers both (tests/fixtures/worksheet_function_rivals.json).
+            raise VBAUnsupportedError(f"WorksheetFunction.{name} given several cells where it takes a switch is not "
+                                      "implemented")
         if lower.startswith("im") and isinstance(value, (VBADate, VBACurrency)):
             # The complex number functions read a Date or Currency as its number, where others read its text.
             value = float(to_number(value))
@@ -409,9 +431,17 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         found.append(value)
     if name.lower() == "index" and found and found[0] is EMPTY:
         raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-    # Left out at the end, it is no argument at all: Count(1, Null) is 1.
+    # Left out at the end, it is no argument at all: Count(1, Null) is 1. SumIfs and its kin leave out one, the last
+    # criterion; then a range left out before it, or a criterion, is error 1004
+    # (tests/fixtures/worksheet_function_rivals.json).
     while found and found[-1] is MISSING:
         found.pop()
+        if name.lower() in _CRITERIA_PAIRS and found and found[-1] is MISSING:
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+    if name.lower() in _CRITERIA_PAIRS:
+        criteria = found[1::2] if name.lower() == "countifs" else found[2::2]
+        if len(found) % 2 != (0 if name.lower() == "countifs" else 1) and any(one is MISSING for one in criteria):
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     if name.lower() == "unique" and len(found) == 1 and values[0] is NULL:
         raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     return found

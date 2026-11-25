@@ -818,7 +818,9 @@ def DB(
     rest = context.number(salvage)
     span = context.number(life)
     which = context.number(period)
-    months = _optional(context, month, 12.0)
+    # The month is cut to a whole one: 3.5 is 3, 12.5 is 12 and 0.5 #NUM! (pyOpenVBA's
+    # tests/fixtures/worksheet_function_rivals.json).
+    months = float(math.trunc(_optional(context, month, 12.0)))
     if value < 0 or rest < 0 or span <= 0 or which <= 0 or not 1 <= months <= 12 or which > span + 1:
         return NUM
     if value == 0:
@@ -1889,6 +1891,11 @@ def AMORDEGRC(
     rate: Scalar,
     basis_: Scalar | None = None,
 ) -> Value:
+    """Measured over every period of several lives (pyOpenVBA's tests/fixtures/worksheet_function_rivals.json): the
+    life, 1 / rate, is rounded up to whole periods, and two or fewer are #NUM!. Three or four take the rate 1.5 times,
+    five or six twice, more 2.5 times. The first period's share is rounded off the value; after it each period takes
+    the rate of what is left, unrounded, and the last two of the life each half of what is left before them. Once the
+    value has gone below the salvage, or past the life, a period takes nothing. Each answer is rounded half up."""
     value = context.number(cost)
     bought = serial_of(context, purchased)
     ends = serial_of(context, first_period)
@@ -1898,19 +1905,28 @@ def AMORDEGRC(
     kind = basis(context, basis_)
     if kind == 2 or share <= 0 or value < rest or which < 0:
         return NUM
-    life = 1 / share
-    coefficient = 1.0 if life < 3 else 1.5 if life < 5 else 2.0 if life <= 6 else 2.5
-    share *= coefficient
+    life = math.ceil(1 / share)
+    if life <= 2:
+        return NUM
+    share *= 1.5 if life <= 4 else 2.0 if life <= 6 else 2.5
     depreciation = _round_half_up(year_fraction(bought, ends, kind, epoch_1904=context.epoch_1904) * share * value)
     value -= depreciation
     left = value - rest
-    for index in range(which):
-        depreciation = _round_half_up(share * value)
-        left -= depreciation
-        if left < 0:
-            return _round_half_up(value * 0.5) if which - index <= 1 else 0.0
+    half = 0.0
+    for index in range(1, which + 1):
+        if left < 0 or index >= life:
+            # From here on every period takes nothing, however far the one asked for is.
+            return 0.0
+        if index == life - 2:
+            half = value * 0.5
+            depreciation = half
+        elif index == life - 1:
+            depreciation = half
+        else:
+            depreciation = share * value
         value -= depreciation
-    return depreciation
+        left -= depreciation
+    return _round_half_up(depreciation)
 
 
 @function("AMORLINC", V, V, V, V, V, V, V, minimum=6)

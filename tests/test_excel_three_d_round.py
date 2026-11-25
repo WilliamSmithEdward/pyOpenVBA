@@ -16,7 +16,7 @@ _SPEC = importlib.util.spec_from_file_location('measure_three_d_round', ROOT / '
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 9)
+ROUNDS = range(1, 10)
 #: A file with a hidden body beside a body of its own: Excel drops the hidden one when it opens the file and so writes the book
 #: without it, changed or not, where the model keeps a drawing nothing changed as it came. A read of its ThreeD is refused.
 OPENED_AND_DROPPED = 't.Depth = 10: t.Visible = msoFalse: t.Depth = 20 || '

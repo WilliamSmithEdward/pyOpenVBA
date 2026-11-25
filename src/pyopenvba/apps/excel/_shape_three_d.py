@@ -110,8 +110,12 @@ _RIGS = ['legacyFlat1', 'legacyFlat2', 'legacyFlat3', 'legacyFlat4', 'legacyNorm
 #: PresetLightingSoftness by an old rig's kind.
 _SOFTNESS = {'Harsh': 1, 'Normal': 2, 'Flat': 3}
 #: An old rig's direction at dir t by its number, and the directions a quarter turn clockwise takes them through.
-_RIG_DIRECTIONS = {1: 5, 2: 1, 3: 4, 4: 7}
-_CLOCKWISE = {1: 3, 3: 9, 9: 7, 7: 1, 2: 6, 6: 8, 8: 4, 4: 2, 5: 5}
+#: An old rig's PresetLightingDirection by its number and dir, each as Excel was seen to write or read it: not a turn of the rig,
+#: as number 2 from the left reads left (tests/fixtures/three_d_round_6.json).
+_OLD_DIRECTIONS = {(1, 't'): 5, (2, 't'): 1, (3, 't'): 4, (4, 't'): 7, (3, 'r'): 2, (3, 'b'): 6, (3, 'l'): 8, (4, 'b'): 3, (2, 'b'): 9,
+                   (2, 'l'): 4, (3, 'tl'): 1}
+#: A light's angle clockwise from the top by PresetLightingDirection, the front read as the top.
+_DEGREES = {2: 0, 3: 45, 6: 90, 9: 135, 8: 180, 7: 225, 4: 270, 1: 315, 5: 0}
 _QUARTERS = {'t': 0, 'r': 1, 'b': 2, 'l': 3}
 #: PresetLightingDirection by eighths of a turn clockwise from the top.
 _COMPASS = (2, 3, 6, 9, 8, 7, 4, 1)
@@ -589,9 +593,10 @@ class ThreeDFormat(HeldPart):
         three_d = self.held()
         if three_d is None or not three_d.scene or not three_d.body:
             return VBAInt(-2, 'Long')
-        # A contour beside it still reads the preset (tests/fixtures/three_d_round_5.json); the old default's bevels and light
-        # do not (three_d_round_2.json).
-        if (three_d.bevel_top, three_d.bevel_bottom, three_d.rig, three_d.rig_dir, three_d.light_rev) != (None, None, 'threePt', 't', None):
+        # A contour beside it still reads the preset (tests/fixtures/three_d_round_5.json); the old default, with its bevels, does
+        # not (three_d_round_2.json).
+        if (three_d.bevel_top, three_d.bevel_bottom) != (None, None):
+            # A light set after it still reads the preset (tests/fixtures/three_d_round_6.json).
             return VBAInt(-2, 'Long')
         found = (three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material)
         return VBAInt(next((number for number, preset in _FORMATS.items() if preset == found), -2), 'Long')
@@ -634,19 +639,23 @@ class ThreeDFormat(HeldPart):
         three_d = self.scene()
         if three_d is None:
             return VBAInt(-2, 'Long')
-        if three_d.rig_dir not in _QUARTERS:
+        if three_d.rig.startswith('legacy'):
+            found = _OLD_DIRECTIONS.get((self._old_rig(three_d)[1], three_d.rig_dir))
+            if found is None:
+                raise VBAUnsupportedError(f'The direction of the {three_d.rig} light from {three_d.rig_dir} is not implemented')
+            side = _DEGREES[found]
+        elif three_d.rig_dir in _QUARTERS:
+            side = _QUARTERS[three_d.rig_dir] * 90
+        else:
             raise VBAUnsupportedError(f'The direction of a light from {three_d.rig_dir} is not implemented')
-        if not three_d.rig.startswith('legacy') or three_d.light_rev is not None:
-            # The side it lights from turned by its angle, clockwise from the top, where that is a side or a corner and the
-            # angle is no more than a quarter turn either way: 180 reads none (tests/fixtures/three_d_round_5.json).
-            angle = (three_d.light_rev or 0) / _ANGLE
-            degrees = (_QUARTERS[three_d.rig_dir] * 90 + angle) % 360
-            within = angle <= 90 or angle >= 270
-            return VBAInt(_COMPASS[int(degrees // 45)] if within and degrees % 45 == 0 else -2, 'Long')
-        direction = _RIG_DIRECTIONS[self._old_rig(three_d)[1]]
-        for _ in range(_QUARTERS[three_d.rig_dir]):
-            direction = _CLOCKWISE[direction]
-        return VBAInt(direction, 'Long')
+        if three_d.light_rev is None:
+            return VBAInt(found if three_d.rig.startswith('legacy') else _COMPASS[side // 45], 'Long')
+        # The side it lights from turned by its angle, clockwise from the top, where that is a side or a corner; an angle
+        # past 135 and short of 270 reads none (tests/fixtures/three_d_round_5.json, three_d_round_6.json).
+        angle = three_d.light_rev / _ANGLE
+        degrees = (side + angle) % 360
+        within = angle <= 135 or angle >= 270
+        return VBAInt(_COMPASS[int(degrees // 45)] if within and degrees % 45 == 0 else -2, 'Long')
 
     @setter('PresetLightingDirection')
     def _preset_lighting_direction(self, value: object) -> None:
@@ -661,9 +670,12 @@ class ThreeDFormat(HeldPart):
         if three_d.camera not in ('orthographicFront', 'legacyObliqueTopRight'):
             # Excel writes the old light by where the camera looks from (tests/fixtures/three_d_round_4.json).
             raise VBAUnsupportedError(f'PresetLightingDirection with the {three_d.camera} camera is not implemented')
-        kind, _number = self._old_rig(three_d)
-        number, three_d.rig_dir = _DIRECTED[wanted]
-        three_d.rig = f'legacy{kind}{number}'
+        kind, now = self._old_rig(three_d)
+        number, side = _DIRECTED[wanted]
+        if now != 3 and number != now:
+            # From another number Excel keeps the number where it can (tests/fixtures/three_d_round_6.json).
+            raise VBAUnsupportedError(f'PresetLightingDirection {wanted} from the {three_d.rig} light is not implemented')
+        three_d.rig, three_d.rig_dir = f'legacy{kind}{number}', side
 
     @member
     def PresetLightingSoftness(self) -> object:
@@ -784,12 +796,9 @@ class ThreeDFormat(HeldPart):
 
     @method
     def IncrementRotationVertical(self, Increment: object) -> object:  # noqa: N803 - native named argument
-        # Turned down past nothing, Excel writes the lat one short some of the time (10 and 20, not 45): not known.
-        degrees = self._start()[0] / _ANGLE - float(to_number(Increment))
-        if not 0 <= degrees < 360:
-            raise VBAUnsupportedError('IncrementRotationVertical past nothing is not implemented')
-        self._turn(0, round(degrees * _ANGLE))
-        return EMPTY
+        # Excel writes the lat one short some of the time, past nothing or not (10 and 20 from 0, -20 from 300; not 45 from 0
+        # or 10 from 30): not known.
+        raise VBAUnsupportedError('IncrementRotationVertical is not implemented')
 
     @method
     def ResetRotation(self) -> object:

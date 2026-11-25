@@ -3900,7 +3900,7 @@ Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/sh
 Shape,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 ShapeNode,Application,"property, read-only",As Object,,MISSING,,
 ShapeNode,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/unassessed_more.json; tests/test_excel_unassessed_more.py,xlCreatorCode
-ShapeNode,EditingType,"property, read-only",As MsoEditingType,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
+ShapeNode,EditingType,"property, read-only",As MsoEditingType,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py; tests/fixtures/shape_nodes_round_1.json; tests/fixtures/shape_nodes_round_2.json; tests/test_excel_shape_nodes_round.py,"On a new freeform: open lines of 2 to 5 nodes, a closed line of 3, and one curve. Longer closed lines and curves, which fail at nodes that move with the length, are refused."
 ShapeNode,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
 ShapeNode,Points,"property, read-only",As Variant,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."
 ShapeNode,SegmentType,"property, read-only",As MsoSegmentType,,PARTIAL,tests/fixtures/shape_painter.json; tests/test_excel_shape_painter.py,"SegmentType, EditingType and Points on a freeform."

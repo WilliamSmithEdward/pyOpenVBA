@@ -7,8 +7,13 @@ cell and the cell given; or one argument swapped for a value of another kind (Em
 a block of cells). FilterXML, Phonetic and Subtotal, which no fixture calls, start from calls written here. The calls run on
 the fixtures' own sheet (their Fill) and are read with their Show.
 
-Left out, and so left PARTIAL: the functions tests/test_excel_worksheet_functions_more.py knows the model answers a unit away
-in the fifteenth significant digit, and Pi, which takes nothing to vary.
+Left out, and so left PARTIAL: the functions the model answers a unit or a few away in the fifteenth significant digit, and
+Pi, which takes nothing to vary. A call the model refuses as not implemented is counted apart: no answer of the model's, so no
+wrong one, and its row stays PARTIAL by its refusal.
+
+From round 60103 an answer's characters below a space are written as ChrW codes, \\x01 and the like, by Show's caller, for
+the harness hands a control character back as a space: round 60102's Unichar(True) read " " where Excel answered ChrW(1)
+(tests/fixtures/worksheet_function_rivals.json).
 
     python scripts/measure_worksheet_function_rounds.py predict <seed>
     python scripts/measure_worksheet_function_rounds.py measure <seed>
@@ -37,10 +42,11 @@ MORE = json.loads((FIXTURES / 'worksheet_functions_more.json').read_text(encodin
 FIRST = json.loads((FIXTURES / 'worksheet_functions.json').read_text(encoding='utf-8'))
 #: A call to each function no fixture asks.
 WRITTEN = {'FilterXML': ['"<a><b>1</b><b>2</b></a>", "//b"'], 'Phonetic': ['ws.Range("B1")'], 'Subtotal': ['9, ws.Range("A1:A5")']}
-#: The model answers these a unit away in the fifteenth significant digit (tests/test_excel_worksheet_functions_more.py,
-#: and round 60101 for Confidence_T, F_Dist_RT and Gamma_Dist).
-LAST_DIGIT = {'Beta_Dist', 'BetaDist', 'ChiSq_Inv', 'Confidence_T', 'F_Dist_RT', 'Gamma_Dist', 'ImSec', 'T_Dist_2T',
-              'T_Dist_RT', 'T_Inv_2T', 'TDist'}
+#: The model answers these a unit or a few away in the fifteenth significant digit (tests/test_excel_worksheet_functions_more.py;
+#: round 60101 for Confidence_T, F_Dist_RT and Gamma_Dist; round 60102 for ChiInv, and MultiNomial, whose log-gamma is not
+#: Excel's: 16368 where Excel answers 16367.9999999998).
+LAST_DIGIT = {'Beta_Dist', 'BetaDist', 'ChiInv', 'ChiSq_Inv', 'Confidence_T', 'F_Dist_RT', 'Gamma_Dist', 'ImSec',
+              'MultiNomial', 'T_Dist_2T', 'T_Dist_RT', 'T_Inv_2T', 'TDist'}
 #: Functions a round cannot vary: they take no argument.
 NOTHING_TO_VARY = {'Pi'}
 #: Each given through the Variant k, so a typed call meets it at run time rather than failing to compile.
@@ -137,17 +143,30 @@ def calls(seed: int) -> list[dict[str, str]]:
     return chosen
 
 
-def statement(case: dict[str, str]) -> str:
+#: The first round whose answers write characters below a space as their codes.
+ESCAPES_FROM = 60103
+#: Show's answer with each character below a space written as \x and its code.
+PLAIN = ('Private Function Plain(s As String) As String\n'
+         '    Dim i As Long\n'
+         '    For i = 0 To 31\n'
+         '        s = Replace(s, ChrW(i), "\\x" & Right("0" & Hex(i), 2))\n'
+         '    Next\n'
+         '    Plain = s\n'
+         'End Function\n')
+
+
+def statement(case: dict[str, str], escape: bool = False) -> str:
     call = f"({case['arguments']})" if case['arguments'] else ''
     before = f"{case['setup']}: " if case['setup'] else ''
+    shown = 'Plain(Show(v))' if escape else 'Show(v)'
     return (f"Err.Clear: v = Empty: {before}v = f.{case['function']}{call}\n"
-            f"    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \"{SEPARATOR}\" Else out = out & Show(v) & \"{SEPARATOR}\"")
+            f"    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \"{SEPARATOR}\" Else out = out & {shown} & \"{SEPARATOR}\"")
 
 
-def module(cases: list[dict[str, str]], typed: bool) -> str:
+def module(cases: list[dict[str, str]], typed: bool, escape: bool = False) -> str:
     kind = 'WorksheetFunction' if typed else 'Object'
-    body = '\n'.join(f'    {statement(case)}' for case in cases)
-    return (MORE['helper'] + '\n' + MORE['setup'] + '\n'
+    body = '\n'.join(f'    {statement(case, escape)}' for case in cases)
+    return (MORE['helper'] + '\n' + MORE['setup'] + '\n' + (PLAIN if escape else '') +
             'Public Function One() As String\n'
             f'    Dim wb As Object, ws As Object, f As {kind}, v As Variant, k As Variant, out As String\n'
             '    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n'
@@ -155,7 +174,12 @@ def module(cases: list[dict[str, str]], typed: bool) -> str:
             '    On Error GoTo 0\n    wb.Close False\n    One = out\nEnd Function\n')
 
 
-def model_answers(cases: list[dict[str, str]], typed: bool) -> list[str]:
+def refused(answer: str) -> bool:
+    """Whether the model's answer is its refusal: a call it says is not implemented."""
+    return answer.startswith('model VBAUnsupportedError')
+
+
+def model_answers(cases: list[dict[str, str]], typed: bool, escape: bool = False) -> list[str]:
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBAError
 
@@ -165,7 +189,7 @@ def model_answers(cases: list[dict[str, str]], typed: bool) -> list[str]:
         app = ExcelApplication(sandbox=False)
         app.add_workbook()
         try:
-            app.add_module(module(batch, typed), name='Round')
+            app.add_module(module(batch, typed, escape), name='Round')
             text = str(app.run('Round.One'))
             answers += text.split(SEPARATOR)[:len(batch)]
         except VBAError:
@@ -174,7 +198,7 @@ def model_answers(cases: list[dict[str, str]], typed: bool) -> list[str]:
                 single = ExcelApplication(sandbox=False)
                 single.add_workbook()
                 try:
-                    single.add_module(module([case], typed), name='Round')
+                    single.add_module(module([case], typed, escape), name='Round')
                     answers.append(str(single.run('Round.One')).split(SEPARATOR)[0])
                 except VBAError as failed:
                     answers.append(f'model {type(failed).__name__}: {str(failed)[:120]}')
@@ -191,7 +215,7 @@ def predict(seed: int) -> None:
     assert not path.exists(), f'{path} exists: a round is predicted once'
     cases = calls(seed)
     for tag, typed in (('late', False), ('typed', True)):
-        for case, answer in zip(cases, model_answers(cases, typed), strict=True):
+        for case, answer in zip(cases, model_answers(cases, typed, seed >= ESCAPES_FROM), strict=True):
             case[f'model_{tag}'] = answer
     OUT.mkdir(parents=True, exist_ok=True)
     record = {'seed': seed, 'predicted_at': datetime.now(timezone.utc).isoformat(), 'predictions_sha256_16': digest(cases), 'cases': cases}
@@ -216,14 +240,14 @@ def measure(seed: int) -> None:
                     batch = todo[start:start + BATCH]
                     with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
                         excel.new_document()
-                        done = excel.run_vba(module(batch, typed), 'One', (), timeout=180.0, line_numbers=False)
+                        done = excel.run_vba(module(batch, typed, seed >= ESCAPES_FROM), 'One', (), timeout=180.0, line_numbers=False)
                     answers = str(done.value).split(SEPARATOR)[:len(batch)] if done.ok else []
                     if len(answers) != len(batch):
                         answers = []
                         for case in batch:
                             with ExcelSession(HarnessConfig(lock_wait_s=1200.0, exclusive=False)) as excel:
                                 excel.new_document()
-                                alone = excel.run_vba(module([case], typed), 'One', (), timeout=60.0, line_numbers=False)
+                                alone = excel.run_vba(module([case], typed, seed >= ESCAPES_FROM), 'One', (), timeout=60.0, line_numbers=False)
                             answers.append(str(alone.value).split(SEPARATOR)[0] if alone.ok else f'no answer: {str(alone)[:300]}')
                     for case, answer in zip(batch, answers, strict=True):
                         case[tag] = answer
@@ -236,11 +260,12 @@ def measure(seed: int) -> None:
         return
     record['measured_at'] = datetime.now(timezone.utc).isoformat()
     path.write_text(json.dumps(record, indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
-    differ = [(case, tag) for case in cases for tag in ('late', 'typed') if case[tag] != case[f'model_{tag}']]
+    answered = [(case, tag) for case in cases for tag in ('late', 'typed') if not refused(case[f'model_{tag}'])]
+    differ = [(case, tag) for case, tag in answered if case[tag] != case[f'model_{tag}']]
     sys.stdout.reconfigure(encoding='utf-8')  # type: ignore[union-attr]
     for case, tag in differ:
         print(tag, case['function'], case['setup'], '|', case['arguments'], '| Excel', case[tag], '| model', case[f'model_{tag}'])
-    print('differ', len(differ), 'of', 2 * len(cases))
+    print('wrong', len(differ), 'of', len(answered), 'answered;', 2 * len(cases) - len(answered), 'refused')
 
 
 if __name__ == '__main__':

@@ -639,7 +639,7 @@ def _statistics(fit: _Fit, first_row: list[Scalar], statistics: bool) -> Array:
     )
 
 
-@function("LINEST", R, R, V, V, minimum=1)
+@function("LINEST", R, R, V, V, minimum=1, intersected=(2, 3))
 def LINEST(
     context: Context,
     known_y: Value,
@@ -653,7 +653,7 @@ def LINEST(
     return _statistics(fit, first, _flag(context, stats, False))
 
 
-@function("LOGEST", R, R, V, V, minimum=1)
+@function("LOGEST", R, R, V, V, minimum=1, intersected=(2, 3))
 def LOGEST(
     context: Context,
     known_y: Value,
@@ -712,7 +712,7 @@ def _predicted(fit: _Fit, row: list[float], logarithm: bool) -> Scalar:
     return checked(math.exp(value) if logarithm else value)
 
 
-@function("TREND", R, R, R, V, minimum=1)
+@function("TREND", R, R, R, V, minimum=1, intersected=(3,))
 def TREND(
     context: Context,
     known_y: Value,
@@ -723,7 +723,7 @@ def TREND(
     return _projection(context, known_y, known_x, new_x, constant, logarithm=False)
 
 
-@function("GROWTH", R, R, R, V, minimum=1)
+@function("GROWTH", R, R, R, V, minimum=1, intersected=(3,))
 def GROWTH(
     context: Context,
     known_y: Value,

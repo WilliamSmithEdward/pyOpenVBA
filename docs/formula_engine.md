@@ -242,8 +242,8 @@ name looking like a cell is not read as the cell.
     Excel. One gap: a cell given
     `=MUNIT(100000)` or `=SUM(SEQUENCE(100000,100000))` shows 0 in Excel and
     `#VALUE!` here, where `WorksheetFunction` refuses both as 1004 either way.
-21. **What WorksheetFunction round 60101 found.** Each rule was split from its
-    rivals in live Excel (`tests/fixtures/worksheet_function_rivals.json`):
+21. **What WorksheetFunction rounds 60101 and 60102 found.** Each rule was
+    split from its rivals in live Excel (`tests/fixtures/worksheet_function_rivals.json`):
     - AMORDEGRC rounds the life, 1 / rate, up to whole periods; two or fewer
       are #NUM!, three or four take the rate 1.5 times, five or six twice,
       more 2.5 times, and the last two periods of the life each take half of
@@ -265,3 +265,9 @@ name looking like a cell is not read as the cell.
     - SUMIFS and its kin take a last range with no criterion from a macro
       (`Context.from_macro`): every cell up to the last used row and column
       matches, and none past them (`common.UNASKED_OP`).
+    - A constant under a database criteria label that names no field is
+      read as a computed criterion's answer: a number other than 0, or TRUE,
+      selects every record, anything else none.
+    - LINEST's and LOGEST's switches and TREND's and GROWTH's constant cut a
+      range to the formula's row or column, as a legacy formula does, in
+      any formula (`registry.function`'s `intersected`).

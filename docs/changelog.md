@@ -955,7 +955,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- Eleven worksheet functions answer edge cases as Excel does, from macros and in cells:
+- Worksheet functions answer these edge cases as Excel does, from macros and in cells:
   - `AmorDegrc` follows Excel's French depreciation over an asset's whole life. Its rate's coefficient now goes by
     the life rounded up, a life of two years or less is error 1004, and the last two periods split what is left.
   - `Frequency` with bins that hold no number counts against 0.
@@ -968,6 +968,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   - `SumIfs`, `CountIfs`, `AverageIfs`, `MaxIfs` and `MinIfs` take a last range with no criterion after it, as a
     trailing `Null` gives.
   - `Transpose` of one cell gives back its value.
+  - In the database functions' criteria, a constant under a label that names no field selects every record when it
+    is a number other than 0 or TRUE, and none otherwise.
+  - In a cell, `LINEST`'s and `LOGEST`'s switches and `TREND`'s and `GROWTH`'s constant take the cell of a range in
+    the formula's row or column. From a macro, a range of several cells there says it is not implemented. Excel reads
+    most of them by their first cell, but not all.
 - `Range.End` and `SpecialCells(xlCellTypeLastCell)` see only visible lines, so a hidden or filtered last row is passed
   over. `End(xlUp)` coming across a gap stops at a table's last row even when that row is empty, as after
   `ListRows.Add`. `SpecialCells` on a protected sheet is error 1004.

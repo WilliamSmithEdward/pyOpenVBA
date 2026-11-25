@@ -97,6 +97,9 @@ _STRING: Final = frozenset({
 _ALWAYS_ARRAY: Final = frozenset({"randarray", "munit"})
 #: The functions that take ranges and criteria in pairs.
 _CRITERIA_PAIRS: Final = frozenset({"averageifs", "countifs", "maxifs", "minifs", "sumifs"})
+#: The places of the regression functions' switches: LINEST's and LOGEST's constant and statistics, TREND's and
+#: GROWTH's constant.
+_REGRESSION_SWITCHES: Final = {"linest": (2, 3), "logest": (2, 3), "trend": (3,), "growth": (3,)}
 def engine_name(name: str) -> str | None:
     """The formula engine's name for a WorksheetFunction member, where the engine has the function."""
     from pyopenvba.formula._calc import registry
@@ -393,6 +396,11 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         lower = name.lower()
         if lower in _ONE_AREA and isinstance(value, Range) and len(value.areas) > 1:
             raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+        if index in _REGRESSION_SWITCHES.get(lower, ()) and isinstance(value, Range) and not value.single:
+            # Excel reads most such ranges by their first cell, yet L3:L4 holding 1 and 0 is 1004, and no rule
+            # measured so far covers both (tests/fixtures/worksheet_function_rivals.json).
+            raise VBAUnsupportedError(f"WorksheetFunction.{name} given several cells where it takes a switch is not "
+                                      "implemented")
         if lower.startswith("im") and isinstance(value, (VBADate, VBACurrency)):
             # The complex number functions read a Date or Currency as its number, where others read its text.
             value = float(to_number(value))

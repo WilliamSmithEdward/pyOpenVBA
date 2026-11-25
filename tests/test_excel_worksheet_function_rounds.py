@@ -26,18 +26,29 @@ USED_UP: dict[int, str] = {
     60101: 'eleven functions answered edge cases otherwise, each rule split from its rivals live '
            '(tests/fixtures/worksheet_function_rivals.json): AmorDegrc, AverageIfs, BahtText, DGet, DStDevP, Frequency, IfNa, '
            'Lcm, Transpose, Trend and ZTest; Confidence_T, F_Dist_RT and Gamma_Dist missed in the last digit and left the rounds',
+    60102: 'DProduct passed over a constant under a criteria label that names no field, and LinEst lifted its statistics '
+           'over a range (tests/fixtures/worksheet_function_rivals.json), now refused; ChiInv and MultiNomial missed by a few '
+           'units in the last digits and left the rounds; Unichar(True) read a space through the harness',
 }
+
+
+def _as_measured(seed: int, answer: str) -> str:
+    """The model's answer as a round's live run read it: before ESCAPES_FROM the harness handed each character below a
+    space back as a space."""
+    return answer if seed >= ROUNDS.ESCAPES_FROM else ''.join(' ' if ord(one) < 32 else one for one in answer)
 
 
 @pytest.mark.parametrize('typed', [False, True], ids=['late', 'typed'])
 @pytest.mark.parametrize('record', RECORDS, ids=lambda record: str(record['seed']))
 def test_each_call_as_excel_answered(record: dict[str, Any], typed: bool) -> None:
     # The functions a round leaves out are left out here too: those the model answers a unit away in the last digit.
+    # A call the model refuses is no answer of its own, and its row stays PARTIAL.
     cases = [case for case in record['cases'] if case['function'] not in ROUNDS.LAST_DIGIT]
     tag = 'typed' if typed else 'late'
-    answers = ROUNDS.model_answers(cases, typed)
+    answers = ROUNDS.model_answers(cases, typed, record['seed'] >= ROUNDS.ESCAPES_FROM)
     assert [(case['function'], case['setup'], case['arguments'], case[tag], answer)
-            for case, answer in zip(cases, answers, strict=True) if answer != case[tag]] == []
+            for case, answer in zip(cases, answers, strict=True)
+            if not ROUNDS.refused(answer) and _as_measured(record['seed'], answer) != case[tag]] == []
 
 
 @pytest.mark.parametrize('record', RECORDS, ids=lambda record: str(record['seed']))

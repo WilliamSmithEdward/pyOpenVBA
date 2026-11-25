@@ -110,7 +110,11 @@ def _criteria(context: Context, area: Area, database: Area, labels: list[str]) -
             if field is None and formula is not None:
                 tests.append(_computed(context, area, database, row, column, formula))
             elif field is None:
-                tests.append(lambda _record: False)
+                # A constant under a label that names no field is read as a computed criterion's answer: a number
+                # other than 0, or TRUE, selects every record, anything else none (pyOpenVBA's
+                # tests/fixtures/worksheet_function_rivals.json).
+                truth = value is True or (isinstance(value, float) and value != 0.0)
+                tests.append(lambda _record, truth=truth: truth)
             else:
                 test = _condition(context, value)
                 cell_column = database.left + field

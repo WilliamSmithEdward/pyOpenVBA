@@ -113,6 +113,8 @@ _SOFTNESS = {'Harsh': 1, 'Normal': 2, 'Flat': 3}
 _RIG_DIRECTIONS = {1: 5, 2: 1, 3: 4, 4: 7}
 _CLOCKWISE = {1: 3, 3: 9, 9: 7, 7: 1, 2: 6, 6: 8, 8: 4, 4: 2, 5: 5}
 _QUARTERS = {'t': 0, 'r': 1, 'b': 2, 'l': 3}
+#: PresetLightingDirection by eighths of a turn clockwise from the top.
+_COMPASS = (2, 3, 6, 9, 8, 7, 4, 1)
 #: PresetLightingDirection set on an old rig: the rig's number and dir Excel writes.
 _DIRECTED = {1: (2, 't'), 2: (3, 'r'), 3: (4, 'b'), 4: (3, 't'), 5: (1, 't'), 6: (3, 'b'), 7: (4, 't'), 8: (3, 'l'), 9: (2, 'b')}
 #: PresetMaterial by the file's prstMaterial; warm matte is the default and writes none.
@@ -150,10 +152,10 @@ def _size(value: object, largest: float, refused: float, what: str) -> float:
 
 
 def _old_default(three_d: ShapeThreeD) -> None:
-    """Excel's old 3-D default, which the old presets start from on a plain shape."""
-    three_d.scene, three_d.camera, three_d.rig, three_d.rig_dir = True, 'legacyObliqueTopRight', 'legacyFlat3', 'b'
-    three_d.body, three_d.extrusion_h, three_d.material = True, 457200, 'legacyMatte'
-    three_d.bevel_top = three_d.bevel_bottom = ('angle', 13500, 13500)
+    """Excel's old 3-D default, which the old presets start from in place of what was set."""
+    _move(ShapeThreeD(scene=True, camera='legacyObliqueTopRight', rig='legacyFlat3', rig_dir='b', body=True, extrusion_h=457200,
+                      material='legacyMatte', bevel_top=('angle', 13500, 13500), bevel_bottom=('angle', 13500, 13500)),
+          three_d, _PARTS[0][0] + _PARTS[1][0])
 
 
 def _loaded(source: str) -> ShapeThreeD | None:
@@ -176,7 +178,8 @@ def _loaded(source: str) -> ShapeThreeD | None:
 #: The scene3d's members and the sp3d's, each with the flag that says it is written.
 _PARTS = ((('scene', 'camera', 'fov', 'rotation', 'rig', 'rig_dir', 'light_rev'), 'scene'),
           (('body', 'z', 'extrusion_h', 'contour_w', 'material', 'bevel_top', 'bevel_bottom', 'extrusion_rgb', 'extrusion_scheme',
-            'contour_rgb', 'contour_scheme', 'project_text'), 'body'))
+            'contour_rgb', 'contour_scheme'), 'body'))
+#: ProjectText is the text's own and is in neither: hiding the format leaves it.
 
 
 def _move(source: ShapeThreeD, target: ShapeThreeD, part: tuple[str, ...]) -> None:
@@ -241,10 +244,13 @@ class ThreeDFormat(HeldPart):
         self.owner.restyled()
         return three_d
 
-    def old_preset(self, *, body: bool = False) -> ShapeThreeD:
-        """What is set, for one of the old presets: from the old default on a plain shape."""
+    def old_preset(self, needs: str, *, body: bool = False) -> ShapeThreeD:
+        """What is set, for one of the old presets: from the old default where the part it needs, the scene3d or the sp3d, is
+        not set."""
         held = self.held()
-        if held is None or held.blank() and held.hidden is None:
+        if held is None or not getattr(held, needs):
+            if held is not None and held.hidden is not None:
+                raise VBAUnsupportedError('An old 3-D preset on a hidden ThreeD is not implemented')
             three_d = self.change(body=True)
             _old_default(three_d)
             return three_d
@@ -269,7 +275,8 @@ class ThreeDFormat(HeldPart):
             # Neither way changes a format nothing was set on.
             return
         wanted = int(to_integer(value, 'Long')) != 0
-        if wanted and three_d.hidden is None:
+        if wanted and (three_d.hidden is None or three_d.scene):
+            # Showing a format that shows changes nothing, what is hidden staying hidden.
             return
         if not wanted and three_d.blank():
             return
@@ -397,7 +404,7 @@ class ThreeDFormat(HeldPart):
     def _depth(self, value: object) -> None:
         # Less than nothing is taken as its size; nothing writes no extrusion.
         wanted = abs(_single(value))
-        if wanted > 1585:
+        if wanted > 1585.5:
             raise VBAUnsupportedError(f'A depth of {wanted} is not implemented')
         self.change(body=True).extrusion_h = round(wanted * _EMU_PER_POINT) or None
 
@@ -430,10 +437,9 @@ class ThreeDFormat(HeldPart):
 
     @setter('ProjectText')
     def _project_text(self, value: object) -> None:
-        # Off is kept somewhere a file opened again reads it from, not in the spPr (tests/fixtures/three_d_round_3.json).
-        if int(to_integer(value, 'Long')) == 0:
-            raise VBAUnsupportedError('ProjectText set off is not implemented')
-        self.change(body=True)
+        # Off is the text body's flatTx (tests/fixtures/three_d_round_4.json); a line, with no text, still reads on.
+        three_d = self.change(body=True)
+        three_d.project_text = int(to_integer(value, 'Long')) != 0 or self.owner.shape.kind == 'line'
 
     @member
     def PresetMaterial(self) -> object:
@@ -445,7 +451,7 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(value, 'Long'))
         if not 1 <= wanted <= len(_MATERIALS):
             raise VBAUnsupportedError(f'PresetMaterial {wanted} is not implemented')
-        self.old_preset(body=True).material = _MATERIALS[wanted - 1]
+        self.old_preset('body', body=True).material = _MATERIALS[wanted - 1]
 
     # The colours.
 
@@ -515,10 +521,9 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(PresetCamera, 'Long'))
         if wanted not in _CAMERAS:
             raise VBAUnsupportedError(f'SetPresetCamera {wanted} is not implemented')
-        held = self.held()
-        if held is not None and held.scene:
-            raise VBAUnsupportedError('SetPresetCamera over a camera already set is not implemented')
-        self.change().camera = _CAMERAS[wanted][0]
+        # In place of what the camera was, its rot and field of view with it.
+        three_d = self.change()
+        three_d.camera, three_d.rotation, three_d.fov = _CAMERAS[wanted][0], None, None
         return EMPTY
 
     @member
@@ -531,14 +536,11 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(value, 'Long')) != 0
         held = self.scene()
         now = 'orthographicFront' if held is None else held.camera
-        if now in ('orthographicFront', 'legacyObliqueFront', 'legacyPerspectiveFront'):
-            side = 'Front'
-        elif now.startswith(('legacyOblique', 'legacyPerspective')):
-            raise VBAUnsupportedError('Perspective on an old camera from the side is not implemented')
-        else:
+        # From any old camera, from whichever side, the camera faces front.
+        if now != 'orthographicFront' and not now.startswith(('legacyOblique', 'legacyPerspective')):
             raise VBAUnsupportedError(f'Perspective on the {now} camera is not implemented')
         three_d = self.change()
-        three_d.camera = ('legacyPerspective' if wanted else 'legacyOblique') + side
+        three_d.camera = 'legacyPerspectiveFront' if wanted else 'legacyObliqueFront'
         # Either way the camera's rot is written out.
         three_d.rotation = three_d.rotation or (0, 0, 0)
         if not wanted:
@@ -553,12 +555,9 @@ class ThreeDFormat(HeldPart):
 
     @setter('FieldOfView')
     def _field_of_view(self, value: object) -> None:
-        wanted = _size(value, 180, 180, 'A field of view')
+        wanted = _size(value, 50, 179, 'A field of view')
         three_d = self.change()
-        camera = _CAMERAS[_CAMERA_NUMBERS[three_d.camera]]
-        if camera[2]:
-            if not three_d.camera.startswith('legacyPerspective'):
-                raise VBAUnsupportedError(f'The field of view of the {three_d.camera} camera is not implemented')
+        if _CAMERAS[_CAMERA_NUMBERS[three_d.camera]][2]:
             three_d.fov = round(wanted * _ANGLE)
         # A camera without perspective keeps none.
 
@@ -572,7 +571,7 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(PresetExtrusionDirection, 'Long'))
         if wanted not in _SIDES:
             raise VBAUnsupportedError(f'SetExtrusionDirection {wanted} is not implemented')
-        three_d = self.old_preset()
+        three_d = self.old_preset('body')
         if three_d.rotation is not None:
             raise VBAUnsupportedError('SetExtrusionDirection on a turned camera is not implemented')
         family = 'legacyPerspective' if three_d.camera.startswith('legacyPerspective') else 'legacyOblique'
@@ -596,11 +595,10 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(PresetThreeDFormat, 'Long'))
         if wanted not in _FORMATS:
             raise VBAUnsupportedError(f'SetThreeDFormat {wanted} is not implemented')
-        held = self.held()
-        if held is not None and not held.blank():
-            raise VBAUnsupportedError('SetThreeDFormat over a ThreeD already set is not implemented')
+        # In place of the camera, its rot, the depth and the material; the rest stays.
         three_d = self.change(body=True)
         three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material = _FORMATS[wanted]
+        three_d.fov = None
         return EMPTY
 
     # The light.
@@ -628,12 +626,16 @@ class ThreeDFormat(HeldPart):
     @member
     def PresetLightingDirection(self) -> object:
         three_d = self.scene()
-        if three_d is None or three_d.light_rev is not None:
+        if three_d is None:
             return VBAInt(-2, 'Long')
+        if three_d.rig_dir not in _QUARTERS:
+            raise VBAUnsupportedError(f'The direction of a light from {three_d.rig_dir} is not implemented')
         if not three_d.rig.startswith('legacy'):
-            if three_d.rig_dir != 't':
-                raise VBAUnsupportedError(f'The direction of the {three_d.rig} light from another side is not implemented')
-            return VBAInt(2, 'Long')
+            # The side it lights from and its angle, clockwise from the top, where that is a side or a corner.
+            degrees = (_QUARTERS[three_d.rig_dir] * 90 + (three_d.light_rev or 0) / _ANGLE) % 360
+            return VBAInt(_COMPASS[int(degrees // 45)] if degrees % 45 == 0 else -2, 'Long')
+        if three_d.light_rev is not None:
+            return VBAInt(-2, 'Long')
         direction = _RIG_DIRECTIONS[self._old_rig(three_d)[1]]
         for _ in range(_QUARTERS[three_d.rig_dir]):
             direction = _CLOCKWISE[direction]
@@ -644,7 +646,12 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(value, 'Long'))
         if wanted not in _DIRECTED:
             raise VBAUnsupportedError(f'PresetLightingDirection {wanted} is not implemented')
-        three_d = self.old_preset()
+        three_d = self.old_preset('scene')
+        if not three_d.rig.startswith('legacy'):
+            raise VBAUnsupportedError(f'PresetLightingDirection of the {three_d.rig} light is not implemented')
+        if three_d.camera not in ('orthographicFront', 'legacyObliqueTopRight'):
+            # Excel writes the old light by where the camera looks from (tests/fixtures/three_d_round_4.json).
+            raise VBAUnsupportedError(f'PresetLightingDirection with the {three_d.camera} camera is not implemented')
         kind, _number = self._old_rig(three_d)
         number, three_d.rig_dir = _DIRECTED[wanted]
         three_d.rig = f'legacy{kind}{number}'
@@ -662,7 +669,7 @@ class ThreeDFormat(HeldPart):
         kinds = {number: kind for kind, number in _SOFTNESS.items()}
         if wanted not in kinds:
             raise VBAUnsupportedError(f'PresetLightingSoftness {wanted} is not implemented')
-        three_d = self.old_preset()
+        three_d = self.old_preset('scene')
         _kind, number = self._old_rig(three_d)
         three_d.rig = f'legacy{kinds[wanted]}{number}'
 
@@ -688,10 +695,8 @@ class ThreeDFormat(HeldPart):
         implied = _CAMERAS[_CAMERA_NUMBERS[three_d.camera]][4]
         if implied is None:
             return (0, 0, 0)
-        if any(angle != int(angle) for angle in implied):
-            return None
-        # A turn writes the preset's rotation out, with the one turned.
-        return (_stored(implied[1]), _stored(-implied[0]), _stored(-implied[2]))
+        # A turn writes the preset's rotation out, as Singles, with the one turned.
+        return (_stored(_single(implied[1])), _stored(-_single(implied[0])), _stored(-_single(implied[2])))
 
     def _read_turn(self, at: int, sign: int, implied_at: int) -> object:
         three_d = self.scene()
@@ -773,8 +778,14 @@ class ThreeDFormat(HeldPart):
 
     @method
     def ResetRotation(self) -> object:
-        # On a plain shape it writes the scene3d, as any change does.
-        self.change().rotation = None
+        # On a plain shape it writes the scene3d, as any change does; the old perspective camera goes back to straight on.
+        held = self.scene()
+        if held is not None and held.camera not in ('orthographicFront', 'legacyPerspectiveFront'):
+            raise VBAUnsupportedError(f'ResetRotation of the {held.camera} camera is not implemented')
+        three_d = self.change()
+        three_d.rotation = None
+        if three_d.camera == 'legacyPerspectiveFront':
+            three_d.camera, three_d.fov = 'orthographicFront', None
         return EMPTY
 
 
@@ -833,7 +844,7 @@ class RangeThreeD(Created):
         if name.lower() == 'application':
             return found[0]
         if isinstance(found[0], ThreeDColor):
-            raise VBAUnsupportedError(f'ThreeDFormat.{name} of a range is not implemented')
+            return RangeThreeDColor(self, name)
         if all(one == found[0] for one in found[1:]):
             return found[0]
         return VBASingle(float(_MIXED)) if isinstance(found[0], VBASingle) else VBAInt(-2, 'Long')
@@ -847,3 +858,26 @@ class RangeThreeD(Created):
         for part in self.parts():
             part.vba_call(name, args, named)
         return EMPTY
+
+
+class RangeThreeDColor(Created):
+    """A range's contour or extrusion colour: what its shapes share; shapes of different colours are not measured."""
+
+    vba_type_name = 'ColorFormat'
+
+    def __init__(self, effect: RangeThreeD, name: str) -> None:
+        self.effect, self.name = effect, name
+
+    def colours(self) -> list[ThreeDColor]:
+        return [ThreeDColor(part, self.name) for part in self.effect.parts()]
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        found = [one.vba_get(name, args, named) for one in self.colours()]
+        if any(one != found[0] for one in found[1:]):
+            raise VBAUnsupportedError(f'ColorFormat.{name} of a range whose shapes differ is not implemented')
+        return found[0]
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        for one in self.colours():
+            one.vba_set(name, value, args, named, by_ref=by_ref)

@@ -338,9 +338,12 @@ def read_three_d(markup: str) -> ShapeThreeD | None:
     """What a shape in a file holds of its ThreeD, as Excel writes it (tests/fixtures/three_d_round_3.json), or None where it holds
     none; markup Excel was not seen to write is refused."""
     rest = properties(markup)
-    if not any(tag in rest for tag in ("<a:scene3d", "<a:sp3d", "hiddenScene3d", "hiddenSp3d")):
+    text = re.search(r"<a:bodyPr\b[^>]*>(.*?)</a:bodyPr>", markup, re.DOTALL)
+    flat = text is not None and "<a:flatTx/>" in text.group(1)
+    if not flat and not any(tag in rest for tag in ("<a:scene3d", "<a:sp3d", "hiddenScene3d", "hiddenSp3d")):
         return None
-    three_d = ShapeThreeD()
+    # ProjectText off is kept as the text's flatTx.
+    three_d = ShapeThreeD(project_text=not flat)
     scene = _SCENE.search(rest)
     if scene is not None:
         _read_scene(three_d, scene.group(1))

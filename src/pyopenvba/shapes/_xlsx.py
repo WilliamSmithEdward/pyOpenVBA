@@ -1556,6 +1556,28 @@ def _new_picture(shape: Shape) -> str:
 
 def _new_element(shape: Shape) -> str:
     """A new shape's own element, which an anchor or a group holds."""
+    return _flat_text(_element_markup(shape), shape)
+
+
+def _flat_text(markup: str, shape: Shape) -> str:
+    """The shape's markup with its text's flatTx, the last child of bodyPr, where ThreeD.ProjectText is off, and without it where
+    it is on (tests/fixtures/three_d_round_4.json)."""
+    three_d = None if shape.fill_line is None else shape.fill_line.three_d
+    found = None if three_d is None else re.search(r"<a:bodyPr\b[^>]*?(/?)>", markup)
+    if three_d is None or found is None:
+        return markup
+    if found.group(1):
+        inside, end = "", found.end()
+    else:
+        close = markup.find("</a:bodyPr>", found.end())
+        inside, end = markup[found.end():close], close + len("</a:bodyPr>")
+    inside = inside.replace("<a:flatTx/>", "") + ("" if three_d.project_text else "<a:flatTx/>")
+    opening = found.group()[:-2] if found.group(1) else found.group()[:-1]
+    written = f"{opening}>{inside}</a:bodyPr>" if inside else f"{opening}/>"
+    return markup[:found.start()] + written + markup[end:]
+
+
+def _element_markup(shape: Shape) -> str:
     if shape.kind == "group":
         # The members sit in the group's child space, which a move or a resize of the group leaves alone
         # (tests/fixtures/shape_group.json, tests/fixtures/shape_group_items.json).
@@ -2342,7 +2364,7 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
         if not only_three_d(shape.fill_line):
             markup = with_fill_line(markup, _fill_line(shape, three_d=False))
         if shape.fill_line.three_d is not None:
-            markup = with_three_d(markup, shape.fill_line.three_d)
+            markup = _flat_text(with_three_d(markup, shape.fill_line.three_d), shape)
     # A control's VML says False where its drawing has no spLocks to say anything, and None; either way the aspect is free.
     free = shape.kind == "formControl" and not shape.lock_aspect and not was.lock_aspect
     if shape.lock_aspect != was.lock_aspect and not free:

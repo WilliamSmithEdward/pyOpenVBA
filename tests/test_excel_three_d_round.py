@@ -6,10 +6,14 @@ from __future__ import annotations
 import importlib.util
 import json
 import tempfile
+import zlib
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 import pytest
+
+from pyopenvba.powerquery import _opc  # pyright: ignore[reportPrivateUsage]
 
 ROOT = Path(__file__).resolve().parents[1]
 _SPEC = importlib.util.spec_from_file_location('measure_three_d_round', ROOT / 'scripts/measure_three_d_round.py')
@@ -20,6 +24,21 @@ ROUNDS = range(1, 16)
 #: A file with a hidden body beside a body of its own: Excel drops the hidden one when it opens the file and so writes the book
 #: without it, changed or not, where the model keeps a drawing nothing changed as it came. A read of its ThreeD is refused.
 OPENED_AND_DROPPED = 't.Depth = 10: t.Visible = msoFalse: t.Depth = 20 || '
+
+
+@pytest.fixture(autouse=True, scope='module')
+def _stdlib_deflate() -> Iterator[None]:
+    """Each case saves its book, and the replay reads back only the drawing's XML. The port of Excel's deflate, which
+    writes the bytes Excel writes, took a third of the replay's time, so here the parts are deflated by zlib: the XML read
+    back is the same. tests/test_deflate_port.py holds the port to the bytes Excel writes."""
+    def deflated(data: bytes, *_settings: object) -> bytes:
+        packer = zlib.compressobj(6, zlib.DEFLATED, -15, 8)
+        return packer.compress(data) + packer.flush()
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(_opc, 'raw_compress', deflated)
+        patch.setattr(_opc, 'kept_raw_compress', deflated)
+        yield
 
 
 def _record(number: int) -> dict[str, Any]:

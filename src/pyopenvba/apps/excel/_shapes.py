@@ -632,6 +632,12 @@ class ShapeRange(VBACollection, HeldPart):
         return RangeSoftEdge(self)
 
     @member
+    def ThreeD(self) -> object:
+        from pyopenvba.apps.excel._shape_three_d import RangeThreeD
+
+        return RangeThreeD(self)
+
+    @member
     def Reflection(self) -> object:
         from pyopenvba.apps.excel._shape_effects import RangeReflection
 
@@ -1777,6 +1783,13 @@ class ShapeObject(_Drawn):
 
         self.on_sheet()
         return SoftEdgeFormat(self)
+
+    @member
+    def ThreeD(self) -> object:
+        from pyopenvba.apps.excel._shape_three_d import ThreeDFormat
+
+        self.on_sheet()
+        return ThreeDFormat(self)
 
     @member
     def Reflection(self) -> object:

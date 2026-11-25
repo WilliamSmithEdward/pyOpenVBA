@@ -270,8 +270,19 @@ def _key(value: object, work: _Work) -> tuple[object, ...]:
     return ('number', number) if number is not None else ('other', to_text(value))
 
 
+#: One attribute as attribute_spans walks it, and a fragment made of nothing else: what a file's row and column tags are,
+#: a million of them in a sheet formatted to its last row. Anything else goes through the walk, which says what is wrong.
+_ATTRIBUTE = re.compile(r"""[ \t\r\n]*([^ \t\r\n=<>"']+)[ \t\r\n]*=[ \t\r\n]*(?:"([^"]*)"|'([^']*)')(?=[ \t\r\n]|\Z)""")
+_ATTRIBUTES = re.compile(r"""(?:[ \t\r\n]*[^ \t\r\n=<>"']+[ \t\r\n]*=[ \t\r\n]*(?:"[^"]*"|'[^']*')(?=[ \t\r\n]|\Z))*"""
+                         r"""[ \t\r\n]*""")
+
+
 def attribute_spans(fragment: str) -> list[tuple[str, int, int, str]]:
     """Walk complete quoted attributes, never names embedded in their values."""
+    if _ATTRIBUTES.fullmatch(fragment):
+        return [(found.group(1), found.start(1), found.end(),
+                 found.group(2) if found.group(2) is not None else found.group(3))
+                for found in _ATTRIBUTE.finditer(fragment)]
     spans: list[tuple[str, int, int, str]] = []
     index = 0
     while index < len(fragment):

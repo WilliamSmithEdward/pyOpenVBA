@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import ConnectorLink, FillLine, FillPicture, Shape
+from pyopenvba.shapes._values import ConnectorLink, FillLine, FillPicture, Shape, ShapeThreeD
 
 _COLOUR = re.compile(r'<a:(srgbClr|schemeClr|sysClr|prstClr|scrgbClr|hslClr)\b([^>]*?)(?:/>|>(.*?)</a:\1>)', re.DOTALL)
 _MOD = re.compile(r'<a:(\w+)\b[^>]*?\bval="(-?\d+)"')
@@ -269,3 +269,95 @@ def with_fill_line(markup: str, written: str) -> str:
         written = written.replace("<a:effectLst/>", "")
     close = rest.rfind("</xdr:spPr>")
     return markup[:start] + written + rest[:close] + extensions + rest[close:] + markup[span[1]:]
+
+
+_CAMERA = re.compile(r'<a:camera prst="(\w+)"(?: fov="(\d+)")?(?:/>|><a:rot lat="(\d+)" lon="(\d+)" rev="(\d+)"/></a:camera>)')
+_LIGHT = re.compile(r'<a:lightRig rig="(\w+)" dir="(\w+)"(?:/>|><a:rot lat="0" lon="0" rev="(\d+)"/></a:lightRig>)')
+_BODY_ATTRIBUTE = re.compile(r' (z|extrusionH|contourW|prstMaterial)="(-?\w+)"')
+_BEVEL = re.compile(r'<a:(bevelT|bevelB)((?: (?:w|h|prst)="\w+")*)/>')
+_BODY_COLOUR = re.compile(r'<a:(extrusionClr|contourClr)><a:(srgbClr|schemeClr) val="(\w+)"/></a:\1>')
+_SCENE = re.compile(r"<a:scene3d>(.*?)</a:scene3d>", re.DOTALL)
+_SP3D = re.compile(r"<a:sp3d((?: \w+=\"[^\"]*\")*)(?:/>|>(.*?)</a:sp3d>)", re.DOTALL)
+_HIDDEN_SCENE = re.compile(r'<a:ext uri="\{31F19639-BCED-4A60-ADC4-E9642A236FB7\}"><a14:hiddenScene3d xmlns:a14="[^"]*">(.*?)'
+                           r"</a14:hiddenScene3d></a:ext>", re.DOTALL)
+_HIDDEN_SP3D = re.compile(r'<a:ext uri="\{E45631CC-5BF2-4C18-A39C-3461C7D3F71A\}"><a14:hiddenSp3d xmlns:a14="[^"]*"((?: \w+="[^"]*")*)'
+                          r"(?:/>|>(.*?)</a14:hiddenSp3d>)</a:ext>", re.DOTALL)
+
+
+def _unread(what: str) -> VBAUnsupportedError:
+    return VBAUnsupportedError(f"Reading {what} of a shape's ThreeD from a file is not implemented")
+
+
+def _read_scene(three_d: ShapeThreeD, inside: str) -> None:
+    camera = _CAMERA.match(inside)
+    light = None if camera is None else _LIGHT.fullmatch(inside, camera.end())
+    if camera is None or light is None:
+        raise _unread("this camera or light")
+    three_d.scene, three_d.camera = True, camera.group(1)
+    three_d.fov = None if camera.group(2) is None else int(camera.group(2))
+    if camera.group(3) is not None:
+        three_d.rotation = (int(camera.group(3)), int(camera.group(4)), int(camera.group(5)))
+    three_d.rig, three_d.rig_dir = light.group(1), light.group(2)
+    three_d.light_rev = None if light.group(3) is None else int(light.group(3))
+
+
+def _read_body(three_d: ShapeThreeD, attributes: str, inside: str) -> None:
+    if _BODY_ATTRIBUTE.sub("", attributes):
+        raise _unread("this body")
+    three_d.body = True
+    for name, value in _BODY_ATTRIBUTE.findall(attributes):
+        if name == "prstMaterial":
+            three_d.material = value
+        else:
+            setattr(three_d, {"z": "z", "extrusionH": "extrusion_h", "contourW": "contour_w"}[name], int(value))
+    at = 0
+    for found in _BEVEL.finditer(inside):
+        if found.start() != at:
+            break
+        at = found.end()
+        values = dict(re.findall(r' (\w+)="(\w+)"', found.group(2)))
+        bevel = (values.get("prst"), None if "w" not in values else int(values["w"]), None if "h" not in values else int(values["h"]))
+        if found.group(1) == "bevelT":
+            three_d.bevel_top = bevel
+        else:
+            three_d.bevel_bottom = bevel
+    for found in _BODY_COLOUR.finditer(inside):
+        if found.start() != at:
+            break
+        at = found.end()
+        rgb, scheme = (found.group(3), None) if found.group(2) == "srgbClr" else (None, found.group(3))
+        if found.group(1) == "extrusionClr":
+            three_d.extrusion_rgb, three_d.extrusion_scheme = rgb, scheme
+        else:
+            three_d.contour_rgb, three_d.contour_scheme = rgb, scheme
+    if at != len(inside):
+        raise _unread("this body")
+
+
+def read_three_d(markup: str) -> ShapeThreeD | None:
+    """What a shape in a file holds of its ThreeD, as Excel writes it (tests/fixtures/three_d_round_3.json), or None where it holds
+    none; markup Excel was not seen to write is refused."""
+    rest = properties(markup)
+    text = re.search(r"<a:bodyPr\b[^>]*>(.*?)</a:bodyPr>", markup, re.DOTALL)
+    flat = text is not None and "<a:flatTx/>" in text.group(1)
+    if not flat and not any(tag in rest for tag in ("<a:scene3d", "<a:sp3d", "hiddenScene3d", "hiddenSp3d")):
+        return None
+    # ProjectText off is kept as the text's flatTx.
+    three_d = ShapeThreeD(project_text=not flat)
+    scene = _SCENE.search(rest)
+    if scene is not None:
+        _read_scene(three_d, scene.group(1))
+    body = _SP3D.search(rest)
+    if body is not None:
+        _read_body(three_d, body.group(1), body.group(2) or "")
+    hidden_scene, hidden_body = _HIDDEN_SCENE.search(rest), _HIDDEN_SP3D.search(rest)
+    if hidden_scene is not None or hidden_body is not None:
+        three_d.hidden = ShapeThreeD()
+        if hidden_scene is not None:
+            _read_scene(three_d.hidden, hidden_scene.group(1))
+        if hidden_body is not None:
+            _read_body(three_d.hidden, hidden_body.group(1), hidden_body.group(2) or "")
+    found = sum(rest.count(tag) for tag in ("<a:scene3d", "<a:sp3d", "<a14:hiddenScene3d", "<a14:hiddenSp3d"))
+    if found != sum(one is not None for one in (scene, body, hidden_scene, hidden_body)):
+        raise _unread("this markup")
+    return three_d

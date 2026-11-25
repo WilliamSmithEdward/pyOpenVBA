@@ -1371,14 +1371,21 @@ class Stylesheet:
         """
         return -1 if style is None else self._entry_for(style)
 
+    #: The format _entry_for answered last, its entry, and the table that held it. A Style hashes slowly and a format
+    #: set on many rows asks for one format a million times; a table built afresh is a new dict, which ends the hit.
+    _last_entry: tuple[Style, int, dict[Style, int]] | None = None
+
     def _entry_for(self, style: Style) -> int:
+        last = self._last_entry
+        if last is not None and last[0] is style and last[2] is self._index:
+            return last[1]
         found = self._index.get(style)
-        if found is not None:
-            return found
-        self.meet_parts(style)
-        self.styles.append(style)
-        index = self._index[style] = len(self.styles) - 1
-        return index
+        if found is None:
+            self.meet_parts(style)
+            self.styles.append(style)
+            found = self._index[style] = len(self.styles) - 1
+        self._last_entry = (style, found, self._index)
+        return found
 
     def meet_parts(self, style: Style) -> None:
         """Note the parts of a format made now: its font, fill and border, and its number format, which takes an

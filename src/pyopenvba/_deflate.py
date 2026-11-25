@@ -166,16 +166,16 @@ class _Deflater:
         self.out = bytearray()
         self.bit_buf = 0
         self.bit_cnt = 0
-        self.strstart = 0
-        self.block_start = 0
-        self.lookahead = 0
-        self.insert = 0
-        self.match_length = MIN_MATCH - 1
-        self.prev_length = MIN_MATCH - 1
-        self.match_start = 0
-        self.prev_match = 0
-        self.match_available = False
-        self.ins_h = 0
+        self.strstart: int = 0
+        self.block_start: int = 0
+        self.lookahead: int = 0
+        self.insert: int = 0
+        self.match_length: int = MIN_MATCH - 1
+        self.prev_length: int = MIN_MATCH - 1
+        self.match_start: int = 0
+        self.prev_match: int = 0
+        self.match_available: bool = False
+        self.ins_h: int = 0
         self.data = b""
         self.next_in = 0
         self.opt_len = 0
@@ -210,13 +210,6 @@ class _Deflater:
 
     def _update_hash(self, h: int, c: int) -> int:
         return ((h << self.hash_shift) ^ c) & self.hash_mask
-
-    def _insert_string(self, pos: int) -> int:
-        self.ins_h = self._update_hash(self.ins_h, self.window[pos + MIN_MATCH - 1])
-        head = self.head[self.ins_h]
-        self.prev[pos & self.w_mask] = head
-        self.head[self.ins_h] = pos
-        return head
 
     def _fill_window(self) -> None:
         wsize = self.w_size
@@ -316,63 +309,91 @@ class _Deflater:
         self.dyn_ltree.freq[c] += 1
         return len(self.syms) == self.sym_end
 
-    def _tally_dist(self, dist: int, length: int) -> bool:
-        self.syms.append((dist, length))
-        dist -= 1
-        self.dyn_ltree.freq[LENGTH_CODE[length] + LITERALS + 1] += 1
-        self.dyn_dtree.freq[_d_code(dist)] += 1
-        return len(self.syms) == self.sym_end
-
     def _flush_block(self, last: bool) -> None:
         start = self.block_start if self.block_start >= 0 else None
         self._tr_flush_block(start, self.strstart - self.block_start, last)
         self.block_start = self.strstart
 
     def deflate(self, data: bytes) -> bytes:
+        # deflate_slow, with _insert_string, _tally_lit and _tally_dist written out in the loop and the state it turns
+        # over held in locals: a sheet of a million rows is some 50 MB, a call per byte. The state goes back to self
+        # before each call that reads it (_fill_window, _longest_match, _flush_block) and is taken again after.
+        # tests/test_deflate_port.py holds the bytes to classic zlib's.
         self.data = data
         window = self.window
+        head, prev = self.head, self.prev
+        w_mask, hash_shift, hash_mask = self.w_mask, self.hash_shift, self.hash_mask
+        max_lazy = self.max_lazy
+        max_dist = self.w_size - MIN_LOOKAHEAD
+        sym_end = self.sym_end
+        lfreq, dfreq = self.dyn_ltree.freq, self.dyn_dtree.freq
+        syms = self.syms
+        strstart, lookahead, ins_h = self.strstart, self.lookahead, self.ins_h
+        match_length, match_available = self.match_length, self.match_available
         while True:
-            if self.lookahead < MIN_LOOKAHEAD:
+            if lookahead < MIN_LOOKAHEAD:
+                self.strstart, self.lookahead, self.ins_h = strstart, lookahead, ins_h
                 self._fill_window()
-                if self.lookahead == 0:
+                strstart, lookahead, ins_h = self.strstart, self.lookahead, self.ins_h
+                head, prev = self.head, self.prev
+                if lookahead == 0:
                     break
             hash_head = 0
-            if self.lookahead >= MIN_MATCH:
-                hash_head = self._insert_string(self.strstart)
-            self.prev_length = self.match_length
-            self.prev_match = self.match_start
-            self.match_length = MIN_MATCH - 1
-            if hash_head != 0 and self.prev_length < self.max_lazy and self.strstart - hash_head <= self.w_size - MIN_LOOKAHEAD:
-                self.match_length = self._longest_match(hash_head)
-                if self.match_length <= 5 and self.match_length == MIN_MATCH and self.strstart - self.match_start > TOO_FAR:
-                    self.match_length = MIN_MATCH - 1
-            if self.prev_length >= MIN_MATCH and self.match_length <= self.prev_length:
-                max_insert = self.strstart + self.lookahead - MIN_MATCH
-                bflush = self._tally_dist(self.strstart - 1 - self.prev_match, self.prev_length - MIN_MATCH)
-                self.lookahead -= self.prev_length - 1
-                self.prev_length -= 2
+            if lookahead >= MIN_MATCH:
+                ins_h = ((ins_h << hash_shift) ^ window[strstart + MIN_MATCH - 1]) & hash_mask
+                hash_head = head[ins_h]
+                prev[strstart & w_mask] = hash_head
+                head[ins_h] = strstart
+            prev_length = match_length
+            prev_match = self.match_start
+            match_length = MIN_MATCH - 1
+            if hash_head != 0 and prev_length < max_lazy and strstart - hash_head <= max_dist:
+                self.strstart, self.lookahead, self.prev_length = strstart, lookahead, prev_length
+                match_length = self._longest_match(hash_head)
+                if match_length <= 5 and match_length == MIN_MATCH and strstart - self.match_start > TOO_FAR:
+                    match_length = MIN_MATCH - 1
+            if prev_length >= MIN_MATCH and match_length <= prev_length:
+                max_insert = strstart + lookahead - MIN_MATCH
+                dist = strstart - 1 - prev_match
+                code = prev_length - MIN_MATCH
+                syms.append((dist, code))
+                lfreq[LENGTH_CODE[code] + LITERALS + 1] += 1
+                dfreq[_d_code(dist - 1)] += 1
+                bflush = len(syms) == sym_end
+                lookahead -= prev_length - 1
+                prev_length -= 2
                 while True:
-                    self.strstart += 1
-                    if self.strstart <= max_insert:
-                        self._insert_string(self.strstart)
-                    self.prev_length -= 1
-                    if self.prev_length == 0:
+                    strstart += 1
+                    if strstart <= max_insert:
+                        ins_h = ((ins_h << hash_shift) ^ window[strstart + MIN_MATCH - 1]) & hash_mask
+                        prev[strstart & w_mask] = head[ins_h]
+                        head[ins_h] = strstart
+                    prev_length -= 1
+                    if prev_length == 0:
                         break
-                self.match_available = False
-                self.match_length = MIN_MATCH - 1
-                self.strstart += 1
+                match_available = False
+                match_length = MIN_MATCH - 1
+                strstart += 1
                 if bflush:
+                    self.strstart = strstart
                     self._flush_block(False)
-            elif self.match_available:
-                bflush = self._tally_lit(window[self.strstart - 1])
-                if bflush:
+                    syms = self.syms
+            elif match_available:
+                literal = window[strstart - 1]
+                syms.append((0, literal))
+                lfreq[literal] += 1
+                if len(syms) == sym_end:
+                    self.strstart = strstart
                     self._flush_block(False)
-                self.strstart += 1
-                self.lookahead -= 1
+                    syms = self.syms
+                strstart += 1
+                lookahead -= 1
             else:
-                self.match_available = True
-                self.strstart += 1
-                self.lookahead -= 1
+                match_available = True
+                strstart += 1
+                lookahead -= 1
+        self.strstart, self.lookahead, self.ins_h = strstart, lookahead, ins_h
+        self.match_length, self.match_available = match_length, match_available
         if self.match_available:
             self._tally_lit(window[self.strstart - 1])
             self.match_available = False

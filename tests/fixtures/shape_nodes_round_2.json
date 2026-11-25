@@ -1,0 +1,5688 @@
+{
+ "reads": [
+  "TypeName(n)",
+  "TypeName(n.Parent)",
+  "n.Count",
+  "sh.Left",
+  "sh.Top",
+  "sh.Width",
+  "sh.Height",
+  "sh.Type",
+  "sh.AutoShapeType",
+  "ws.Shapes.Count"
+ ],
+ "cases": [
+  [
+   "open",
+   "",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "open",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "open",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "open",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "open",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "open",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "closed",
+   "",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "closed",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "two",
+   "",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "two",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "two",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "two",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "two",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "two",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "two",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "two",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "two",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "two",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "two",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "two",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "two",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "two",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "two",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "two",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "two",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "two",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "two",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "two",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "four",
+   "",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "four",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "four",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "four",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "four",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "four",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "four",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "four",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "four",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "four",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "four",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "four",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "four",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "four",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "four",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "four",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "four",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "four",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "four",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "four",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "five",
+   "",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "five",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "five",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "five",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "five",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "five",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "five",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "five",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "five",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "five",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "five",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "five",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "five",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "five",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "five",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "five",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "five",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "five",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "five",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "five",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "closed5",
+   "",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "closed5",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "closed5",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "closed5",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "closed5",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "closed5",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed5",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "closed5",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "curve1",
+   "",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curve1",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "curve1",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "curve1",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "curve1",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "curve1",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve1",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "curve1",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "curve3",
+   "",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curve3",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "curve3",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "curve3",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "curve3",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "curve3",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve3",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "curve3",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "curveclosed",
+   "",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 15, 15",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 105, 70",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 5, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 10, 10",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Delete 3",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   " || n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Delete n.Count: n.Delete n.Count",
+   false
+  ],
+  [
+   "curveclosed",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   false
+  ],
+  [
+   "open",
+   "",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "open",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "open",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "open",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "open",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "open",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "closed",
+   "",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "closed",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "two",
+   "",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "two",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "two",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "two",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "two",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "two",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "two",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "two",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "two",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "two",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "two",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "two",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "two",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "two",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "two",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "two",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "two",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "two",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "two",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "two",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "two",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "four",
+   "",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "four",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "four",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "four",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "four",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "four",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "four",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "four",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "four",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "four",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "four",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "four",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "four",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "four",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "four",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "four",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "four",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "four",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "four",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "four",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "four",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "five",
+   "",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "five",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "five",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "five",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "five",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "five",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "five",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "five",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "five",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "five",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "five",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "five",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "five",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "five",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "five",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "five",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "five",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "five",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "five",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "five",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "five",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "closed5",
+   "",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "closed5",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "closed5",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "closed5",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "closed5",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "closed5",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "closed5",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed5",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "closed5",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "curve1",
+   "",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curve1",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "curve1",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "curve1",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "curve1",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "curve1",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "curve1",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve1",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "curve1",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "curve3",
+   "",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curve3",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "curve3",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "curve3",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "curve3",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "curve3",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "curve3",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve3",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "curve3",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "curveclosed",
+   "",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 15, 15",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 105, 70",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 2, 100, 20",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetPosition 1, 300, 300",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 5, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 10, 10",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert 2, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 50, 40",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 5, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert n.Count - 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 40: n.Insert 1, msoSegmentLine, msoEditingCorner, 60, 45",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Delete 1: n.Delete 1",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Delete 3",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Delete 1: n.SetPosition 1, 200, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.Delete 1",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType 1, msoSegmentCurve: n.SetSegmentType 1, msoSegmentLine",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType 2, msoSegmentCurve: n.Delete 1",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetSegmentType n.Count, msoSegmentCurve",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5: n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetEditingType n.Count, msoEditingCorner",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.SetPosition 2, 200, 5 || n.SetPosition 2, 300, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   " || n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Delete n.Count: n.Delete n.Count",
+   true
+  ],
+  [
+   "curveclosed",
+   "n.Delete 1: n.Delete 1: n.Delete 1",
+   true
+  ]
+ ],
+ "model": [
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,60|String:ShapeNodes|String:Shape|Long:2|Single:10|Single:10|Single:100.0001|Single:50.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"635001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"635001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"635000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/110,80;0/e-2147467259/10,80|String:ShapeNodes|String:Shape|Long:4|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"1270000\" y=\"889000\"/></a:lnTo><a:lnTo><a:pt x=\"0\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/20,10;0/e-2147467259/120,30;0/e-2147467259/90,90;0/e-2147467259/40,70;0/e-2147467259/10,40|String:ShapeNodes|String:Shape|Long:5|Single:10|Single:10|Single:110.0001|Single:80.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1397001\" cy=\"1016001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1397001\" h=\"1016001\"><a:moveTo><a:pt x=\"127000\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1397000\" y=\"254000\"/></a:lnTo><a:lnTo><a:pt x=\"1016000\" y=\"1016000\"/></a:lnTo><a:lnTo><a:pt x=\"381000\" y=\"762000\"/></a:lnTo><a:lnTo><a:pt x=\"0\" y=\"381000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/20,10;0/e-2147467259/120,30;0/e-2147467259/90,90;0/e-2147467259/40,70;0/e-2147467259/10,40|String:ShapeNodes|String:Shape|Long:5|Single:10|Single:10|Single:110.0001|Single:80.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1397001\" cy=\"1016001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1397001\" h=\"1016001\"><a:moveTo><a:pt x=\"127000\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1397000\" y=\"254000\"/></a:lnTo><a:lnTo><a:pt x=\"1016000\" y=\"1016000\"/></a:lnTo><a:lnTo><a:pt x=\"381000\" y=\"762000\"/></a:lnTo><a:lnTo><a:pt x=\"0\" y=\"381000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50|String:ShapeNodes|String:Shape|Long:4|Single:10|Single:50|Single:100.0001|Single:50.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"635000\"/><a:ext cx=\"1270001\" cy=\"635001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"635001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"635000\"/><a:pt x=\"889000\" y=\"635000\"/><a:pt x=\"1270000\" y=\"0\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50;1/0/230,40;1/0/260,40;1/0/290,50|String:ShapeNodes|String:Shape|Long:10|Single:10|Single:0|Single:280.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"3556001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"3556001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"2794000\" y=\"508000\"/><a:pt x=\"3175000\" y=\"508000\"/><a:pt x=\"3556000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/10,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:160.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2032001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2032001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"0\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,60|String:ShapeNodes|String:Shape|Long:2|Single:10|Single:10|Single:100.0001|Single:50.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"635001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"635001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"635000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/110,80;0/e-2147467259/10,80|String:ShapeNodes|String:Shape|Long:4|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"1270000\" y=\"889000\"/></a:lnTo><a:lnTo><a:pt x=\"0\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/20,10;0/e-2147467259/120,30;0/e-2147467259/90,90;0/e-2147467259/40,70;0/e-2147467259/10,40|String:ShapeNodes|String:Shape|Long:5|Single:10|Single:10|Single:110.0001|Single:80.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1397001\" cy=\"1016001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1397001\" h=\"1016001\"><a:moveTo><a:pt x=\"127000\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1397000\" y=\"254000\"/></a:lnTo><a:lnTo><a:pt x=\"1016000\" y=\"1016000\"/></a:lnTo><a:lnTo><a:pt x=\"381000\" y=\"762000\"/></a:lnTo><a:lnTo><a:pt x=\"0\" y=\"381000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/20,10;0/e-2147467259/120,30;0/e-2147467259/90,90;0/e-2147467259/40,70;0/e-2147467259/10,40|String:ShapeNodes|String:Shape|Long:5|Single:10|Single:10|Single:110.0001|Single:80.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1397001\" cy=\"1016001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1397001\" h=\"1016001\"><a:moveTo><a:pt x=\"127000\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1397000\" y=\"254000\"/></a:lnTo><a:lnTo><a:pt x=\"1016000\" y=\"1016000\"/></a:lnTo><a:lnTo><a:pt x=\"381000\" y=\"762000\"/></a:lnTo><a:lnTo><a:pt x=\"0\" y=\"381000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50|String:ShapeNodes|String:Shape|Long:4|Single:10|Single:50|Single:100.0001|Single:50.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"635000\"/><a:ext cx=\"1270001\" cy=\"635001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"635001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"635000\"/><a:pt x=\"889000\" y=\"635000\"/><a:pt x=\"1270000\" y=\"0\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50;1/0/230,40;1/0/260,40;1/0/290,50|String:ShapeNodes|String:Shape|Long:10|Single:10|Single:0|Single:280.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"3556001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"3556001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"2794000\" y=\"508000\"/><a:pt x=\"3175000\" y=\"508000\"/><a:pt x=\"3556000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/10,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:160.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2032001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2032001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"0\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ]
+ ]
+}

@@ -31,7 +31,14 @@ AGAIN = ' || '
 SHAPES = {'open': 'ws.Shapes.AddPolyline(Pts(10, 10, 110, 10, 60, 80))',
           'closed': 'ws.Shapes.AddPolyline(Pts(10, 10, 110, 10, 60, 80, 10, 10))',
           'curve': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50, 140, 0, 170, 60, 200, 50))',
-          'mixed': 'MixedShape(ws)'}
+          'mixed': 'MixedShape(ws)',
+          'two': 'ws.Shapes.AddPolyline(Pts(10, 10, 110, 60))',
+          'four': 'ws.Shapes.AddPolyline(Pts(10, 10, 110, 10, 110, 80, 10, 80))',
+          'five': 'ws.Shapes.AddPolyline(Pts(20, 10, 120, 30, 90, 90, 40, 70, 10, 40))',
+          'closed5': 'ws.Shapes.AddPolyline(Pts(20, 10, 120, 30, 90, 90, 40, 70, 10, 40, 20, 10))',
+          'curve1': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50))',
+          'curve3': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50, 140, 0, 170, 60, 200, 50, 230, 40, 260, 40, 290, 50))',
+          'curveclosed': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50, 140, 0, 170, 60, 10, 50))'}
 READS = ['TypeName(n)', 'TypeName(n.Parent)', 'n.Count', 'sh.Left', 'sh.Top', 'sh.Width', 'sh.Height', 'sh.Type',
          'sh.AutoShapeType', 'ws.Shapes.Count']
 _LINE = 'msoSegmentLine'
@@ -55,8 +62,23 @@ ROUNDS: dict[int, list[str]] = {
         f'n.SetPosition 2, 70, 30{AGAIN}', f'n.Delete 2{AGAIN}', f'n.Insert 1, {_LINE}, msoEditingCorner, 50, 50{AGAIN}',
         f'{AGAIN}n.SetPosition 2, 70, 30', f'{AGAIN}n.Delete 2'],
 }
+#: Round 2: what a new freeform's nodes read by how many there are, and line freeforms edited more than once.
+_GROW = 'n.SetPosition 2, 200, 5'
+ROUNDS[2] = ['', 'n.SetPosition 1, 15, 15', 'n.SetPosition 2, 100, 20', 'n.SetPosition 2, 105, 70', _GROW, f'{_GROW}: n.SetPosition 2, 300, 5',
+             f'{_GROW}: n.SetPosition 2, 100, 20', f'{_GROW}: n.SetPosition 1, 300, 300', 'n.SetPosition 1, 15, 15: n.SetPosition 2, 200, 5',
+             'n.SetPosition 1, 5, 5', 'n.SetPosition 1, 5, 5: n.SetPosition 2, 5, 200', 'n.SetPosition 2, 10, 10',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 50, 40', f'n.Insert 2, {_LINE}, msoEditingCorner, 50, 40',
+             f'n.Insert n.Count, {_LINE}, msoEditingCorner, 50, 40', f'n.Insert n.Count, {_LINE}, msoEditingCorner, 5, 5',
+             f'n.Insert n.Count - 1, {_LINE}, msoEditingCorner, 250, 120', f'n.Insert 1, {_LINE}, msoEditingCorner, 250, 120',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 50, 40: n.Insert 1, {_LINE}, msoEditingCorner, 60, 45',
+             'n.Delete 1: n.Delete 1', 'n.Delete 3', 'n.Delete 1: n.SetPosition 1, 200, 5', f'{_GROW}: n.Delete 1',
+             f'n.SetSegmentType 1, {_CURVE}: n.SetSegmentType 1, {_LINE}', f'n.SetSegmentType 2, {_CURVE}: n.Delete 1',
+             f'n.SetSegmentType 3, {_CURVE}', f'n.SetSegmentType n.Count, {_CURVE}', f'{_GROW}: n.SetSegmentType 1, {_CURVE}',
+             'n.SetEditingType 1, msoEditingCorner', 'n.SetEditingType n.Count, msoEditingCorner', 'n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner',
+             f'{_GROW}{AGAIN}n.SetPosition 2, 300, 5', f'{AGAIN}{_GROW}', 'n.Delete n.Count: n.Delete n.Count',
+             'n.Delete 1: n.Delete 1: n.Delete 1']
 #: The shapes of each round where not all of them.
-ROUND_SHAPES: dict[int, list[str]] = {}
+ROUND_SHAPES: dict[int, list[str]] = {1: ['open', 'closed', 'curve', 'mixed'], 2: ['open', 'closed', 'two', 'four', 'five', 'closed5', 'curve1', 'curve3', 'curveclosed']}
 ROUND = 1
 
 

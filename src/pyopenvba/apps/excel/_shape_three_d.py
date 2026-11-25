@@ -859,17 +859,10 @@ class ThreeDFormat(HeldPart):
         self._turn(2, _stored(-(self._turned(2, -1) + float(to_number(Increment)))))
         return EMPTY
 
-    @method
-    def IncrementRotationHorizontal(self, Increment: object) -> object:  # noqa: N803 - native named argument
-        # Excel writes the lon one short some of the time, past nothing or not (-15 from 0, 20 from 60; not 10 or 45 from 0):
-        # not known.
-        raise VBAUnsupportedError('IncrementRotationHorizontal is not implemented')
-
-    @method
-    def IncrementRotationVertical(self, Increment: object) -> object:  # noqa: N803 - native named argument
-        # Excel writes the lat one short some of the time, past nothing or not (10 and 20 from 0, -20 from 300; not 45 from 0
-        # or 10 from 30): not known.
-        raise VBAUnsupportedError('IncrementRotationVertical is not implemented')
+    # IncrementRotationHorizontal and IncrementRotationVertical are left out, and report themselves as real members not
+    # implemented: Excel writes the lon or lat one short some of the time, past nothing or not (Horizontal -15 from 0 and 20
+    # from 60, not 10 or 45 from 0; Vertical 10 and 20 from 0 and -20 from 300, not 45 from 0 or 10 from 30), by no rule found
+    # (tests/fixtures/three_d_round_6.json, three_d_round_7.json).
 
     @method
     def ResetRotation(self) -> object:

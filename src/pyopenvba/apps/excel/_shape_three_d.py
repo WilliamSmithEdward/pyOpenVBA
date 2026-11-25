@@ -244,13 +244,15 @@ class ThreeDFormat(HeldPart):
         self.owner.restyled()
         return three_d
 
-    def old_preset(self, needs: str, *, body: bool = False) -> ShapeThreeD:
+    def old_preset(self, needs: str, *, body: bool = False) -> ShapeThreeD | None:
         """What is set, for one of the old presets: from the old default where the part it needs, the scene3d or the sp3d, is
-        not set."""
+        not set. A light preset on a body with no scene3d changes nothing, and answers None."""
         held = self.held()
         if held is None or not getattr(held, needs):
             if held is not None and held.hidden is not None:
                 raise VBAUnsupportedError('An old 3-D preset on a hidden ThreeD is not implemented')
+            if needs == 'scene' and held is not None and held.body:
+                return None
             three_d = self.change(body=True)
             _old_default(three_d)
             return three_d
@@ -451,7 +453,9 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(value, 'Long'))
         if not 1 <= wanted <= len(_MATERIALS):
             raise VBAUnsupportedError(f'PresetMaterial {wanted} is not implemented')
-        self.old_preset('body', body=True).material = _MATERIALS[wanted - 1]
+        three_d = self.old_preset('body', body=True)
+        assert three_d is not None
+        three_d.material = _MATERIALS[wanted - 1]
 
     # The colours.
 
@@ -572,6 +576,7 @@ class ThreeDFormat(HeldPart):
         if wanted not in _SIDES:
             raise VBAUnsupportedError(f'SetExtrusionDirection {wanted} is not implemented')
         three_d = self.old_preset('body')
+        assert three_d is not None
         if three_d.rotation is not None:
             raise VBAUnsupportedError('SetExtrusionDirection on a turned camera is not implemented')
         family = 'legacyPerspective' if three_d.camera.startswith('legacyPerspective') else 'legacyOblique'
@@ -584,8 +589,9 @@ class ThreeDFormat(HeldPart):
         three_d = self.held()
         if three_d is None or not three_d.scene or not three_d.body:
             return VBAInt(-2, 'Long')
-        plain = replace(three_d, camera='orthographicFront', rotation=None, extrusion_h=None, material=None, hidden=None)
-        if plain != replace(ShapeThreeD(scene=True, body=True), project_text=three_d.project_text):
+        # A contour beside it still reads the preset (tests/fixtures/three_d_round_5.json); the old default's bevels and light
+        # do not (three_d_round_2.json).
+        if (three_d.bevel_top, three_d.bevel_bottom, three_d.rig, three_d.rig_dir, three_d.light_rev) != (None, None, 'threePt', 't', None):
             return VBAInt(-2, 'Long')
         found = (three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material)
         return VBAInt(next((number for number, preset in _FORMATS.items() if preset == found), -2), 'Long')
@@ -630,12 +636,13 @@ class ThreeDFormat(HeldPart):
             return VBAInt(-2, 'Long')
         if three_d.rig_dir not in _QUARTERS:
             raise VBAUnsupportedError(f'The direction of a light from {three_d.rig_dir} is not implemented')
-        if not three_d.rig.startswith('legacy'):
-            # The side it lights from and its angle, clockwise from the top, where that is a side or a corner.
-            degrees = (_QUARTERS[three_d.rig_dir] * 90 + (three_d.light_rev or 0) / _ANGLE) % 360
-            return VBAInt(_COMPASS[int(degrees // 45)] if degrees % 45 == 0 else -2, 'Long')
-        if three_d.light_rev is not None:
-            return VBAInt(-2, 'Long')
+        if not three_d.rig.startswith('legacy') or three_d.light_rev is not None:
+            # The side it lights from turned by its angle, clockwise from the top, where that is a side or a corner and the
+            # angle is no more than a quarter turn either way: 180 reads none (tests/fixtures/three_d_round_5.json).
+            angle = (three_d.light_rev or 0) / _ANGLE
+            degrees = (_QUARTERS[three_d.rig_dir] * 90 + angle) % 360
+            within = angle <= 90 or angle >= 270
+            return VBAInt(_COMPASS[int(degrees // 45)] if within and degrees % 45 == 0 else -2, 'Long')
         direction = _RIG_DIRECTIONS[self._old_rig(three_d)[1]]
         for _ in range(_QUARTERS[three_d.rig_dir]):
             direction = _CLOCKWISE[direction]
@@ -647,6 +654,8 @@ class ThreeDFormat(HeldPart):
         if wanted not in _DIRECTED:
             raise VBAUnsupportedError(f'PresetLightingDirection {wanted} is not implemented')
         three_d = self.old_preset('scene')
+        if three_d is None:
+            return
         if not three_d.rig.startswith('legacy'):
             raise VBAUnsupportedError(f'PresetLightingDirection of the {three_d.rig} light is not implemented')
         if three_d.camera not in ('orthographicFront', 'legacyObliqueTopRight'):
@@ -670,6 +679,8 @@ class ThreeDFormat(HeldPart):
         if wanted not in kinds:
             raise VBAUnsupportedError(f'PresetLightingSoftness {wanted} is not implemented')
         three_d = self.old_preset('scene')
+        if three_d is None:
+            return
         _kind, number = self._old_rig(three_d)
         three_d.rig = f'legacy{kinds[wanted]}{number}'
 
@@ -764,7 +775,11 @@ class ThreeDFormat(HeldPart):
 
     @method
     def IncrementRotationHorizontal(self, Increment: object) -> object:  # noqa: N803 - native named argument
-        self._turn(1, _stored(-(self._turned(1, -1) - float(to_number(Increment)))))
+        # Turned past nothing, Excel writes the lon one short some of the time (-15, not 10 or 45): not known.
+        lon = self._start()[1] / _ANGLE + float(to_number(Increment))
+        if not 0 <= lon < 360:
+            raise VBAUnsupportedError('IncrementRotationHorizontal past nothing is not implemented')
+        self._turn(1, round(lon * _ANGLE))
         return EMPTY
 
     @method

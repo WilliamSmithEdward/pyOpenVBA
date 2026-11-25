@@ -29,6 +29,8 @@ USED_UP: dict[int, str] = {
     60102: 'DProduct passed over a constant under a criteria label that names no field, and LinEst lifted its statistics '
            'over a range (tests/fixtures/worksheet_function_rivals.json), now refused; ChiInv and MultiNomial missed by a few '
            'units in the last digits and left the rounds; Unichar(True) read a space through the harness',
+    60103: 'Db took a month of 3.5 as it was, Transpose(Empty) was Empty, and VLookup raised 1004 for a cell of text as its '
+           'range_lookup (tests/fixtures/worksheet_function_rivals.json)',
 }
 
 

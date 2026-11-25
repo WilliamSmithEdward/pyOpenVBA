@@ -242,8 +242,9 @@ name looking like a cell is not read as the cell.
     Excel. One gap: a cell given
     `=MUNIT(100000)` or `=SUM(SEQUENCE(100000,100000))` shows 0 in Excel and
     `#VALUE!` here, where `WorksheetFunction` refuses both as 1004 either way.
-21. **What WorksheetFunction rounds 60101 and 60102 found.** Each rule was
+21. **What WorksheetFunction rounds 60101 to 60103 found.** Each rule was
     split from its rivals in live Excel (`tests/fixtures/worksheet_function_rivals.json`):
+    - DB cuts its month to a whole one: 3.5 is 3, 12.5 is 12, 0.5 #NUM!.
     - AMORDEGRC rounds the life, 1 / rate, up to whole periods; two or fewer
       are #NUM!, three or four take the rate 1.5 times, five or six twice,
       more 2.5 times, and the last two periods of the life each take half of

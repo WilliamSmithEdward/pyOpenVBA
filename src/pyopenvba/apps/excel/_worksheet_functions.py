@@ -74,7 +74,9 @@ _ONE_VALUE: Final = frozenset({"vlookup", "hlookup", "match"})
 _BASE_CONVERSIONS: Final = frozenset({"bin2dec", "bin2hex", "bin2oct", "dec2bin", "dec2hex", "dec2oct", "hex2bin", "hex2dec", "hex2oct", "oct2bin", "oct2dec", "oct2hex"})
 _ONE_CELL_WHEN_LIFTED: Final = _BASE_CONVERSIONS | {"bitand", "bitor", "bitxor", "bitlshift", "bitrshift"}
 _ARRAY_OF_ONE: Final = frozenset({"sort", "sortby", "unique", "filter"})
-_SWITCHES: Final = {"sort": (3,), "unique": (1, 2)}
+#: Places where a cell of text answers an array of one #VALUE!: SORT's and UNIQUE's switches, and VLOOKUP's and
+#: HLOOKUP's range_lookup, where text itself is error 1004 (tests/fixtures/worksheet_function_rivals.json).
+_SWITCHES: Final = {"sort": (3,), "unique": (1, 2), "vlookup": (3,), "hlookup": (3,)}
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
     "choose", "dget", "encodeurl", "fieldvalue", "filter", "filterxml", "frequency", "growth", "hlookup",
@@ -184,6 +186,9 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
         found = found.rows[0][0]
         if isinstance(found, Empty):
             found = 0.0
+    if name.lower() == "transpose" and isinstance(found, Empty):
+        # Transpose(Empty) is 0 as well, where an Empty in an array stays one (tests/fixtures/worksheet_function_rivals.json).
+        found = 0.0
     if raising and name.lower() == "index" and isinstance(values[0], (int, VBAInt)) and not isinstance(values[0], bool) \
             and isinstance(found, float):
         # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).

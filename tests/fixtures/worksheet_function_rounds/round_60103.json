@@ -8,2100 +8,2701 @@
    "setup": "",
    "arguments": "0.068094, \"9\", 2",
    "model_late": "Double:10.0000111914372",
-   "model_typed": "Double:10.0000111914372"
+   "model_typed": "Double:10.0000111914372",
+   "late": "Double:10.0000111914372",
+   "typed": "Double:10.0000111914372"
   },
   {
    "function": "CumPrinc",
    "setup": "ws.Range(\"K1\").Value = 13",
    "arguments": "0.0075, 360, 125000, ws.Range(\"K1\"), 24, 0",
    "model_late": "Double:-934.107123420898",
-   "model_typed": "Double:-934.107123420898"
+   "model_typed": "Double:-934.107123420898",
+   "late": "Double:-934.107123420898",
+   "typed": "Double:-934.107123420898"
   },
   {
    "function": "CoupNcd",
    "setup": "",
    "arguments": "#1/25/2011#, #11/15/2011#, 1, 10",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "CoupDayBs",
    "setup": "",
    "arguments": "#1/25/2011#, #11/15/2011#, 2, \"1\"",
    "model_late": "Double:71",
-   "model_typed": "Double:71"
+   "model_typed": "Double:71",
+   "late": "Double:71",
+   "typed": "Double:71"
   },
   {
    "function": "BahtText",
    "setup": "ws.Range(\"K1\").Value = 1234.5",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "String:หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์",
-   "model_typed": "String:หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์"
+   "model_typed": "String:หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์",
+   "late": "String:หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์",
+   "typed": "String:หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์"
   },
   {
    "function": "Substitute",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k, \"-\", \"+\", 2",
    "model_late": "Array(1 To 5, 1 To 1) String:1 String:2 String:3 String:4 String:5",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "Array(1 To 5, 1 To 1) String:1 String:2 String:3 String:4 String:5",
+   "typed": "E13"
   },
   {
    "function": "NetworkDays",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k, #3/1/2013#, Array(#11/22/2012#)",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ExponDist",
    "setup": "",
    "arguments": "\"0.2\", 10, False",
    "model_late": "Double:1.35335283236613",
-   "model_typed": "Double:1.35335283236613"
+   "model_typed": "Double:1.35335283236613",
+   "late": "Double:1.35335283236613",
+   "typed": "Double:1.35335283236613"
   },
   {
    "function": "Received",
    "setup": "",
    "arguments": "#2/15/2008#, #5/15/2008#, 10000000, 0.115, 6",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "BesselK",
    "setup": "ws.Range(\"K1\").Value = 1.5",
    "arguments": "ws.Range(\"K1\"), 1",
    "model_late": "Double:0.277387803632259",
-   "model_typed": "Double:0.277387803632259"
+   "model_typed": "Double:0.277387803632259",
+   "late": "Double:0.277387803632259",
+   "typed": "Double:0.277387803632259"
   },
   {
    "function": "HLookup",
    "setup": "",
    "arguments": "\"q\", ws.Range(\"G1:J2\"), \"2\", False",
    "model_late": "Double:2",
-   "model_typed": "Double:2"
+   "model_typed": "Double:2",
+   "late": "Double:2",
+   "typed": "Double:2"
   },
   {
    "function": "Days360",
    "setup": "k = Null",
    "arguments": "k, #12/31/2020#, True",
    "model_late": "Double:43560",
-   "model_typed": "Double:43560"
+   "model_typed": "Double:43560",
+   "late": "Double:43560",
+   "typed": "Double:43560"
   },
   {
    "function": "SqrtPi",
    "setup": "ws.Range(\"K1\").Value = 2",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "Double:2.506628274631",
-   "model_typed": "Double:2.506628274631"
+   "model_typed": "Double:2.506628274631",
+   "late": "Double:2.506628274631",
+   "typed": "Double:2.506628274631"
   },
   {
    "function": "RoundDown",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "2.345, ws.Range(\"K1\")",
    "model_late": "Double:2.3",
-   "model_typed": "Double:2.3"
+   "model_typed": "Double:2.3",
+   "late": "Double:2.3",
+   "typed": "Double:2.3"
   },
   {
    "function": "F_Inv",
    "setup": "ws.Range(\"K1\").Value = 0.01",
    "arguments": "ws.Range(\"K1\"), 6, 4",
    "model_late": "Double:0.109309914124579",
-   "model_typed": "Double:0.109309914124579"
+   "model_typed": "Double:0.109309914124579",
+   "late": "Double:0.109309914124579",
+   "typed": "Double:0.109309914124579"
   },
   {
    "function": "Price",
    "setup": "",
    "arguments": "#2/15/2008#, #11/15/2017#, 0.02875, 190.08574, 101, 1, 1",
    "model_late": "Double:-0.666039086525651",
-   "model_typed": "Double:-0.666039086525651"
+   "model_typed": "Double:-0.666039086525651",
+   "late": "Double:-0.666039086525651",
+   "typed": "Double:-0.666039086525651"
   },
   {
    "function": "MIrr",
    "setup": "k = Null",
    "arguments": "Array(-120000, 39000, 30000, 21000, 37000, 46000), 0.1, k",
    "model_late": "E1004",
-   "model_typed": "E94"
+   "model_typed": "E94",
+   "late": "E1004",
+   "typed": "E94"
   },
   {
    "function": "Ispmt",
    "setup": "",
    "arguments": "0.1/12, \"1\", 36, 8000000",
    "model_late": "Double:-64814.8148148148",
-   "model_typed": "Double:-64814.8148148148"
+   "model_typed": "Double:-64814.8148148148",
+   "late": "Double:-64814.8148148148",
+   "typed": "Double:-64814.8148148148"
   },
   {
    "function": "Expon_Dist",
    "setup": "",
    "arguments": "\"0.2\", 10, True",
    "model_late": "Double:0.864664716763387",
-   "model_typed": "Double:0.864664716763387"
+   "model_typed": "Double:0.864664716763387",
+   "late": "Double:0.864664716763387",
+   "typed": "Double:0.864664716763387"
   },
   {
    "function": "CoupNum",
    "setup": "",
    "arguments": "#1/25/2007#, #11/15/2008#, \"2\", 1",
    "model_late": "Double:4",
-   "model_typed": "Double:4"
+   "model_typed": "Double:4",
+   "late": "Double:4",
+   "typed": "Double:4"
   },
   {
    "function": "Binom_Inv",
    "setup": "",
    "arguments": "6, 0.5, \"0.75\"",
    "model_late": "Double:4",
-   "model_typed": "Double:4"
+   "model_typed": "Double:4",
+   "late": "Double:4",
+   "typed": "Double:4"
   },
   {
    "function": "Oct2Hex",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "\"100\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Db",
    "setup": "",
    "arguments": "500000, 50000, 3, 2, 3.5",
    "model_late": "Double:226102.666666667",
-   "model_typed": "Double:226102.666666667"
+   "model_typed": "Double:226102.666666667",
+   "late": "Double:232088",
+   "typed": "Double:232088"
   },
   {
    "function": "Filter",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, ws.Range(\"A1:A5\") > 2",
    "model_late": "E13",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E13",
+   "typed": "E13"
   },
   {
    "function": "Gamma",
    "setup": "",
    "arguments": "25",
    "model_late": "Double:6.20448401733239E+23",
-   "model_typed": "Double:6.20448401733239E+23"
+   "model_typed": "Double:6.20448401733239E+23",
+   "late": "Double:6.20448401733239E+23",
+   "typed": "Double:6.20448401733239E+23"
   },
   {
    "function": "ImTan",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Rank_Eq",
    "setup": "",
    "arguments": "\"3\", ws.Range(\"A1:A5\")",
    "model_late": "Double:3",
-   "model_typed": "Double:3"
+   "model_typed": "Double:3",
+   "late": "Double:3",
+   "typed": "Double:3"
   },
   {
    "function": "Frequency",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "ws.Range(\"A1:A5\"), k",
    "model_late": "Array(1 To 2, 1 To 1) Double:0 Double:5",
-   "model_typed": "Array(1 To 2, 1 To 1) Double:0 Double:5"
+   "model_typed": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+   "late": "Array(1 To 2, 1 To 1) Double:0 Double:5",
+   "typed": "Array(1 To 2, 1 To 1) Double:0 Double:5"
   },
   {
    "function": "Ipmt",
    "setup": "",
    "arguments": "1.1/120, 2, 72, 80000",
    "model_late": "Double:-726.097230955038",
-   "model_typed": "Double:-726.097230955038"
+   "model_typed": "Double:-726.097230955038",
+   "late": "Double:-726.097230955038",
+   "typed": "Double:-726.097230955038"
   },
   {
    "function": "Dollar",
    "setup": "",
    "arguments": "\"-1234.567\", -2",
    "model_late": "String:($1,200)",
-   "model_typed": "String:($1,200)"
+   "model_typed": "String:($1,200)",
+   "late": "String:($1,200)",
+   "typed": "String:($1,200)"
   },
   {
    "function": "PriceDisc",
    "setup": "",
    "arguments": "#2/16/2008#, #3/1/2008#, 0.525, 50, 4",
    "model_late": "Double:48.90625",
-   "model_typed": "Double:48.90625"
+   "model_typed": "Double:48.90625",
+   "late": "Double:48.90625",
+   "typed": "Double:48.90625"
   },
   {
    "function": "Trend",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k, Array(1, 2, 3, 4, 5)",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "OddFPrice",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, 0.0785, 0.0625, 100, 2, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "T_Test",
    "setup": "",
    "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), 2, \"1\"",
    "model_late": "Double:8.90093425000857E-02",
-   "model_typed": "Double:8.90093425000857E-02"
+   "model_typed": "Double:8.90093425000857E-02",
+   "late": "Double:8.90093425000857E-02",
+   "typed": "Double:8.90093425000857E-02"
   },
   {
    "function": "ArrayToText",
    "setup": "",
    "arguments": "ws.Range(\"D1:E3\"), \"1\"",
    "model_late": "String:{1,2;3,4;5,6}",
-   "model_typed": "String:{1,2;3,4;5,6}"
+   "model_typed": "String:{1,2;3,4;5,6}",
+   "late": "String:{1,2;3,4;5,6}",
+   "typed": "String:{1,2;3,4;5,6}"
   },
   {
    "function": "DProduct",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, \"q\", ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ChiSq_Dist_RT",
    "setup": "",
    "arguments": "36.614, 20",
    "model_late": "Double:1.30127755647724E-02",
-   "model_typed": "Double:1.30127755647724E-02"
+   "model_typed": "Double:1.30127755647724E-02",
+   "late": "Double:1.30127755647724E-02",
+   "typed": "Double:1.30127755647724E-02"
   },
   {
    "function": "IfError",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, 0",
    "model_late": "String:x",
-   "model_typed": "String:x"
+   "model_typed": "String:x",
+   "late": "String:x",
+   "typed": "String:x"
   },
   {
    "function": "OddLPrice",
    "setup": "ws.Range(\"K1\").Value = 100",
    "arguments": "#2/7/2008#, #6/15/2008#, #10/15/2007#, 0.0375, 0.0405, ws.Range(\"K1\"), 2, 0",
    "model_late": "Double:99.8782860147213",
-   "model_typed": "Double:99.8782860147213"
+   "model_typed": "Double:99.8782860147213",
+   "late": "Double:99.8782860147213",
+   "typed": "Double:99.8782860147213"
   },
   {
    "function": "CoupDaysNc",
    "setup": "",
    "arguments": "#1/25/2011#, #11/15/2011#, 2, \"1\"",
    "model_late": "Double:110",
-   "model_typed": "Double:110"
+   "model_typed": "Double:110",
+   "late": "Double:110",
+   "typed": "Double:110"
   },
   {
    "function": "Unique",
    "setup": "",
    "arguments": "Array(0.5, 4, 3, 30)",
    "model_late": "Array(1 To 4) Double:0.5 Double:4 Double:3 Double:30",
-   "model_typed": "Array(1 To 4) Double:0.5 Double:4 Double:3 Double:30"
+   "model_typed": "Array(1 To 4) Double:0.5 Double:4 Double:3 Double:30",
+   "late": "Array(1 To 4) Double:0.5 Double:4 Double:3 Double:30",
+   "typed": "Array(1 To 4) Double:0.5 Double:4 Double:3 Double:30"
   },
   {
    "function": "ImLn",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "TTest",
    "setup": "",
    "arguments": "Array(2, 4, 1.5, 5, 15), Array(1, 40, 15, 2, 15), 1, 6",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Phonetic",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "Rank_Avg",
    "setup": "",
    "arguments": "6, ws.Range(\"F1:F3\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "DSum",
    "setup": "k = Null",
    "arguments": "k, \"q\", ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "Norm_Dist",
    "setup": "",
    "arguments": "42, 40, \"1.5\", True",
    "model_late": "Double:0.908788780274132",
-   "model_typed": "Double:0.908788780274132"
+   "model_typed": "Double:0.908788780274132",
+   "late": "Double:0.908788780274132",
+   "typed": "Double:0.908788780274132"
   },
   {
    "function": "BesselI",
    "setup": "",
    "arguments": "1.5, \"1\"",
    "model_late": "Double:0.981666428475166",
-   "model_typed": "Double:0.981666428475166"
+   "model_typed": "Double:0.981666428475166",
+   "late": "Double:0.981666428475166",
+   "typed": "Double:0.981666428475166"
   },
   {
    "function": "Gcd",
    "setup": "k = Empty",
    "arguments": "k, 0",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "OddLYield",
    "setup": "k = Empty",
    "arguments": "#4/20/2008#, #6/15/2008#, #12/24/2007#, k, 99.875, 100, 2, 0",
    "model_late": "Double:8.19205825463648E-03",
-   "model_typed": "Double:8.19205825463648E-03"
+   "model_typed": "Double:8.19205825463648E-03",
+   "late": "Double:8.19205825463648E-03",
+   "typed": "Double:8.19205825463648E-03"
   },
   {
    "function": "Weibull_Dist",
    "setup": "",
    "arguments": "\"105\", 20, 100, False",
    "model_late": "Double:3.55888640245036E-02",
-   "model_typed": "Double:3.55888640245036E-02"
+   "model_typed": "Double:3.55888640245036E-02",
+   "late": "Double:3.55888640245036E-02",
+   "typed": "Double:3.55888640245036E-02"
   },
   {
    "function": "RandArray",
    "setup": "",
    "arguments": "3, 2, 50, 2.5, True",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Index",
    "setup": "",
    "arguments": "ws.Range(\"A1:A5\"), \"0\", 1",
    "model_late": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
-   "model_typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
+   "model_typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "late": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
   },
   {
    "function": "LinEst",
    "setup": "k = Null",
    "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, k",
    "model_late": "Array(1 To 2) Double:0.6 Double:2.2",
-   "model_typed": "Array(1 To 2) Double:0.6 Double:2.2"
+   "model_typed": "Array(1 To 2) Double:0.6 Double:2.2",
+   "late": "Array(1 To 2) Double:0.6 Double:2.2",
+   "typed": "Array(1 To 2) Double:0.6 Double:2.2"
   },
   {
    "function": "ImLog2",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "DMin",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "ws.Range(\"G1:J2\"), k, ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "AccrIntM",
    "setup": "",
    "arguments": "#1/1/2020#, #6/1/2020#, 0.05, \"1000\"",
    "model_late": "Double:20.8333333333333",
-   "model_typed": "Double:20.8333333333333"
+   "model_typed": "Double:20.8333333333333",
+   "late": "Double:20.8333333333333",
+   "typed": "Double:20.8333333333333"
   },
   {
    "function": "AmorDegrc",
    "setup": "",
    "arguments": "2401, #8/19/2008#, #12/31/2008#, 600, 2, 1.5, 10",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Effect",
    "setup": "",
    "arguments": "0.105, 8",
    "model_late": "Double:0.109952151970693",
-   "model_typed": "Double:0.109952151970693"
+   "model_typed": "Double:0.109952151970693",
+   "late": "Double:0.109952151970693",
+   "typed": "Double:0.109952151970693"
   },
   {
    "function": "Text",
    "setup": "k = True",
    "arguments": "k, \"#,##0.00\"",
    "model_late": "String:TRUE",
-   "model_typed": "String:TRUE"
+   "model_typed": "String:TRUE",
+   "late": "String:TRUE",
+   "typed": "String:TRUE"
   },
   {
    "function": "ChiDist",
    "setup": "",
    "arguments": "19.307, 100",
    "model_late": "Double:1",
-   "model_typed": "Double:1"
+   "model_typed": "Double:1",
+   "late": "Double:1",
+   "typed": "Double:1"
   },
   {
    "function": "Erf_Precise",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "Double:0.842700792949715",
-   "model_typed": "Double:0.842700792949715"
+   "model_typed": "Double:0.842700792949715",
+   "late": "Double:0.842700792949715",
+   "typed": "Double:0.842700792949715"
   },
   {
    "function": "FilterXML",
    "setup": "k = \"abc\"",
    "arguments": "k, \"//b\"",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ErfC_Precise",
    "setup": "k = Null",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "BetaInv",
    "setup": "",
    "arguments": "0.685470581, 8, 10, \"1\", 3",
    "model_late": "Double:1.99999999996314",
-   "model_typed": "Double:1.99999999996314"
+   "model_typed": "Double:1.99999999996314",
+   "late": "Double:1.99999999996314",
+   "typed": "Double:1.99999999996314"
   },
   {
    "function": "BesselY",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "2.5, ws.Range(\"K1\")",
    "model_late": "Double:0.145918137508313",
-   "model_typed": "Double:0.145918137508313"
+   "model_typed": "Double:0.145918137508313",
+   "late": "Double:0.145918137508313",
+   "typed": "Double:0.145918137508313"
   },
   {
    "function": "Index",
    "setup": "",
    "arguments": "ws.Range(\"D1:E3\"), 6, 1",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Poisson",
    "setup": "ws.Range(\"K1\").Value = 2",
    "arguments": "ws.Range(\"K1\"), 5, True",
    "model_late": "Double:0.124652019483081",
-   "model_typed": "Double:0.124652019483081"
+   "model_typed": "Double:0.124652019483081",
+   "late": "Double:0.124652019483081",
+   "typed": "Double:0.124652019483081"
   },
   {
    "function": "Confidence_Norm",
    "setup": "",
    "arguments": "\"0.05\", 2.5, 50",
    "model_late": "Double:0.692951912174839",
-   "model_typed": "Double:0.692951912174839"
+   "model_typed": "Double:0.692951912174839",
+   "late": "Double:0.692951912174839",
+   "typed": "Double:0.692951912174839"
   },
   {
    "function": "Sequence",
    "setup": "",
    "arguments": "6",
    "model_late": "Array(1 To 6, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6",
-   "model_typed": "Array(1 To 6, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6"
+   "model_typed": "Array(1 To 6, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6",
+   "late": "Array(1 To 6, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6",
+   "typed": "Array(1 To 6, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6"
   },
   {
    "function": "IsOdd",
    "setup": "k = \"abc\"",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "DVar",
    "setup": "k = True",
    "arguments": "ws.Range(\"G1:J2\"), \"q\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Dec2Bin",
    "setup": "",
    "arguments": "-300",
    "model_late": "String:1011010100",
-   "model_typed": "String:1011010100"
+   "model_typed": "String:1011010100",
+   "late": "String:1011010100",
+   "typed": "String:1011010100"
   },
   {
    "function": "RandBetween",
    "setup": "",
    "arguments": "30, 6",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "CountIf",
    "setup": "",
    "arguments": "ws.Range(\"A1:A5\"), 9",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "ImSqrt",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Z_Test",
    "setup": "ws.Range(\"K1\").Value = 4",
    "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), ws.Range(\"K1\")",
    "model_late": "Double:9.05741968513638E-02",
-   "model_typed": "Double:9.05741968513638E-02"
+   "model_typed": "Double:9.05741968513638E-02",
+   "late": "Double:9.05741968513638E-02",
+   "typed": "Double:9.05741968513638E-02"
   },
   {
    "function": "DVarP",
    "setup": "k = Empty",
    "arguments": "ws.Range(\"G1:J2\"), k, ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Rate",
    "setup": "ws.Range(\"K1\").Value = 8000",
    "arguments": "4*12, -200, ws.Range(\"K1\")",
    "model_late": "Double:7.70147248820137E-03",
-   "model_typed": "Double:7.70147248820137E-03"
+   "model_typed": "Double:7.70147248820137E-03",
+   "late": "Double:7.70147248820137E-03",
+   "typed": "Double:7.70147248820137E-03"
   },
   {
    "function": "ErfC",
    "setup": "",
    "arguments": "0.5",
    "model_late": "Double:0.479500122186953",
-   "model_typed": "Double:0.479500122186953"
+   "model_typed": "Double:0.479500122186953",
+   "late": "Double:0.479500122186953",
+   "typed": "Double:0.479500122186953"
   },
   {
    "function": "CumIPmt",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "0.0075, 360, 125000, 13, k, 0",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ReplaceB",
    "setup": "",
    "arguments": "\"abcdef\", 1, 4, \"X\"",
    "model_late": "String:Xef",
-   "model_typed": "String:Xef"
+   "model_typed": "String:Xef",
+   "late": "String:Xef",
+   "typed": "String:Xef"
   },
   {
    "function": "F_Inv",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, 6, 4",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "ImCot",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "AverageIfs",
    "setup": "k = \"abc\"",
    "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"), k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Confidence",
    "setup": "k = Empty",
    "arguments": "0.05, 2.5, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "DollarFr",
    "setup": "k = \"abc\"",
    "arguments": "1.125, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "GammaInv",
    "setup": "ws.Range(\"K1\").Value = 9",
    "arguments": "0.068094, ws.Range(\"K1\"), 2",
    "model_late": "Double:10.0000111914372",
-   "model_typed": "Double:10.0000111914372"
+   "model_typed": "Double:10.0000111914372",
+   "late": "Double:10.0000111914372",
+   "typed": "Double:10.0000111914372"
   },
   {
    "function": "ExponDist",
    "setup": "",
    "arguments": "0.4, 20, False",
    "model_late": "Double:6.70925255805024E-03",
-   "model_typed": "Double:6.70925255805024E-03"
+   "model_typed": "Double:6.70925255805024E-03",
+   "late": "Double:6.70925255805024E-03",
+   "typed": "Double:6.70925255805024E-03"
   },
   {
    "function": "FactDouble",
    "setup": "ws.Range(\"K1\").Value = 6",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "Double:48",
-   "model_typed": "Double:48"
+   "model_typed": "Double:48",
+   "late": "Double:48",
+   "typed": "Double:48"
   },
   {
    "function": "Quotient",
    "setup": "",
    "arguments": "-11, 9",
    "model_late": "Double:-1",
-   "model_typed": "Double:-1"
+   "model_typed": "Double:-1",
+   "late": "Double:-1",
+   "typed": "Double:-1"
   },
   {
    "function": "ImSinh",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "TInv",
    "setup": "ws.Range(\"K1\").Value = 0.05464",
    "arguments": "ws.Range(\"K1\"), 60",
    "model_late": "Double:1.96004118712725",
-   "model_typed": "Double:1.96004118712725"
+   "model_typed": "Double:1.96004118712725",
+   "late": "Double:1.96004118712725",
+   "typed": "Double:1.96004118712725"
   },
   {
    "function": "USDollar",
    "setup": "ws.Range(\"K1\").Value = 1234.567",
    "arguments": "ws.Range(\"K1\"), 2",
    "model_late": "String:$1,234.57",
-   "model_typed": "String:$1,234.57"
+   "model_typed": "String:$1,234.57",
+   "late": "String:$1,234.57",
+   "typed": "String:$1,234.57"
   },
   {
    "function": "Choose",
    "setup": "k = Empty",
    "arguments": "2, \"a\", \"b\", k",
    "model_late": "String:b",
-   "model_typed": "String:b"
+   "model_typed": "String:b",
+   "late": "String:b",
+   "typed": "String:b"
   },
   {
    "function": "ZTest",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, ws.Range(\"K1\")",
    "model_late": "Double:2.52109114724504E-04",
-   "model_typed": "Double:2.52109114724504E-04"
+   "model_typed": "Double:2.52109114724504E-04",
+   "late": "Double:2.52109114724504E-04",
+   "typed": "Double:2.52109114724504E-04"
   },
   {
    "function": "IsEven",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "BinomDist",
    "setup": "",
    "arguments": "60, 30, 1.5, True",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "GeStep",
    "setup": "",
    "arguments": "15, 40",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "Forecast_Linear",
    "setup": "k = Null",
    "arguments": "30, k, Array(1, 2, 3, 4, 5)",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Imaginary",
    "setup": "k = \"abc\"",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Erf",
    "setup": "k = Null",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Rank",
    "setup": "",
    "arguments": "\"3\", ws.Range(\"A1:A5\")",
    "model_late": "Double:3",
-   "model_typed": "Double:3"
+   "model_typed": "Double:3",
+   "late": "Double:3",
+   "typed": "Double:3"
   },
   {
    "function": "Norm_S_Dist",
    "setup": "",
    "arguments": "\"1.333333\", True",
    "model_late": "Double:0.908788725604095",
-   "model_typed": "Double:0.908788725604095"
+   "model_typed": "Double:0.908788725604095",
+   "late": "Double:0.908788725604095",
+   "typed": "Double:0.908788725604095"
   },
   {
    "function": "NormInv",
    "setup": "",
    "arguments": "0.4543945, 20, 2.5",
    "model_late": "Double:19.7135845890999",
-   "model_typed": "Double:19.7135845890999"
+   "model_typed": "Double:19.7135845890999",
+   "late": "Double:19.7135845890999",
+   "typed": "Double:19.7135845890999"
   },
   {
    "function": "Permutationa",
    "setup": "ws.Range(\"K1\").Value = 2",
    "arguments": "3, ws.Range(\"K1\")",
    "model_late": "Double:9",
-   "model_typed": "Double:9"
+   "model_typed": "Double:9",
+   "late": "Double:9",
+   "typed": "Double:9"
   },
   {
    "function": "T_Inv",
    "setup": "",
    "arguments": "7.5, 4",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ImPower",
    "setup": "",
    "arguments": "\"2+3i\", \"3\"",
    "model_late": "String:-46+9.00000000000001i",
-   "model_typed": "String:-46+9.00000000000001i"
+   "model_typed": "String:-46+9.00000000000001i",
+   "late": "String:-46+9.00000000000001i",
+   "typed": "String:-46+9.00000000000001i"
   },
   {
    "function": "Match",
    "setup": "ws.Range(\"K1\").Value = 3",
    "arguments": "Array(3, 1), ws.Range(\"K1\"), 0",
    "model_late": "Array(1 To 2) Double:1 Error:2042",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "Array(1 To 2) Double:1 Error:2042",
+   "typed": "E13"
   },
   {
    "function": "YieldMat",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "#3/15/2008#, #11/3/2008#, #11/8/2007#, 0.0625, k, 0",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "SumIfs",
    "setup": "k = Empty",
    "arguments": "k, ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"), \"<5\"",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "Permutationa",
    "setup": "",
    "arguments": "6, 20",
    "model_late": "Double:3.65615844006298E+15",
-   "model_typed": "Double:3.65615844006298E+15"
+   "model_typed": "Double:3.65615844006298E+15",
+   "late": "Double:3.65615844006298E+15",
+   "typed": "Double:3.65615844006298E+15"
   },
   {
    "function": "HypGeom_Dist",
    "setup": "",
    "arguments": "1, 4, \"8\", 20, True",
    "model_late": "Double:0.465428276573787",
-   "model_typed": "Double:0.465428276573787"
+   "model_typed": "Double:0.465428276573787",
+   "late": "Double:0.465428276573787",
+   "typed": "Double:0.465428276573787"
   },
   {
    "function": "Gamma_Inv",
    "setup": "",
    "arguments": "1.068094, 90, 3",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Syd",
    "setup": "ws.Range(\"K1\").Value = 7500",
    "arguments": "30000, ws.Range(\"K1\"), 10, 1",
    "model_late": "Double:4090.90909090909",
-   "model_typed": "Double:4090.90909090909"
+   "model_typed": "Double:4090.90909090909",
+   "late": "Double:4090.90909090909",
+   "typed": "Double:4090.90909090909"
   },
   {
    "function": "DCount",
    "setup": "k = \"abc\"",
    "arguments": "ws.Range(\"G1:J2\"), \"q\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "CountIfs",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k, \">1\", ws.Range(\"F1:F5\"), \"<3\"",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "FInv",
    "setup": "k = Empty",
    "arguments": "k, 6, 4",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Lookup",
    "setup": "ws.Range(\"K1\").Value = 4.5",
    "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:A5\"), ws.Range(\"B1:B5\")",
    "model_late": "String:d",
-   "model_typed": "String:d"
+   "model_typed": "String:d",
+   "late": "String:d",
+   "typed": "String:d"
   },
   {
    "function": "CoupDays",
    "setup": "k = Empty",
    "arguments": "#1/25/2011#, #11/15/2011#, 2, k",
    "model_late": "Double:180",
-   "model_typed": "Double:180"
+   "model_typed": "Double:180",
+   "late": "Double:180",
+   "typed": "Double:180"
   },
   {
    "function": "MRound",
    "setup": "",
    "arguments": "11, 1.5",
    "model_late": "Double:10.5",
-   "model_typed": "Double:10.5"
+   "model_typed": "Double:10.5",
+   "late": "Double:10.5",
+   "typed": "Double:10.5"
   },
   {
    "function": "FVSchedule",
    "setup": "",
    "arguments": "2, Array(0.8999999999999999, 0.33, 0.05)",
    "model_late": "Double:5.3067",
-   "model_typed": "Double:5.3067"
+   "model_typed": "Double:5.3067",
+   "late": "Double:5.3067",
+   "typed": "Double:5.3067"
   },
   {
    "function": "SortBy",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "ws.Range(\"B1:B5\"), ws.Range(\"F1:F3\"), ws.Range(\"K1\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ImCos",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "NumberValue",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "\"2.500,27\", k, \".\"",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "Unichar",
    "setup": "ws.Range(\"K1\").Value = 66",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "String:B",
-   "model_typed": "String:B"
+   "model_typed": "String:B",
+   "late": "String:B",
+   "typed": "String:B"
   },
   {
    "function": "Dec2Oct",
    "setup": "",
    "arguments": "116, 1.5",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ArrayToText",
    "setup": "k = True",
    "arguments": "k, 1",
    "model_late": "String:{TRUE}",
-   "model_typed": "String:{TRUE}"
+   "model_typed": "String:{TRUE}",
+   "late": "String:{TRUE}",
+   "typed": "String:{TRUE}"
   },
   {
    "function": "Rank",
    "setup": "ws.Range(\"K1\").Value = 3",
    "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:A5\")",
    "model_late": "Double:3",
-   "model_typed": "Double:3"
+   "model_typed": "Double:3",
+   "late": "Double:3",
+   "typed": "Double:3"
   },
   {
    "function": "BesselJ",
    "setup": "",
    "arguments": "\"1.9\", 2",
    "model_late": "Double:0.329925828669785",
-   "model_typed": "Double:0.329925828669785"
+   "model_typed": "Double:0.329925828669785",
+   "late": "Double:0.329925828669785",
+   "typed": "Double:0.329925828669785"
   },
   {
    "function": "Transpose",
    "setup": "ws.Range(\"K1\").Value = 5",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "Double:5",
-   "model_typed": "Double:5"
+   "model_typed": "Double:5",
+   "late": "Double:5",
+   "typed": "Double:5"
   },
   {
    "function": "AmorDegrc",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.15, ws.Range(\"K1\")",
    "model_late": "Double:776",
-   "model_typed": "Double:776"
+   "model_typed": "Double:776",
+   "late": "Double:776",
+   "typed": "Double:776"
   },
   {
    "function": "GammaDist",
    "setup": "k = Null",
    "arguments": "10.00001131, 9, k, True",
    "model_late": "E1004",
-   "model_typed": "E94"
+   "model_typed": "E94",
+   "late": "E1004",
+   "typed": "E94"
   },
   {
    "function": "Rri",
    "setup": "",
    "arguments": "96, 10000, \"11000\"",
    "model_late": "Double:9.9330737629133E-04",
-   "model_typed": "Double:9.9330737629133E-04"
+   "model_typed": "Double:9.9330737629133E-04",
+   "late": "Double:9.9330737629133E-04",
+   "typed": "Double:9.9330737629133E-04"
   },
   {
    "function": "Weibull",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "105, 20, k, True",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "PriceMat",
    "setup": "",
    "arguments": "#2/15/2008#, #4/13/2008#, #11/11/2007#, \"0.061\", 0.061, 0",
    "model_late": "Double:99.9844988755569",
-   "model_typed": "Double:99.9844988755569"
+   "model_typed": "Double:99.9844988755569",
+   "late": "Double:99.9844988755569",
+   "typed": "Double:99.9844988755569"
   },
   {
    "function": "ImAbs",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Oct2Bin",
    "setup": "",
    "arguments": "\"3\", 30",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Ispmt",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "0.1/12, ws.Range(\"K1\"), 36, 8000000",
    "model_late": "Double:-64814.8148148148",
-   "model_typed": "Double:-64814.8148148148"
+   "model_typed": "Double:-64814.8148148148",
+   "late": "Double:-64814.8148148148",
+   "typed": "Double:-64814.8148148148"
   },
   {
    "function": "NormDist",
    "setup": "",
    "arguments": "84, 80, 2.5, False",
    "model_late": "Double:4.43683338717822E-02",
-   "model_typed": "Double:4.43683338717822E-02"
+   "model_typed": "Double:4.43683338717822E-02",
+   "late": "Double:4.43683338717822E-02",
+   "typed": "Double:4.43683338717822E-02"
   },
   {
    "function": "ChiSq_Inv_RT",
    "setup": "k = Empty",
    "arguments": "0.05, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "HypGeomDist",
    "setup": "",
    "arguments": "\"1\", 4, 8, 20",
    "model_late": "Double:0.363261093911249",
-   "model_typed": "Double:0.363261093911249"
+   "model_typed": "Double:0.363261093911249",
+   "late": "Double:0.363261093911249",
+   "typed": "Double:0.363261093911249"
   },
   {
    "function": "ImSub",
    "setup": "k = \"abc\"",
    "arguments": "k, \"5+3i\"",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Duration",
    "setup": "",
    "arguments": "#7/1/2018#, #1/1/2048#, 0.08, 0.09, 2, \"1\"",
    "model_late": "Double:10.9191452815919",
-   "model_typed": "Double:10.9191452815919"
+   "model_typed": "Double:10.9191452815919",
+   "late": "Double:10.9191452815919",
+   "typed": "Double:10.9191452815919"
   },
   {
    "function": "CountIf",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "ws.Range(\"B1:B5\"), k",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "Munit",
    "setup": "k = Null",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E94"
+   "model_typed": "E94",
+   "late": "E1004",
+   "typed": "E94"
   },
   {
    "function": "Bin2Hex",
    "setup": "",
    "arguments": "\"11111011\", 40",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ImCsc",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Expon_Dist",
    "setup": "ws.Range(\"K1\").Value = 0.2",
    "arguments": "ws.Range(\"K1\"), 10, True",
    "model_late": "Double:0.864664716763387",
-   "model_typed": "Double:0.864664716763387"
+   "model_typed": "Double:0.864664716763387",
+   "late": "Double:0.864664716763387",
+   "typed": "Double:0.864664716763387"
   },
   {
    "function": "LogEst",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k, Array(1, 2, 3, 4, 5)",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "MIrr",
    "setup": "",
    "arguments": "Array(-120000, 39000, 30000, 21000, 37000, 46000), \"0.1\", 0.12",
    "model_late": "Double:0.126094130365905",
-   "model_typed": "Double:0.126094130365905"
+   "model_typed": "Double:0.126094130365905",
+   "late": "Double:0.126094130365905",
+   "typed": "Double:0.126094130365905"
   },
   {
    "function": "AverageIf",
    "setup": "k = Null",
    "arguments": "ws.Range(\"B1:B5\"), k, ws.Range(\"A1:A5\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Bin2Hex",
    "setup": "",
    "arguments": "\"11111011\", \"4\"",
    "model_late": "String:00FB",
-   "model_typed": "String:00FB"
+   "model_typed": "String:00FB",
+   "late": "String:00FB",
+   "typed": "String:00FB"
   },
   {
    "function": "Single",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ChiSq_Dist",
    "setup": "",
    "arguments": "0.5, \"1\", True",
    "model_late": "Double:0.520499877813047",
-   "model_typed": "Double:0.520499877813047"
+   "model_typed": "Double:0.520499877813047",
+   "late": "Double:0.520499877813047",
+   "typed": "Double:0.520499877813047"
   },
   {
    "function": "Norm_S_Dist",
    "setup": "k = Empty",
    "arguments": "k, True",
    "model_late": "Double:0.5",
-   "model_typed": "Double:0.5"
+   "model_typed": "Double:0.5",
+   "late": "Double:0.5",
+   "typed": "Double:0.5"
   },
   {
    "function": "Prob",
    "setup": "k = Null",
    "arguments": "Array(0, 1, 2, 3), Array(0.2, 0.3, 0.1, 0.4), k",
    "model_late": "E1004",
-   "model_typed": "E94"
+   "model_typed": "E94",
+   "late": "E1004",
+   "typed": "E94"
   },
   {
    "function": "Permut",
    "setup": "",
    "arguments": "101, 1.5",
    "model_late": "Double:101",
-   "model_typed": "Double:101"
+   "model_typed": "Double:101",
+   "late": "Double:101",
+   "typed": "Double:101"
   },
   {
    "function": "Complex",
    "setup": "",
    "arguments": "9, 5, \"j\"",
    "model_late": "String:9+5j",
-   "model_typed": "String:9+5j"
+   "model_typed": "String:9+5j",
+   "late": "String:9+5j",
+   "typed": "String:9+5j"
   },
   {
    "function": "Lcm",
    "setup": "",
    "arguments": "25, 18",
    "model_late": "Double:450",
-   "model_typed": "Double:450"
+   "model_typed": "Double:450",
+   "late": "Double:450",
+   "typed": "Double:450"
   },
   {
    "function": "CoupNcd",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "#1/25/2011#, k, 2, 1",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Transpose",
    "setup": "",
    "arguments": "\"5\"",
    "model_late": "String:5",
-   "model_typed": "String:5"
+   "model_typed": "String:5",
+   "late": "String:5",
+   "typed": "String:5"
   },
   {
    "function": "MDeterm",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Subtotal",
    "setup": "k = Null",
    "arguments": "k, ws.Range(\"A1:A5\")",
    "model_late": "E1004",
-   "model_typed": "E94"
+   "model_typed": "E94",
+   "late": "E1004",
+   "typed": "E94"
   },
   {
    "function": "NormDist",
    "setup": "",
    "arguments": "\"42\", 40, 1.5, False",
    "model_late": "Double:0.109340049783996",
-   "model_typed": "Double:0.109340049783996"
+   "model_typed": "Double:0.109340049783996",
+   "late": "Double:0.109340049783996",
+   "typed": "Double:0.109340049783996"
   },
   {
    "function": "MinIfs",
    "setup": "k = True",
    "arguments": "k, ws.Range(\"A1:A5\"), \">2\"",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "Weibull",
    "setup": "ws.Range(\"K1\").Value = 105",
    "arguments": "ws.Range(\"K1\"), 20, 100, True",
    "model_late": "Double:0.929581390069277",
-   "model_typed": "Double:0.929581390069277"
+   "model_typed": "Double:0.929581390069277",
+   "late": "Double:0.929581390069277",
+   "typed": "Double:0.929581390069277"
   },
   {
    "function": "NegBinom_Dist",
    "setup": "",
    "arguments": "10, 5, \"0.25\", True",
    "model_late": "Double:0.313514058478177",
-   "model_typed": "Double:0.313514058478177"
+   "model_typed": "Double:0.313514058478177",
+   "late": "Double:0.313514058478177",
+   "typed": "Double:0.313514058478177"
   },
   {
    "function": "CumIPmt",
    "setup": "",
    "arguments": "1.0075, 180, 1250000, 6.5, 72, 1",
    "model_late": "Double:-41404109.5890411",
-   "model_typed": "Double:-41404109.5890411"
+   "model_typed": "Double:-41404109.5890411",
+   "late": "Double:-41404109.5890411",
+   "typed": "Double:-41404109.5890411"
   },
   {
    "function": "MDuration",
    "setup": "",
    "arguments": "#1/1/2008#, #1/1/2016#, 0.16, 0.18, 6, 2",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "HypGeomDist",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "ws.Range(\"K1\"), 4, 8, 20",
    "model_late": "Double:0.363261093911249",
-   "model_typed": "Double:0.363261093911249"
+   "model_typed": "Double:0.363261093911249",
+   "late": "Double:0.363261093911249",
+   "typed": "Double:0.363261093911249"
   },
   {
    "function": "Oct2Bin",
    "setup": "k = True",
    "arguments": "\"3\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Beta_Inv",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "0.685470581, 8, k, 1, 3",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "Convert",
    "setup": "k = \"abc\"",
    "arguments": "1, \"lbm\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ValueToText",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "\"a\", ws.Range(\"K1\")",
    "model_late": "String:\"a\"",
-   "model_typed": "String:\"a\""
+   "model_typed": "String:\"a\"",
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
   },
   {
    "function": "Disc",
    "setup": "",
    "arguments": "#1/25/2018#, #6/15/2018#, 97.975, \"100\", 1",
    "model_late": "Double:5.24202127659577E-02",
-   "model_typed": "Double:5.24202127659577E-02"
+   "model_typed": "Double:5.24202127659577E-02",
+   "late": "Double:5.24202127659577E-02",
+   "typed": "Double:5.24202127659577E-02"
   },
   {
    "function": "Growth",
    "setup": "",
    "arguments": "Array(6, 40, 2.5, 40, 50), Array(10, 1, 30, 40, 15)",
    "model_late": "Array(1 To 5) Double:18.6391246666267 Double:21.0779346577212 Double:14.1825133259377 Double:12.3713485794605 Double:17.4083429921494",
-   "model_typed": "Array(1 To 5) Double:18.6391246666267 Double:21.0779346577212 Double:14.1825133259377 Double:12.3713485794605 Double:17.4083429921494"
+   "model_typed": "Array(1 To 5) Double:18.6391246666267 Double:21.0779346577212 Double:14.1825133259377 Double:12.3713485794605 Double:17.4083429921494",
+   "late": "Array(1 To 5) Double:18.6391246666267 Double:21.0779346577212 Double:14.1825133259377 Double:12.3713485794605 Double:17.4083429921494",
+   "typed": "Array(1 To 5) Double:18.6391246666267 Double:21.0779346577212 Double:14.1825133259377 Double:12.3713485794605 Double:17.4083429921494"
   },
   {
    "function": "LogNormDist",
    "setup": "ws.Range(\"K1\").Value = 1.2",
    "arguments": "4, 3.5, ws.Range(\"K1\")",
    "model_late": "Double:3.90835557068005E-02",
-   "model_typed": "Double:3.90835557068005E-02"
+   "model_typed": "Double:3.90835557068005E-02",
+   "late": "Double:3.90835557068005E-02",
+   "typed": "Double:3.90835557068005E-02"
   },
   {
    "function": "ChiSq_Inv_RT",
    "setup": "ws.Range(\"K1\").Value = 0.05",
    "arguments": "ws.Range(\"K1\"), 10",
    "model_late": "Double:18.3070380532751",
-   "model_typed": "Double:18.3070380532751"
+   "model_typed": "Double:18.3070380532751",
+   "late": "Double:18.3070380532751",
+   "typed": "Double:18.3070380532751"
   },
   {
    "function": "Sort",
    "setup": "k = Empty",
    "arguments": "k",
    "model_late": "Array(1 To 1) Empty",
-   "model_typed": "Array(1 To 1) Empty"
+   "model_typed": "Array(1 To 1) Empty",
+   "late": "Array(1 To 1) Empty",
+   "typed": "Array(1 To 1) Empty"
   },
   {
    "function": "ImLog10",
    "setup": "k = Empty",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "PercentRank_Exc",
    "setup": "",
    "arguments": "ws.Range(\"A1:A5\"), \"2\", 4",
    "model_late": "Double:0.3333",
-   "model_typed": "Double:0.3333"
+   "model_typed": "Double:0.3333",
+   "late": "Double:0.3333",
+   "typed": "Double:0.3333"
   },
   {
    "function": "Aggregate",
    "setup": "ws.Range(\"K1\").Value = 14",
    "arguments": "ws.Range(\"K1\"), 6, ws.Range(\"A1:A5\"), 2",
    "model_late": "Double:4",
-   "model_typed": "Double:4"
+   "model_typed": "Double:4",
+   "late": "Double:4",
+   "typed": "Double:4"
   },
   {
    "function": "OddFPrice",
    "setup": "ws.Range(\"K1\").Value = 0.0785",
    "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, ws.Range(\"K1\"), 0.0625, 100, 2, 1",
    "model_late": "Double:113.597717474079",
-   "model_typed": "Double:113.597717474079"
+   "model_typed": "Double:113.597717474079",
+   "late": "Double:113.597717474079",
+   "typed": "Double:113.597717474079"
   },
   {
    "function": "BesselK",
    "setup": "",
    "arguments": "3, 2",
    "model_late": "Double:6.15104585619118E-02",
-   "model_typed": "Double:6.15104585619118E-02"
+   "model_typed": "Double:6.15104585619118E-02",
+   "late": "Double:6.15104585619118E-02",
+   "typed": "Double:6.15104585619118E-02"
   },
   {
    "function": "DMax",
    "setup": "k = \"abc\"",
    "arguments": "k, \"s\", ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "DCountA",
    "setup": "k = Null",
    "arguments": "k, \"q\", ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "GeoMean",
    "setup": "",
    "arguments": "Array(2, 20, 30, 40, 15)",
    "model_late": "Double:14.8411139390206",
-   "model_typed": "Double:14.8411139390206"
+   "model_typed": "Double:14.8411139390206",
+   "late": "Double:14.8411139390206",
+   "typed": "Double:14.8411139390206"
   },
   {
    "function": "ImProduct",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k, \"5-3i\"",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "DAverage",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "ws.Range(\"G1:J2\"), k, ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ArrayToText",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k",
    "model_late": "String:x",
-   "model_typed": "String:x"
+   "model_typed": "String:x",
+   "late": "String:x",
+   "typed": "String:x"
   },
   {
    "function": "TBillPrice",
    "setup": "",
    "arguments": "#3/31/2008#, #6/1/2008#, 0.045",
    "model_late": "Double:99.225",
-   "model_typed": "Double:99.225"
+   "model_typed": "Double:99.225",
+   "late": "Double:99.225",
+   "typed": "Double:99.225"
   },
   {
    "function": "AmorDegrc",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "2400, #8/19/2008#, #12/31/2008#, 300, 1, k, 1",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "AmorLinc",
    "setup": "",
    "arguments": "1200, #8/19/2008#, #12/31/2008#, 150, 0.5, 1.5, 2",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Ceiling_Math",
    "setup": "k = Empty",
    "arguments": "-2.5, k, 1",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "CritBinom",
    "setup": "",
    "arguments": "6, \"0.5\", 0.75",
    "model_late": "Double:4",
-   "model_typed": "Double:4"
+   "model_typed": "Double:4",
+   "late": "Double:4",
+   "typed": "Double:4"
   },
   {
    "function": "SumIf",
    "setup": "k = \"abc\"",
    "arguments": "ws.Range(\"B1:B5\"), k, ws.Range(\"A1:A5\")",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "ImConjugate",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "PriceMat",
    "setup": "ws.Range(\"K1\").Value = 0.061",
    "arguments": "#2/15/2008#, #4/13/2008#, #11/11/2007#, ws.Range(\"K1\"), 0.061, 0",
    "model_late": "Double:99.9844988755569",
-   "model_typed": "Double:99.9844988755569"
+   "model_typed": "Double:99.9844988755569",
+   "late": "Double:99.9844988755569",
+   "typed": "Double:99.9844988755569"
   },
   {
    "function": "Match",
    "setup": "ws.Range(\"K1\").Value = 0",
    "arguments": "\"b\", Array(\"a\", \"b\"), ws.Range(\"K1\")",
    "model_late": "Double:2",
-   "model_typed": "Double:2"
+   "model_typed": "Double:2",
+   "late": "Double:2",
+   "typed": "Double:2"
   },
   {
    "function": "Dec2Hex",
    "setup": "ws.Range(\"K1\").Value = 100",
    "arguments": "ws.Range(\"K1\"), 4",
    "model_late": "String:0064",
-   "model_typed": "String:0064"
+   "model_typed": "String:0064",
+   "late": "String:0064",
+   "typed": "String:0064"
   },
   {
    "function": "Binom_Dist",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, 10, 0.5, False",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "WorkDay",
    "setup": "",
    "arguments": "#10/1/2008#, 75.5",
    "model_late": "Double:39827",
-   "model_typed": "Double:39827"
+   "model_typed": "Double:39827",
+   "late": "Double:39827",
+   "typed": "Double:39827"
   },
   {
    "function": "MDuration",
    "setup": "",
    "arguments": "#1/1/2008#, #1/1/2016#, 0.08, 0.09, \"2\", 1",
    "model_late": "Double:5.73566981391884",
-   "model_typed": "Double:5.73566981391884"
+   "model_typed": "Double:5.73566981391884",
+   "late": "Double:5.73566981391884",
+   "typed": "Double:5.73566981391884"
   },
   {
    "function": "ImCosh",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "CoupPcd",
    "setup": "",
    "arguments": "#1/25/2011#, #11/15/2011#, 20, 3",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Binom_Dist_Range",
    "setup": "ws.Range(\"K1\").Value = 60",
    "arguments": "ws.Range(\"K1\"), 0.75, 48",
    "model_late": "Double:8.39749674290475E-02",
-   "model_typed": "Double:8.39749674290475E-02"
+   "model_typed": "Double:8.39749674290475E-02",
+   "late": "Double:8.39749674290475E-02",
+   "typed": "Double:8.39749674290475E-02"
   },
   {
    "function": "LogNorm_Dist",
    "setup": "ws.Range(\"K1\").Value = 1.2",
    "arguments": "4, 3.5, ws.Range(\"K1\"), True",
    "model_late": "Double:3.90835557068005E-02",
-   "model_typed": "Double:3.90835557068005E-02"
+   "model_typed": "Double:3.90835557068005E-02",
+   "late": "Double:3.90835557068005E-02",
+   "typed": "Double:3.90835557068005E-02"
   },
   {
    "function": "DollarDe",
    "setup": "",
    "arguments": "2.04, 17",
    "model_late": "Double:2.23529411764706",
-   "model_typed": "Double:2.23529411764706"
+   "model_typed": "Double:2.23529411764706",
+   "late": "Double:2.23529411764706",
+   "typed": "Double:2.23529411764706"
   },
   {
    "function": "Index",
    "setup": "",
    "arguments": "ws.Range(\"D1:E3\"), 2, \"0\"",
    "model_late": "Array(1 To 1, 1 To 2) Double:3 Double:4",
-   "model_typed": "Array(1 To 1, 1 To 2) Double:3 Double:4"
+   "model_typed": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "late": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "typed": "Array(1 To 1, 1 To 2) Double:3 Double:4"
   },
   {
    "function": "OddFYield",
    "setup": "ws.Range(\"K1\").Value = 0.0575",
    "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, ws.Range(\"K1\"), 84.5, 100, 2, 0",
    "model_late": "Double:7.72455415972989E-02",
-   "model_typed": "Double:7.72455415972989E-02"
+   "model_typed": "Double:7.72455415972989E-02",
+   "late": "Double:7.72455415972989E-02",
+   "typed": "Double:7.72455415972989E-02"
   },
   {
    "function": "TextJoin",
    "setup": "k = True",
    "arguments": "k, True, ws.Range(\"B1:B3\")",
    "model_late": "String:aTRUEbTRUEc",
-   "model_typed": "String:aTRUEbTRUEc"
+   "model_typed": "String:aTRUEbTRUEc",
+   "late": "String:aTRUEbTRUEc",
+   "typed": "String:aTRUEbTRUEc"
   },
   {
    "function": "ImSech",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ImExp",
    "setup": "k = \"abc\"",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Match",
    "setup": "",
    "arguments": "\"2\", Array(1, 2, 3), 0",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "T_Inv",
    "setup": "ws.Range(\"K1\").Value = 0.75",
    "arguments": "ws.Range(\"K1\"), 2",
    "model_late": "Double:0.816496580927726",
-   "model_typed": "Double:0.816496580927726"
+   "model_typed": "Double:0.816496580927726",
+   "late": "Double:0.816496580927726",
+   "typed": "Double:0.816496580927726"
   },
   {
    "function": "YieldDisc",
    "setup": "",
    "arguments": "#2/16/2008#, #3/1/2008#, 99.795, 100, \"2\"",
    "model_late": "Double:5.28225719868583E-02",
-   "model_typed": "Double:5.28225719868583E-02"
+   "model_typed": "Double:5.28225719868583E-02",
+   "late": "Double:5.28225719868583E-02",
+   "typed": "Double:5.28225719868583E-02"
   },
   {
    "function": "AccrInt",
    "setup": "",
    "arguments": "#1/1/2020#, #7/1/2020#, #3/1/2020#, 0.05, \"1000\", 2",
    "model_late": "Double:8.33333333333333",
-   "model_typed": "Double:8.33333333333333"
+   "model_typed": "Double:8.33333333333333",
+   "late": "Double:8.33333333333333",
+   "typed": "Double:8.33333333333333"
   },
   {
    "function": "IntRate",
    "setup": "ws.Range(\"K1\").Value = 1000000",
    "arguments": "#2/15/2008#, #5/15/2008#, ws.Range(\"K1\"), 1014420, 2",
    "model_late": "Double:0.05768",
-   "model_typed": "Double:0.05768"
+   "model_typed": "Double:0.05768",
+   "late": "Double:0.05768",
+   "typed": "Double:0.05768"
   },
   {
    "function": "SeriesSum",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "0.785398163, 0, k, Array(1, -0.5, 0.041666667)",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "RoundUp",
    "setup": "k = Empty",
    "arguments": "k, 1",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "EoMonth",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "#1/15/2020#, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "WeekNum",
    "setup": "",
    "arguments": "#3/9/2012#, 6",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "PercentRank_Exc",
    "setup": "",
    "arguments": "ws.Range(\"A1:A5\"), 1, 2",
    "model_late": "Double:0.16",
-   "model_typed": "Double:0.16"
+   "model_typed": "Double:0.16",
+   "late": "Double:0.16",
+   "typed": "Double:0.16"
   },
   {
    "function": "Days360",
    "setup": "k = True",
    "arguments": "k, #12/31/2020#",
    "model_late": "Double:43560",
-   "model_typed": "Double:43560"
+   "model_typed": "Double:43560",
+   "late": "Double:43560",
+   "typed": "Double:43560"
   },
   {
    "function": "IfNa",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "CVErr(xlErrNA), k",
    "model_late": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
-   "model_typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
+   "model_typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "late": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
   },
   {
    "function": "F_Dist",
    "setup": "ws.Range(\"K1\").Value = 4",
    "arguments": "15.2069, 6, ws.Range(\"K1\"), True",
    "model_late": "Double:0.990000043002763",
-   "model_typed": "Double:0.990000043002763"
+   "model_typed": "Double:0.990000043002763",
+   "late": "Double:0.990000043002763",
+   "typed": "Double:0.990000043002763"
   },
   {
    "function": "Index",
    "setup": "",
    "arguments": "ws.Range(\"C1:C5\"), \"3\"",
    "model_late": "Empty",
-   "model_typed": "Empty"
+   "model_typed": "Empty",
+   "late": "Empty",
+   "typed": "Empty"
   },
   {
    "function": "MaxIfs",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), k",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "Ddb",
    "setup": "k = Empty",
    "arguments": "2400, 300, 10, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ChiSq_Dist",
    "setup": "",
    "arguments": "5, 3, True",
    "model_late": "Double:0.828202855703267",
-   "model_typed": "Double:0.828202855703267"
+   "model_typed": "Double:0.828202855703267",
+   "late": "Double:0.828202855703267",
+   "typed": "Double:0.828202855703267"
   },
   {
    "function": "CoupDays",
    "setup": "",
    "arguments": "#1/25/2011#, #11/15/2011#, 3, 3",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Binom_Inv",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "6, 0.5, k",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "Transpose",
    "setup": "k = Empty",
    "arguments": "k",
    "model_late": "Empty",
-   "model_typed": "Empty"
+   "model_typed": "Empty",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "MInverse",
    "setup": "",
    "arguments": "Array(Array(2, -2), Array(1, 0))",
    "model_late": "Array(1 To 2, 1 To 2) Double:0 Double:1 Double:-0.5 Double:1",
-   "model_typed": "Array(1 To 2, 1 To 2) Double:0 Double:1 Double:-0.5 Double:1"
+   "model_typed": "Array(1 To 2, 1 To 2) Double:0 Double:1 Double:-0.5 Double:1",
+   "late": "Array(1 To 2, 1 To 2) Double:0 Double:1 Double:-0.5 Double:1",
+   "typed": "Array(1 To 2, 1 To 2) Double:0 Double:1 Double:-0.5 Double:1"
   },
   {
    "function": "SeriesSum",
    "setup": "",
    "arguments": "0.785398163, \"0\", 2, Array(1, -0.5, 0.041666667)",
    "model_late": "Double:0.707429207116671",
-   "model_typed": "Double:0.707429207116671"
+   "model_typed": "Double:0.707429207116671",
+   "late": "Double:0.707429207116671",
+   "typed": "Double:0.707429207116671"
   },
   {
    "function": "Index",
    "setup": "ws.Range(\"K1\").Value = 0",
    "arguments": "ws.Range(\"D1:E3\"), 2, ws.Range(\"K1\")",
    "model_late": "Array(1 To 1, 1 To 2) Double:3 Double:4",
-   "model_typed": "Array(1 To 1, 1 To 2) Double:3 Double:4"
+   "model_typed": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "late": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "typed": "Array(1 To 1, 1 To 2) Double:3 Double:4"
   },
   {
    "function": "GammaInv",
    "setup": "k = True",
    "arguments": "k, 9, 2",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "WorkDay_Intl",
    "setup": "",
    "arguments": "#1/1/2012#, \"30\", 0",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Fixed",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, -1, True",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "Replace",
    "setup": "",
    "arguments": "\"abcdef\", 6, 30, \"X\"",
    "model_late": "String:abcdeX",
-   "model_typed": "String:abcdeX"
+   "model_typed": "String:abcdeX",
+   "late": "String:abcdeX",
+   "typed": "String:abcdeX"
   },
   {
    "function": "TBillYield",
    "setup": "k = Null",
    "arguments": "k, #6/1/2008#, 98.45",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Binom_Dist",
    "setup": "ws.Range(\"K1\").Value = 6",
    "arguments": "ws.Range(\"K1\"), 10, 0.5, False",
    "model_late": "Double:0.205078125",
-   "model_typed": "Double:0.205078125"
+   "model_typed": "Double:0.205078125",
+   "late": "Double:0.205078125",
+   "typed": "Double:0.205078125"
   },
   {
    "function": "Syd",
    "setup": "",
    "arguments": "300000, 7501, 11, 10",
    "model_late": "Double:8863.60606060606",
-   "model_typed": "Double:8863.60606060606"
+   "model_typed": "Double:8863.60606060606",
+   "late": "Double:8863.60606060606",
+   "typed": "Double:8863.60606060606"
   },
   {
    "function": "Delta",
    "setup": "",
    "arguments": "\"5\"",
    "model_late": "Double:0",
-   "model_typed": "Double:0"
+   "model_typed": "Double:0",
+   "late": "Double:0",
+   "typed": "Double:0"
   },
   {
    "function": "ImArgument",
    "setup": "k = Empty",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Norm_Inv",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "0.908789, k, 1.5",
    "model_late": "Array(1 To 5, 1 To 1) Double:3.00000200956616 Double:4.00000200956616 Double:5.00000200956616 Double:6.00000200956616 Double:7.00000200956616",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "Array(1 To 5, 1 To 1) Double:3.00000200956616 Double:4.00000200956616 Double:5.00000200956616 Double:6.00000200956616 Double:7.00000200956616",
+   "typed": "E13"
   },
   {
    "function": "Match",
    "setup": "ws.Range(\"K1\").Value = 0",
    "arguments": "\"c\", ws.Range(\"B1:B5\"), ws.Range(\"K1\")",
    "model_late": "Double:3",
-   "model_typed": "Double:3"
+   "model_typed": "Double:3",
+   "late": "Double:3",
+   "typed": "Double:3"
   },
   {
    "function": "EDate",
    "setup": "",
    "arguments": "#1/31/2020#, \"1\"",
    "model_late": "Double:43890",
-   "model_typed": "Double:43890"
+   "model_typed": "Double:43890",
+   "late": "Double:43890",
+   "typed": "Double:43890"
   },
   {
    "function": "Nominal",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k, 4",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Lookup",
    "setup": "",
    "arguments": "9, ws.Range(\"A1:A5\"), ws.Range(\"B1:B5\")",
    "model_late": "String:e",
-   "model_typed": "String:e"
+   "model_typed": "String:e",
+   "late": "String:e",
+   "typed": "String:e"
   },
   {
    "function": "Skew_p",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "ImSum",
    "setup": "k = \"abc\"",
    "arguments": "\"3+4i\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Index",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "Array(Array(1, 2), Array(3, 4)), 2, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Subtotal",
    "setup": "",
    "arguments": "\"9\", ws.Range(\"A1:A5\")",
    "model_late": "Double:15",
-   "model_typed": "Double:15"
+   "model_typed": "Double:15",
+   "late": "Double:15",
+   "typed": "Double:15"
   },
   {
    "function": "DStDevP",
    "setup": "k = Empty",
    "arguments": "ws.Range(\"G1:J2\"), k, ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Lcm",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, 2",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "XLookup",
    "setup": "k = Empty",
    "arguments": "k, ws.Range(\"B1:B5\"), ws.Range(\"A1:A5\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "DGet",
    "setup": "k = \"abc\"",
    "arguments": "k, \"r\", ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E424"
+   "model_typed": "E424",
+   "late": "E1004",
+   "typed": "E424"
   },
   {
    "function": "VLookup",
    "setup": "ws.Range(\"K1\").Value = 2",
    "arguments": "ws.Range(\"A3\"), ws.Range(\"A1:B5\"), ws.Range(\"K1\"), False",
    "model_late": "String:c",
-   "model_typed": "String:c"
+   "model_typed": "String:c",
+   "late": "String:c",
+   "typed": "String:c"
   },
   {
    "function": "LogNorm_Dist",
    "setup": "",
    "arguments": "12, 10.5, 12, True",
    "model_late": "Double:0.252090911010383",
-   "model_typed": "Double:0.252090911010383"
+   "model_typed": "Double:0.252090911010383",
+   "late": "Double:0.252090911010383",
+   "typed": "Double:0.252090911010383"
   },
   {
    "function": "T_Dist",
    "setup": "ws.Range(\"K1\").Value = 60",
    "arguments": "ws.Range(\"K1\"), 1, True",
    "model_late": "Double:0.994695326367377",
-   "model_typed": "Double:0.994695326367377"
+   "model_typed": "Double:0.994695326367377",
+   "late": "Double:0.994695326367377",
+   "typed": "Double:0.994695326367377"
   },
   {
    "function": "ImCsch",
    "setup": "k = Null",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Dec2Hex",
    "setup": "k = CVErr(xlErrDiv0)",
    "arguments": "k, 4",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Ceiling_Math",
    "setup": "",
    "arguments": "\"2.5\"",
    "model_late": "Double:3",
-   "model_typed": "Double:3"
+   "model_typed": "Double:3",
+   "late": "Double:3",
+   "typed": "Double:3"
   },
   {
    "function": "ImDiv",
    "setup": "k = \"abc\"",
    "arguments": "\"-238+240i\", k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "WeekNum",
    "setup": "ws.Range(\"K1\").Value = 2",
    "arguments": "#3/9/2012#, ws.Range(\"K1\")",
    "model_late": "Double:11",
-   "model_typed": "Double:11"
+   "model_typed": "Double:11",
+   "late": "Double:11",
+   "typed": "Double:11"
   },
   {
    "function": "Vdb",
    "setup": "k = \"abc\"",
    "arguments": "2400, 300, 10*365, 0, k",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "EoMonth",
    "setup": "",
    "arguments": "#1/15/2020#, \"0\"",
    "model_late": "Double:43861",
-   "model_typed": "Double:43861"
+   "model_typed": "Double:43861",
+   "late": "Double:43861",
+   "typed": "Double:43861"
   },
   {
    "function": "LogInv",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, 3.5, 1.2",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "FactDouble",
    "setup": "",
    "arguments": "7",
    "model_late": "Double:105",
-   "model_typed": "Double:105"
+   "model_typed": "Double:105",
+   "late": "Double:105",
+   "typed": "Double:105"
   },
   {
    "function": "NegBinomDist",
    "setup": "ws.Range(\"K1\").Value = 0.25",
    "arguments": "10, 5, ws.Range(\"K1\")",
    "model_late": "Double:5.50486603751779E-02",
-   "model_typed": "Double:5.50486603751779E-02"
+   "model_typed": "Double:5.50486603751779E-02",
+   "late": "Double:5.50486603751779E-02",
+   "typed": "Double:5.50486603751779E-02"
   },
   {
    "function": "ImSin",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "F_Inv_RT",
    "setup": "k = Null",
    "arguments": "0.01, k, 4",
    "model_late": "E1004",
-   "model_typed": "E94"
+   "model_typed": "E94",
+   "late": "E1004",
+   "typed": "E94"
   },
   {
    "function": "FDist",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, 6, 4",
    "model_late": "E1004",
-   "model_typed": "E13"
+   "model_typed": "E13",
+   "late": "E1004",
+   "typed": "E13"
   },
   {
    "function": "Delta",
    "setup": "Set k = ws.Range(\"A1:A5\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Phi",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "Double:0.241970724519143",
-   "model_typed": "Double:0.241970724519143"
+   "model_typed": "Double:0.241970724519143",
+   "late": "Double:0.241970724519143",
+   "typed": "Double:0.241970724519143"
   },
   {
    "function": "ImReal",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "SortBy",
    "setup": "k = True",
    "arguments": "ws.Range(\"B1:B5\"), k, 1",
    "model_late": "Array(1 To 5, 1 To 1) String:a String:b String:c String:d String:e",
-   "model_typed": "Array(1 To 5, 1 To 1) String:a String:b String:c String:d String:e"
+   "model_typed": "Array(1 To 5, 1 To 1) String:a String:b String:c String:d String:e",
+   "late": "Array(1 To 5, 1 To 1) String:a String:b String:c String:d String:e",
+   "typed": "Array(1 To 5, 1 To 1) String:a String:b String:c String:d String:e"
   },
   {
    "function": "NegBinom_Dist",
    "setup": "k = True",
    "arguments": "10, 5, k, True",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Vdb",
    "setup": "ws.Range(\"K1\").Value = 2400",
    "arguments": "ws.Range(\"K1\"), 300, 10*365, 0, 1",
    "model_late": "Double:1.31506849315068",
-   "model_typed": "Double:1.31506849315068"
+   "model_typed": "Double:1.31506849315068",
+   "late": "Double:1.31506849315068",
+   "typed": "Double:1.31506849315068"
   },
   {
    "function": "VLookup",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "9, ws.Range(\"A1:B5\"), 2, k",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
   },
   {
    "function": "Poisson_Dist",
    "setup": "",
    "arguments": "\"2\", 5, False",
    "model_late": "Double:8.42243374885683E-02",
-   "model_typed": "Double:8.42243374885683E-02"
+   "model_typed": "Double:8.42243374885683E-02",
+   "late": "Double:8.42243374885683E-02",
+   "typed": "Double:8.42243374885683E-02"
   },
   {
    "function": "Choose",
    "setup": "",
    "arguments": "\"4\", \"a\", \"b\"",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Npv",
    "setup": "",
    "arguments": "\"0.1\", -10000, 3000, 4200, 6800",
    "model_late": "Double:1188.44341233522",
-   "model_typed": "Double:1188.44341233522"
+   "model_typed": "Double:1188.44341233522",
+   "late": "Double:1188.44341233522",
+   "typed": "Double:1188.44341233522"
   },
   {
    "function": "VLookup",
    "setup": "k = \"abc\"",
    "arguments": "\"C\", ws.Range(\"B1:B5\"), k, False",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Binom_Dist",
    "setup": "",
    "arguments": "\"6\", 10, 0.5, False",
    "model_late": "Double:0.205078125",
-   "model_typed": "Double:0.205078125"
+   "model_typed": "Double:0.205078125",
+   "late": "Double:0.205078125",
+   "typed": "Double:0.205078125"
   },
   {
    "function": "Convert",
    "setup": "",
    "arguments": "\"1\", \"lbm\", \"kg\"",
    "model_late": "Double:0.45359237",
-   "model_typed": "Double:0.45359237"
+   "model_typed": "Double:0.45359237",
+   "late": "Double:0.45359237",
+   "typed": "Double:0.45359237"
   },
   {
    "function": "NetworkDays_Intl",
    "setup": "k = Empty",
    "arguments": "#1/1/2006#, k, 7",
    "model_late": "Double:-27656",
-   "model_typed": "Double:-27656"
+   "model_typed": "Double:-27656",
+   "late": "Double:-27656",
+   "typed": "Double:-27656"
   },
   {
    "function": "RoundUp",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "2.341, ws.Range(\"K1\")",
    "model_late": "Double:2.4",
-   "model_typed": "Double:2.4"
+   "model_typed": "Double:2.4",
+   "late": "Double:2.4",
+   "typed": "Double:2.4"
   },
   {
    "function": "DStDev",
    "setup": "Set k = ws.Range(\"C2\")",
    "arguments": "k, \"q\", ws.Range(\"G1:G2\")",
    "model_late": "E1004",
-   "model_typed": "E1004"
+   "model_typed": "E1004",
+   "late": "E1004",
+   "typed": "E1004"
   },
   {
    "function": "Dec2Oct",
    "setup": "ws.Range(\"K1\").Value = 3",
    "arguments": "58, ws.Range(\"K1\")",
    "model_late": "String:072",
-   "model_typed": "String:072"
+   "model_typed": "String:072",
+   "late": "String:072",
+   "typed": "String:072"
   },
   {
    "function": "BetaInv",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "0.685470581, 8, 10, ws.Range(\"K1\"), 3",
    "model_late": "Double:1.99999999996314",
-   "model_typed": "Double:1.99999999996314"
+   "model_typed": "Double:1.99999999996314",
+   "late": "Double:1.99999999996314",
+   "typed": "Double:1.99999999996314"
   },
   {
    "function": "T_Test",
    "setup": "ws.Range(\"K1\").Value = 1",
    "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), 2, ws.Range(\"K1\")",
    "model_late": "Double:8.90093425000857E-02",
-   "model_typed": "Double:8.90093425000857E-02"
+   "model_typed": "Double:8.90093425000857E-02",
+   "late": "Double:8.90093425000857E-02",
+   "typed": "Double:8.90093425000857E-02"
   },
   {
    "function": "F_Dist",
    "setup": "",
    "arguments": "45.6207, 12, 8, True",
    "model_late": "Double:0.999994883007128",
-   "model_typed": "Double:0.999994883007128"
+   "model_typed": "Double:0.999994883007128",
+   "late": "Double:0.999994883007128",
+   "typed": "Double:0.999994883007128"
   },
   {
    "function": "LogNorm_Inv",
    "setup": "",
    "arguments": "0.039084, \"3.5\", 1.2",
    "model_late": "Double:4.00002521868064",
-   "model_typed": "Double:4.00002521868064"
+   "model_typed": "Double:4.00002521868064",
+   "late": "Double:4.00002521868064",
+   "typed": "Double:4.00002521868064"
   },
   {
    "function": "ValueToText",
    "setup": "k = True",
    "arguments": "k",
    "model_late": "String:TRUE",
-   "model_typed": "String:TRUE"
+   "model_typed": "String:TRUE",
+   "late": "String:TRUE",
+   "typed": "String:TRUE"
   },
   {
    "function": "TBillEq",
    "setup": "",
    "arguments": "#3/31/2008#, #6/1/2008#, 0.0457",
    "model_late": "Double:0.046702295231413",
-   "model_typed": "Double:0.046702295231413"
+   "model_typed": "Double:0.046702295231413",
+   "late": "Double:0.046702295231413",
+   "typed": "Double:0.046702295231413"
   },
   {
    "function": "IsEven",
    "setup": "ws.Range(\"K1\").Value = 2.5",
    "arguments": "ws.Range(\"K1\")",
    "model_late": "Boolean:True",
-   "model_typed": "Boolean:True"
+   "model_typed": "Boolean:True",
+   "late": "Boolean:True",
+   "typed": "Boolean:True"
   },
   {
    "function": "BesselK",
    "setup": "",
    "arguments": "\"1.5\", 1",
    "model_late": "Double:0.277387803632259",
-   "model_typed": "Double:0.277387803632259"
+   "model_typed": "Double:0.277387803632259",
+   "late": "Double:0.277387803632259",
+   "typed": "Double:0.277387803632259"
   }
- ]
+ ],
+ "measured_at": "2026-11-25T05:16:49.713300+00:00"
 }

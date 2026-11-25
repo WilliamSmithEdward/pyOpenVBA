@@ -818,7 +818,9 @@ def DB(
     rest = context.number(salvage)
     span = context.number(life)
     which = context.number(period)
-    months = _optional(context, month, 12.0)
+    # The month is cut to a whole one: 3.5 is 3, 12.5 is 12 and 0.5 #NUM! (pyOpenVBA's
+    # tests/fixtures/worksheet_function_rivals.json).
+    months = float(math.trunc(_optional(context, month, 12.0)))
     if value < 0 or rest < 0 or span <= 0 or which <= 0 or not 1 <= months <= 12 or which > span + 1:
         return NUM
     if value == 0:

@@ -1,5 +1,5 @@
 {
- "about": "Rival rules for the wrong answers WorksheetFunction rounds 60101 (probes 1 to 5) and 60102 (probes 6 and 7) found, each prediction written before Excel answered (live Excel, 2026-11-24 and 25). The cases of one probe run in order in one macro, on one new book's sheet that tests/fixtures/worksheet_functions_more.json fills, so a setup stays for the cases after it; once with f typed As WorksheetFunction, once As Object. Each case clears M1, runs its setup, and reads its expression into v; a cell formula case reads M1 back. Answers are as that fixture's Show writes them, E and a number for an error raised.",
+ "about": "Rival rules for the wrong answers WorksheetFunction rounds 60101 (probes 1 to 5) and 60102 (probes 6 and 7) and 60103 (probe 8) found, each prediction written before Excel answered (live Excel, 2026-11-24 and 25). The cases of one probe run in order in one macro, on one new book's sheet that tests/fixtures/worksheet_functions_more.json fills, so a setup stays for the cases after it; once with f typed As WorksheetFunction, once As Object. Each case clears M1, runs its setup, and reads its expression into v; a cell formula case reads M1 back. Answers are as that fixture's Show writes them, E and a number for an error raised.",
  "cases": [
   {
    "probe": 1,
@@ -3084,6 +3084,291 @@
    },
    "late": "Double:0",
    "typed": "Double:0"
+  },
+  {
+   "probe": 8,
+   "case": "db month 3.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 2, 3.5)",
+   "rivals": {
+    "cut": "Double:232088",
+    "as is": "Double:226102.666666667"
+   },
+   "late": "Double:232088",
+   "typed": "Double:232088"
+  },
+  {
+   "probe": 8,
+   "case": "db month 3.9",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 2, 3.9)",
+   "rivals": {
+    "cut": "Double:232088",
+    "rounded": "Double:220116.666666667"
+   },
+   "late": "Double:232088",
+   "typed": "Double:232088"
+  },
+  {
+   "probe": 8,
+   "case": "db month 3.5 period 1",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1, 3.5)",
+   "rivals": {
+    "cut": "Double:67000",
+    "as is": "Double:78166.6666666667"
+   },
+   "late": "Double:67000",
+   "typed": "Double:67000"
+  },
+  {
+   "probe": 8,
+   "case": "db month 0.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1, 0.5)",
+   "rivals": {
+    "cut to 0": "E1004",
+    "as is": "Double:11166.6666666667"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "db month 12.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1, 12.5)",
+   "rivals": {
+    "cut": "Double:268000",
+    "num": "E1004"
+   },
+   "late": "Double:268000",
+   "typed": "Double:268000"
+  },
+  {
+   "probe": 8,
+   "case": "db period 1.5",
+   "setup": "",
+   "expression": "f.Db(500000, 50000, 3, 1.5, 3)",
+   "rivals": {
+    "cut": "Double:67000",
+    "num": "E1004"
+   },
+   "late": "Double:67000",
+   "typed": "Double:67000"
+  },
+  {
+   "probe": 8,
+   "case": "db cell month 3.5",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=DB(500000,50000,3,2,3.5)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "cut": "Double:232088",
+    "as is": "Double:226102.666666667"
+   },
+   "late": "Currency:232088",
+   "typed": "Currency:232088"
+  },
+  {
+   "probe": 8,
+   "case": "transpose empty",
+   "setup": "",
+   "expression": "f.Transpose(Empty)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 8,
+   "case": "transpose empty variant",
+   "setup": "k = Empty",
+   "expression": "f.Transpose(k)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Double:0",
+   "typed": "Double:0"
+  },
+  {
+   "probe": 8,
+   "case": "transpose null",
+   "setup": "",
+   "expression": "f.Transpose(Null)",
+   "rivals": {
+    "error": "E1004",
+    "zero": "Double:0"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "transpose empty array item",
+   "setup": "",
+   "expression": "f.Transpose(Array(Empty, 1))",
+   "rivals": {
+    "zero": "Array(1 To 2, 1 To 1) Double:0 Double:1",
+    "empty": "Array(1 To 2, 1 To 1) Empty Double:1"
+   },
+   "late": "Array(1 To 2, 1 To 1) Empty Double:1",
+   "typed": "Array(1 To 2, 1 To 1) Empty Double:1"
+  },
+  {
+   "probe": 8,
+   "case": "index empty",
+   "setup": "",
+   "expression": "f.Index(Array(Empty, 1), 1)",
+   "rivals": {
+    "zero": "Double:0",
+    "empty": "Empty"
+   },
+   "late": "Empty",
+   "typed": "Empty"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup text cell switch",
+   "setup": "",
+   "expression": "f.VLookup(9, ws.Range(\"A1:B5\"), 2, ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup text cell switch found",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup letter cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"B1\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup text switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, \"x\")",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup true text switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, \"TRUE\")",
+   "rivals": {
+    "read": "String:c",
+    "error": "E1004"
+   },
+   "late": "String:c",
+   "typed": "String:c"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup logical cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C4\"))",
+   "rivals": {
+    "read": "String:c"
+   },
+   "late": "String:c",
+   "typed": "String:c"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup number cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C1\"))",
+   "rivals": {
+    "read": "String:c"
+   },
+   "late": "String:c",
+   "typed": "String:c"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup error cell switch",
+   "setup": "",
+   "expression": "f.VLookup(3, ws.Range(\"A1:B5\"), 2, ws.Range(\"C5\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2042",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "hlookup text cell switch",
+   "setup": "",
+   "expression": "f.HLookup(1, ws.Range(\"D1:E3\"), 2, ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "Array(1 To 1) Error:2015",
+   "typed": "Array(1 To 1) Error:2015"
+  },
+  {
+   "probe": 8,
+   "case": "match text cell type",
+   "setup": "",
+   "expression": "f.Match(3, ws.Range(\"A1:A5\"), ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "xlookup text cell mode",
+   "setup": "",
+   "expression": "f.XLookup(3, ws.Range(\"A1:A5\"), ws.Range(\"B1:B5\"), \"n\", ws.Range(\"C2\"))",
+   "rivals": {
+    "array": "Array(1 To 1) Error:2015",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 8,
+   "case": "vlookup cell text cell switch",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=VLOOKUP(3,A1:B5,2,C2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "value": "Error:2015"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
   }
  ]
 }

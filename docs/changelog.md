@@ -967,7 +967,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   - The database functions refuse a field of several cells.
   - `SumIfs`, `CountIfs`, `AverageIfs`, `MaxIfs` and `MinIfs` take a last range with no criterion after it, as a
     trailing `Null` gives.
-  - `Transpose` of one cell gives back its value.
+  - `Transpose` of one cell gives back its value, and `Transpose(Empty)` is 0.
+  - `Db` cuts its month to a whole one, so 3.5 is 3.
+  - `VLookup` and `HLookup` given a cell of text as range_lookup answer an array holding #VALUE!, as Excel does.
   - In the database functions' criteria, a constant under a label that names no field selects every record when it
     is a number other than 0 or TRUE, and none otherwise.
   - In a cell, `LINEST`'s and `LOGEST`'s switches and `TREND`'s and `GROWTH`'s constant take the cell of a range in

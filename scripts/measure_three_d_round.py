@@ -264,8 +264,26 @@ KIND_METHODS = ['IncrementRotationX', 'IncrementRotationY', 'IncrementRotationZ'
 _KINDS = ([f't.{name} = {value}' for name in KIND_PROPERTIES for value in KIND_VALUES] +
           [f't.{name} {value}' for name in KIND_METHODS for value in KIND_VALUES])
 ROUNDS[11] = _KINDS + [f't.SetThreeDFormat 7{AGAIN}{statement}' for statement in _KINDS]
+#: Rounds 12 and 13, held out on the code that answered round 11: the kinds again from other starting points, and statements
+#: near what round 11 changed.
+ROUNDS[12] = ([f't.SetThreeDFormat 12: t.BevelBottomType = msoBevelCross{AGAIN}{statement}' for statement in _KINDS] +
+              [f't.Depth = 5: t.Visible = msoFalse: {statement}' for statement in _KINDS] +
+              ['t.SetThreeDFormat 3: t.RotationY = 0', 't.SetThreeDFormat 9: t.RotationX = 0: t.RotationZ = 0', 't.SetThreeDFormat 14: t.BevelTopDepth = 0',
+               't.SetThreeDFormat 5: t.BevelBottomInset = 4: t.BevelBottomDepth = 0', 't.SetThreeDFormat 1: t.BevelTopDepth = 3: t.BevelTopDepth = 0',
+               't.SetThreeDFormat 16: t.IncrementRotationY 0', 't.SetThreeDFormat 20: t.RotationY = 5: t.RotationY = 0', 't.Z = 5: t.Z = 0',
+               't.Z = 0: t.Depth = 4', 't.Perspective = -1: t.Perspective = 0', 't.Perspective = 1', 't.Perspective = -2',
+               't.Depth = 3: t.Perspective = 2', 't.Visible = 2: t.Depth = 2', f't.SetThreeDFormat 10{AGAIN}t.RotationX = 0',
+               f't.SetThreeDFormat 6{AGAIN}t.BevelTopDepth = 0', f't.Z = 3{AGAIN}t.Z = 0', f't.SetThreeDFormat 18: t.BevelTopDepth = 0{AGAIN}t.Depth = 0'])
+ROUNDS[13] = ([f't.SetPresetCamera 25: t.Depth = 6: t.BevelTopType = msoBevelSlope{AGAIN}{statement}' for statement in _KINDS] +
+              [f't.ProjectText = msoFalse: t.LightAngle = 45: {statement}' for statement in _KINDS] +
+              ['t.SetThreeDFormat 2: t.RotationZ = 0', 't.SetThreeDFormat 11: t.IncrementRotationX 0', 't.SetThreeDFormat 13: t.BevelBottomDepth = 0',
+               't.SetThreeDFormat 4: t.BevelTopType = msoBevelAngle: t.BevelTopDepth = 0', 't.SetThreeDFormat 8: t.BevelTopInset = 9: t.BevelTopDepth = 0',
+               't.SetThreeDFormat 15: t.RotationX = 0: t.RotationY = 0', 't.SetThreeDFormat 17: t.RotationX = 1: t.RotationX = 0', 't.Z = -4: t.Z = 0',
+               't.Z = 0: t.Visible = msoFalse', 't.Perspective = 0: t.Perspective = -1', 't.Perspective = 3', 't.Perspective = 0.4',
+               't.SetPresetCamera 14: t.Perspective = -3', 't.Visible = -5: t.Z = 1', f't.SetThreeDFormat 19{AGAIN}t.RotationZ = 0',
+               f't.SetThreeDFormat 7: t.BevelBottomDepth = 0{AGAIN}t.BevelBottomDepth = 0', f't.Z = 0{AGAIN}t.Z = 2', f't.SetThreeDFormat 12{AGAIN}t.IncrementRotationZ 0'])
 #: The shapes of each round where not all of them.
-ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text'], 11: ['rect']}
+ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text'], 11: ['rect'], 12: ['oval'], 13: ['text']}
 ROUND = 1
 
 

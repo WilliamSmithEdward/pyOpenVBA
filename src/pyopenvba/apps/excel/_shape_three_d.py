@@ -19,8 +19,8 @@ from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel._shape_format import STYLE, DEFAULT_THEME
 from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import method, member, setter
-from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number
+from pyopenvba.interpreter._objects import BINDING, method, member, setter
+from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, VBASingle, error, to_integer, to_number
 from pyopenvba.shapes._read_look import read_three_d
 from pyopenvba.shapes._values import FillLine, ShapeThreeD
 
@@ -155,6 +155,14 @@ def _size(value: object, largest: float, refused: float, what: str) -> float:
     return wanted
 
 
+def _plain_rotation(camera: str, rotation: tuple[int, int, int] | None) -> tuple[int, int, int] | None:
+    """A camera's rot, None where it is the one the camera reads without it."""
+    implied = _CAMERAS[_CAMERA_NUMBERS[camera]][4] or (0.0, 0.0, 0.0)
+    if rotation == (_stored(implied[1]), _stored(-implied[0]), _stored(-implied[2])):
+        return None
+    return rotation
+
+
 def _old_default(three_d: ShapeThreeD) -> None:
     """Excel's old 3-D default, which the old presets start from in place of what was set."""
     _move(ShapeThreeD(scene=True, camera='legacyObliqueTopRight', rig='legacyFlat3', rig_dir='b', body=True, extrusion_h=457200,
@@ -196,6 +204,20 @@ class ThreeDFormat(HeldPart):
 
     def __init__(self, owner: ShapeObject) -> None:
         self.owner = owner
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        # Null reaches Excel late bound, which refuses it with 13; typed, VBA's own conversion refuses it with 94
+        # (tests/fixtures/three_d_round_11.json).
+        if value is NULL and BINDING.late:
+            raise error(13)
+        super().vba_set(name, value, args, named, by_ref=by_ref)
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        # A method's call comes here too.
+        if BINDING.late and any(one is NULL for one in [*args, *(named or {}).values()]):
+            raise error(13)
+        return super().vba_get(name, args, named)
 
     def admit(self) -> None:
         shape = self.owner.shape
@@ -276,11 +298,11 @@ class ThreeDFormat(HeldPart):
 
     @setter('Visible')
     def _visible(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long')) != 0
         three_d = self.held()
         if three_d is None:
             # Neither way changes a format nothing was set on.
             return
-        wanted = int(to_integer(value, 'Long')) != 0
         if wanted and (three_d.hidden is None or three_d.scene):
             # Showing a format that shows changes nothing, what is hidden staying hidden.
             return
@@ -434,7 +456,8 @@ class ThreeDFormat(HeldPart):
         wanted = _single(value)
         if abs(wanted) > 2000:
             raise VBAUnsupportedError(f'A Z of {wanted} is not implemented')
-        self.change(body=True).z = round(wanted * _EMU_PER_POINT)
+        # Nothing writes no z (tests/fixtures/three_d_round_11.json).
+        self.change(body=True).z = round(wanted * _EMU_PER_POINT) or None
 
     @member
     def ProjectText(self) -> object:
@@ -444,8 +467,9 @@ class ThreeDFormat(HeldPart):
     @setter('ProjectText')
     def _project_text(self, value: object) -> None:
         # Off is the text body's flatTx (tests/fixtures/three_d_round_4.json); a line, with no text, still reads on.
+        wanted = int(to_integer(value, 'Long')) != 0
         three_d = self.change(body=True)
-        three_d.project_text = int(to_integer(value, 'Long')) != 0 or self.owner.shape.kind == 'line'
+        three_d.project_text = wanted or self.owner.shape.kind == 'line'
 
     @member
     def PresetMaterial(self) -> object:
@@ -541,7 +565,11 @@ class ThreeDFormat(HeldPart):
 
     @setter('Perspective')
     def _perspective(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long')) != 0
+        number = int(to_integer(value, 'Long'))
+        if number not in (0, -1):
+            # Only msoTrue and msoFalse; 2.5, "3" and a date are the parameter error (tests/fixtures/three_d_round_11.json).
+            raise error(*_BAD_VALUE)
+        wanted = number == -1
         held = self.scene()
         now = 'orthographicFront' if held is None else held.camera
         # From any old camera, from whichever side, the camera faces front.
@@ -595,11 +623,13 @@ class ThreeDFormat(HeldPart):
             return VBAInt(-2, 'Long')
         # A contour beside it still reads the preset (tests/fixtures/three_d_round_5.json); the old default, with its bevels, does
         # not (three_d_round_2.json).
-        if (three_d.bevel_top, three_d.bevel_bottom) != (None, None):
-            # A light set after it still reads the preset (tests/fixtures/three_d_round_6.json).
+        if any(bevel is not None and bevel[2] != 0 for bevel in (three_d.bevel_top, three_d.bevel_bottom)):
+            # A light set after it still reads the preset (tests/fixtures/three_d_round_6.json), and so does a bevel of no
+            # depth, as does a rot the camera already reads (three_d_round_11.json).
             return VBAInt(-2, 'Long')
-        found = (three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material)
-        return VBAInt(next((number for number, preset in _FORMATS.items() if preset == found), -2), 'Long')
+        found = (three_d.camera, _plain_rotation(three_d.camera, three_d.rotation), three_d.extrusion_h, three_d.material)
+        return VBAInt(next((number for number, preset in _FORMATS.items()
+                            if (preset[0], _plain_rotation(preset[0], preset[1]), *preset[2:]) == found), -2), 'Long')
 
     @method
     def SetThreeDFormat(self, PresetThreeDFormat: object) -> object:  # noqa: N803 - native named argument

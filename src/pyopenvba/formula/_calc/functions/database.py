@@ -134,6 +134,10 @@ def _field(context: Context, field: Scalar, labels: list[str]) -> int | None:
         return None
     if isinstance(field, CellError):
         raise ExcelError(field)
+    if isinstance(field, bool):
+        # A logical is its number: TRUE the first field, FALSE none (pyOpenVBA's
+        # tests/fixtures/worksheet_function_rivals.json).
+        field = 1.0 if field else 0.0
     if isinstance(field, float):
         index = math.trunc(field)
         if not 1 <= index <= len(labels):

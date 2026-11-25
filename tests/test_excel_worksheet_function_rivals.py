@@ -1,13 +1,14 @@
 """The rival rules for the wrong answers WorksheetFunction rounds found, replayed against the in-memory model.
 
-tests/fixtures/worksheet_function_rivals.json holds seven probes, each case's rival predictions written before live Excel
+tests/fixtures/worksheet_function_rivals.json holds nine probes, each case's rival predictions written before live Excel
 answered. Round 60101's: an argument left empty or a blank cell (ZTEST's sigma, IFERROR's and IFNA's answer, BAHTTEXT),
 FREQUENCY's bins holding no number, a database function's field of several cells, a range SUMIFS and its kin get with no
 criterion after it, AMORDEGRC over every period of several lives, LCM and GCD given text or logicals, TREND and its kin
 given x of another shape, and Transpose of one cell. Round 60102's: Unichar(True), a constant under a database criteria
 label that names no field, and LINEST's switches given a range. Round 60103's: DB's month, Transpose(Empty), and a
-lookup's range_lookup given a cell of text. The model runs each probe as Excel ran it, its cases in
-order in one macro; where the model refuses a case, case by case, each after every setup before it.
+lookup's range_lookup given a cell of text. Round 60104's: a database field given a logical, and ValueToText's format.
+The model runs each probe as Excel ran it, its cases in order in one macro; where the model refuses a case, case by case,
+each after every setup before it.
 """
 
 from __future__ import annotations

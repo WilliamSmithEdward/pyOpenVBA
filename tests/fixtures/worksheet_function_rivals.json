@@ -1,5 +1,5 @@
 {
- "about": "Rival rules for the wrong answers WorksheetFunction rounds 60101 (probes 1 to 5) and 60102 (probes 6 and 7) and 60103 (probe 8) found, each prediction written before Excel answered (live Excel, 2026-11-24 and 25). The cases of one probe run in order in one macro, on one new book's sheet that tests/fixtures/worksheet_functions_more.json fills, so a setup stays for the cases after it; once with f typed As WorksheetFunction, once As Object. Each case clears M1, runs its setup, and reads its expression into v; a cell formula case reads M1 back. Answers are as that fixture's Show writes them, E and a number for an error raised.",
+ "about": "Rival rules for the wrong answers WorksheetFunction rounds 60101 (probes 1 to 5) and 60102 (probes 6 and 7) and 60103 (probe 8) and 60104 (probe 9) found, each prediction written before Excel answered (live Excel, 2026-11-24 and 25). The cases of one probe run in order in one macro, on one new book's sheet that tests/fixtures/worksheet_functions_more.json fills, so a setup stays for the cases after it; once with f typed As WorksheetFunction, once As Object. Each case clears M1, runs its setup, and reads its expression into v; a cell formula case reads M1 back. Answers are as that fixture's Show writes them, E and a number for an error raised.",
  "cases": [
   {
    "probe": 1,
@@ -3369,6 +3369,232 @@
    },
    "late": "Error:2015",
    "typed": "Error:2015"
+  },
+  {
+   "probe": 9,
+   "case": "dproduct field true",
+   "setup": "",
+   "expression": "f.DProduct(ws.Range(\"G1:J2\"), True, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field true",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), True, ws.Range(\"H1:H2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field false",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), False, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "E1004",
+    "error": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "dget field true",
+   "setup": "",
+   "expression": "f.DGet(ws.Range(\"G1:J2\"), True, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dcount field true",
+   "setup": "",
+   "expression": "f.DCount(ws.Range(\"G1:J2\"), True, ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field text 2",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), \"2\", ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "label": "E1004",
+    "number": "Double:2"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "dsum field logical cell",
+   "setup": "",
+   "expression": "f.DSum(ws.Range(\"G1:J2\"), ws.Range(\"C4\"), ws.Range(\"G1:G2\"))",
+   "rivals": {
+    "number": "Double:1",
+    "error": "E1004"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "dsum cell field true",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=DSUM(G1:J2,TRUE,G1:G2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "number": "Double:1",
+    "error": "Error:2015"
+   },
+   "late": "Double:1",
+   "typed": "Double:1"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext 2",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", 2)",
+   "rivals": {
+    "zero or one": "E1004",
+    "one quotes": "String:a"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext -1",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", -1)",
+   "rivals": {
+    "zero or one": "E1004",
+    "one quotes": "String:a"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext 1.5",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", 1.5)",
+   "rivals": {
+    "cut": "String:\"a\"",
+    "one quotes": "String:a"
+   },
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext 0.5",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", 0.5)",
+   "rivals": {
+    "cut": "String:a",
+    "one quotes": "String:a"
+   },
+   "late": "String:a",
+   "typed": "String:a"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext true",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", True)",
+   "rivals": {
+    "as 1": "String:\"a\"",
+    "error": "E1004"
+   },
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext text 1",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", \"1\")",
+   "rivals": {
+    "as 1": "String:\"a\"",
+    "error": "E1004"
+   },
+   "late": "String:\"a\"",
+   "typed": "String:\"a\""
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext empty",
+   "setup": "",
+   "expression": "f.ValueToText(\"a\", Empty)",
+   "rivals": {
+    "as 0": "String:a"
+   },
+   "late": "String:a",
+   "typed": "String:a"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext number 2",
+   "setup": "",
+   "expression": "f.ValueToText(5, 2)",
+   "rivals": {
+    "zero or one": "E1004",
+    "one quotes": "String:5"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "valuetotext cell 2",
+   "setup": "ws.Range(\"M1\").Formula2 = \"=VALUETOTEXT(\"\"a\"\",2)\"",
+   "expression": "ws.Range(\"M1\").Value",
+   "rivals": {
+    "zero or one": "Error:2015",
+    "one quotes": "String:a"
+   },
+   "late": "Error:2015",
+   "typed": "Error:2015"
+  },
+  {
+   "probe": 9,
+   "case": "arraytotext 2",
+   "setup": "",
+   "expression": "f.ArrayToText(Array(\"a\", 1), 2)",
+   "rivals": {
+    "zero or one": "E1004"
+   },
+   "late": "E1004",
+   "typed": "E1004"
+  },
+  {
+   "probe": 9,
+   "case": "arraytotext 1.5",
+   "setup": "",
+   "expression": "f.ArrayToText(Array(\"a\", 1), 1.5)",
+   "rivals": {
+    "cut": "String:{\"a\",1}",
+    "error": "E1004"
+   },
+   "late": "String:{\"a\",1}",
+   "typed": "String:{\"a\",1}"
   }
  ]
 }

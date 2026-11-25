@@ -969,6 +969,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
     trailing `Null` gives.
   - `Transpose` of one cell gives back its value, and `Transpose(Empty)` is 0.
   - `Db` cuts its month to a whole one, so 3.5 is 3.
+  - The database functions read a field given as a logical as its number, `True` being the first field.
+  - `ValueToText` cuts its format to a whole number and refuses any but 0 and 1, as `ArrayToText` does.
   - `VLookup` and `HLookup` given a cell of text as range_lookup answer an array holding #VALUE!, as Excel does.
   - In the database functions' criteria, a constant under a label that names no field selects every record when it
     is a number other than 0 or TRUE, and none otherwise.

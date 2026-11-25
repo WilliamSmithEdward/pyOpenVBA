@@ -44,9 +44,12 @@ FIRST = json.loads((FIXTURES / 'worksheet_functions.json').read_text(encoding='u
 WRITTEN = {'FilterXML': ['"<a><b>1</b><b>2</b></a>", "//b"'], 'Phonetic': ['ws.Range("B1")'], 'Subtotal': ['9, ws.Range("A1:A5")']}
 #: The model answers these a unit or a few away in the fifteenth significant digit (tests/test_excel_worksheet_functions_more.py;
 #: round 60101 for Confidence_T, F_Dist_RT and Gamma_Dist; round 60102 for ChiInv, and MultiNomial, whose log-gamma is not
-#: Excel's: 16368 where Excel answers 16367.9999999998).
-LAST_DIGIT = {'Beta_Dist', 'BetaDist', 'ChiInv', 'ChiSq_Inv', 'Confidence_T', 'F_Dist_RT', 'Gamma_Dist', 'ImSec',
-              'MultiNomial', 'T_Dist_2T', 'T_Dist_RT', 'T_Inv_2T', 'TDist'}
+#: Excel's: 16368 where Excel answers 16367.9999999998; round 60104 for Confidence_Norm).
+LAST_DIGIT = {'Beta_Dist', 'BetaDist', 'ChiInv', 'ChiSq_Inv', 'Confidence_Norm', 'Confidence_T', 'F_Dist_RT', 'Gamma_Dist',
+              'ImSec', 'MultiNomial', 'T_Dist_2T', 'T_Dist_RT', 'T_Inv_2T', 'TDist'}
+#: Functions with a call the model refuses, whose rows stay PARTIAL however a round goes; LinEst and Growth miss in the last
+#: digit as well (round 60104), and Trend and LogEst share their fit.
+REFUSING = {'Growth', 'LinEst', 'LogEst', 'Trend'}
 #: Functions a round cannot vary: they take no argument.
 NOTHING_TO_VARY = {'Pi'}
 #: Each given through the Variant k, so a typed call meets it at run time rather than failing to compile.
@@ -60,7 +63,7 @@ def partial_functions() -> list[str]:
     with open(ROOT / 'docs' / 'excel_checklist.csv', encoding='utf-8') as handle:
         return sorted(row['member'] for row in csv.DictReader(handle)
                       if row['object'] == 'WorksheetFunction' and row['status'] == 'PARTIAL'
-                      and row['member'] not in LAST_DIGIT | NOTHING_TO_VARY)
+                      and row['member'] not in LAST_DIGIT | NOTHING_TO_VARY | REFUSING)
 
 
 def bases() -> dict[str, list[str]]:

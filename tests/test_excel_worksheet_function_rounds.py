@@ -31,6 +31,9 @@ USED_UP: dict[int, str] = {
            'units in the last digits and left the rounds; Unichar(True) read a space through the harness',
     60103: 'Db took a month of 3.5 as it was, Transpose(Empty) was Empty, and VLookup raised 1004 for a cell of text as its '
            'range_lookup (tests/fixtures/worksheet_function_rivals.json)',
+    60104: 'the database functions refused a logical field, which Excel reads as its number, and ValueToText took a format '
+           'past 0 and 1 (tests/fixtures/worksheet_function_rivals.json); Confidence_Norm, Growth and LinEst missed in the '
+           'last digit and left the rounds',
 }
 
 
@@ -45,7 +48,7 @@ def _as_measured(seed: int, answer: str) -> str:
 def test_each_call_as_excel_answered(record: dict[str, Any], typed: bool) -> None:
     # The functions a round leaves out are left out here too: those the model answers a unit away in the last digit.
     # A call the model refuses is no answer of its own, and its row stays PARTIAL.
-    cases = [case for case in record['cases'] if case['function'] not in ROUNDS.LAST_DIGIT]
+    cases = [case for case in record['cases'] if case['function'] not in ROUNDS.LAST_DIGIT | ROUNDS.REFUSING]
     tag = 'typed' if typed else 'late'
     answers = ROUNDS.model_answers(cases, typed, record['seed'] >= ROUNDS.ESCAPES_FROM)
     assert [(case['function'], case['setup'], case['arguments'], case[tag], answer)

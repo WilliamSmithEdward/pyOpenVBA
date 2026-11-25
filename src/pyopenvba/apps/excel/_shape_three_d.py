@@ -646,11 +646,11 @@ class ThreeDFormat(HeldPart):
                 raise VBAUnsupportedError(f'The direction of the {three_d.rig} light from {three_d.rig_dir} is not implemented')
             side = _DEGREES[found]
             if three_d.light_rev is not None:
-                # Turned, an old rig from the top turns from the top, and number 3 from the left; number 2 is not measured
-                # (tests/fixtures/three_d_round_7.json).
-                if number == 2 or three_d.rig_dir != 't':
+                # Turned, numbers 1 and 4 from the top read their angle (tests/fixtures/three_d_round_7.json). Number 3 from
+                # the left read 180 turned 270 and 45 turned 45 (three_d_round_8.json): too few to tell a rule by.
+                if number not in (1, 4) or three_d.rig_dir != 't':
                     raise VBAUnsupportedError(f'The direction of the {three_d.rig} light turned is not implemented')
-                side = 270 if number == 3 else 0
+                side = 0
         elif three_d.rig_dir in _QUARTERS:
             side = _QUARTERS[three_d.rig_dir] * 90
         else:

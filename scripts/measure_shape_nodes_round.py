@@ -161,15 +161,22 @@ End Function
 PART = 8
 
 
-def macro(chosen: list[tuple[int, list[Any]]]) -> str:
+#: The read of each node's EditingType, which a model run can leave out.
+EDITING_READ = 'Err.Clear: t = CStr(n.Item(i).EditingType)'
+#: What a node's EditingType reads where a model run left it out.
+LEFT_OUT = 'refused'
+
+
+def macro(chosen: list[tuple[int, list[Any]]], editing: bool = True) -> str:
     typed = chosen[0][1][2]
+    helpers = HELPERS if editing else HELPERS.replace(EDITING_READ, f'Err.Clear: t = "{LEFT_OUT}"')
     declare = ('    Dim wb As Workbook, ws As Worksheet, sh As Shape, n As ShapeNodes, o As Object, v As Variant, s As String\n' if typed else
                '    Dim wb As Object, ws As Object, sh As Object, n As Object, o As Object, v As Variant, s As String\n')
     parts = [chosen[at:at + PART] for at in range(0, len(chosen), PART)]
     procedures = ''.join(f'Private Sub Part{k}(ByRef out As String, ByVal folder As String)\n{declare}    On Error Resume Next\n'
                          f'{"".join(_case(case, index) for index, case in part)}End Sub\n' for k, part in enumerate(parts))
     calls = ''.join(f'    Part{k} out, folder\n' for k in range(len(parts)))
-    return (f'{HELPERS}{procedures}Function Probe(ByVal folder As String) As String\n    Dim out As String\n'
+    return (f'{helpers}{procedures}Function Probe(ByVal folder As String) As String\n    Dim out As String\n'
             '    Application.DisplayAlerts = False\n'
             f'{calls}    Application.DisplayAlerts = True\n    Probe = Mid(out, {len(SEPARATOR) + 1})\nEnd Function\n')
 
@@ -185,7 +192,7 @@ def shape_xml(folder: Path, index: int) -> str:
     return ''.join(found[:2])
 
 
-def _run(case: list[Any], index: int, folder: Path) -> list[str] | None:
+def _run(case: list[Any], index: int, folder: Path, editing: bool = True) -> list[str] | None:
     """The model's answer to the case, split, or None where it refuses."""
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBACompileError, VBAUnsupportedError
@@ -193,7 +200,7 @@ def _run(case: list[Any], index: int, folder: Path) -> list[str] | None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     try:
-        app.add_module(macro([(index, case)]), name='H')
+        app.add_module(macro([(index, case)], editing), name='H')
         return str(app.run('H.Probe', str(folder))).split('|')
     except VBACompileError:
         return ['does not compile']
@@ -204,6 +211,9 @@ def _run(case: list[Any], index: int, folder: Path) -> list[str] | None:
 def alone(case: list[Any], index: int, folder: Path) -> list[str]:
     """The model's answer to one case run by itself, and the shape's saved markup; "refused" where it refuses."""
     whole = _run(case, index, folder)
+    if whole is None:
+        # Refused for its nodes' EditingType, the rest of it can still answer.
+        whole = _run(case, index, folder, editing=False)
     if whole is None:
         return ['refused', '']
     return ['|'.join(whole), shape_xml(folder, index) if whole != ['does not compile'] else '']

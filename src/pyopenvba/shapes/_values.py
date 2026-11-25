@@ -610,6 +610,11 @@ class Shape:
     #: Excel: a new freeform's path, each step its command (moveTo, lnTo, cubicBezTo or close) and its points in EMU
     #: from the path's corner (tests/fixtures/shape_polyline.json).
     path: list[tuple[str, tuple[tuple[int, int], ...]]] = field(default_factory=lambda: [])
+    #: Excel: whether ShapeNodes edited the path, which writes a connection site at each node
+    #: (tests/fixtures/shape_nodes_round_1.json).
+    nodes_edited: bool = False
+    #: Excel: across and down, whether an edit grew the path past the box a new freeform has, moving it 1 EMU on.
+    nodes_drift: tuple[bool, bool] = (False, False)
     #: Excel: the fill and line Shape.Fill and Shape.Line set, None while it is the style's
     #: (tests/fixtures/shape_fill_line.json).
     fill_line: FillLine | None = None

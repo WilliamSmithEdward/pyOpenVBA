@@ -23,9 +23,9 @@ from dataclasses import fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.apps.excel._creator import Created, ItemDefault
+from pyopenvba.apps.excel._creator import Created, Enumerator, ItemDefault
 from pyopenvba.apps.excel._held import HeldPart, shape_here
-from pyopenvba.interpreter._objects import BINDING, VBACollection, member, method, setter
+from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     NOTHING,
@@ -219,6 +219,9 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
             raise error(1004, "AddCurve method of Shapes class failed")
         steps: list[tuple[str, tuple[tuple[int, int], ...]]] = [("moveTo", (found[0],))]
         steps += [("cubicBezTo", tuple(found[index:index + 3])) for index in range(1, len(found), 3)]
+        if found[-1] == found[0]:
+            # Back at its start, the path closes after the last curve (tests/fixtures/shape_nodes_round_2.json).
+            steps.append(("close", ()))
         return ShapeObject(self.sheet, self._freeform(found, steps))
 
     def _freeform(self, found: list[tuple[int, int]],
@@ -2590,6 +2593,14 @@ def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
     return made
 
 
+_NODE_FAILED = -2147467259
+_NODE_BAD = -2147024809
+
+
+def _single(value: object) -> float:
+    return float(VBASingle(float(to_number(value))))
+
+
 class ShapeNodes(HeldPart):
     """A freeform's nodes (tests/fixtures/shape_painter.json). Other shapes have nodes of their preset's that are not
     modelled, and report themselves."""
@@ -2620,6 +2631,163 @@ class ShapeNodes(HeldPart):
             raise error(-2147024809, "The specified value is out of range.")
         return ShapeNode(self.owner, chosen - 1)
 
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
+
+    # Editing, on a freeform of lines (tests/fixtures/shape_nodes_round_1.json, shape_nodes_round_2.json). An index past
+    # the nodes fails, as an unknown segment or editing type is the parameter error. Each edit makes the box the
+    # nodes' bounds; a new freeform's box is 1 EMU wider and taller than they, and an edit that grows the path on past
+    # them moves the whole of it 1 EMU on, that way. What a second edit does after that, past or short of the point
+    # it is given, is not known, and an edit there is refused. A curve's nodes are refused too.
+
+    def _index(self, Index: object, name: str, number: int = _NODE_FAILED) -> int:
+        chosen = int(to_number(Index))
+        if not 1 <= chosen <= len(_freeform_points(self.owner)):
+            raise error(number, f"Method '{name}' of object 'ShapeNodes' failed")
+        return chosen - 1
+
+    def _lines(self, name: str) -> list[list[object]]:
+        """The path's steps, each [command, [points]] on the sheet in EMU, where every step is a line."""
+        shape = self.owner.shape
+        if any(command == "cubicBezTo" for command, _ in shape.path):
+            raise _unsupported(f"ShapeNodes.{name} on a freeform with a curve")
+        if any(shape.nodes_drift):
+            raise _unsupported(f"ShapeNodes.{name} on a freeform an edit moved 1 EMU on")
+        across, down = emu(shape.left), emu(shape.top)
+        return [[command, [(x + across, y + down) for x, y in points]] for command, points in shape.path]
+
+    def _edited(self, steps: list[list[object]]) -> None:
+        """The freeform with these steps, on the sheet in EMU: its box their bounds, moved 1 EMU on where it grew past a
+        new freeform's box."""
+        shape = self.owner.shape
+        self.owner.guard("Nodes")
+        old = [point for _, points in shape.path for point in points]
+        across, down = emu(shape.left), emu(shape.top)
+        new = [point for _, points in steps for point in cast("list[tuple[int, int]]", points)]
+        corner: list[int] = []
+        drift: list[tuple[bool, int, int]] = []
+        for axis, (start, size) in enumerate(((across, emu(shape.width)), (down, emu(shape.height)))):
+            reach = max(point[axis] for point in old)
+            least, most = min(point[axis] - start for point in new), max(point[axis] - start for point in new)
+            grew = most > reach and size > reach
+            corner.append(start + least)
+            drift.append((grew, most - least, start + least + grew))
+        shape.path = [(cast(str, command), tuple((x - corner[0], y - corner[1]) for x, y in cast("list[tuple[int, int]]", points)))
+                      for command, points in steps]
+        (grew_x, wide, left), (grew_y, tall, top) = drift
+        shape.left, shape.top = left / EMU_PER_POINT, top / EMU_PER_POINT
+        shape.width, shape.height = wide / EMU_PER_POINT, tall / EMU_PER_POINT
+        shape.nodes_edited, shape.nodes_drift = True, (grew_x, grew_y)
+        self.owner.sheet.drawing_changed()
+
+    @staticmethod
+    def _where(steps: list[list[object]], index: int) -> tuple[int, bool]:
+        """The step holding node index, and whether the node is the one the step ends at."""
+        seen = 0
+        for at, (_, points) in enumerate(steps):
+            count = len(cast("list[object]", points))
+            if index < seen + count:
+                return at, index == seen + count - 1
+            seen += count
+        raise AssertionError(index)
+
+    @method
+    def Delete(self, Index: object) -> object:  # noqa: N803 - native named argument
+        chosen = self._index(Index, "Delete")
+        steps = self._lines("Delete")
+        if len(_freeform_points(self.owner)) == 2:
+            # Two nodes are as few as a freeform keeps: nothing happens.
+            return EMPTY
+        at, _ = self._where(steps, chosen)
+        if at == 0:
+            # The next node starts the path.
+            steps[1][0] = "moveTo"
+        del steps[at]
+        self._edited(steps)
+        return EMPTY
+
+    @method
+    def Insert(self, Index: object, SegmentType: object, EditingType: object, X1: object, Y1: object,  # noqa: N803
+               X2: object = MISSING, Y2: object = MISSING, X3: object = MISSING, Y3: object = MISSING) -> object:  # noqa: N803
+        chosen = self._index(Index, "Insert")
+        segment, editing = int(to_number(SegmentType)), int(to_number(EditingType))
+        if segment not in (0, 1):
+            raise error(_NODE_BAD, "The parameter is incorrect.")
+        steps = self._lines("Insert")
+        corners = [value for value in (X2, Y2, X3, Y3) if value is not MISSING]
+        if segment == 0 or (editing == 0 and not corners):
+            # A line, whatever its editing type; a curve set to auto by one point is a line too.
+            added: list[object] = ["lnTo", [self._point(X1, Y1, "Insert")]]
+        elif editing == 1 and len(corners) == 4:
+            added = ["cubicBezTo", [self._point(X1, Y1, "Insert"), self._point(X2, Y2, "Insert"), self._point(X3, Y3, "Insert")]]
+        else:
+            raise _unsupported(f"ShapeNodes.Insert of a curve of editing type {editing} by {1 + len(corners) // 2} points")
+        at, ends = self._where(steps, chosen)
+        if not ends:
+            raise _unsupported("ShapeNodes.Insert after a curve's control point")
+        if added[0] == "cubicBezTo":
+            points = cast("list[tuple[int, int]]", added[1])
+            ends_at = [cast("list[tuple[int, int]]", one[1])[-1] for one in steps if one[1]] + [points[-1]]
+            for axis in (0, 1):
+                low, high = min(point[axis] for point in ends_at), max(point[axis] for point in ends_at)
+                if any(not low <= point[axis] <= high for point in points[:2]):
+                    raise _unsupported("ShapeNodes.Insert of a curve that reaches past its nodes")
+        steps.insert(at + 1, added)
+        self._edited(steps)
+        return EMPTY
+
+    @staticmethod
+    def _point(x: object, y: object, name: str) -> tuple[int, int]:
+        across, down = emu(_single(x)), emu(_single(y))
+        if across < 0 or down < 0:
+            raise _unsupported(f"ShapeNodes.{name} at a point off the sheet")
+        return across, down
+
+    @method
+    def SetPosition(self, Index: object, X1: object, Y1: object) -> object:  # noqa: N803 - native named argument
+        chosen = self._index(Index, "SetPosition")
+        steps = self._lines("SetPosition")
+        at, _ = self._where(steps, chosen)
+        # Off the sheet it stops at the edge.
+        steps[at][1] = [(max(emu(_single(X1)), 0), max(emu(_single(Y1)), 0))]
+        self._edited(steps)
+        return EMPTY
+
+    @method
+    def SetSegmentType(self, Index: object, SegmentType: object) -> object:  # noqa: N803 - native named argument
+        chosen = self._index(Index, "SetSegmentType")
+        segment = int(to_number(SegmentType))
+        if segment not in (0, 1):
+            raise error(_NODE_BAD, "The parameter is incorrect.")
+        steps = self._lines("SetSegmentType")
+        if segment == 0:
+            # Lines already: nothing happens.
+            return EMPTY
+        # The segment ending at the node, the first one's for the first node, becomes a curve with its control points a
+        # third and two thirds of the way along, short of the next whole EMU from the start.
+        at = max(chosen, 1)
+        start, end = cast("list[tuple[int, int]]", steps[at - 1][1])[-1], cast("list[tuple[int, int]]", steps[at][1])[-1]
+        steps[at] = ["cubicBezTo", [tuple(begin + int((finish - begin) * part / 3) for begin, finish in zip(start, end))
+                                    for part in (1, 2)] + [end]]
+        self._edited(steps)
+        return EMPTY
+
+    @method
+    def SetEditingType(self, Index: object, EditingType: object) -> object:  # noqa: N803 - native named argument
+        self._index(Index, "SetEditingType", _NODE_BAD)
+        if int(to_number(EditingType)) not in (0, 1, 2, 3):
+            raise error(_NODE_BAD, "The parameter is incorrect.")
+        # A smooth or symmetric node moves the control points about it by a rule not measured.
+        raise _unsupported("ShapeNodes.SetEditingType")
+
+
+def _node_enumerator(self: object, *arguments: object) -> object:
+    return Enumerator()
+
+
+ShapeNodes.vba_add_member(MemberSpec(name="_NewEnum", kind="method", getter=_node_enumerator))
+
 
 class ShapeNode(HeldPart):
     vba_type_name = "ShapeNode"
@@ -2629,6 +2797,10 @@ class ShapeNode(HeldPart):
 
     def point(self) -> tuple[int, tuple[float, float]]:
         return _freeform_points(self.owner)[self.index]
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
     @member
     def Parent(self) -> object:
@@ -2646,6 +2818,9 @@ class ShapeNode(HeldPart):
         # with the length (tests/fixtures/shape_nodes_round_1.json, shape_nodes_round_2.json).
         if self.index == 0:
             return VBAInt(0, "Long")
+        if self.owner.shape.nodes_edited:
+            # Each edit leaves the nodes' editing types in a way not known: some fail still, some read smooth.
+            raise _unsupported("EditingType of a node of a freeform ShapeNodes edited")
         path = self.owner.shape.path
         commands = [command for command, _ in path]
         count = len(_freeform_points(self.owner))

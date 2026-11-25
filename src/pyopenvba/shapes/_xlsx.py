@@ -1837,8 +1837,19 @@ def _free_geometry(shape: Shape) -> str:
         "<a:close/>" if command == "close" else
         f"<a:{command}>" + "".join(f'<a:pt x="{x}" y="{y}"/>' for x, y in points) + f"</a:{command}>"
         for command, points in shape.path)
-    return ('<a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l="0" t="0" r="0" b="0"/><a:pathLst>'
-            f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
+    wide, tall = emu(shape.width), emu(shape.height)
+    if not shape.nodes_edited:
+        return ('<a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l="0" t="0" r="0" b="0"/><a:pathLst>'
+                f'<a:path w="{wide}" h="{tall}">{steps}</a:path></a:pathLst></a:custGeom>')
+    # Edited by ShapeNodes, each node a step ends at is a connection site (tests/fixtures/shape_nodes_round_1.json).
+    ends = [points[-1] for _, points in shape.path if points]
+    guides = "".join(f'<a:gd name="csX{at}" fmla="*/ {x} w {wide}"/><a:gd name="csY{at}" fmla="*/ {y} h {tall}"/>'
+                     for at, (x, y) in enumerate(ends))
+    sites = "".join(f'<a:cxn ang="0"><a:pos x="csX{at}" y="csY{at}"/></a:cxn>' for at in range(len(ends)))
+    # A path with no height or width leaves it out.
+    size = (f' w="{wide}"' if wide else "") + (f' h="{tall}"' if tall else "")
+    return (f'<a:custGeom><a:avLst/><a:gdLst>{guides}</a:gdLst><a:ahLst/><a:cxnLst>{sites}</a:cxnLst><a:rect l="l" t="t" r="r" b="b"/>'
+            f'<a:pathLst><a:path{size}>{steps}</a:path></a:pathLst></a:custGeom>')
 
 
 def _connections(shape: Shape) -> str:

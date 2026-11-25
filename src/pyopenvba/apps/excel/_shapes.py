@@ -2041,7 +2041,9 @@ class FreeformBuilder(Created):
         last_command, last_points = steps[-1]
         if last_points[-1] == self.start and (last_command == "cubicBezTo" or len(steps) > 2):
             steps = steps + [("close", ())] if last_command == "cubicBezTo" else [*steps[:-1], ("close", ())]
-        return ShapeObject(self.shapes.sheet, self.shapes._freeform(found, steps))  # pyright: ignore[reportPrivateUsage]
+        shape = self.shapes._freeform(found, steps)  # pyright: ignore[reportPrivateUsage]
+        shape.nodes_built = True
+        return ShapeObject(self.shapes.sheet, shape)
 
 
 #: Shapes.AddConnector's types: the geometry each saves and what a new one is called.
@@ -2614,6 +2616,14 @@ def _single(value: object) -> float:
     return float(VBASingle(float(to_number(value))))
 
 
+def _whole_points(owner: ShapeObject) -> bool:
+    """Whether every node of the freeform, and its box, is on whole points."""
+    shape = owner.shape
+    across, down = emu(shape.left), emu(shape.top)
+    return not (across % EMU_PER_POINT or down % EMU_PER_POINT) and all(
+        not ((x + across) % EMU_PER_POINT or (y + down) % EMU_PER_POINT) for _, points in shape.path for x, y in points)
+
+
 class ShapeNodes(HeldPart):
     """A freeform's nodes (tests/fixtures/shape_painter.json). Other shapes have nodes of their preset's that are not
     modelled, and report themselves."""
@@ -2667,6 +2677,9 @@ class ShapeNodes(HeldPart):
             raise _unsupported(f"ShapeNodes.{name} on a freeform with a curve")
         if any(shape.nodes_drift):
             raise _unsupported(f"ShapeNodes.{name} on a freeform an edit moved 1 EMU on")
+        if not _whole_points(self.owner):
+            # Between whole points an edit can move the whole of it 1 EMU back (tests/fixtures/shape_nodes_round_3.json).
+            raise _unsupported(f"ShapeNodes.{name} on a freeform on points between whole ones")
         across, down = emu(shape.left), emu(shape.top)
         return [[command, [(x + across, y + down) for x, y in points]] for command, points in shape.path]
 
@@ -2729,6 +2742,9 @@ class ShapeNodes(HeldPart):
             raise error(_NODE_BAD, "The parameter is incorrect.")
         steps = self._lines("Insert")
         corners = [value for value in (X2, Y2, X3, Y3) if value is not MISSING]
+        if segment == 1 and editing == 0 and not corners and any(command == "close" for command, _ in steps):
+            # Closed, Excel put it after the first node, asked for the last (tests/fixtures/shape_nodes_round_3.json).
+            raise _unsupported("ShapeNodes.Insert of a curve set to auto by one point on a closed freeform")
         if segment == 0 or (editing == 0 and not corners):
             # A line, whatever its editing type; a curve set to auto by one point is a line too.
             added: list[object] = ["lnTo", [self._point(X1, Y1, "Insert")]]
@@ -2751,10 +2767,15 @@ class ShapeNodes(HeldPart):
         return EMPTY
 
     @staticmethod
-    def _point(x: object, y: object, name: str) -> tuple[int, int]:
+    def _point(x: object, y: object, name: str, *, clamped: bool = False) -> tuple[int, int]:
         across, down = emu(_single(x)), emu(_single(y))
+        if clamped:
+            # Off the sheet the node stops at its edge.
+            across, down = max(across, 0), max(down, 0)
         if across < 0 or down < 0:
             raise _unsupported(f"ShapeNodes.{name} at a point off the sheet")
+        if across % EMU_PER_POINT or down % EMU_PER_POINT:
+            raise _unsupported(f"ShapeNodes.{name} at a point between whole points")
         return across, down
 
     @method
@@ -2762,8 +2783,7 @@ class ShapeNodes(HeldPart):
         chosen = self._index(Index, "SetPosition")
         steps = self._lines("SetPosition")
         at, _ = self._where(steps, chosen)
-        # Off the sheet it stops at the edge.
-        steps[at][1] = [(max(emu(_single(X1)), 0), max(emu(_single(Y1)), 0))]
+        steps[at][1] = [self._point(X1, Y1, "SetPosition", clamped=True)]
         self._edited(steps)
         return EMPTY
 
@@ -2825,27 +2845,29 @@ class ShapeNode(HeldPart):
 
     @member
     def EditingType(self) -> object:
-        # The first node reads msoEditingAuto. A new freeform's others read by its kind and length, as measured: an open
-        # line of 2 nodes reads auto, of 3 fails on the middle one, of 4 or 5 reads corner inside and auto at the end; one
-        # curve reads auto throughout. Longer closed lines and curves read no pattern found, failing at nodes that move
-        # with the length (tests/fixtures/shape_nodes_round_1.json, shape_nodes_round_2.json).
+        # The first node reads msoEditingAuto. A new freeform's others read by its kind and length, as measured on whole
+        # points: an open line of 2 nodes reads auto, of 4 or 5 reads corner inside and auto at the end; a closed line of 3
+        # reads corner at the end; one curve reads auto throughout. The middle node of 3, longer closed lines and curves,
+        # a freeform on points between whole ones and one FreeformBuilder made read by no rule found: the middle of 3 has
+        # read a failure or corner by how it was made (tests/fixtures/shape_nodes_round_1.json to shape_nodes_round_3.json).
         if self.index == 0:
             return VBAInt(0, "Long")
-        if self.owner.shape.nodes_edited:
+        shape = self.owner.shape
+        if shape.nodes_edited:
             # Each edit leaves the nodes' editing types in a way not known: some fail still, some read smooth.
             raise _unsupported("EditingType of a node of a freeform ShapeNodes edited")
+        if shape.nodes_built or not _whole_points(self.owner):
+            raise _unsupported("EditingType of a node of this freeform")
         path = self.owner.shape.path
         commands = [command for command, _ in path]
         count = len(_freeform_points(self.owner))
         last = self.index == count - 1
+        if count == 3 and self.index == 1:
+            raise _unsupported("EditingType of the middle node of three")
         if "close" not in commands and set(commands[1:]) == {"lnTo"} and count in (2, 3, 4, 5):
-            if count == 3 and self.index == 1:
-                raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
             return VBAInt(0 if last or count == 2 else 1, "Long")
         if commands == ["moveTo", "lnTo", "lnTo", "close"]:
-            # A closed line of 3 fails on the middle node and reads corner on the last (tests/fixtures/shape_painter.json).
-            if self.index == 1:
-                raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
+            # A closed line of 3 reads corner on the last (tests/fixtures/shape_painter.json).
             return VBAInt(1, "Long")
         if commands == ["moveTo", "cubicBezTo"]:
             return VBAInt(0, "Long")

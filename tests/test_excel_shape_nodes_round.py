@@ -17,7 +17,7 @@ _SPEC = importlib.util.spec_from_file_location('measure_shape_nodes_round', ROOT
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 3)
+ROUNDS = range(1, 5)
 
 
 def _record(number: int) -> dict[str, Any]:

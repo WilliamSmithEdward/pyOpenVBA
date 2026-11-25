@@ -114,7 +114,7 @@ def _scaled(arguments: str, rng: random.Random) -> str:
     return ''.join(NUMBER.sub(move, piece) if outside else piece for piece, outside in _outside(arguments))
 
 
-def variants(arguments: str, rng: random.Random) -> list[tuple[str, str]]:
+def variants(arguments: str, rng: random.Random, arrays: bool = False) -> list[tuple[str, str]]:
     """The ways one measured call is varied: (setup statement, arguments)."""
     made = [('', _scaled(arguments, rng))]
     parts = _top_level(arguments)
@@ -126,7 +126,22 @@ def variants(arguments: str, rng: random.Random) -> list[tuple[str, str]]:
     if parts:
         at = rng.randrange(len(parts))
         made.append((rng.choice(OTHER_KINDS), ', '.join('k' if index == at else part for index, part in enumerate(parts))))
+    if numeric and arrays:
+        # From ARRAYS_FROM: one number given as an array of two, which Excel answers item by item, alone and with another
+        # kind of value in a second place, as the held-out array rounds did (tests/fixtures/worksheet_function_heldout.json).
+        at = rng.choice(numeric)
+        pair = f'Array({parts[at]}, {_scaled(parts[at], rng)})'
+        made.append(('', ', '.join(pair if index == at else part for index, part in enumerate(parts))))
+        others = [index for index in range(len(parts)) if index != at]
+        if others:
+            other = rng.choice(others)
+            made.append((rng.choice(OTHER_KINDS), ', '.join(pair if index == at else 'k' if index == other else part
+                                                             for index, part in enumerate(parts))))
     return [(setup, varied) for setup, varied in made if varied != arguments or setup]
+
+
+#: The first round whose calls give a number as an array as well.
+ARRAYS_FROM = 60107
 
 
 def calls(seed: int) -> list[dict[str, str]]:
@@ -136,7 +151,7 @@ def calls(seed: int) -> list[dict[str, str]]:
     first: list[dict[str, str]] = []
     for name in partial_functions():
         made = [{'function': name, 'setup': setup, 'arguments': varied}
-                for arguments in known.get(name.lower(), []) for setup, varied in variants(arguments, rng)]
+                for arguments in known.get(name.lower(), []) for setup, varied in variants(arguments, rng, seed >= ARRAYS_FROM)]
         if made:
             pick = rng.choice(made)
             first.append(pick)

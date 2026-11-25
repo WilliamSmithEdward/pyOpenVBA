@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import struct
 from collections.abc import Sequence
-from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._creator import Created
@@ -706,6 +705,7 @@ class ThreeDFormat(HeldPart):
         three_d = self.scene()
         if three_d is None:
             return VBAInt(-2, 'Long')
+        found: int | None = None
         if three_d.rig.startswith('legacy'):
             number = self._old_rig(three_d)[1]
             found = _OLD_DIRECTIONS.get((number, three_d.rig_dir))
@@ -723,7 +723,7 @@ class ThreeDFormat(HeldPart):
         else:
             raise VBAUnsupportedError(f'The direction of a light from {three_d.rig_dir} is not implemented')
         if three_d.light_rev is None:
-            return VBAInt(found if three_d.rig.startswith('legacy') else _COMPASS[side // 45], 'Long')
+            return VBAInt(_COMPASS[side // 45] if found is None else found, 'Long')
         # The side it lights from turned by its angle, clockwise from the top, where that is a side or a corner; an angle
         # past 135 and short of 270 reads none (tests/fixtures/three_d_round_5.json, three_d_round_6.json).
         angle = three_d.light_rev / _ANGLE

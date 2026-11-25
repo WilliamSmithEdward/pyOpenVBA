@@ -1300,6 +1300,56 @@ class Application(ExcelObject):
     def WindowState(self) -> object:
         return VBAInt(-4143, "Long")
 
+    # Application's frame: with one window to each workbook it is the active window's, read back down to a whole
+    # pixel, and its usable area is that less the frame, ribbon and bars (_window_geometry). All of it depends on the
+    # display's DPI, measured at 144 DPI only; the model lays sheets out at 96 DPI. Left and Top snap in ways the
+    # measured cases do not pin.
+
+    @staticmethod
+    def _unmeasured_display(member: str) -> VBAUnsupportedError:
+        return VBAUnsupportedError(f"Application.{member} depends on the display's DPI; it was measured at 144 DPI "
+                                   "only, and the model lays sheets out at 96 DPI")
+
+    @member
+    def Width(self) -> object:
+        raise self._unmeasured_display("Width")
+
+    @member
+    def Height(self) -> object:
+        raise self._unmeasured_display("Height")
+
+    @member
+    def Left(self) -> object:
+        raise self._unmeasured_display("Left")
+
+    @member
+    def Top(self) -> object:
+        raise self._unmeasured_display("Top")
+
+    @setter("Width")
+    def _set_width(self, value: object) -> None:
+        raise self._unmeasured_display("Width")
+
+    @setter("Height")
+    def _set_height(self, value: object) -> None:
+        raise self._unmeasured_display("Height")
+
+    @setter("Left")
+    def _set_left(self, value: object) -> None:
+        raise self._unmeasured_display("Left")
+
+    @setter("Top")
+    def _set_top(self, value: object) -> None:
+        raise self._unmeasured_display("Top")
+
+    @member
+    def UsableWidth(self) -> object:
+        raise self._unmeasured_display("UsableWidth")
+
+    @member
+    def UsableHeight(self) -> object:
+        raise self._unmeasured_display("UsableHeight")
+
     @member
     def IgnoreRemoteRequests(self) -> object:
         return False

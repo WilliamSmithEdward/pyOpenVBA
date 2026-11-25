@@ -51,13 +51,17 @@ class Display:
     #: zooms the headings are not their size at 100% times the zoom (wider at 50% and 60%, and wider again for row
     #: numbers of three digits), which one look does not pin (tests/fixtures/window_geometry1.json).
     zooms: frozenset[int]
+    #: Screen pixels from a window's left edge to its grid's, headings left out, and from its top edge to the
+    #: grid's with the formula bar shown (tests/fixtures/window_geometry_c.json).
+    frame_left: int
+    frame_top: int
 
 
 #: By StandardHeight: 14.5 at 144 DPI (tests/fixtures/window_geometry_a.json and _b).
 DISPLAYS: dict[float, Display] = {
     14.5: Display(pixels=2.0, row_heading=40, column_heading=29, frame_width=11.0, vertical_bar=15.5,
                   frame_height=140.0, tab_row=24.0, formula_bar=28.5, status_bar=16.5, heading_rows=999,
-                  zooms=frozenset({100})),
+                  zooms=frozenset({100}), frame_left=9, frame_top=324),
 }
 
 
@@ -88,9 +92,9 @@ def zoomed(pixels: int, zoom: int) -> int:
 
 
 def usable(display: Display, layout: Layout) -> tuple[float, float]:
-    """UsableWidth and UsableHeight in points."""
-    width = layout.width - display.frame_width - (display.vertical_bar if layout.vertical_bar else 0)
-    height = (layout.height - display.frame_height - (display.tab_row if layout.tabs or layout.horizontal_bar else 0)
+    """UsableWidth and UsableHeight in points, from the window's size as it reads back, down to a whole pixel."""
+    width = snapped(display, layout.width) - display.frame_width - (display.vertical_bar if layout.vertical_bar else 0)
+    height = (snapped(display, layout.height) - display.frame_height - (display.tab_row if layout.tabs or layout.horizontal_bar else 0)
               - (display.formula_bar if layout.formula_bar else 0) - (display.status_bar if layout.status_bar else 0))
     return max(width, 0.0), max(height, 0.0)
 
@@ -205,3 +209,68 @@ def scroll_into_view(display: Display, layout: Layout, rectangle: tuple[int, int
                 place += 1
         places[axis] = max(place, grid.first(axis))
     return places[0], places[1]
+
+
+# -- Application's frame, and screen pixels
+
+
+def snapped(display: Display, points: float) -> float:
+    """A size Application.Width or Height is set to, as it reads back: down to a whole pixel."""
+    return int(points * display.pixels) / display.pixels
+
+
+def application_usable(display: Display, width: float, height: float, formula_bar: bool,
+                       status_bar: bool) -> tuple[float, float]:
+    """Application.UsableWidth and UsableHeight for a frame set to ``width`` by ``height``: its size as it reads back,
+    less the window's frame, and the ribbon, formula bar and status bar, never below 0. Unlike a window's, the row of
+    sheet tabs and the vertical scroll bar take nothing from it."""
+    width, height = snapped(display, width), snapped(display, height)
+    return (max(width - display.frame_width, 0.0),
+            max(height - display.frame_height - (display.formula_bar if formula_bar else 0)
+                - (display.status_bar if status_bar else 0), 0.0))
+
+
+def _placed(display: Display, points: float, across: bool) -> int:
+    """The screen pixel a window's Left (``across``) or Top in points puts its edge at. Measured for whole points
+    only: a Left that is a whole multiple of 3 points, past 0, lands a pixel further right than the others at 144 DPI
+    (tests/fixtures/window_geometryp1.json and p2), by a conversion not pinned further."""
+    if points != int(points):
+        raise Unmeasured('a window placed at a point that is not whole')
+    whole = int(points)
+    return int(whole * display.pixels) + (1 if across and whole > 0 and whole % 3 == 0 else 0)
+
+
+def origin(display: Display, layout: Layout, left: float, top: float) -> tuple[int, int]:
+    """The screen pixel A1's top left corner falls on, for a window at ``left`` and ``top`` in points: the window's
+    place in pixels, its frame, the ribbon and formula bar, and the headings, less the rows and columns scrolled past.
+    It was measured at 100% only, without frozen panes, and for windows at whole points."""
+    if layout.zoom not in display.zooms or layout.frozen != (0, 0):
+        raise Unmeasured('screen pixels at another zoom or with frozen panes')
+    grid = Grid(display, layout)
+    across = (_placed(display, left, True) + display.frame_left
+              + (zoomed(display.row_heading, layout.zoom) if layout.headings else 0) - grid.offset(1, layout.scroll[1]))
+    down = (_placed(display, top, False) + display.frame_top
+            - (0 if layout.formula_bar else int(display.formula_bar * display.pixels))
+            + (zoomed(display.column_heading, layout.zoom) if layout.headings else 0) - grid.offset(0, layout.scroll[0]))
+    return across, down
+
+
+def screen_pixel(start: int, points: float) -> int:
+    """PointsToScreenPixelsX or Y: a pixel for each point from A1, at any zoom. The argument is a Long, so a fraction
+    rounds as VBA rounds it to a Long, half to even."""
+    return start + round(points)
+
+
+def range_from_point(display: Display, layout: Layout, left: float, top: float, x: int,
+                     y: int) -> tuple[int, int] | None:
+    """The row and column under screen pixel (x, y), or None for one outside the grid: over the headings, past its end
+    or before the cells scrolled to. A shape over the cell does not change it (tests/fixtures/window_geometry_c.json)."""
+    across, down = origin(display, layout, left, top)
+    grid = Grid(display, layout)
+    found: list[int] = []
+    for axis, pixel in ((0, y - down), (1, x - across)):
+        start = grid.offset(axis, layout.scroll[axis])
+        if not start <= pixel < start + grid.space[axis]:
+            return None
+        found.append(grid.holding(axis, pixel))
+    return found[0], found[1]

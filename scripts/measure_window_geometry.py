@@ -116,6 +116,64 @@ CASES_B: list[tuple[str, list[str], list[str]]] = [
 ]
 
 
+#: What a size or place set reads back as, through Application and through the window.
+FRAME = ['Application.Width', 'Application.Height', 'Application.Left', 'Application.Top', 'w.Width', 'w.Height',
+         'w.Left', 'w.Top', 'Application.UsableWidth', 'Application.UsableHeight', 'w.UsableWidth', 'w.UsableHeight']
+#: Screen pixels of points from A1, and the cells under screen pixels.
+PIXELS = ['w.PointsToScreenPixelsX(0)', 'w.PointsToScreenPixelsY(0)', 'w.PointsToScreenPixelsX(1)',
+          'w.PointsToScreenPixelsY(1)', 'w.PointsToScreenPixelsX(47)', 'w.PointsToScreenPixelsX(48)',
+          'w.PointsToScreenPixelsX(97)', 'w.PointsToScreenPixelsY(-30)', 'w.PointsToScreenPixelsX(1000)',
+          'w.PointsToScreenPixelsX(2.6)', 'w.PointsToScreenPixelsY(2.4)']
+
+
+def _at(x: str, y: str) -> str:
+    return (f'IIf(w.RangeFromPoint({x}, {y}) Is Nothing, "Nothing", '
+            f'TypeName(w.RangeFromPoint({x}, {y})) & ":" & w.RangeFromPoint({x}, {y}).Address(False, False))')
+
+
+X0, Y0 = 'w.PointsToScreenPixelsX(0)', 'w.PointsToScreenPixelsY(0)'
+#: The cells under screen pixels round A1's corner and further in.
+POINTS_AT = [_at(X0, Y0), _at(f'{X0} - 1', Y0), _at(X0, f'{Y0} - 1'), _at(f'{X0} + 95', Y0), _at(f'{X0} + 96', Y0),
+             _at(X0, f'{Y0} + 28'), _at(X0, f'{Y0} + 29'), _at(f'{X0} + 500', f'{Y0} + 300'),
+             _at(f'{X0} - 45', f'{Y0} + 10'), _at(f'{X0} + 10', f'{Y0} - 35'), _at('0', '0'), _at('-5', '-5'),
+             _at(f'{X0} + 1300', f'{Y0} + 10'), _at(f'{X0} + 10', f'{Y0} + 600')]
+
+
+def _frame(name: str, statements: list[str]) -> tuple[str, list[str], list[str]]:
+    return (name, statements, FRAME)
+
+
+#: The third look: Application's frame and usable area as it is set and read back, screen pixels from points, and the
+#: cells under screen pixels.
+CASES_C: list[tuple[str, list[str], list[str]]] = [
+    _frame('frame as set', []),
+    *[_frame(f'application width {value}', [f'Application.Width = {value}']) for value in (600, 600.25, 600.5, 600.75, 601)],
+    *[_frame(f'application height {value}', [f'Application.Height = {value}']) for value in (450, 450.25, 450.5, 450.75)],
+    *[_frame(f'application left {value}', [f'Application.Left = {value}']) for value in (30, 30.25, 30.5, 31)],
+    *[_frame(f'application top {value}', [f'Application.Top = {value}']) for value in (30, 30.25, 30.5, 31)],
+    *[_frame(f'window width {value}', [f'w.Width = {value}']) for value in (400, 400.25, 400.5, 401)],
+    *[_frame(f'window height {value}', [f'w.Height = {value}']) for value in (300, 300.25, 300.5, 301)],
+    *[_frame(f'window left {value}', [f'w.Left = {value}']) for value in (10, 10.5, 11)],
+    *[_frame(f'window top {value}', [f'w.Top = {value}']) for value in (10, 10.5, 11)],
+    _frame('formula bar off', ['Application.DisplayFormulaBar = False']),
+    _frame('status bar off', ['Application.DisplayStatusBar = False']),
+    _frame('both bars off', ['Application.DisplayFormulaBar = False', 'Application.DisplayStatusBar = False']),
+    _frame('application too small', ['Application.Width = 50', 'Application.Height = 40']),
+    ('pixels', [], PIXELS + POINTS_AT),
+    ('pixels moved', ['w.Left = 100', 'w.Top = 60'], PIXELS + POINTS_AT),
+    ('pixels headings off', ['w.DisplayHeadings = False'], PIXELS + POINTS_AT),
+    ('pixels formula bar off', ['Application.DisplayFormulaBar = False'], PIXELS + POINTS_AT),
+    ('pixels scrolled', ['w.ScrollRow = 5', 'w.ScrollColumn = 2'], PIXELS + POINTS_AT),
+    *[(f'pixels zoom {zoom}', [f'w.Zoom = {zoom}'], PIXELS + POINTS_AT) for zoom in (50, 60, 75, 85, 110, 150, 200)],
+    ('pixels tall row', ['ActiveSheet.Rows(1).RowHeight = 40', 'ActiveSheet.Columns(1).ColumnWidth = 20'],
+     PIXELS + POINTS_AT),
+    ('pixels hidden', ['ActiveSheet.Rows(1).Hidden = True', 'ActiveSheet.Columns(1).Hidden = True'], PIXELS + POINTS_AT),
+    ('pixels shape', ['ActiveSheet.Shapes.AddShape 1, 0, 0, 60, 30'], PIXELS + POINTS_AT),
+    ('pixels frozen', ['ActiveSheet.Range("C4").Select', 'w.FreezePanes = True'], PIXELS + POINTS_AT),
+    ('pixels rows 100', ['w.ScrollRow = 100'], PIXELS + POINTS_AT),
+]
+
+
 def source(cases: list[tuple[str, list[str], list[str]]]) -> str:
     lines = ['Public Function Go(ByVal which As Long) As String',
              '    Dim wb As Workbook, s As String, state As Long, wide As Double, high As Double, across As Double',
@@ -160,11 +218,85 @@ def placement() -> str:
         return f'Pos={winreg.QueryValueEx(key, "Pos")[0]} Maximized={winreg.QueryValueEx(key, "Maximized")[0]}'
 
 
+#: What a screen-pixel round reads of Application's frame.
+APPLICATION = ['Application.Width', 'Application.Height', 'Application.UsableWidth', 'Application.UsableHeight']
+
+
+def _held_out_pixels(round_: str) -> list[dict[str, Any]]:
+    """Fresh cases for a screen-pixel round (named p1, p2 and on): the window set to a size in quarter points and
+    placed at whole points, headings and bars on or off, a first row and column hidden or not, scrolled or not; then
+    Application's frame read, screen pixels of random points, and the cells under random pixels round the grid."""
+    import random
+
+    pick = random.Random('window_geometry_pixels' + round_)
+    found: list[dict[str, Any]] = []
+    for number in range(30):
+        spec: dict[str, Any] = {
+            'kind': 'pixels', 'width': pick.randint(1200, 3600) / 4, 'height': pick.randint(1000, 2600) / 4,
+            'left': pick.randint(0, 300), 'top': pick.randint(0, 200), 'headings': pick.random() > 0.25,
+            'formula_bar': pick.random() > 0.25, 'status_bar': pick.random() > 0.25, 'hidden': pick.random() < 0.2,
+            'scroll': [1, 1]}
+        statements = [f'w.Width = {spec["width"]}', f'w.Height = {spec["height"]}', f'w.Left = {spec["left"]}',
+                      f'w.Top = {spec["top"]}']
+        if not spec['headings']:
+            statements.append('w.DisplayHeadings = False')
+        if not spec['formula_bar']:
+            statements.append('Application.DisplayFormulaBar = False')
+        if not spec['status_bar']:
+            statements.append('Application.DisplayStatusBar = False')
+        if spec['hidden']:
+            statements += ['ActiveSheet.Rows(1).Hidden = True', 'ActiveSheet.Columns(1).Hidden = True']
+        if pick.random() < 0.4:
+            spec['scroll'] = [pick.randint(1, 120), pick.randint(1, 15)]
+            statements += [f'w.ScrollRow = {spec["scroll"][0]}', f'w.ScrollColumn = {spec["scroll"][1]}']
+        spec['points'] = [[pick.choice('xy'), pick.choice([pick.randint(-200, 3000), pick.randint(-2000, 30000) / 10])]
+                          for _ in range(6)]
+        # Pixels from A1's corner, round the first cell shown: hidden first rows and columns take none.
+        before = [sum(0 if spec['hidden'] and index == 1 else size for index in range(1, spec['scroll'][axis]))
+                  for axis, size in ((0, 29), (1, 96))]
+        spec['spots'] = [[before[1] + pick.randint(-60, 1300), before[0] + pick.randint(-60, 700)] for _ in range(6)]
+        reads = APPLICATION + [f'w.PointsToScreenPixels{axis.upper()}({value})' for axis, value in spec['points']]
+        reads += [_at(f'{X0} + {x}', f'{Y0} + {y}') for x, y in spec['spots']]
+        found.append({'call': [f'held {round_}.{number}', statements, reads], 'spec': spec})
+    return found
+
+
+def _predicted_pixels(spec: dict[str, Any]) -> str:
+    from pyopenvba._a1 import column_letter
+    from pyopenvba.apps.excel._window_geometry import (DISPLAYS, Layout, application_usable, origin, range_from_point,
+                                                       screen_pixel, snapped)
+
+    display = DISPLAYS[14.5]
+
+    def hidden(index: int, size: int) -> int:
+        return 0 if spec['hidden'] and index == 1 else size
+
+    layout = Layout(width=spec['width'], height=spec['height'], headings=spec['headings'],
+                    formula_bar=spec['formula_bar'], status_bar=spec['status_bar'],
+                    scroll=(spec['scroll'][0], spec['scroll'][1]), row_pixels=lambda row: hidden(row, 29),
+                    column_pixels=lambda column: hidden(column, 96))
+
+    def number(value: float) -> str:
+        return 'Double:' + (str(int(value)) if value == int(value) else str(value))
+
+    width, height = application_usable(display, spec['width'], spec['height'], spec['formula_bar'], spec['status_bar'])
+    parts = [number(snapped(display, spec['width'])), number(snapped(display, spec['height'])), number(width),
+             number(height)]
+    across, down = origin(display, layout, spec['left'], spec['top'])
+    parts += [f'Long:{screen_pixel(across if axis == "x" else down, value)}' for axis, value in spec['points']]
+    for x, y in spec['spots']:
+        cell = range_from_point(display, layout, spec['left'], spec['top'], across + x, down + y)
+        parts.append('E91' if cell is None else f'String:Range:{column_letter(cell[1])}{cell[0]}')
+    return 'dpi=14.5|' + '|'.join(parts) + ' dpi=14.5'
+
+
 def held_out(round_: str) -> list[dict[str, Any]]:
     """Fresh cases for a round: a window size, a measured zoom, headings and bars on or off, rows made taller, panes
     frozen or not, a scroll, then nothing, LargeScroll or ScrollIntoView; each with the layout the rules read it as."""
     import random
 
+    if round_.startswith('p'):
+        return _held_out_pixels(round_)
     pick = random.Random('window_geometry' + round_)
     found: list[dict[str, Any]] = []
     for number in range(40):
@@ -220,6 +352,8 @@ def predicted(spec: dict[str, Any]) -> str:
     from pyopenvba._a1 import column_letter
     from pyopenvba.apps.excel._window_geometry import DISPLAYS, Layout, large_scroll, scroll_into_view, usable, visible
 
+    if spec.get('kind') == 'pixels':
+        return _predicted_pixels(spec)
     display = DISPLAYS[14.5]
     tall = spec['tall']
     layout = Layout(width=spec['width'], height=spec['height'], zoom=spec['zoom'], headings=spec['headings'],
@@ -292,7 +426,7 @@ def main() -> None:
     predictions = FIXTURES / f'window_geometry{look}_predictions.json'
     expected = json.loads(predictions.read_text('utf-8'))['cases'] if predictions.exists() else None
     cases = ([tuple(one['call']) for one in expected] if expected is not None
-             else {'_a': CASES_A, '_b': CASES_B}[look])
+             else {'_a': CASES_A, '_b': CASES_B, '_c': CASES_C}[look])
     text = source(cases)
     before = placement()
     answers: list[str] = []

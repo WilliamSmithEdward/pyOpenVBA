@@ -219,6 +219,16 @@ def predict() -> None:
     print(len(every), 'cases; predictions sha256', hashlib.sha256(text.encode('utf-8')).hexdigest())
 
 
+#: What a case Excel cannot run records in place of an answer.
+BREAKS_EXCEL = 'not measured: breaks Excel'
+
+
+def breaks_excel(case: list[Any]) -> bool:
+    """Typed, SetEditingType on a curve's control point after a SetPosition raises 0x80020009 out of Excel and ends the session
+    it runs in (round 2); late bound it answers."""
+    return bool(case[2] and case[0].startswith('curve') and 'SetEditingType 2' in case[1] and 'SetPosition' in case[1])
+
+
 def measure() -> None:
     from pyvbaharness import ExcelSession, HarnessConfig
 
@@ -229,14 +239,17 @@ def measure() -> None:
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel, tempfile.TemporaryDirectory() as folder:
         excel.new_document()
         heights = [str(excel.run_vba(height, 'H', line_numbers=False).value)]
+        found: dict[int, list[str]] = {}
         for typed in (False, True):
-            chosen = [(index, case) for index, case in enumerate(every) if case[2] is typed]
+            chosen = [(index, case) for index, case in enumerate(every) if case[2] is typed and not breaks_excel(case)]
             for at in range(0, len(chosen), 24):
-                result = excel.run_vba(macro(chosen[at:at + 24]), 'Probe', (folder,), timeout=600, line_numbers=False)
-                assert result.ok, (at, result.error, [one.message for one in result.dialogs])
-                for (index, _case_), value in zip(chosen[at:at + 24], str(result.value).split(SEPARATOR)):
-                    answers.append([value, shape_xml(Path(folder), index)])
+                batch = chosen[at:at + 24]
+                result = excel.run_vba(macro(batch), 'Probe', (folder,), timeout=600, line_numbers=False)
+                assert result.ok, (typed, at, result.outcome, result.message)
+                for (index, _case_), value in zip(batch, str(result.value).split(SEPARATOR)):
+                    found[index] = [value, shape_xml(Path(folder), index)]
                 print(typed, at + 24, flush=True)
+        answers = [found.get(index, [BREAKS_EXCEL, '']) for index in range(len(every))]
         heights.append(str(excel.run_vba(height, 'H', line_numbers=False).value))
     record.update({'measured_at': datetime.now(timezone.utc).isoformat(), 'standard_height': heights, 'excel': answers})
     out().write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')

@@ -125,6 +125,10 @@ class Function:
     reject_references: frozenset[int] = frozenset()
     #: Reference-capable functions hand their result on without value coercion.
     reference_result: bool = False
+    #: Scalar positions where a range of several cells worked out as an array is #VALUE!, where an array is still worked
+    #: out item by item: the database functions' field, from a macro and inside ARRAYTOTEXT (pyOpenVBA's
+    #: tests/fixtures/worksheet_function_rivals.json). A range a cell's own formula gives, not measured, is as before.
+    one_cell: frozenset[int] = frozenset()
 
     def kind(self, index: int) -> Kind:
         if index < len(self.kinds):
@@ -149,6 +153,7 @@ def function(
     legacy_as_cell: bool = False,
     reject_references: tuple[int, ...] = (),
     reference_result: bool = False,
+    one_cell: tuple[int, ...] = (),
 ) -> Callable[[Implementation], Implementation]:
     """Register an implementation under ``name``. With no ``minimum`` every
     declared argument is required; with no ``maximum`` no more are allowed.
@@ -169,6 +174,7 @@ def function(
             legacy_as_cell,
             frozenset(reject_references),
             reference_result,
+            frozenset(one_cell),
         )
         return implementation
 
@@ -229,6 +235,9 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
             if isinstance(expression, NameReference) or (source is not None and source.reference_result):
                 return VALUE
         if kind is Kind.VALUE:
+            if index in entry.one_cell and context.array and isinstance(value, Reference) \
+                    and not (value.area is not None and value.area.is_cell):
+                return VALUE
             if context.legacy and index in entry.legacy_corner and isinstance(value, Reference) \
                     and value.area is not None and not context.array:
                 value = context.book.cell(value.area.sheet, value.area.top, value.area.left)

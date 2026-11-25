@@ -84,14 +84,8 @@ def evaluate(probe: str) -> str:
 PROBES = read_probes()
 MEASURED = read_measured()
 
-_AMORDEGRC = "Excel's AMORDEGRC has other coefficients and ends an asset's life otherwise, not yet worked out"
-
 #: Probes the engine does not answer as Excel does yet, and why.
-GAPS: dict[str, str] = {
-    **dict.fromkeys((f"=AMORDEGRC({arguments})" for arguments in (
-        "1,1,1,1,1,1", "1000,1,100,100,1,2", "1000,1,100,100,1,1", "1000,1,100,100,1,0.5", "1000,1,100,100,1,0.4",
-        "1000,1,100,100,1,0.22")), _AMORDEGRC),
-}
+GAPS: dict[str, str] = {}
 
 
 def test_every_probe_was_measured() -> None:
@@ -240,7 +234,7 @@ End Function
 
 
 #: Functions whose call here is not answered as Excel answers it, and why.
-CELLS_GAPS: dict[str, str] = {"AMORDEGRC": _AMORDEGRC}
+CELLS_GAPS: dict[str, str] = {}
 
 
 @pytest.fixture(scope="module")

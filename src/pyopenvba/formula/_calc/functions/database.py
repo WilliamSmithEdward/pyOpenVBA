@@ -179,12 +179,12 @@ def _selected(context: Context, database: Value, field: Scalar, criteria: Value)
     return _numbers(values)
 
 
-@function("DSUM", REF, V, REF)
+@function("DSUM", REF, V, REF, one_cell=(1,))
 def DSUM(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return checked(total(_selected(context, database, field, criteria)))
 
 
-@function("DAVERAGE", REF, V, REF)
+@function("DAVERAGE", REF, V, REF, one_cell=(1,))
 def DAVERAGE(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values = _selected(context, database, field, criteria)
     if not values:
@@ -192,7 +192,7 @@ def DAVERAGE(context: Context, database: Value, field: Scalar, criteria: Value) 
     return checked(divide(total(values), float(len(values))))
 
 
-@function("DCOUNT", REF, V, REF)
+@function("DCOUNT", REF, V, REF, one_cell=(1,))
 def DCOUNT(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values, named = records(context, database, field, criteria)
     if not named:
@@ -200,7 +200,7 @@ def DCOUNT(context: Context, database: Value, field: Scalar, criteria: Value) ->
     return float(sum(1 for value in values if isinstance(value, float)))
 
 
-@function("DCOUNTA", REF, V, REF)
+@function("DCOUNTA", REF, V, REF, one_cell=(1,))
 def DCOUNTA(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values, named = records(context, database, field, criteria)
     if not named:
@@ -208,7 +208,7 @@ def DCOUNTA(context: Context, database: Value, field: Scalar, criteria: Value) -
     return float(sum(1 for value in values if not isinstance(value, Empty)))
 
 
-@function("DGET", REF, V, REF)
+@function("DGET", REF, V, REF, one_cell=(1,))
 def DGET(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values, named = records(context, database, field, criteria)
     if not named or not values:
@@ -218,17 +218,17 @@ def DGET(context: Context, database: Value, field: Scalar, criteria: Value) -> V
     return values[0]
 
 
-@function("DMAX", REF, V, REF)
+@function("DMAX", REF, V, REF, one_cell=(1,))
 def DMAX(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return max(_selected(context, database, field, criteria), default=0.0)
 
 
-@function("DMIN", REF, V, REF)
+@function("DMIN", REF, V, REF, one_cell=(1,))
 def DMIN(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return min(_selected(context, database, field, criteria), default=0.0)
 
 
-@function("DPRODUCT", REF, V, REF)
+@function("DPRODUCT", REF, V, REF, one_cell=(1,))
 def DPRODUCT(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values = _selected(context, database, field, criteria)
     if not values:
@@ -247,22 +247,22 @@ def _spread(context: Context, database: Value, field: Scalar, criteria: Value, *
     return checked(square_root(found) if root else found)
 
 
-@function("DSTDEV", REF, V, REF)
+@function("DSTDEV", REF, V, REF, one_cell=(1,))
 def DSTDEV(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=True, root=True)
 
 
-@function("DSTDEVP", REF, V, REF)
+@function("DSTDEVP", REF, V, REF, one_cell=(1,))
 def DSTDEVP(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=False, root=True)
 
 
-@function("DVAR", REF, V, REF)
+@function("DVAR", REF, V, REF, one_cell=(1,))
 def DVAR(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=True, root=False)
 
 
-@function("DVARP", REF, V, REF)
+@function("DVARP", REF, V, REF, one_cell=(1,))
 def DVARP(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=False, root=False)
 

@@ -37,8 +37,10 @@ MORE = json.loads((FIXTURES / 'worksheet_functions_more.json').read_text(encodin
 FIRST = json.loads((FIXTURES / 'worksheet_functions.json').read_text(encoding='utf-8'))
 #: A call to each function no fixture asks.
 WRITTEN = {'FilterXML': ['"<a><b>1</b><b>2</b></a>", "//b"'], 'Phonetic': ['ws.Range("B1")'], 'Subtotal': ['9, ws.Range("A1:A5")']}
-#: The model answers these a unit away in the fifteenth significant digit (tests/test_excel_worksheet_functions_more.py).
-LAST_DIGIT = {'Beta_Dist', 'BetaDist', 'ChiSq_Inv', 'ImSec', 'T_Dist_2T', 'T_Dist_RT', 'T_Inv_2T', 'TDist'}
+#: The model answers these a unit away in the fifteenth significant digit (tests/test_excel_worksheet_functions_more.py,
+#: and round 60101 for Confidence_T, F_Dist_RT and Gamma_Dist).
+LAST_DIGIT = {'Beta_Dist', 'BetaDist', 'ChiSq_Inv', 'Confidence_T', 'F_Dist_RT', 'Gamma_Dist', 'ImSec', 'T_Dist_2T',
+              'T_Dist_RT', 'T_Inv_2T', 'TDist'}
 #: Functions a round cannot vary: they take no argument.
 NOTHING_TO_VARY = {'Pi'}
 #: Each given through the Variant k, so a typed call meets it at run time rather than failing to compile.

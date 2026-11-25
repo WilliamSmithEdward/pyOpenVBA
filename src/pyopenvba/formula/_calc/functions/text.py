@@ -495,11 +495,10 @@ def BAHTTEXT(context: Context, number: Scalar) -> Value:
     Measured: the satang are rounded as ROUND rounds, from the fifteen
     significant digits that are also what the words spell, so 1.005 is one
     baht one satang and 1E+100 ten thousand, then million sixteen times.
-    A negative amount that rounds to nothing keeps its minus, and a blank
-    cell is ``#VALUE!``.
+    A negative amount that rounds to nothing keeps its minus. A blank cell
+    is nothing, zero baht, entered as Formula or Formula2, where "" is
+    ``#VALUE!`` (pyOpenVBA's tests/fixtures/worksheet_function_rivals.json).
     """
-    if isinstance(number, Empty):
-        return VALUE
     value = context.number(number)
     amount = fifteen(abs(rounded(value, 2, ROUND_HALF_UP)))
     baht = int(amount)

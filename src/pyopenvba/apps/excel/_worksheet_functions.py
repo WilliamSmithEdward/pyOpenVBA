@@ -95,6 +95,8 @@ _STRING: Final = frozenset({
 #: Functions whose one-item answer stays an array given single values: RandArray(1, 1) is a one-item array, where
 #: Transpose(5) is 5 (tests/fixtures/worksheet_functions_more.json).
 _ALWAYS_ARRAY: Final = frozenset({"randarray", "munit"})
+#: The functions that take ranges and criteria in pairs.
+_CRITERIA_PAIRS: Final = frozenset({"averageifs", "countifs", "maxifs", "minifs", "sumifs"})
 def engine_name(name: str) -> str | None:
     """The formula engine's name for a WorksheetFunction member, where the engine has the function."""
     from pyopenvba.formula._calc import registry
@@ -172,6 +174,13 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
             and name.lower() not in _ALWAYS_ARRAY):
         # Given single values, a function whose answer is one item hands back the item: Transpose(5) is 5.
         found = found.rows[0][0]
+    elif (name.lower() == "transpose" and values and isinstance(values[0], Range) and values[0].single
+          and isinstance(found, Array) and found.height == found.width == 1):
+        # So does Transpose of one cell, a blank one being 0, where MMult and the rest of one cell answer an array of
+        # one (tests/fixtures/worksheet_function_rivals.json).
+        found = found.rows[0][0]
+        if isinstance(found, Empty):
+            found = 0.0
     if raising and name.lower() == "index" and isinstance(values[0], (int, VBAInt)) and not isinstance(values[0], bool) \
             and isinstance(found, float):
         # A whole number indexed answers as a Long (tests/fixtures/worksheet_function_args.json).
@@ -409,9 +418,17 @@ def _as_excel_reads(name: str, values: list[object], minimum: int, *, late: bool
         found.append(value)
     if name.lower() == "index" and found and found[0] is EMPTY:
         raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
-    # Left out at the end, it is no argument at all: Count(1, Null) is 1.
+    # Left out at the end, it is no argument at all: Count(1, Null) is 1. SumIfs and its kin leave out one, the last
+    # criterion; then a range left out before it, or a criterion, is error 1004
+    # (tests/fixtures/worksheet_function_rivals.json).
     while found and found[-1] is MISSING:
         found.pop()
+        if name.lower() in _CRITERIA_PAIRS and found and found[-1] is MISSING:
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
+    if name.lower() in _CRITERIA_PAIRS:
+        criteria = found[1::2] if name.lower() == "countifs" else found[2::2]
+        if len(found) % 2 != (0 if name.lower() == "countifs" else 1) and any(one is MISSING for one in criteria):
+            raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     if name.lower() == "unique" and len(found) == 1 and values[0] is NULL:
         raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     return found

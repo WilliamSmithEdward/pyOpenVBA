@@ -955,6 +955,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Eleven worksheet functions answer edge cases as Excel does, from macros and in cells:
+  - `AmorDegrc` follows Excel's French depreciation over an asset's whole life. Its rate's coefficient now goes by
+    the life rounded up, a life of two years or less is error 1004, and the last two periods split what is left.
+  - `Frequency` with bins that hold no number counts against 0.
+  - `ZTest` with a sigma of 0 or less, `Empty` and a blank cell included, is error 1004.
+  - `IfError` and `IfNa` answer 0 for a blank.
+  - `BahtText` of a blank cell is zero baht.
+  - `Gcd` and `Lcm` are error 1004 for text or a logical in a range or an array.
+  - `Trend`, `Growth`, `LinEst` and `LogEst` refuse x of another shape than y, and fit a block of y with a block of x.
+  - The database functions refuse a field of several cells.
+  - `SumIfs`, `CountIfs`, `AverageIfs`, `MaxIfs` and `MinIfs` take a last range with no criterion after it, as a
+    trailing `Null` gives.
+  - `Transpose` of one cell gives back its value.
 - `Range.End` and `SpecialCells(xlCellTypeLastCell)` see only visible lines, so a hidden or filtered last row is passed
   over. `End(xlUp)` coming across a gap stops at a table's last row even when that row is empty, as after
   `ListRows.Add`. `SpecialCells` on a protected sheet is error 1004.

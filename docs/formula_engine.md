@@ -242,3 +242,26 @@ name looking like a cell is not read as the cell.
     Excel. One gap: a cell given
     `=MUNIT(100000)` or `=SUM(SEQUENCE(100000,100000))` shows 0 in Excel and
     `#VALUE!` here, where `WorksheetFunction` refuses both as 1004 either way.
+21. **What WorksheetFunction round 60101 found.** Each rule was split from its
+    rivals in live Excel (`tests/fixtures/worksheet_function_rivals.json`):
+    - AMORDEGRC rounds the life, 1 / rate, up to whole periods; two or fewer
+      are #NUM!, three or four take the rate 1.5 times, five or six twice,
+      more 2.5 times, and the last two periods of the life each take half of
+      what is left before them. Past the life, or once the value is below the
+      salvage, a period takes nothing. After the first period the value is
+      kept unrounded.
+    - FREQUENCY's bounds are the numbers among its bins: TRUE or "1" given
+      alone is none, and bins with no number are the one bound 0.
+    - ZTEST's sigma, given, left empty or blank, is #NUM! at 0 or below.
+    - IFERROR and IFNA answer a blank as `OMITTED`, 0 to VBA.
+    - BAHTTEXT of a blank cell is zero baht, where pyOfficeEditor's test had
+      #VALUE!.
+    - GCD and LCM are #VALUE! for a text or a logical in a range or an array.
+    - TREND, GROWTH, LINEST and LOGEST take one x variable only in y's shape,
+      a block of y with a block of x included; a row of y and a column of x
+      are #REF!.
+    - The database functions' field is #VALUE! for a range of several cells
+      worked out as an array (`registry.function`'s `one_cell`).
+    - SUMIFS and its kin take a last range with no criterion from a macro
+      (`Context.from_macro`): every cell up to the last used row and column
+      matches, and none past them (`common.UNASKED_OP`).

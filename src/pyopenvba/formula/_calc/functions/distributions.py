@@ -1211,13 +1211,17 @@ def _z_test(context: Context, array: Value, mean: Scalar, deviation: Scalar | No
     count = len(values)
     if count == 0:
         return NA
-    if deviation is None or isinstance(deviation, Empty):
+    if deviation is None:
         variance = spread(values, sample=True)
         if isinstance(variance, CellError):
             return variance
         sigma = math.sqrt(variance)
     else:
+        # Given, left empty or blank too, it is a number, and none above nothing is #NUM!
+        # (tests/fixtures/worksheet_function_rivals.json).
         sigma = context.number(deviation)
+        if sigma <= 0:
+            return NUM
     if sigma == 0:
         return DIV0
     z = (precise.summed(values) / count - centre) / (sigma / math.sqrt(count))

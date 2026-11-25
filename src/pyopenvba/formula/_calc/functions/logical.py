@@ -14,7 +14,18 @@ from __future__ import annotations
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.nodes import Node
 from pyopenvba.formula._calc.registry import LAZY, R, V, function
-from pyopenvba.formula._calc.values import NA, VALUE, Array, Empty, ExcelError, Reference, Scalar, Value, compare
+from pyopenvba.formula._calc.values import (
+    NA,
+    OMITTED,
+    VALUE,
+    Array,
+    Empty,
+    ExcelError,
+    Reference,
+    Scalar,
+    Value,
+    compare,
+)
 from pyopenvba.formula._calc.cells import CellError
 
 
@@ -114,12 +125,18 @@ def FALSE(context: Context) -> Value:
 
 @function("IFERROR", V, V, legacy_first=(0, 1), legacy_as_cell=True)
 def IFERROR(context: Context, value: Scalar, fallback: Scalar) -> Value:
-    return fallback if isinstance(value, CellError) else value
+    return _blank_as_left_out(fallback if isinstance(value, CellError) else value)
 
 
 @function("IFNA", V, V, legacy_first=(0, 1), legacy_as_cell=True)
 def IFNA(context: Context, value: Scalar, fallback: Scalar) -> Value:
-    return fallback if isinstance(value, CellError) and value.code == NA.code else value
+    return _blank_as_left_out(fallback if isinstance(value, CellError) and value.code == NA.code else value)
+
+
+def _blank_as_left_out(answer: Scalar) -> Value:
+    """IFERROR's and IFNA's answer: a blank, left empty or a blank cell, is blank to a formula and 0 to VBA, as an
+    argument left out is (tests/fixtures/worksheet_function_rivals.json)."""
+    return OMITTED if isinstance(answer, Empty) else answer
 
 
 @function("IFS", LAZY, LAZY, maximum=254, repeat=2, legacy_as_cell=True)

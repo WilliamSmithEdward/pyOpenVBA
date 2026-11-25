@@ -1300,6 +1300,56 @@ class Application(ExcelObject):
     def WindowState(self) -> object:
         return VBAInt(-4143, "Long")
 
+    # Application's frame: with one window to each workbook it is the active window's, read back down to a whole
+    # pixel, and its usable area is that less the frame, ribbon and bars (_window_geometry). All of it depends on the
+    # display's DPI, measured at 144 DPI only; the model lays sheets out at 96 DPI. Left and Top snap in ways the
+    # measured cases do not pin.
+
+    @staticmethod
+    def _unmeasured_display(member: str) -> VBAUnsupportedError:
+        return VBAUnsupportedError(f"Application.{member} depends on the display's DPI; it was measured at 144 DPI "
+                                   "only, and the model lays sheets out at 96 DPI")
+
+    @member
+    def Width(self) -> object:
+        raise self._unmeasured_display("Width")
+
+    @member
+    def Height(self) -> object:
+        raise self._unmeasured_display("Height")
+
+    @member
+    def Left(self) -> object:
+        raise self._unmeasured_display("Left")
+
+    @member
+    def Top(self) -> object:
+        raise self._unmeasured_display("Top")
+
+    @setter("Width")
+    def _set_width(self, value: object) -> None:
+        raise self._unmeasured_display("Width")
+
+    @setter("Height")
+    def _set_height(self, value: object) -> None:
+        raise self._unmeasured_display("Height")
+
+    @setter("Left")
+    def _set_left(self, value: object) -> None:
+        raise self._unmeasured_display("Left")
+
+    @setter("Top")
+    def _set_top(self, value: object) -> None:
+        raise self._unmeasured_display("Top")
+
+    @member
+    def UsableWidth(self) -> object:
+        raise self._unmeasured_display("UsableWidth")
+
+    @member
+    def UsableHeight(self) -> object:
+        raise self._unmeasured_display("UsableHeight")
+
     @member
     def IgnoreRemoteRequests(self) -> object:
         return False
@@ -3738,6 +3788,14 @@ class Worksheet(ExcelObject):
         #: macro added, which Excel leaves without one.
         self.code_name = ""
         self.cells_: dict[tuple[int, int], Cell] = {}
+        # Formatted cells a format on whole rows or columns left saying nothing since UsedRange was last read, with the
+        # format each had: Excel keeps them until a read of UsedRange, and a union's later area still sees them (probe
+        # 28, round 16006 #38). Cells the model makes and drops within one change are not among them.
+        self.unread_dropped: dict[tuple[int, int], Style] = {}
+        # How deep a format on whole rows, columns or the sheet is running, and the cells that stood before the change a
+        # macro is making (see _row_formats.one_statement).
+        self.formatting_whole = 0
+        self.statement_cells: frozenset[tuple[int, int]] | None = None
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
         self.shared_groups: dict[int, Area] = {}
@@ -4346,6 +4404,7 @@ class Worksheet(ExcelObject):
 
     @member
     def UsedRange(self) -> object:
+        self.unread_dropped.clear()
         bounds = self.used_bounds()
         if bounds is None:
             return Range(self, [Area(1, 1, 1, 1, self.name)])
@@ -4860,6 +4919,9 @@ class Worksheet(ExcelObject):
         """Drop the cell at a position if it no longer says anything."""
         found = self.cells_.get((row, column))
         if found is not None and not self.holds(row, column, found):
+            if (found.style is not None and self.formatting_whole and self.statement_cells is not None
+                    and (row, column) in self.statement_cells):
+                self.unread_dropped[(row, column)] = found.style
             del self.cells_[(row, column)]
 
     def restyle(self, row: int, column: int, style: Style) -> None:
@@ -7783,11 +7845,25 @@ class Range(ExcelObject):
                 row, column = step_row, step_column
                 step_row, step_column = following(row, column)
         else:
-            while inside(step_row, step_column):
-                row, column = step_row, step_column
-                if occupied(row, column) or (row, column) in table_ends:
-                    break
-                step_row, step_column = following(row, column)
+            # Across a gap it stops at the nearest shown cell ahead that holds something, or at a table's last row; with
+            # neither, at the last shown line before the edge, or where it is if every line ahead is hidden. These are
+            # found from the cells the sheet holds rather than by stepping over a million empty ones.
+            at, fixed = (row, column) if down else (column, row)
+            step = down or across
+            axis, other = (0, 1) if down else (1, 0)
+            hidden = dims.row_hidden if down else dims.column_hidden
+            stops = [key[axis] for key in self.sheet.cells_ if key[other] == fixed and (key[axis] - at) * step > 0
+                     and occupied(*key)]
+            stops += [key[axis] for key in table_ends if key[other] == fixed and (key[axis] - at) * step > 0]
+            shown = [one for one in stops if not hidden(one)]
+            if shown:
+                at = min(shown) if step > 0 else max(shown)
+            else:
+                edge = (MAX_ROWS if down else MAX_COLUMNS) if step > 0 else 1
+                while edge != at and hidden(edge):
+                    edge -= step
+                at = edge
+            row, column = (at, fixed) if down else (fixed, at)
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method

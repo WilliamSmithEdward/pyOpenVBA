@@ -162,8 +162,14 @@ def drill(table: PivotTable, target: Range, value: object, *, select: bool) -> N
     axis, in the order the table shows them; a group keeps the order the removals left. So b, a, b, a, b, a, b, a
     gives a's records as 8, 2, 6, 4 (tests/fixtures/pivot_drill.json, look 4).
 
-    Not built: tables with a filter, hidden or collapsed items, grouped or calculated fields, or records holding
-    dates or errors."""
+    A hidden item, a page field's choice and a label filter leave records out the same way, by swapping; a value
+    filter leaves none out, so the grand total's detail holds the records of the items it hides. A collapsed item
+    changes nothing: its
+    records still group by the field inside it. A field grouped by number ranges groups its records by range
+    (look 5).
+
+    Not built: calculated fields, a field grouped other than by number ranges, cubes, and records holding dates or
+    errors."""
     from pyopenvba.apps.excel._model import Range as Cells
 
     entry = table.entry
@@ -245,26 +251,42 @@ def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[ob
     """The records behind a value standing at ``standing``'s items, in the order its detail lists them, each with
     its values (see drill)."""
     from pyopenvba.apps.excel._pivot_aggregate import records
+    from pyopenvba.apps.excel._pivot_criteria import label_hidden, rules
+    from pyopenvba.apps.excel._pivot_filters import carried, choices, passing
     from pyopenvba.apps.excel._pivot_layout import cache_layout
     from pyopenvba.apps.excel._pivot_reports import PivotLine, axis_lines
 
     root = table.root
-    if root.find(NS + 'filters') is not None or root.find(NS + 'cacheHierarchies') is not None:
-        raise VBAUnsupportedError('ShowDetail on a value of a pivot table with filters is not implemented')
+    if root.find(NS + 'cacheHierarchies') is not None:
+        raise VBAUnsupportedError('ShowDetail on a value of a pivot table of a cube is not implemented')
     cache_fields = table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
-    if any(field.get('formula') is not None or field.find(NS + 'fieldGroup') is not None for field in cache_fields):
-        raise VBAUnsupportedError('ShowDetail on a value of a pivot table with grouped or calculated fields is not '
-                                  'implemented')
+    if any(field.get('formula') is not None for field in cache_fields):
+        raise VBAUnsupportedError('ShowDetail on a value of a pivot table with calculated fields is not implemented')
+    # A field grouped in place by number ranges is measured; a group field of its own and dates are not.
+    for field in cache_fields:
+        group = field.find(NS + 'fieldGroup')
+        if group is None:
+            continue
+        ranged = group.find(NS + 'rangePr')
+        if (field.get('databaseField') in ('0', 'false') or group.get('par') is not None or ranged is None
+                or ranged.get('groupBy', 'range') != 'range'):
+            raise VBAUnsupportedError('ShowDetail on a value of a pivot table with a field grouped other than by '
+                                      'number ranges is not implemented')
     pivot_fields = root.findall(f'{NS}pivotFields/{NS}pivotField')
-    for field in pivot_fields:
-        for item in field.findall(f'{NS}items/{NS}item'):
-            if item.get('h') in ('1', 'true') or item.get('sd') in ('0', 'false'):
-                raise VBAUnsupportedError('ShowDetail on a value of a pivot table with hidden or collapsed items is '
-                                          'not implemented')
     found = records(table.cache)
-    _, _, ids, _ = cache_layout(table.cache, found)
+    fields, _, ids, positions = cache_layout(table.cache, found)
     rows = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}rowFields/{NS}field')]
     columns = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}colFields/{NS}field')]
+    pages = [int(entry.get('fld', '0')) for entry in root.findall(f'{NS}pageFields/{NS}pageField')]
+    # The records the table counts, as its layout finds them: hidden items, the page fields' choices and label
+    # filters leave theirs out (see _pivot_layout.plan_render). A value filter leaves out none of them here: the
+    # grand total's detail under one holds every record, those of the items it hides among them
+    # (tests/fixtures/pivot_drill.json, look 5).
+    axes = {index for index in (*rows, *columns, *pages) if index >= 0}
+    lists = carried(root, cache_fields, list(fields), axes, {}, positions)
+    found_rules = rules(root)
+    counted = set(passing(ids, lists, axes, choices(root, lists), label_hidden(found_rules, list(fields), axes)))
+    valued = {rule.field for rule in found_rules if rule.measure is not None}
     rows, columns = [one for one in rows if one >= 0], [one for one in columns if one >= 0]
 
     def places(index: int) -> dict[int, int]:
@@ -272,21 +294,27 @@ def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[ob
         items = pivot_fields[index].findall(f'{NS}items/{NS}item')
         return {int(item.get('x', '-1')): place for place, item in enumerate(items) if item.get('t') is None}
 
-    pages: dict[int, int] = {}
-    for page in root.findall(f'{NS}pageFields/{NS}pageField'):
-        chosen = page.get('item')
-        if chosen is not None:
-            items = pivot_fields[int(page.get('fld', '0'))].findall(f'{NS}items/{NS}item')
-            pages[int(page.get('fld', '0'))] = int(items[int(chosen)].get('x', '-1'))
     row_places, column_places = {one: places(one) for one in rows}, {one: places(one) for one in columns}
 
     def ranks(lines: tuple[PivotLine, ...], axis: list[int]) -> list[dict[int, int]]:
-        """Each field's items' ranks on an axis: the order the table first shows them in, a sort's included."""
+        """Each field's items' ranks on an axis: the order the table first shows them in, a sort's included; an
+        item no line shows, inside a collapsed one, after them in its field's order."""
         found_ranks: list[dict[int, int]] = [{} for _ in axis]
         for line in lines:
             if line.kind == 'grand':
                 continue
             for depth, place in enumerate(line.items[:len(axis)]):
+                if place >= 0:
+                    found_ranks[depth].setdefault(place, len(found_ranks[depth]))
+        for depth, field in enumerate(axis):
+            if field in valued:
+                # A value filter's field groups its records in its own items' order, those the filter hides among
+                # them, whatever lines it shows (tests/fixtures/pivot_drill.json, held-out round F).
+                if pivot_fields[field].get('sortType', 'manual') != 'manual':
+                    raise VBAUnsupportedError('ShowDetail on a value of a pivot table with a value filter on a sorted '
+                                              'field is not implemented')
+                found_ranks[depth] = {}
+            for place in sorted(places(field).values()):
                 found_ranks[depth].setdefault(place, len(found_ranks[depth]))
         return found_ranks
 
@@ -303,8 +331,8 @@ def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[ob
             key.append(ranked[depth][place])
         return tuple(key)
 
-    # The value's own items and the page fields' choices, as cache items, are what a record must stand at.
-    wanted = dict(pages)
+    # The value's own items, as cache items, are what a counted record must stand at.
+    wanted: dict[int, int] = {}
     for field, place in standing.items():
         items = pivot_fields[field].findall(f'{NS}items/{NS}item')
         wanted[field] = int(items[place].get('x', '-1'))
@@ -313,7 +341,7 @@ def _detail_records(table: PivotTable, standing: dict[int, int]) -> list[list[ob
     position = 0
     while position < len(numbers):
         record = ids[numbers[position]]
-        if all(record[field] == item for field, item in wanted.items()):
+        if numbers[position] in counted and all(record[field] == item for field, item in wanted.items()):
             position += 1
         else:
             numbers[position] = numbers[-1]

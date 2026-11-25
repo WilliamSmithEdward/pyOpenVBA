@@ -1,0 +1,2980 @@
+{
+ "cases": [
+  {
+   "call": [
+    "held p3.0",
+    [
+     "w.Width = 801.25",
+     "w.Height = 464.5",
+     "w.Left = 241",
+     "w.Top = 119",
+     "ActiveSheet.Rows(1).Hidden = True",
+     "ActiveSheet.Columns(1).Hidden = True"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(216)",
+     "w.PointsToScreenPixelsY(2913)",
+     "w.PointsToScreenPixelsY(2182)",
+     "w.PointsToScreenPixelsX(1845)",
+     "w.PointsToScreenPixelsX(-75)",
+     "w.PointsToScreenPixelsX(1798.3)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 944, w.PointsToScreenPixelsY(0) + 180) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 944, w.PointsToScreenPixelsY(0) + 180)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 944, w.PointsToScreenPixelsY(0) + 180).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 36, w.PointsToScreenPixelsY(0) + 373) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 36, w.PointsToScreenPixelsY(0) + 373)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 36, w.PointsToScreenPixelsY(0) + 373).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 558, w.PointsToScreenPixelsY(0) + -17) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 558, w.PointsToScreenPixelsY(0) + -17)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 558, w.PointsToScreenPixelsY(0) + -17).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 589, w.PointsToScreenPixelsY(0) + 182) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 589, w.PointsToScreenPixelsY(0) + 182)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 589, w.PointsToScreenPixelsY(0) + 182).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 584, w.PointsToScreenPixelsY(0) + -23) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 584, w.PointsToScreenPixelsY(0) + -23)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 584, w.PointsToScreenPixelsY(0) + -23).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 158, w.PointsToScreenPixelsY(0) + 346) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 158, w.PointsToScreenPixelsY(0) + 346)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 158, w.PointsToScreenPixelsY(0) + 346).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 801.25,
+    "height": 464.5,
+    "left": 241,
+    "top": 119,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": true,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      216
+     ],
+     [
+      "y",
+      2913
+     ],
+     [
+      "y",
+      2182
+     ],
+     [
+      "x",
+      1845
+     ],
+     [
+      "x",
+      -75
+     ],
+     [
+      "x",
+      1798.3
+     ]
+    ],
+    "spots": [
+     [
+      944,
+      180
+     ],
+     [
+      36,
+      373
+     ],
+     [
+      558,
+      -17
+     ],
+     [
+      589,
+      182
+     ],
+     [
+      584,
+      -23
+     ],
+     [
+      158,
+      346
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:801|Double:464.5|Double:790|Double:279.5|Long:747|Long:3504|Long:2773|Long:2376|Long:456|Long:2329|String:Range:K8|String:Range:B14|E91|String:Range:H8|E91|String:Range:C13 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.1",
+    [
+     "w.Width = 655.0",
+     "w.Height = 334.25",
+     "w.Left = 51",
+     "w.Top = 29",
+     "Application.DisplayStatusBar = False",
+     "ActiveSheet.Rows(1).Hidden = True",
+     "ActiveSheet.Columns(1).Hidden = True"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(1605.4)",
+     "w.PointsToScreenPixelsX(2426)",
+     "w.PointsToScreenPixelsY(2466)",
+     "w.PointsToScreenPixelsX(979)",
+     "w.PointsToScreenPixelsX(1303)",
+     "w.PointsToScreenPixelsX(2055.3)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1116, w.PointsToScreenPixelsY(0) + 89) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1116, w.PointsToScreenPixelsY(0) + 89)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1116, w.PointsToScreenPixelsY(0) + 89).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1088, w.PointsToScreenPixelsY(0) + 640) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1088, w.PointsToScreenPixelsY(0) + 640)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1088, w.PointsToScreenPixelsY(0) + 640).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 980, w.PointsToScreenPixelsY(0) + 197) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 980, w.PointsToScreenPixelsY(0) + 197)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 980, w.PointsToScreenPixelsY(0) + 197).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 155, w.PointsToScreenPixelsY(0) + 34) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 155, w.PointsToScreenPixelsY(0) + 34)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 155, w.PointsToScreenPixelsY(0) + 34).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1298, w.PointsToScreenPixelsY(0) + 298) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1298, w.PointsToScreenPixelsY(0) + 298)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1298, w.PointsToScreenPixelsY(0) + 298).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1089, w.PointsToScreenPixelsY(0) + 150) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1089, w.PointsToScreenPixelsY(0) + 150)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1089, w.PointsToScreenPixelsY(0) + 150).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 655.0,
+    "height": 334.25,
+    "left": 51,
+    "top": 29,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": true,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "y",
+      1605.4
+     ],
+     [
+      "x",
+      2426
+     ],
+     [
+      "y",
+      2466
+     ],
+     [
+      "x",
+      979
+     ],
+     [
+      "x",
+      1303
+     ],
+     [
+      "x",
+      2055.3
+     ]
+    ],
+    "spots": [
+     [
+      1116,
+      89
+     ],
+     [
+      1088,
+      640
+     ],
+     [
+      980,
+      197
+     ],
+     [
+      155,
+      34
+     ],
+     [
+      1298,
+      298
+     ],
+     [
+      1089,
+      150
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:655|Double:334|Double:644|Double:165.5|Long:2016|Long:2578|Long:2877|Long:1131|Long:1455|Long:2207|String:Range:M5|E91|String:Range:L8|String:Range:C3|E91|String:Range:M7 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.2",
+    [
+     "w.Width = 858.25",
+     "w.Height = 258.25",
+     "w.Left = 16",
+     "w.Top = 172",
+     "Application.DisplayFormulaBar = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(2545)",
+     "w.PointsToScreenPixelsX(2242.1)",
+     "w.PointsToScreenPixelsY(-161)",
+     "w.PointsToScreenPixelsX(1106)",
+     "w.PointsToScreenPixelsX(2506.0)",
+     "w.PointsToScreenPixelsY(2302)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 485, w.PointsToScreenPixelsY(0) + 74) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 485, w.PointsToScreenPixelsY(0) + 74)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 485, w.PointsToScreenPixelsY(0) + 74).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 184, w.PointsToScreenPixelsY(0) + 356) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 184, w.PointsToScreenPixelsY(0) + 356)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 184, w.PointsToScreenPixelsY(0) + 356).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1116, w.PointsToScreenPixelsY(0) + 674) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1116, w.PointsToScreenPixelsY(0) + 674)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1116, w.PointsToScreenPixelsY(0) + 674).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 136, w.PointsToScreenPixelsY(0) + 40) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 136, w.PointsToScreenPixelsY(0) + 40)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 136, w.PointsToScreenPixelsY(0) + 40).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1196, w.PointsToScreenPixelsY(0) + 379) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1196, w.PointsToScreenPixelsY(0) + 379)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1196, w.PointsToScreenPixelsY(0) + 379).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 126, w.PointsToScreenPixelsY(0) + 0) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 126, w.PointsToScreenPixelsY(0) + 0)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 126, w.PointsToScreenPixelsY(0) + 0).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 858.25,
+    "height": 258.25,
+    "left": 16,
+    "top": 172,
+    "headings": true,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "y",
+      2545
+     ],
+     [
+      "x",
+      2242.1
+     ],
+     [
+      "y",
+      -161
+     ],
+     [
+      "x",
+      1106
+     ],
+     [
+      "x",
+      2506.0
+     ],
+     [
+      "y",
+      2302
+     ]
+    ],
+    "spots": [
+     [
+      485,
+      74
+     ],
+     [
+      184,
+      356
+     ],
+     [
+      1116,
+      674
+     ],
+     [
+      136,
+      40
+     ],
+     [
+      1196,
+      379
+     ],
+     [
+      126,
+      0
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:858|Double:258|Double:847|Double:101.5|Long:3185|Long:2323|Long:479|Long:1187|Long:2587|Long:2942|String:Range:F3|E91|E91|String:Range:B2|E91|String:Range:B1 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.3",
+    [
+     "w.Width = 878.75",
+     "w.Height = 423.5",
+     "w.Left = 192",
+     "w.Top = 151",
+     "w.ScrollRow = 82",
+     "w.ScrollColumn = 14"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(2876)",
+     "w.PointsToScreenPixelsX(953)",
+     "w.PointsToScreenPixelsX(1893)",
+     "w.PointsToScreenPixelsX(2973.6)",
+     "w.PointsToScreenPixelsX(2029)",
+     "w.PointsToScreenPixelsX(2112)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1434, w.PointsToScreenPixelsY(0) + 2784) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1434, w.PointsToScreenPixelsY(0) + 2784)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1434, w.PointsToScreenPixelsY(0) + 2784).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1443, w.PointsToScreenPixelsY(0) + 2445) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1443, w.PointsToScreenPixelsY(0) + 2445)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1443, w.PointsToScreenPixelsY(0) + 2445).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1634, w.PointsToScreenPixelsY(0) + 2810) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1634, w.PointsToScreenPixelsY(0) + 2810)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1634, w.PointsToScreenPixelsY(0) + 2810).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1816, w.PointsToScreenPixelsY(0) + 2527) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1816, w.PointsToScreenPixelsY(0) + 2527)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1816, w.PointsToScreenPixelsY(0) + 2527).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1679, w.PointsToScreenPixelsY(0) + 2746) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1679, w.PointsToScreenPixelsY(0) + 2746)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1679, w.PointsToScreenPixelsY(0) + 2746).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1579, w.PointsToScreenPixelsY(0) + 2862) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1579, w.PointsToScreenPixelsY(0) + 2862)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1579, w.PointsToScreenPixelsY(0) + 2862).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 878.75,
+    "height": 423.5,
+    "left": 192,
+    "top": 151,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     82,
+     14
+    ],
+    "points": [
+     [
+      "x",
+      2876
+     ],
+     [
+      "x",
+      953
+     ],
+     [
+      "x",
+      1893
+     ],
+     [
+      "x",
+      2973.6
+     ],
+     [
+      "x",
+      2029
+     ],
+     [
+      "x",
+      2112
+     ]
+    ],
+    "spots": [
+     [
+      1434,
+      2784
+     ],
+     [
+      1443,
+      2445
+     ],
+     [
+      1634,
+      2810
+     ],
+     [
+      1816,
+      2527
+     ],
+     [
+      1679,
+      2746
+     ],
+     [
+      1579,
+      2862
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:878.5|Double:423.5|Double:867.5|Double:238.5|Long:2062|Long:139|Long:1079|Long:2160|Long:1215|Long:1298|E91|String:Range:P85|E91|String:Range:S88|String:Range:R95|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.4",
+    [
+     "w.Width = 502.75",
+     "w.Height = 545.5",
+     "w.Left = 167",
+     "w.Top = 144",
+     "w.ScrollRow = 73",
+     "w.ScrollColumn = 3"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(2854)",
+     "w.PointsToScreenPixelsX(272.5)",
+     "w.PointsToScreenPixelsX(1639.6)",
+     "w.PointsToScreenPixelsX(2322)",
+     "w.PointsToScreenPixelsX(1811.0)",
+     "w.PointsToScreenPixelsX(2018.9)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 242, w.PointsToScreenPixelsY(0) + 2295) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 242, w.PointsToScreenPixelsY(0) + 2295)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 242, w.PointsToScreenPixelsY(0) + 2295).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1017, w.PointsToScreenPixelsY(0) + 2601) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1017, w.PointsToScreenPixelsY(0) + 2601)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1017, w.PointsToScreenPixelsY(0) + 2601).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 532, w.PointsToScreenPixelsY(0) + 2615) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 532, w.PointsToScreenPixelsY(0) + 2615)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 532, w.PointsToScreenPixelsY(0) + 2615).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 320, w.PointsToScreenPixelsY(0) + 2136) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 320, w.PointsToScreenPixelsY(0) + 2136)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 320, w.PointsToScreenPixelsY(0) + 2136).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 722, w.PointsToScreenPixelsY(0) + 2315) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 722, w.PointsToScreenPixelsY(0) + 2315)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 722, w.PointsToScreenPixelsY(0) + 2315).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1306, w.PointsToScreenPixelsY(0) + 2757) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1306, w.PointsToScreenPixelsY(0) + 2757)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1306, w.PointsToScreenPixelsY(0) + 2757).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 502.75,
+    "height": 545.5,
+    "left": 167,
+    "top": 144,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     73,
+     3
+    ],
+    "points": [
+     [
+      "y",
+      2854
+     ],
+     [
+      "x",
+      272.5
+     ],
+     [
+      "x",
+      1639.6
+     ],
+     [
+      "x",
+      2322
+     ],
+     [
+      "x",
+      1811.0
+     ],
+     [
+      "x",
+      2018.9
+     ]
+    ],
+    "spots": [
+     [
+      242,
+      2295
+     ],
+     [
+      1017,
+      2601
+     ],
+     [
+      532,
+      2615
+     ],
+     [
+      320,
+      2136
+     ],
+     [
+      722,
+      2315
+     ],
+     [
+      1306,
+      2757
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:502.5|Double:545.5|Double:491.5|Double:360.5|Long:1407|Long:463|Long:1831|Long:2513|Long:2002|Long:2210|String:Range:C80|String:Range:K90|String:Range:F91|String:Range:D74|String:Range:H80|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.5",
+    [
+     "w.Width = 838.25",
+     "w.Height = 535.25",
+     "w.Left = 24",
+     "w.Top = 163",
+     "Application.DisplayFormulaBar = False",
+     "ActiveSheet.Rows(1).Hidden = True",
+     "ActiveSheet.Columns(1).Hidden = True",
+     "w.ScrollRow = 4",
+     "w.ScrollColumn = 5"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(62)",
+     "w.PointsToScreenPixelsX(1269)",
+     "w.PointsToScreenPixelsY(2002)",
+     "w.PointsToScreenPixelsX(-190.9)",
+     "w.PointsToScreenPixelsY(2567)",
+     "w.PointsToScreenPixelsY(1740.2)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1296, w.PointsToScreenPixelsY(0) + 539) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1296, w.PointsToScreenPixelsY(0) + 539)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1296, w.PointsToScreenPixelsY(0) + 539).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1376, w.PointsToScreenPixelsY(0) + 410) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1376, w.PointsToScreenPixelsY(0) + 410)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1376, w.PointsToScreenPixelsY(0) + 410).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 506, w.PointsToScreenPixelsY(0) + 678) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 506, w.PointsToScreenPixelsY(0) + 678)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 506, w.PointsToScreenPixelsY(0) + 678).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 262, w.PointsToScreenPixelsY(0) + 114) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 262, w.PointsToScreenPixelsY(0) + 114)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 262, w.PointsToScreenPixelsY(0) + 114).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1063, w.PointsToScreenPixelsY(0) + 219) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1063, w.PointsToScreenPixelsY(0) + 219)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1063, w.PointsToScreenPixelsY(0) + 219).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1328, w.PointsToScreenPixelsY(0) + 473) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1328, w.PointsToScreenPixelsY(0) + 473)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1328, w.PointsToScreenPixelsY(0) + 473).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 838.25,
+    "height": 535.25,
+    "left": 24,
+    "top": 163,
+    "headings": true,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": true,
+    "scroll": [
+     4,
+     5
+    ],
+    "points": [
+     [
+      "x",
+      62
+     ],
+     [
+      "x",
+      1269
+     ],
+     [
+      "y",
+      2002
+     ],
+     [
+      "x",
+      -190.9
+     ],
+     [
+      "y",
+      2567
+     ],
+     [
+      "y",
+      1740.2
+     ]
+    ],
+    "spots": [
+     [
+      1296,
+      539
+     ],
+     [
+      1376,
+      410
+     ],
+     [
+      506,
+      678
+     ],
+     [
+      262,
+      114
+     ],
+     [
+      1063,
+      219
+     ],
+     [
+      1328,
+      473
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:838|Double:535|Double:827|Double:378.5|Long:-128|Long:1079|Long:2566|Long:-381|Long:3131|Long:2304|String:Range:O20|String:Range:P16|String:Range:G25|E91|String:Range:M9|String:Range:O18 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.6",
+    [
+     "w.Width = 400.25",
+     "w.Height = 350.0",
+     "w.Left = 269",
+     "w.Top = 189",
+     "Application.DisplayFormulaBar = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1985)",
+     "w.PointsToScreenPixelsX(1423)",
+     "w.PointsToScreenPixelsX(-41)",
+     "w.PointsToScreenPixelsX(1544.9)",
+     "w.PointsToScreenPixelsY(-82)",
+     "w.PointsToScreenPixelsX(196.0)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 390, w.PointsToScreenPixelsY(0) + 419) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 390, w.PointsToScreenPixelsY(0) + 419)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 390, w.PointsToScreenPixelsY(0) + 419).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 292, w.PointsToScreenPixelsY(0) + 313) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 292, w.PointsToScreenPixelsY(0) + 313)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 292, w.PointsToScreenPixelsY(0) + 313).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 828, w.PointsToScreenPixelsY(0) + 349) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 828, w.PointsToScreenPixelsY(0) + 349)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 828, w.PointsToScreenPixelsY(0) + 349).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1269, w.PointsToScreenPixelsY(0) + 104) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1269, w.PointsToScreenPixelsY(0) + 104)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1269, w.PointsToScreenPixelsY(0) + 104).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 598, w.PointsToScreenPixelsY(0) + 696) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 598, w.PointsToScreenPixelsY(0) + 696)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 598, w.PointsToScreenPixelsY(0) + 696).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 141) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 141)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 141).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 400.25,
+    "height": 350.0,
+    "left": 269,
+    "top": 189,
+    "headings": true,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      1985
+     ],
+     [
+      "x",
+      1423
+     ],
+     [
+      "x",
+      -41
+     ],
+     [
+      "x",
+      1544.9
+     ],
+     [
+      "y",
+      -82
+     ],
+     [
+      "x",
+      196.0
+     ]
+    ],
+    "spots": [
+     [
+      390,
+      419
+     ],
+     [
+      292,
+      313
+     ],
+     [
+      828,
+      349
+     ],
+     [
+      1269,
+      104
+     ],
+     [
+      598,
+      696
+     ],
+     [
+      640,
+      141
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:400|Double:350|Double:389|Double:193.5|Long:2572|Long:2010|Long:546|Long:2132|Long:592|Long:783|E91|E91|E91|E91|E91|String:Range:G5 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.7",
+    [
+     "w.Width = 798.25",
+     "w.Height = 466.5",
+     "w.Left = 0",
+     "w.Top = 5"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(2819.2)",
+     "w.PointsToScreenPixelsX(845)",
+     "w.PointsToScreenPixelsY(2085.1)",
+     "w.PointsToScreenPixelsY(-177)",
+     "w.PointsToScreenPixelsX(820)",
+     "w.PointsToScreenPixelsX(724)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 477, w.PointsToScreenPixelsY(0) + 158) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 477, w.PointsToScreenPixelsY(0) + 158)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 477, w.PointsToScreenPixelsY(0) + 158).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 298, w.PointsToScreenPixelsY(0) + 129) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 298, w.PointsToScreenPixelsY(0) + 129)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 298, w.PointsToScreenPixelsY(0) + 129).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 713, w.PointsToScreenPixelsY(0) + 566) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 713, w.PointsToScreenPixelsY(0) + 566)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 713, w.PointsToScreenPixelsY(0) + 566).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 335, w.PointsToScreenPixelsY(0) + 64) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 335, w.PointsToScreenPixelsY(0) + 64)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 335, w.PointsToScreenPixelsY(0) + 64).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1125, w.PointsToScreenPixelsY(0) + 383) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1125, w.PointsToScreenPixelsY(0) + 383)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1125, w.PointsToScreenPixelsY(0) + 383).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 257, w.PointsToScreenPixelsY(0) + 450) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 257, w.PointsToScreenPixelsY(0) + 450)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 257, w.PointsToScreenPixelsY(0) + 450).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 798.25,
+    "height": 466.5,
+    "left": 0,
+    "top": 5,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "y",
+      2819.2
+     ],
+     [
+      "x",
+      845
+     ],
+     [
+      "y",
+      2085.1
+     ],
+     [
+      "y",
+      -177
+     ],
+     [
+      "x",
+      820
+     ],
+     [
+      "x",
+      724
+     ]
+    ],
+    "spots": [
+     [
+      477,
+      158
+     ],
+     [
+      298,
+      129
+     ],
+     [
+      713,
+      566
+     ],
+     [
+      335,
+      64
+     ],
+     [
+      1125,
+      383
+     ],
+     [
+      257,
+      450
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:798|Double:466.5|Double:787|Double:281.5|Long:3182|Long:894|Long:2448|Long:186|Long:869|Long:773|String:Range:E6|String:Range:D5|E91|String:Range:D3|String:Range:L14|String:Range:C16 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.8",
+    [
+     "w.Width = 765.5",
+     "w.Height = 395.75",
+     "w.Left = 211",
+     "w.Top = 34",
+     "w.DisplayHeadings = False",
+     "Application.DisplayStatusBar = False",
+     "ActiveSheet.Rows(1).Hidden = True",
+     "ActiveSheet.Columns(1).Hidden = True"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(2441.8)",
+     "w.PointsToScreenPixelsY(680)",
+     "w.PointsToScreenPixelsX(671.3)",
+     "w.PointsToScreenPixelsY(-111.9)",
+     "w.PointsToScreenPixelsY(1742)",
+     "w.PointsToScreenPixelsX(1258)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1093, w.PointsToScreenPixelsY(0) + -22) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1093, w.PointsToScreenPixelsY(0) + -22)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1093, w.PointsToScreenPixelsY(0) + -22).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1230, w.PointsToScreenPixelsY(0) + 631) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1230, w.PointsToScreenPixelsY(0) + 631)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1230, w.PointsToScreenPixelsY(0) + 631).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1263, w.PointsToScreenPixelsY(0) + 670) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1263, w.PointsToScreenPixelsY(0) + 670)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1263, w.PointsToScreenPixelsY(0) + 670).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1017, w.PointsToScreenPixelsY(0) + 115) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1017, w.PointsToScreenPixelsY(0) + 115)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1017, w.PointsToScreenPixelsY(0) + 115).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 464, w.PointsToScreenPixelsY(0) + 565) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 464, w.PointsToScreenPixelsY(0) + 565)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 464, w.PointsToScreenPixelsY(0) + 565).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 318, w.PointsToScreenPixelsY(0) + 343) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 318, w.PointsToScreenPixelsY(0) + 343)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 318, w.PointsToScreenPixelsY(0) + 343).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 765.5,
+    "height": 395.75,
+    "left": 211,
+    "top": 34,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": true,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "y",
+      2441.8
+     ],
+     [
+      "y",
+      680
+     ],
+     [
+      "x",
+      671.3
+     ],
+     [
+      "y",
+      -111.9
+     ],
+     [
+      "y",
+      1742
+     ],
+     [
+      "x",
+      1258
+     ]
+    ],
+    "spots": [
+     [
+      1093,
+      -22
+     ],
+     [
+      1230,
+      631
+     ],
+     [
+      1263,
+      670
+     ],
+     [
+      1017,
+      115
+     ],
+     [
+      464,
+      565
+     ],
+     [
+      318,
+      343
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:765.5|Double:395.5|Double:754.5|Double:227|Long:2834|Long:1072|Long:1102|Long:280|Long:2134|Long:1689|E91|E91|E91|String:Range:L5|E91|String:Range:E13 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.9",
+    [
+     "w.Width = 502.5",
+     "w.Height = 497.5",
+     "w.Left = 50",
+     "w.Top = 12",
+     "Application.DisplayStatusBar = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1183)",
+     "w.PointsToScreenPixelsY(28.3)",
+     "w.PointsToScreenPixelsY(2605)",
+     "w.PointsToScreenPixelsY(1108)",
+     "w.PointsToScreenPixelsY(1245)",
+     "w.PointsToScreenPixelsX(276.6)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1090, w.PointsToScreenPixelsY(0) + 346) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1090, w.PointsToScreenPixelsY(0) + 346)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1090, w.PointsToScreenPixelsY(0) + 346).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 3, w.PointsToScreenPixelsY(0) + -52) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 3, w.PointsToScreenPixelsY(0) + -52)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 3, w.PointsToScreenPixelsY(0) + -52).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 152, w.PointsToScreenPixelsY(0) + 620) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 152, w.PointsToScreenPixelsY(0) + 620)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 152, w.PointsToScreenPixelsY(0) + 620).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1149, w.PointsToScreenPixelsY(0) + 557) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1149, w.PointsToScreenPixelsY(0) + 557)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1149, w.PointsToScreenPixelsY(0) + 557).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 725, w.PointsToScreenPixelsY(0) + 221) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 725, w.PointsToScreenPixelsY(0) + 221)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 725, w.PointsToScreenPixelsY(0) + 221).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 602, w.PointsToScreenPixelsY(0) + 576) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 602, w.PointsToScreenPixelsY(0) + 576)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 602, w.PointsToScreenPixelsY(0) + 576).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 502.5,
+    "height": 497.5,
+    "left": 50,
+    "top": 12,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      1183
+     ],
+     [
+      "y",
+      28.3
+     ],
+     [
+      "y",
+      2605
+     ],
+     [
+      "y",
+      1108
+     ],
+     [
+      "y",
+      1245
+     ],
+     [
+      "x",
+      276.6
+     ]
+    ],
+    "spots": [
+     [
+      1090,
+      346
+     ],
+     [
+      3,
+      -52
+     ],
+     [
+      152,
+      620
+     ],
+     [
+      1149,
+      557
+     ],
+     [
+      725,
+      221
+     ],
+     [
+      602,
+      576
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:502.5|Double:497.5|Double:491.5|Double:329|Long:1332|Long:405|Long:2982|Long:1485|Long:1622|Long:426|E91|E91|E91|E91|String:Range:H8|String:Range:G20 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.10",
+    [
+     "w.Width = 704.75",
+     "w.Height = 362.5",
+     "w.Left = 275",
+     "w.Top = 161",
+     "w.DisplayHeadings = False",
+     "Application.DisplayFormulaBar = False",
+     "w.ScrollRow = 33",
+     "w.ScrollColumn = 5"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(-184)",
+     "w.PointsToScreenPixelsX(1239)",
+     "w.PointsToScreenPixelsY(1859.2)",
+     "w.PointsToScreenPixelsX(823.2)",
+     "w.PointsToScreenPixelsX(1321.1)",
+     "w.PointsToScreenPixelsY(2546.9)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 793, w.PointsToScreenPixelsY(0) + 1066) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 793, w.PointsToScreenPixelsY(0) + 1066)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 793, w.PointsToScreenPixelsY(0) + 1066).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 738, w.PointsToScreenPixelsY(0) + 869) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 738, w.PointsToScreenPixelsY(0) + 869)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 738, w.PointsToScreenPixelsY(0) + 869).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1618, w.PointsToScreenPixelsY(0) + 1558) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1618, w.PointsToScreenPixelsY(0) + 1558)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1618, w.PointsToScreenPixelsY(0) + 1558).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 717, w.PointsToScreenPixelsY(0) + 1439) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 717, w.PointsToScreenPixelsY(0) + 1439)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 717, w.PointsToScreenPixelsY(0) + 1439).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1608, w.PointsToScreenPixelsY(0) + 1218) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1608, w.PointsToScreenPixelsY(0) + 1218)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1608, w.PointsToScreenPixelsY(0) + 1218).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 885, w.PointsToScreenPixelsY(0) + 1234) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 885, w.PointsToScreenPixelsY(0) + 1234)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 885, w.PointsToScreenPixelsY(0) + 1234).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 704.75,
+    "height": 362.5,
+    "left": 275,
+    "top": 161,
+    "headings": false,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     33,
+     5
+    ],
+    "points": [
+     [
+      "x",
+      -184
+     ],
+     [
+      "x",
+      1239
+     ],
+     [
+      "y",
+      1859.2
+     ],
+     [
+      "x",
+      823.2
+     ],
+     [
+      "x",
+      1321.1
+     ],
+     [
+      "y",
+      2546.9
+     ]
+    ],
+    "spots": [
+     [
+      793,
+      1066
+     ],
+     [
+      738,
+      869
+     ],
+     [
+      1618,
+      1558
+     ],
+     [
+      717,
+      1439
+     ],
+     [
+      1608,
+      1218
+     ],
+     [
+      885,
+      1234
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:704.5|Double:362.5|Double:693.5|Double:206|Long:-9|Long:1414|Long:1520|Long:998|Long:1496|Long:2208|String:Range:I37|E91|E91|E91|String:Range:Q43|String:Range:J43 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.11",
+    [
+     "w.Width = 744.75",
+     "w.Height = 498.0",
+     "w.Left = 58",
+     "w.Top = 119",
+     "w.ScrollRow = 118",
+     "w.ScrollColumn = 5"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(-99.5)",
+     "w.PointsToScreenPixelsX(954)",
+     "w.PointsToScreenPixelsX(1587)",
+     "w.PointsToScreenPixelsY(989.0)",
+     "w.PointsToScreenPixelsY(655.3)",
+     "w.PointsToScreenPixelsY(1319)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 407, w.PointsToScreenPixelsY(0) + 3778) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 407, w.PointsToScreenPixelsY(0) + 3778)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 407, w.PointsToScreenPixelsY(0) + 3778).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1088, w.PointsToScreenPixelsY(0) + 3762) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1088, w.PointsToScreenPixelsY(0) + 3762)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1088, w.PointsToScreenPixelsY(0) + 3762).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 659, w.PointsToScreenPixelsY(0) + 3444) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 659, w.PointsToScreenPixelsY(0) + 3444)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 659, w.PointsToScreenPixelsY(0) + 3444).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 711, w.PointsToScreenPixelsY(0) + 4040) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 711, w.PointsToScreenPixelsY(0) + 4040)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 711, w.PointsToScreenPixelsY(0) + 4040).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 481, w.PointsToScreenPixelsY(0) + 3923) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 481, w.PointsToScreenPixelsY(0) + 3923)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 481, w.PointsToScreenPixelsY(0) + 3923).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1337, w.PointsToScreenPixelsY(0) + 3689) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1337, w.PointsToScreenPixelsY(0) + 3689)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1337, w.PointsToScreenPixelsY(0) + 3689).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 744.75,
+    "height": 498.0,
+    "left": 58,
+    "top": 119,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     118,
+     5
+    ],
+    "points": [
+     [
+      "x",
+      -99.5
+     ],
+     [
+      "x",
+      954
+     ],
+     [
+      "x",
+      1587
+     ],
+     [
+      "y",
+      989.0
+     ],
+     [
+      "y",
+      655.3
+     ],
+     [
+      "y",
+      1319
+     ]
+    ],
+    "spots": [
+     [
+      407,
+      3778
+     ],
+     [
+      1088,
+      3762
+     ],
+     [
+      659,
+      3444
+     ],
+     [
+      711,
+      4040
+     ],
+     [
+      481,
+      3923
+     ],
+     [
+      1337,
+      3689
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:744.5|Double:498|Double:733.5|Double:313|Long:-319|Long:735|Long:1368|Long:-1813|Long:-2147|Long:-1483|String:Range:E131|String:Range:L130|String:Range:G119|E91|String:Range:F136|String:Range:N128 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.12",
+    [
+     "w.Width = 778.25",
+     "w.Height = 609.75",
+     "w.Left = 35",
+     "w.Top = 128",
+     "ActiveSheet.Rows(1).Hidden = True",
+     "ActiveSheet.Columns(1).Hidden = True"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(1237.5)",
+     "w.PointsToScreenPixelsX(1387)",
+     "w.PointsToScreenPixelsY(-104)",
+     "w.PointsToScreenPixelsY(1842)",
+     "w.PointsToScreenPixelsX(2417)",
+     "w.PointsToScreenPixelsY(2743.1)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 410, w.PointsToScreenPixelsY(0) + 526) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 410, w.PointsToScreenPixelsY(0) + 526)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 410, w.PointsToScreenPixelsY(0) + 526).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 511, w.PointsToScreenPixelsY(0) + 35) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 511, w.PointsToScreenPixelsY(0) + 35)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 511, w.PointsToScreenPixelsY(0) + 35).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 616, w.PointsToScreenPixelsY(0) + 590) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 616, w.PointsToScreenPixelsY(0) + 590)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 616, w.PointsToScreenPixelsY(0) + 590).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1022, w.PointsToScreenPixelsY(0) + 460) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1022, w.PointsToScreenPixelsY(0) + 460)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1022, w.PointsToScreenPixelsY(0) + 460).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1274, w.PointsToScreenPixelsY(0) + 124) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1274, w.PointsToScreenPixelsY(0) + 124)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1274, w.PointsToScreenPixelsY(0) + 124).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 451, w.PointsToScreenPixelsY(0) + 121) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 451, w.PointsToScreenPixelsY(0) + 121)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 451, w.PointsToScreenPixelsY(0) + 121).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 778.25,
+    "height": 609.75,
+    "left": 35,
+    "top": 128,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": true,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "y",
+      1237.5
+     ],
+     [
+      "x",
+      1387
+     ],
+     [
+      "y",
+      -104
+     ],
+     [
+      "y",
+      1842
+     ],
+     [
+      "x",
+      2417
+     ],
+     [
+      "y",
+      2743.1
+     ]
+    ],
+    "spots": [
+     [
+      410,
+      526
+     ],
+     [
+      511,
+      35
+     ],
+     [
+      616,
+      590
+     ],
+     [
+      1022,
+      460
+     ],
+     [
+      1274,
+      124
+     ],
+     [
+      451,
+      121
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:778|Double:609.5|Double:767|Double:424.5|Long:1847|Long:1506|Long:505|Long:2451|Long:2536|Long:3352|String:Range:F20|String:Range:G3|String:Range:H22|String:Range:L17|String:Range:O6|String:Range:F6 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.13",
+    [
+     "w.Width = 860.0",
+     "w.Height = 600.25",
+     "w.Left = 274",
+     "w.Top = 31",
+     "w.ScrollRow = 50",
+     "w.ScrollColumn = 2"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1282.3)",
+     "w.PointsToScreenPixelsY(2506)",
+     "w.PointsToScreenPixelsX(2628.6)",
+     "w.PointsToScreenPixelsY(1495)",
+     "w.PointsToScreenPixelsX(247)",
+     "w.PointsToScreenPixelsY(-111.4)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1086, w.PointsToScreenPixelsY(0) + 1795) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1086, w.PointsToScreenPixelsY(0) + 1795)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1086, w.PointsToScreenPixelsY(0) + 1795).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 397, w.PointsToScreenPixelsY(0) + 1892) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 397, w.PointsToScreenPixelsY(0) + 1892)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 397, w.PointsToScreenPixelsY(0) + 1892).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 285, w.PointsToScreenPixelsY(0) + 1487) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 285, w.PointsToScreenPixelsY(0) + 1487)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 285, w.PointsToScreenPixelsY(0) + 1487).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 281, w.PointsToScreenPixelsY(0) + 1881) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 281, w.PointsToScreenPixelsY(0) + 1881)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 281, w.PointsToScreenPixelsY(0) + 1881).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 79, w.PointsToScreenPixelsY(0) + 1709) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 79, w.PointsToScreenPixelsY(0) + 1709)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 79, w.PointsToScreenPixelsY(0) + 1709).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 301, w.PointsToScreenPixelsY(0) + 1685) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 301, w.PointsToScreenPixelsY(0) + 1685)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 301, w.PointsToScreenPixelsY(0) + 1685).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 860.0,
+    "height": 600.25,
+    "left": 274,
+    "top": 31,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     50,
+     2
+    ],
+    "points": [
+     [
+      "x",
+      1282.3
+     ],
+     [
+      "y",
+      2506
+     ],
+     [
+      "x",
+      2628.6
+     ],
+     [
+      "y",
+      1495
+     ],
+     [
+      "x",
+      247
+     ],
+     [
+      "y",
+      -111.4
+     ]
+    ],
+    "spots": [
+     [
+      1086,
+      1795
+     ],
+     [
+      397,
+      1892
+     ],
+     [
+      285,
+      1487
+     ],
+     [
+      281,
+      1881
+     ],
+     [
+      79,
+      1709
+     ],
+     [
+      301,
+      1685
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:860|Double:600|Double:849|Double:415|Long:1783|Long:1500|Long:3130|Long:489|Long:748|Long:-1117|String:Range:L62|String:Range:E66|String:Range:C52|String:Range:C65|E91|String:Range:D59 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.14",
+    [
+     "w.Width = 703.5",
+     "w.Height = 418.75",
+     "w.Left = 245",
+     "w.Top = 139",
+     "Application.DisplayStatusBar = False",
+     "w.ScrollRow = 60",
+     "w.ScrollColumn = 8"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(771)",
+     "w.PointsToScreenPixelsY(807)",
+     "w.PointsToScreenPixelsX(2500.5)",
+     "w.PointsToScreenPixelsX(1117)",
+     "w.PointsToScreenPixelsY(-189)",
+     "w.PointsToScreenPixelsX(763.3)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1346, w.PointsToScreenPixelsY(0) + 1710) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1346, w.PointsToScreenPixelsY(0) + 1710)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1346, w.PointsToScreenPixelsY(0) + 1710).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1531, w.PointsToScreenPixelsY(0) + 2216) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1531, w.PointsToScreenPixelsY(0) + 2216)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1531, w.PointsToScreenPixelsY(0) + 2216).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1944, w.PointsToScreenPixelsY(0) + 1768) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1944, w.PointsToScreenPixelsY(0) + 1768)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1944, w.PointsToScreenPixelsY(0) + 1768).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1742, w.PointsToScreenPixelsY(0) + 2150) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1742, w.PointsToScreenPixelsY(0) + 2150)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1742, w.PointsToScreenPixelsY(0) + 2150).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1393, w.PointsToScreenPixelsY(0) + 1954) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1393, w.PointsToScreenPixelsY(0) + 1954)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1393, w.PointsToScreenPixelsY(0) + 1954).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1059, w.PointsToScreenPixelsY(0) + 2190) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1059, w.PointsToScreenPixelsY(0) + 2190)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1059, w.PointsToScreenPixelsY(0) + 2190).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 703.5,
+    "height": 418.75,
+    "left": 245,
+    "top": 139,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": false,
+    "scroll": [
+     60,
+     8
+    ],
+    "points": [
+     [
+      "x",
+      771
+     ],
+     [
+      "y",
+      807
+     ],
+     [
+      "x",
+      2500.5
+     ],
+     [
+      "x",
+      1117
+     ],
+     [
+      "y",
+      -189
+     ],
+     [
+      "x",
+      763.3
+     ]
+    ],
+    "spots": [
+     [
+      1346,
+      1710
+     ],
+     [
+      1531,
+      2216
+     ],
+     [
+      1944,
+      1768
+     ],
+     [
+      1742,
+      2150
+     ],
+     [
+      1393,
+      1954
+     ],
+     [
+      1059,
+      2190
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:703.5|Double:418.5|Double:692.5|Double:250|Long:638|Long:-273|Long:2367|Long:984|Long:-1269|Long:630|E91|E91|String:Range:U61|E91|String:Range:O68|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.15",
+    [
+     "w.Width = 549.75",
+     "w.Height = 331.25",
+     "w.Left = 240",
+     "w.Top = 123",
+     "Application.DisplayStatusBar = False",
+     "w.ScrollRow = 53",
+     "w.ScrollColumn = 7"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(2531)",
+     "w.PointsToScreenPixelsY(2960)",
+     "w.PointsToScreenPixelsX(1230.9)",
+     "w.PointsToScreenPixelsX(567)",
+     "w.PointsToScreenPixelsY(2285.6)",
+     "w.PointsToScreenPixelsX(2113.0)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1730, w.PointsToScreenPixelsY(0) + 1735) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1730, w.PointsToScreenPixelsY(0) + 1735)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1730, w.PointsToScreenPixelsY(0) + 1735).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1546, w.PointsToScreenPixelsY(0) + 1823) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1546, w.PointsToScreenPixelsY(0) + 1823)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1546, w.PointsToScreenPixelsY(0) + 1823).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1520, w.PointsToScreenPixelsY(0) + 1518) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1520, w.PointsToScreenPixelsY(0) + 1518)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1520, w.PointsToScreenPixelsY(0) + 1518).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1598, w.PointsToScreenPixelsY(0) + 1577) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1598, w.PointsToScreenPixelsY(0) + 1577)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1598, w.PointsToScreenPixelsY(0) + 1577).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 817, w.PointsToScreenPixelsY(0) + 2061) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 817, w.PointsToScreenPixelsY(0) + 2061)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 817, w.PointsToScreenPixelsY(0) + 2061).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1572, w.PointsToScreenPixelsY(0) + 1455) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1572, w.PointsToScreenPixelsY(0) + 1455)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1572, w.PointsToScreenPixelsY(0) + 1455).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 549.75,
+    "height": 331.25,
+    "left": 240,
+    "top": 123,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": false,
+    "scroll": [
+     53,
+     7
+    ],
+    "points": [
+     [
+      "y",
+      2531
+     ],
+     [
+      "y",
+      2960
+     ],
+     [
+      "x",
+      1230.9
+     ],
+     [
+      "x",
+      567
+     ],
+     [
+      "y",
+      2285.6
+     ],
+     [
+      "x",
+      2113.0
+     ]
+    ],
+    "spots": [
+     [
+      1730,
+      1735
+     ],
+     [
+      1546,
+      1823
+     ],
+     [
+      1520,
+      1518
+     ],
+     [
+      1598,
+      1577
+     ],
+     [
+      817,
+      2061
+     ],
+     [
+      1572,
+      1455
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:549.5|Double:331|Double:538.5|Double:162.5|Long:1622|Long:2051|Long:1185|Long:521|Long:1377|Long:2067|E91|E91|String:Range:P53|E91|E91|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.16",
+    [
+     "w.Width = 847.5",
+     "w.Height = 305.0",
+     "w.Left = 296",
+     "w.Top = 114",
+     "w.DisplayHeadings = False",
+     "Application.DisplayStatusBar = False",
+     "w.ScrollRow = 20",
+     "w.ScrollColumn = 1"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(2704)",
+     "w.PointsToScreenPixelsY(1921.7)",
+     "w.PointsToScreenPixelsY(1330)",
+     "w.PointsToScreenPixelsX(-157.4)",
+     "w.PointsToScreenPixelsX(922)",
+     "w.PointsToScreenPixelsY(616.6)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 942, w.PointsToScreenPixelsY(0) + 899) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 942, w.PointsToScreenPixelsY(0) + 899)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 942, w.PointsToScreenPixelsY(0) + 899).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 756, w.PointsToScreenPixelsY(0) + 887) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 756, w.PointsToScreenPixelsY(0) + 887)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 756, w.PointsToScreenPixelsY(0) + 887).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1224, w.PointsToScreenPixelsY(0) + 776) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1224, w.PointsToScreenPixelsY(0) + 776)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1224, w.PointsToScreenPixelsY(0) + 776).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 918, w.PointsToScreenPixelsY(0) + 720) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 918, w.PointsToScreenPixelsY(0) + 720)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 918, w.PointsToScreenPixelsY(0) + 720).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 936, w.PointsToScreenPixelsY(0) + 1007) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 936, w.PointsToScreenPixelsY(0) + 1007)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 936, w.PointsToScreenPixelsY(0) + 1007).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 986, w.PointsToScreenPixelsY(0) + 911) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 986, w.PointsToScreenPixelsY(0) + 911)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 986, w.PointsToScreenPixelsY(0) + 911).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 847.5,
+    "height": 305.0,
+    "left": 296,
+    "top": 114,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": false,
+    "scroll": [
+     20,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      2704
+     ],
+     [
+      "y",
+      1921.7
+     ],
+     [
+      "y",
+      1330
+     ],
+     [
+      "x",
+      -157.4
+     ],
+     [
+      "x",
+      922
+     ],
+     [
+      "y",
+      616.6
+     ]
+    ],
+    "spots": [
+     [
+      942,
+      899
+     ],
+     [
+      756,
+      887
+     ],
+     [
+      1224,
+      776
+     ],
+     [
+      918,
+      720
+     ],
+     [
+      936,
+      1007
+     ],
+     [
+      986,
+      911
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:847.5|Double:305|Double:836.5|Double:136.5|Long:3305|Long:1923|Long:1331|Long:444|Long:1523|Long:618|E91|E91|E91|String:Range:J25|E91|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.17",
+    [
+     "w.Width = 743.25",
+     "w.Height = 451.75",
+     "w.Left = 230",
+     "w.Top = 132",
+     "w.DisplayHeadings = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1597)",
+     "w.PointsToScreenPixelsY(2476.7)",
+     "w.PointsToScreenPixelsY(2674.6)",
+     "w.PointsToScreenPixelsX(1683)",
+     "w.PointsToScreenPixelsX(2067)",
+     "w.PointsToScreenPixelsY(1750.5)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 565, w.PointsToScreenPixelsY(0) + 549) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 565, w.PointsToScreenPixelsY(0) + 549)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 565, w.PointsToScreenPixelsY(0) + 549).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1223, w.PointsToScreenPixelsY(0) + 263) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1223, w.PointsToScreenPixelsY(0) + 263)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1223, w.PointsToScreenPixelsY(0) + 263).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 360, w.PointsToScreenPixelsY(0) + 202) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 360, w.PointsToScreenPixelsY(0) + 202)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 360, w.PointsToScreenPixelsY(0) + 202).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 787, w.PointsToScreenPixelsY(0) + 139) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 787, w.PointsToScreenPixelsY(0) + 139)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 787, w.PointsToScreenPixelsY(0) + 139).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1219, w.PointsToScreenPixelsY(0) + 692) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1219, w.PointsToScreenPixelsY(0) + 692)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1219, w.PointsToScreenPixelsY(0) + 692).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 791, w.PointsToScreenPixelsY(0) + 427) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 791, w.PointsToScreenPixelsY(0) + 427)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 791, w.PointsToScreenPixelsY(0) + 427).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 743.25,
+    "height": 451.75,
+    "left": 230,
+    "top": 132,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      1597
+     ],
+     [
+      "y",
+      2476.7
+     ],
+     [
+      "y",
+      2674.6
+     ],
+     [
+      "x",
+      1683
+     ],
+     [
+      "x",
+      2067
+     ],
+     [
+      "y",
+      1750.5
+     ]
+    ],
+    "spots": [
+     [
+      565,
+      549
+     ],
+     [
+      1223,
+      263
+     ],
+     [
+      360,
+      202
+     ],
+     [
+      787,
+      139
+     ],
+     [
+      1219,
+      692
+     ],
+     [
+      791,
+      427
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:743|Double:451.5|Double:732|Double:266.5|Long:2066|Long:3065|Long:3263|Long:2152|Long:2536|Long:2338|E91|String:Range:M10|String:Range:D7|String:Range:I5|E91|String:Range:I15 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.18",
+    [
+     "w.Width = 602.75",
+     "w.Height = 629.5",
+     "w.Left = 77",
+     "w.Top = 79",
+     "w.DisplayHeadings = False",
+     "Application.DisplayStatusBar = False",
+     "w.ScrollRow = 53",
+     "w.ScrollColumn = 7"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1152)",
+     "w.PointsToScreenPixelsY(90.4)",
+     "w.PointsToScreenPixelsY(497.1)",
+     "w.PointsToScreenPixelsY(2825.4)",
+     "w.PointsToScreenPixelsX(2606)",
+     "w.PointsToScreenPixelsX(1330)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1119, w.PointsToScreenPixelsY(0) + 1702) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1119, w.PointsToScreenPixelsY(0) + 1702)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1119, w.PointsToScreenPixelsY(0) + 1702).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 811, w.PointsToScreenPixelsY(0) + 1570) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 811, w.PointsToScreenPixelsY(0) + 1570)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 811, w.PointsToScreenPixelsY(0) + 1570).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1647, w.PointsToScreenPixelsY(0) + 1961) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1647, w.PointsToScreenPixelsY(0) + 1961)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1647, w.PointsToScreenPixelsY(0) + 1961).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 1486) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 1486)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 1486).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1603, w.PointsToScreenPixelsY(0) + 1930) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1603, w.PointsToScreenPixelsY(0) + 1930)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1603, w.PointsToScreenPixelsY(0) + 1930).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1561, w.PointsToScreenPixelsY(0) + 1768) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1561, w.PointsToScreenPixelsY(0) + 1768)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1561, w.PointsToScreenPixelsY(0) + 1768).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 602.75,
+    "height": 629.5,
+    "left": 77,
+    "top": 79,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": false,
+    "scroll": [
+     53,
+     7
+    ],
+    "points": [
+     [
+      "x",
+      1152
+     ],
+     [
+      "y",
+      90.4
+     ],
+     [
+      "y",
+      497.1
+     ],
+     [
+      "y",
+      2825.4
+     ],
+     [
+      "x",
+      2606
+     ],
+     [
+      "x",
+      1330
+     ]
+    ],
+    "spots": [
+     [
+      1119,
+      1702
+     ],
+     [
+      811,
+      1570
+     ],
+     [
+      1647,
+      1961
+     ],
+     [
+      640,
+      1486
+     ],
+     [
+      1603,
+      1930
+     ],
+     [
+      1561,
+      1768
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:602.5|Double:629.5|Double:591.5|Double:461|Long:739|Long:-936|Long:-529|Long:1799|Long:2193|Long:917|String:Range:L59|String:Range:I55|String:Range:R68|E91|String:Range:Q67|String:Range:Q61 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.19",
+    [
+     "w.Width = 854.0",
+     "w.Height = 296.25",
+     "w.Left = 13",
+     "w.Top = 0",
+     "w.DisplayHeadings = False",
+     "Application.DisplayFormulaBar = False",
+     "w.ScrollRow = 78",
+     "w.ScrollColumn = 7"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(2651.6)",
+     "w.PointsToScreenPixelsX(2804.6)",
+     "w.PointsToScreenPixelsY(2353.3)",
+     "w.PointsToScreenPixelsX(2822.7)",
+     "w.PointsToScreenPixelsY(2414.7)",
+     "w.PointsToScreenPixelsX(1972)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1477, w.PointsToScreenPixelsY(0) + 2586) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1477, w.PointsToScreenPixelsY(0) + 2586)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1477, w.PointsToScreenPixelsY(0) + 2586).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 833, w.PointsToScreenPixelsY(0) + 2867) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 833, w.PointsToScreenPixelsY(0) + 2867)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 833, w.PointsToScreenPixelsY(0) + 2867).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1167, w.PointsToScreenPixelsY(0) + 2207) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1167, w.PointsToScreenPixelsY(0) + 2207)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1167, w.PointsToScreenPixelsY(0) + 2207).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 2373) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 2373)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 640, w.PointsToScreenPixelsY(0) + 2373).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 934, w.PointsToScreenPixelsY(0) + 2804) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 934, w.PointsToScreenPixelsY(0) + 2804)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 934, w.PointsToScreenPixelsY(0) + 2804).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1648, w.PointsToScreenPixelsY(0) + 2366) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1648, w.PointsToScreenPixelsY(0) + 2366)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1648, w.PointsToScreenPixelsY(0) + 2366).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 854.0,
+    "height": 296.25,
+    "left": 13,
+    "top": 0,
+    "headings": false,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     78,
+     7
+    ],
+    "points": [
+     [
+      "y",
+      2651.6
+     ],
+     [
+      "x",
+      2804.6
+     ],
+     [
+      "y",
+      2353.3
+     ],
+     [
+      "x",
+      2822.7
+     ],
+     [
+      "y",
+      2414.7
+     ],
+     [
+      "x",
+      1972
+     ]
+    ],
+    "spots": [
+     [
+      1477,
+      2586
+     ],
+     [
+      833,
+      2867
+     ],
+     [
+      1167,
+      2207
+     ],
+     [
+      640,
+      2373
+     ],
+     [
+      934,
+      2804
+     ],
+     [
+      1648,
+      2366
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:854|Double:296|Double:843|Double:139.5|Long:686|Long:2264|Long:387|Long:2282|Long:449|Long:1431|E91|E91|E91|String:Range:G82|E91|String:Range:R82 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.20",
+    [
+     "w.Width = 709.25",
+     "w.Height = 448.75",
+     "w.Left = 20",
+     "w.Top = 76",
+     "w.DisplayHeadings = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(987.7)",
+     "w.PointsToScreenPixelsY(1597)",
+     "w.PointsToScreenPixelsX(772)",
+     "w.PointsToScreenPixelsY(1669)",
+     "w.PointsToScreenPixelsY(919)",
+     "w.PointsToScreenPixelsX(645.7)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 448, w.PointsToScreenPixelsY(0) + 179) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 448, w.PointsToScreenPixelsY(0) + 179)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 448, w.PointsToScreenPixelsY(0) + 179).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 277, w.PointsToScreenPixelsY(0) + 654) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 277, w.PointsToScreenPixelsY(0) + 654)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 277, w.PointsToScreenPixelsY(0) + 654).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 283, w.PointsToScreenPixelsY(0) + 666) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 283, w.PointsToScreenPixelsY(0) + 666)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 283, w.PointsToScreenPixelsY(0) + 666).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1287, w.PointsToScreenPixelsY(0) + -1) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1287, w.PointsToScreenPixelsY(0) + -1)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1287, w.PointsToScreenPixelsY(0) + -1).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1071, w.PointsToScreenPixelsY(0) + 577) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1071, w.PointsToScreenPixelsY(0) + 577)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1071, w.PointsToScreenPixelsY(0) + 577).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 603, w.PointsToScreenPixelsY(0) + 53) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 603, w.PointsToScreenPixelsY(0) + 53)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 603, w.PointsToScreenPixelsY(0) + 53).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 709.25,
+    "height": 448.75,
+    "left": 20,
+    "top": 76,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      987.7
+     ],
+     [
+      "y",
+      1597
+     ],
+     [
+      "x",
+      772
+     ],
+     [
+      "y",
+      1669
+     ],
+     [
+      "y",
+      919
+     ],
+     [
+      "x",
+      645.7
+     ]
+    ],
+    "spots": [
+     [
+      448,
+      179
+     ],
+     [
+      277,
+      654
+     ],
+     [
+      283,
+      666
+     ],
+     [
+      1287,
+      -1
+     ],
+     [
+      1071,
+      577
+     ],
+     [
+      603,
+      53
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:709|Double:448.5|Double:698|Double:263.5|Long:1037|Long:2073|Long:821|Long:2145|Long:1395|Long:695|String:Range:E7|E91|E91|E91|E91|String:Range:G2 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.21",
+    [
+     "w.Width = 870.25",
+     "w.Height = 438.75",
+     "w.Left = 171",
+     "w.Top = 124",
+     "Application.DisplayStatusBar = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1718)",
+     "w.PointsToScreenPixelsX(2796.6)",
+     "w.PointsToScreenPixelsX(2763.2)",
+     "w.PointsToScreenPixelsX(408)",
+     "w.PointsToScreenPixelsX(2269.6)",
+     "w.PointsToScreenPixelsX(2823)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 113, w.PointsToScreenPixelsY(0) + 26) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 113, w.PointsToScreenPixelsY(0) + 26)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 113, w.PointsToScreenPixelsY(0) + 26).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 236, w.PointsToScreenPixelsY(0) + -43) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 236, w.PointsToScreenPixelsY(0) + -43)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 236, w.PointsToScreenPixelsY(0) + -43).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 877, w.PointsToScreenPixelsY(0) + 417) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 877, w.PointsToScreenPixelsY(0) + 417)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 877, w.PointsToScreenPixelsY(0) + 417).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 614, w.PointsToScreenPixelsY(0) + 125) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 614, w.PointsToScreenPixelsY(0) + 125)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 614, w.PointsToScreenPixelsY(0) + 125).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1237, w.PointsToScreenPixelsY(0) + 238) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1237, w.PointsToScreenPixelsY(0) + 238)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1237, w.PointsToScreenPixelsY(0) + 238).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 750, w.PointsToScreenPixelsY(0) + 545) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 750, w.PointsToScreenPixelsY(0) + 545)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 750, w.PointsToScreenPixelsY(0) + 545).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 870.25,
+    "height": 438.75,
+    "left": 171,
+    "top": 124,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": false,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      1718
+     ],
+     [
+      "x",
+      2796.6
+     ],
+     [
+      "x",
+      2763.2
+     ],
+     [
+      "x",
+      408
+     ],
+     [
+      "x",
+      2269.6
+     ],
+     [
+      "x",
+      2823
+     ]
+    ],
+    "spots": [
+     [
+      113,
+      26
+     ],
+     [
+      236,
+      -43
+     ],
+     [
+      877,
+      417
+     ],
+     [
+      614,
+      125
+     ],
+     [
+      1237,
+      238
+     ],
+     [
+      750,
+      545
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:870|Double:438.5|Double:859|Double:270|Long:2110|Long:3189|Long:3155|Long:800|Long:2662|Long:3215|String:Range:B1|E91|String:Range:J15|String:Range:G5|String:Range:M9|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.22",
+    [
+     "w.Width = 473.5",
+     "w.Height = 649.75",
+     "w.Left = 194",
+     "w.Top = 120"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(222)",
+     "w.PointsToScreenPixelsX(1790)",
+     "w.PointsToScreenPixelsY(-155)",
+     "w.PointsToScreenPixelsX(1028)",
+     "w.PointsToScreenPixelsY(897.8)",
+     "w.PointsToScreenPixelsX(1355.8)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 577, w.PointsToScreenPixelsY(0) + -44) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 577, w.PointsToScreenPixelsY(0) + -44)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 577, w.PointsToScreenPixelsY(0) + -44).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 466, w.PointsToScreenPixelsY(0) + 486) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 466, w.PointsToScreenPixelsY(0) + 486)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 466, w.PointsToScreenPixelsY(0) + 486).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1129, w.PointsToScreenPixelsY(0) + 562) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1129, w.PointsToScreenPixelsY(0) + 562)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1129, w.PointsToScreenPixelsY(0) + 562).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 330, w.PointsToScreenPixelsY(0) + 308) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 330, w.PointsToScreenPixelsY(0) + 308)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 330, w.PointsToScreenPixelsY(0) + 308).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 27, w.PointsToScreenPixelsY(0) + -48) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 27, w.PointsToScreenPixelsY(0) + -48)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 27, w.PointsToScreenPixelsY(0) + -48).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1209, w.PointsToScreenPixelsY(0) + 687) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1209, w.PointsToScreenPixelsY(0) + 687)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1209, w.PointsToScreenPixelsY(0) + 687).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 473.5,
+    "height": 649.75,
+    "left": 194,
+    "top": 120,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "y",
+      222
+     ],
+     [
+      "x",
+      1790
+     ],
+     [
+      "y",
+      -155
+     ],
+     [
+      "x",
+      1028
+     ],
+     [
+      "y",
+      897.8
+     ],
+     [
+      "x",
+      1355.8
+     ]
+    ],
+    "spots": [
+     [
+      577,
+      -44
+     ],
+     [
+      466,
+      486
+     ],
+     [
+      1129,
+      562
+     ],
+     [
+      330,
+      308
+     ],
+     [
+      27,
+      -48
+     ],
+     [
+      1209,
+      687
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:473.5|Double:649.5|Double:462.5|Double:464.5|Long:815|Long:2227|Long:438|Long:1465|Long:1491|Long:1793|E91|String:Range:E17|E91|String:Range:D11|E91|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.23",
+    [
+     "w.Width = 529.75",
+     "w.Height = 414.0",
+     "w.Left = 204",
+     "w.Top = 68"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(2966.7)",
+     "w.PointsToScreenPixelsX(958.9)",
+     "w.PointsToScreenPixelsY(2651)",
+     "w.PointsToScreenPixelsY(2620)",
+     "w.PointsToScreenPixelsY(1517)",
+     "w.PointsToScreenPixelsX(1736.8)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 688, w.PointsToScreenPixelsY(0) + -59) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 688, w.PointsToScreenPixelsY(0) + -59)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 688, w.PointsToScreenPixelsY(0) + -59).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 655, w.PointsToScreenPixelsY(0) + 107) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 655, w.PointsToScreenPixelsY(0) + 107)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 655, w.PointsToScreenPixelsY(0) + 107).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1227, w.PointsToScreenPixelsY(0) + 52) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1227, w.PointsToScreenPixelsY(0) + 52)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1227, w.PointsToScreenPixelsY(0) + 52).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 21, w.PointsToScreenPixelsY(0) + 31) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 21, w.PointsToScreenPixelsY(0) + 31)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 21, w.PointsToScreenPixelsY(0) + 31).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 545, w.PointsToScreenPixelsY(0) + 196) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 545, w.PointsToScreenPixelsY(0) + 196)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 545, w.PointsToScreenPixelsY(0) + 196).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 831, w.PointsToScreenPixelsY(0) + 375) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 831, w.PointsToScreenPixelsY(0) + 375)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 831, w.PointsToScreenPixelsY(0) + 375).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 529.75,
+    "height": 414.0,
+    "left": 204,
+    "top": 68,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      2966.7
+     ],
+     [
+      "x",
+      958.9
+     ],
+     [
+      "y",
+      2651
+     ],
+     [
+      "y",
+      2620
+     ],
+     [
+      "y",
+      1517
+     ],
+     [
+      "x",
+      1736.8
+     ]
+    ],
+    "spots": [
+     [
+      688,
+      -59
+     ],
+     [
+      655,
+      107
+     ],
+     [
+      1227,
+      52
+     ],
+     [
+      21,
+      31
+     ],
+     [
+      545,
+      196
+     ],
+     [
+      831,
+      375
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:529.5|Double:414|Double:518.5|Double:229|Long:3425|Long:1417|Long:3140|Long:3109|Long:2006|Long:2195|E91|String:Range:G4|E91|String:Range:A2|String:Range:F7|String:Range:I13 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.24",
+    [
+     "w.Width = 504.25",
+     "w.Height = 617.5",
+     "w.Left = 52",
+     "w.Top = 65",
+     "w.DisplayHeadings = False",
+     "Application.DisplayFormulaBar = False",
+     "w.ScrollRow = 10",
+     "w.ScrollColumn = 1"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(2278)",
+     "w.PointsToScreenPixelsX(1181)",
+     "w.PointsToScreenPixelsY(793.2)",
+     "w.PointsToScreenPixelsY(1165)",
+     "w.PointsToScreenPixelsX(2081.3)",
+     "w.PointsToScreenPixelsX(837)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 422, w.PointsToScreenPixelsY(0) + 737) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 422, w.PointsToScreenPixelsY(0) + 737)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 422, w.PointsToScreenPixelsY(0) + 737).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 216, w.PointsToScreenPixelsY(0) + 793) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 216, w.PointsToScreenPixelsY(0) + 793)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 216, w.PointsToScreenPixelsY(0) + 793).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 756, w.PointsToScreenPixelsY(0) + 565) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 756, w.PointsToScreenPixelsY(0) + 565)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 756, w.PointsToScreenPixelsY(0) + 565).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1028, w.PointsToScreenPixelsY(0) + 757) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1028, w.PointsToScreenPixelsY(0) + 757)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1028, w.PointsToScreenPixelsY(0) + 757).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 343, w.PointsToScreenPixelsY(0) + 689) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 343, w.PointsToScreenPixelsY(0) + 689)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 343, w.PointsToScreenPixelsY(0) + 689).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 23, w.PointsToScreenPixelsY(0) + 298) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 23, w.PointsToScreenPixelsY(0) + 298)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 23, w.PointsToScreenPixelsY(0) + 298).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 504.25,
+    "height": 617.5,
+    "left": 52,
+    "top": 65,
+    "headings": false,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     10,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      2278
+     ],
+     [
+      "x",
+      1181
+     ],
+     [
+      "y",
+      793.2
+     ],
+     [
+      "y",
+      1165
+     ],
+     [
+      "x",
+      2081.3
+     ],
+     [
+      "x",
+      837
+     ]
+    ],
+    "spots": [
+     [
+      422,
+      737
+     ],
+     [
+      216,
+      793
+     ],
+     [
+      756,
+      565
+     ],
+     [
+      1028,
+      757
+     ],
+     [
+      343,
+      689
+     ],
+     [
+      23,
+      298
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:504|Double:617.5|Double:493|Double:461|Long:2391|Long:1294|Long:929|Long:1301|Long:2194|Long:950|String:Range:E26|String:Range:C28|String:Range:H20|E91|String:Range:D24|String:Range:A11 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.25",
+    [
+     "w.Width = 796.25",
+     "w.Height = 251.5",
+     "w.Left = 98",
+     "w.Top = 27",
+     "w.DisplayHeadings = False",
+     "w.ScrollRow = 38",
+     "w.ScrollColumn = 10"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1676)",
+     "w.PointsToScreenPixelsY(2445.5)",
+     "w.PointsToScreenPixelsY(1974)",
+     "w.PointsToScreenPixelsX(148.7)",
+     "w.PointsToScreenPixelsX(257.9)",
+     "w.PointsToScreenPixelsX(2616)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1064, w.PointsToScreenPixelsY(0) + 1411) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1064, w.PointsToScreenPixelsY(0) + 1411)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1064, w.PointsToScreenPixelsY(0) + 1411).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1146, w.PointsToScreenPixelsY(0) + 1030) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1146, w.PointsToScreenPixelsY(0) + 1030)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1146, w.PointsToScreenPixelsY(0) + 1030).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 2094, w.PointsToScreenPixelsY(0) + 1182) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 2094, w.PointsToScreenPixelsY(0) + 1182)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 2094, w.PointsToScreenPixelsY(0) + 1182).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1301, w.PointsToScreenPixelsY(0) + 1701) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1301, w.PointsToScreenPixelsY(0) + 1701)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1301, w.PointsToScreenPixelsY(0) + 1701).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 862, w.PointsToScreenPixelsY(0) + 1534) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 862, w.PointsToScreenPixelsY(0) + 1534)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 862, w.PointsToScreenPixelsY(0) + 1534).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1412, w.PointsToScreenPixelsY(0) + 1772) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1412, w.PointsToScreenPixelsY(0) + 1772)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1412, w.PointsToScreenPixelsY(0) + 1772).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 796.25,
+    "height": 251.5,
+    "left": 98,
+    "top": 27,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     38,
+     10
+    ],
+    "points": [
+     [
+      "x",
+      1676
+     ],
+     [
+      "y",
+      2445.5
+     ],
+     [
+      "y",
+      1974
+     ],
+     [
+      "x",
+      148.7
+     ],
+     [
+      "x",
+      257.9
+     ],
+     [
+      "x",
+      2616
+     ]
+    ],
+    "spots": [
+     [
+      1064,
+      1411
+     ],
+     [
+      1146,
+      1030
+     ],
+     [
+      2094,
+      1182
+     ],
+     [
+      1301,
+      1701
+     ],
+     [
+      862,
+      1534
+     ],
+     [
+      1412,
+      1772
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:796|Double:251.5|Double:785|Double:66.5|Long:1017|Long:1751|Long:1279|Long:-510|Long:-401|Long:1957|E91|E91|E91|E91|E91|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.26",
+    [
+     "w.Width = 790.25",
+     "w.Height = 372.0",
+     "w.Left = 86",
+     "w.Top = 37",
+     "w.DisplayHeadings = False",
+     "w.ScrollRow = 33",
+     "w.ScrollColumn = 9"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsY(1577.5)",
+     "w.PointsToScreenPixelsY(1119)",
+     "w.PointsToScreenPixelsX(1872.5)",
+     "w.PointsToScreenPixelsX(187)",
+     "w.PointsToScreenPixelsY(2561.8)",
+     "w.PointsToScreenPixelsY(936)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1794, w.PointsToScreenPixelsY(0) + 1362) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1794, w.PointsToScreenPixelsY(0) + 1362)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1794, w.PointsToScreenPixelsY(0) + 1362).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1631, w.PointsToScreenPixelsY(0) + 949) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1631, w.PointsToScreenPixelsY(0) + 949)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1631, w.PointsToScreenPixelsY(0) + 949).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 912, w.PointsToScreenPixelsY(0) + 1611) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 912, w.PointsToScreenPixelsY(0) + 1611)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 912, w.PointsToScreenPixelsY(0) + 1611).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 2044, w.PointsToScreenPixelsY(0) + 1411) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 2044, w.PointsToScreenPixelsY(0) + 1411)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 2044, w.PointsToScreenPixelsY(0) + 1411).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1647, w.PointsToScreenPixelsY(0) + 937) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1647, w.PointsToScreenPixelsY(0) + 937)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1647, w.PointsToScreenPixelsY(0) + 937).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 867, w.PointsToScreenPixelsY(0) + 1585) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 867, w.PointsToScreenPixelsY(0) + 1585)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 867, w.PointsToScreenPixelsY(0) + 1585).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 790.25,
+    "height": 372.0,
+    "left": 86,
+    "top": 37,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     33,
+     9
+    ],
+    "points": [
+     [
+      "y",
+      1577.5
+     ],
+     [
+      "y",
+      1119
+     ],
+     [
+      "x",
+      1872.5
+     ],
+     [
+      "x",
+      187
+     ],
+     [
+      "y",
+      2561.8
+     ],
+     [
+      "y",
+      936
+     ]
+    ],
+    "spots": [
+     [
+      1794,
+      1362
+     ],
+     [
+      1631,
+      949
+     ],
+     [
+      912,
+      1611
+     ],
+     [
+      2044,
+      1411
+     ],
+     [
+      1647,
+      937
+     ],
+     [
+      867,
+      1585
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:790|Double:372|Double:779|Double:187|Long:1048|Long:589|Long:1285|Long:-400|Long:2032|Long:406|E91|String:Range:Q33|E91|E91|String:Range:R33|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.27",
+    [
+     "w.Width = 504.5",
+     "w.Height = 419.5",
+     "w.Left = 106",
+     "w.Top = 63",
+     "Application.DisplayFormulaBar = False"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(-8)",
+     "w.PointsToScreenPixelsX(-97)",
+     "w.PointsToScreenPixelsY(2280.0)",
+     "w.PointsToScreenPixelsY(2614.0)",
+     "w.PointsToScreenPixelsY(2562.8)",
+     "w.PointsToScreenPixelsY(2055)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1270, w.PointsToScreenPixelsY(0) + 10) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1270, w.PointsToScreenPixelsY(0) + 10)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1270, w.PointsToScreenPixelsY(0) + 10).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 392, w.PointsToScreenPixelsY(0) + 550) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 392, w.PointsToScreenPixelsY(0) + 550)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 392, w.PointsToScreenPixelsY(0) + 550).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 498, w.PointsToScreenPixelsY(0) + 352) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 498, w.PointsToScreenPixelsY(0) + 352)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 498, w.PointsToScreenPixelsY(0) + 352).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 566, w.PointsToScreenPixelsY(0) + 312) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 566, w.PointsToScreenPixelsY(0) + 312)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 566, w.PointsToScreenPixelsY(0) + 312).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 734, w.PointsToScreenPixelsY(0) + 156) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 734, w.PointsToScreenPixelsY(0) + 156)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 734, w.PointsToScreenPixelsY(0) + 156).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 32, w.PointsToScreenPixelsY(0) + 312) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 32, w.PointsToScreenPixelsY(0) + 312)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 32, w.PointsToScreenPixelsY(0) + 312).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 504.5,
+    "height": 419.5,
+    "left": 106,
+    "top": 63,
+    "headings": true,
+    "formula_bar": false,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      -8
+     ],
+     [
+      "x",
+      -97
+     ],
+     [
+      "y",
+      2280.0
+     ],
+     [
+      "y",
+      2614.0
+     ],
+     [
+      "y",
+      2562.8
+     ],
+     [
+      "y",
+      2055
+     ]
+    ],
+    "spots": [
+     [
+      1270,
+      10
+     ],
+     [
+      392,
+      550
+     ],
+     [
+      498,
+      352
+     ],
+     [
+      566,
+      312
+     ],
+     [
+      734,
+      156
+     ],
+     [
+      32,
+      312
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:504.5|Double:419.5|Double:493.5|Double:263|Long:253|Long:164|Long:2702|Long:3036|Long:2985|Long:2477|E91|E91|String:Range:F13|String:Range:F11|String:Range:H6|String:Range:A11 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.28",
+    [
+     "w.Width = 461.25",
+     "w.Height = 257.25",
+     "w.Left = 93",
+     "w.Top = 2",
+     "w.DisplayHeadings = False",
+     "ActiveSheet.Rows(1).Hidden = True",
+     "ActiveSheet.Columns(1).Hidden = True"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(1038)",
+     "w.PointsToScreenPixelsY(995)",
+     "w.PointsToScreenPixelsX(475.9)",
+     "w.PointsToScreenPixelsY(1175)",
+     "w.PointsToScreenPixelsX(1811.9)",
+     "w.PointsToScreenPixelsY(2877.7)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1175, w.PointsToScreenPixelsY(0) + 401) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1175, w.PointsToScreenPixelsY(0) + 401)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1175, w.PointsToScreenPixelsY(0) + 401).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 145, w.PointsToScreenPixelsY(0) + 200) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 145, w.PointsToScreenPixelsY(0) + 200)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 145, w.PointsToScreenPixelsY(0) + 200).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1000, w.PointsToScreenPixelsY(0) + 629) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1000, w.PointsToScreenPixelsY(0) + 629)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1000, w.PointsToScreenPixelsY(0) + 629).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1250, w.PointsToScreenPixelsY(0) + 52) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1250, w.PointsToScreenPixelsY(0) + 52)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1250, w.PointsToScreenPixelsY(0) + 52).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1045, w.PointsToScreenPixelsY(0) + 503) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1045, w.PointsToScreenPixelsY(0) + 503)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 1045, w.PointsToScreenPixelsY(0) + 503).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 829, w.PointsToScreenPixelsY(0) + 211) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 829, w.PointsToScreenPixelsY(0) + 211)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 829, w.PointsToScreenPixelsY(0) + 211).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 461.25,
+    "height": 257.25,
+    "left": 93,
+    "top": 2,
+    "headings": false,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": true,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      1038
+     ],
+     [
+      "y",
+      995
+     ],
+     [
+      "x",
+      475.9
+     ],
+     [
+      "y",
+      1175
+     ],
+     [
+      "x",
+      1811.9
+     ],
+     [
+      "y",
+      2877.7
+     ]
+    ],
+    "spots": [
+     [
+      1175,
+      401
+     ],
+     [
+      145,
+      200
+     ],
+     [
+      1000,
+      629
+     ],
+     [
+      1250,
+      52
+     ],
+     [
+      1045,
+      503
+     ],
+     [
+      829,
+      211
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:461|Double:257|Double:450|Double:72|Long:1234|Long:1323|Long:672|Long:1503|Long:2008|Long:3206|E91|E91|E91|E91|E91|E91 dpi=14.5"
+  },
+  {
+   "call": [
+    "held p3.29",
+    [
+     "w.Width = 707.75",
+     "w.Height = 358.0",
+     "w.Left = 55",
+     "w.Top = 157"
+    ],
+    [
+     "Application.Width",
+     "Application.Height",
+     "Application.UsableWidth",
+     "Application.UsableHeight",
+     "w.PointsToScreenPixelsX(2840)",
+     "w.PointsToScreenPixelsY(2545)",
+     "w.PointsToScreenPixelsX(129.8)",
+     "w.PointsToScreenPixelsY(2898.3)",
+     "w.PointsToScreenPixelsY(1844.2)",
+     "w.PointsToScreenPixelsX(96.8)",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 604, w.PointsToScreenPixelsY(0) + 556) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 604, w.PointsToScreenPixelsY(0) + 556)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 604, w.PointsToScreenPixelsY(0) + 556).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 923, w.PointsToScreenPixelsY(0) + 609) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 923, w.PointsToScreenPixelsY(0) + 609)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 923, w.PointsToScreenPixelsY(0) + 609).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 652, w.PointsToScreenPixelsY(0) + 657) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 652, w.PointsToScreenPixelsY(0) + 657)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 652, w.PointsToScreenPixelsY(0) + 657).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 885, w.PointsToScreenPixelsY(0) + 355) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 885, w.PointsToScreenPixelsY(0) + 355)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 885, w.PointsToScreenPixelsY(0) + 355).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 879, w.PointsToScreenPixelsY(0) + 648) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 879, w.PointsToScreenPixelsY(0) + 648)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + 879, w.PointsToScreenPixelsY(0) + 648).Address(False, False))",
+     "IIf(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + -20, w.PointsToScreenPixelsY(0) + 107) Is Nothing, \"Nothing\", TypeName(w.RangeFromPoint(w.PointsToScreenPixelsX(0) + -20, w.PointsToScreenPixelsY(0) + 107)) & \":\" & w.RangeFromPoint(w.PointsToScreenPixelsX(0) + -20, w.PointsToScreenPixelsY(0) + 107).Address(False, False))"
+    ]
+   ],
+   "spec": {
+    "kind": "pixels",
+    "width": 707.75,
+    "height": 358.0,
+    "left": 55,
+    "top": 157,
+    "headings": true,
+    "formula_bar": true,
+    "status_bar": true,
+    "hidden": false,
+    "scroll": [
+     1,
+     1
+    ],
+    "points": [
+     [
+      "x",
+      2840
+     ],
+     [
+      "y",
+      2545
+     ],
+     [
+      "x",
+      129.8
+     ],
+     [
+      "y",
+      2898.3
+     ],
+     [
+      "y",
+      1844.2
+     ],
+     [
+      "x",
+      96.8
+     ]
+    ],
+    "spots": [
+     [
+      604,
+      556
+     ],
+     [
+      923,
+      609
+     ],
+     [
+      652,
+      657
+     ],
+     [
+      885,
+      355
+     ],
+     [
+      879,
+      648
+     ],
+     [
+      -20,
+      107
+     ]
+    ]
+   },
+   "model": "dpi=14.5|Double:707.5|Double:358|Double:696.5|Double:173|Long:2999|Long:3212|Long:289|Long:3565|Long:2511|Long:256|E91|E91|E91|E91|E91|E91 dpi=14.5"
+  }
+ ]
+}

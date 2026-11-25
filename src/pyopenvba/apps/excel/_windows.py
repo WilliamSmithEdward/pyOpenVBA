@@ -1586,6 +1586,18 @@ class Window(ExcelObject):
                        Height: object = MISSING, Start: object = MISSING) -> object:
         raise self._unmeasured_display("ScrollIntoView")
 
+    @method
+    def PointsToScreenPixelsX(self, Points: object = MISSING) -> object:
+        raise self._unmeasured_display("PointsToScreenPixelsX")
+
+    @method
+    def PointsToScreenPixelsY(self, Points: object = MISSING) -> object:
+        raise self._unmeasured_display("PointsToScreenPixelsY")
+
+    @method
+    def RangeFromPoint(self, x: object = MISSING, y: object = MISSING) -> object:
+        raise self._unmeasured_display("RangeFromPoint")
+
     def _scrolled(self, axis: int) -> int:
         view = self.view()
         split = view.rows if axis == 0 else view.columns

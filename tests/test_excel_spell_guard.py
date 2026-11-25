@@ -3,8 +3,9 @@
 the parser refuses each such shape first, as error 1004, and a formula naming another workbook makes its link (see
 _new_links). The guard stays for what a sync of the formula code from pyOfficeEditor may bring back.
 
-tests/fixtures/verified_gaps_accepted.json accepts the guard on these grounds. If a shape here starts reaching it, this
-test fails, and that entry has to be reconsidered rather than cover it.
+No VERIFIED row reaches the guard now, so tests/fixtures/verified_gaps_accepted.json does not list it. One that does
+again may be accepted there on these grounds. If a shape here starts reaching the guard, this test fails, and the
+guard has to be reconsidered rather than accepted.
 """
 from __future__ import annotations
 

@@ -12,9 +12,8 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
 
 MEASURED = json.loads((Path(__file__).parent / "fixtures/unassessed_effects.json").read_text(encoding="utf-8"))
-#: Measured, and left reporting themselves: each preset shadow sets its own blur and offsets and only two were read, and
-#: Shape.ThreeD is a feature of its own.
-REPORTED = {"shadow_type", "shadow_type_2", "shadow_type_bad", "three_shape"}
+#: Measured, and left reporting themselves: each preset shadow sets its own blur and offsets and only two were read.
+REPORTED = {"shadow_type", "shadow_type_2", "shadow_type_bad"}
 
 
 def _run(row: dict[str, str]) -> object:

@@ -13,7 +13,7 @@ hold a macro" stay apart.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 #: English Metric Units in one point.  Office measures a shape in EMU
 #: in the file and in points through the object model, and 12700 is the
@@ -315,6 +315,48 @@ class ShapeEffects:
     reflection_blur: int | None = None
 
 
+@dataclass(slots=True)
+class ShapeThreeD:
+    """A shape's ThreeDFormat once anything was set, as the file spells it (tests/fixtures/three_d_round_1.json,
+    three_d_round_2.json): the scene3d's camera and light, and the sp3d, each written once a member of it was set. Lengths in EMU,
+    angles in sixty-thousandths of a degree."""
+
+    #: Whether the scene3d is written: its camera, the camera's fov and rot, and its light rig.
+    scene: bool = False
+    camera: str = 'orthographicFront'
+    fov: int | None = None
+    rotation: tuple[int, int, int] | None = None
+    rig: str = 'threePt'
+    rig_dir: str = 't'
+    light_rev: int | None = None
+    #: Whether the sp3d is written, and what it holds.
+    body: bool = False
+    z: int | None = None
+    extrusion_h: int | None = None
+    contour_w: int | None = None
+    material: str | None = None
+    #: Each bevel once set: its prst (None for circle), w and h.
+    bevel_top: tuple[str | None, int | None, int | None] | None = None
+    bevel_bottom: tuple[str | None, int | None, int | None] | None = None
+    #: Each colour as RRGGBB or a theme colour's name.
+    extrusion_rgb: str | None = None
+    extrusion_scheme: str | None = None
+    contour_rgb: str | None = None
+    contour_scheme: str | None = None
+    #: ProjectText, which the file does not keep.
+    project_text: bool = True
+    #: What Visible = msoFalse put away in the file's hidden extensions.
+    hidden: ShapeThreeD | None = None
+
+    def blank(self) -> bool:
+        return not self.scene and not self.body
+
+
+def only_three_d(look: FillLine) -> bool:
+    """Whether a look holds a ThreeD and nothing else: a loaded shape's fill and line are still the file's."""
+    return look.three_d is not None and replace(look, three_d=None) == FillLine()
+
+
 @dataclass(frozen=True, slots=True)
 class GradientPoint:
     """One stop of a gradient fill: its position and alpha in thousandths of a percent, and its colour."""
@@ -427,6 +469,8 @@ class FillLine:
     effects: bool = False
     #: Its Shadow, Glow, SoftEdge and Reflection, once any was set.
     extra: ShapeEffects | None = None
+    #: Its ThreeD, once anything of it was set.
+    three_d: ShapeThreeD | None = None
     #: On a chart element, the one effect set: its member and value (tests/fixtures/chart_protection.json).
     chart_effect: tuple[str, object] | None = None
     #: A line that has been hidden writes a line shape's absent fill as noFill.

@@ -629,6 +629,12 @@ class ShapeRange(VBACollection, HeldPart):
         return RangeSoftEdge(self)
 
     @member
+    def ThreeD(self) -> object:
+        from pyopenvba.apps.excel._shape_three_d import RangeThreeD
+
+        return RangeThreeD(self)
+
+    @member
     def Reflection(self) -> object:
         from pyopenvba.apps.excel._shape_effects import RangeReflection
 
@@ -1776,6 +1782,13 @@ class ShapeObject(_Drawn):
         return SoftEdgeFormat(self)
 
     @member
+    def ThreeD(self) -> object:
+        from pyopenvba.apps.excel._shape_three_d import ThreeDFormat
+
+        self.on_sheet()
+        return ThreeDFormat(self)
+
+    @member
     def Reflection(self) -> object:
         from pyopenvba.apps.excel._shape_effects import ReflectionFormat
 
@@ -2640,10 +2653,28 @@ class ShapeNode(HeldPart):
 
     @member
     def EditingType(self) -> object:
-        # A line's later nodes have none to read, which Excel reports as a failure.
-        if self.point()[0] == 0 and self.index > 0:
-            raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
-        return VBAInt(0, "Long")
+        # The first node reads msoEditingAuto. A new freeform's others read by its kind and length, as measured: an open
+        # line of 2 nodes reads auto, of 3 fails on the middle one, of 4 or 5 reads corner inside and auto at the end; one
+        # curve reads auto throughout. Longer closed lines and curves read no pattern found, failing at nodes that move
+        # with the length (tests/fixtures/shape_nodes_round_1.json, shape_nodes_round_2.json).
+        if self.index == 0:
+            return VBAInt(0, "Long")
+        path = self.owner.shape.path
+        commands = [command for command, _ in path]
+        count = len(_freeform_points(self.owner))
+        last = self.index == count - 1
+        if "close" not in commands and set(commands[1:]) == {"lnTo"} and count in (2, 3, 4, 5):
+            if count == 3 and self.index == 1:
+                raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
+            return VBAInt(0 if last or count == 2 else 1, "Long")
+        if commands == ["moveTo", "lnTo", "lnTo", "close"]:
+            # A closed line of 3 fails on the middle node and reads corner on the last (tests/fixtures/shape_painter.json).
+            if self.index == 1:
+                raise error(-2147467259, "Method 'EditingType' of object 'ShapeNode' failed")
+            return VBAInt(1, "Long")
+        if commands == ["moveTo", "cubicBezTo"]:
+            return VBAInt(0, "Long")
+        raise _unsupported("EditingType of a node of this freeform")
 
     @member
     def Points(self) -> object:

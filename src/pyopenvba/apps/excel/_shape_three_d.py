@@ -506,12 +506,12 @@ class ThreeDFormat(HeldPart):
         wanted = int(to_integer(value, 'Long'))
         if wanted not in (1, 2):
             raise VBAUnsupportedError(f'ExtrusionColorType {wanted} is not implemented')
-        three_d = self.body()
-        if wanted == 1 and three_d is not None and (three_d.extrusion_rgb or three_d.extrusion_scheme) is not None:
-            # Automatic takes the colour away and leaves the depth it gave.
-            three_d = self.change(body=True)
+        if wanted == 1:
+            # Automatic takes the colour away and leaves the depth it gave; on a plain shape it writes the sp3d alone, as
+            # BevelTopType = msoBevelNone does (tests/fixtures/three_d_round_7.json).
+            three_d = self.change(scene=False, body=True)
             three_d.extrusion_rgb = three_d.extrusion_scheme = None
-        # Custom with no colour yet changes nothing, as setting what it already is does.
+        # Custom with no colour yet changes nothing.
 
     # The camera.
 
@@ -640,10 +640,17 @@ class ThreeDFormat(HeldPart):
         if three_d is None:
             return VBAInt(-2, 'Long')
         if three_d.rig.startswith('legacy'):
-            found = _OLD_DIRECTIONS.get((self._old_rig(three_d)[1], three_d.rig_dir))
+            number = self._old_rig(three_d)[1]
+            found = _OLD_DIRECTIONS.get((number, three_d.rig_dir))
             if found is None:
                 raise VBAUnsupportedError(f'The direction of the {three_d.rig} light from {three_d.rig_dir} is not implemented')
             side = _DEGREES[found]
+            if three_d.light_rev is not None:
+                # Turned, an old rig from the top turns from the top, and number 3 from the left; number 2 is not measured
+                # (tests/fixtures/three_d_round_7.json).
+                if number == 2 or three_d.rig_dir != 't':
+                    raise VBAUnsupportedError(f'The direction of the {three_d.rig} light turned is not implemented')
+                side = 270 if number == 3 else 0
         elif three_d.rig_dir in _QUARTERS:
             side = _QUARTERS[three_d.rig_dir] * 90
         else:
@@ -787,12 +794,9 @@ class ThreeDFormat(HeldPart):
 
     @method
     def IncrementRotationHorizontal(self, Increment: object) -> object:  # noqa: N803 - native named argument
-        # Turned past nothing, Excel writes the lon one short some of the time (-15, not 10 or 45): not known.
-        lon = self._start()[1] / _ANGLE + float(to_number(Increment))
-        if not 0 <= lon < 360:
-            raise VBAUnsupportedError('IncrementRotationHorizontal past nothing is not implemented')
-        self._turn(1, round(lon * _ANGLE))
-        return EMPTY
+        # Excel writes the lon one short some of the time, past nothing or not (-15 from 0, 20 from 60; not 10 or 45 from 0):
+        # not known.
+        raise VBAUnsupportedError('IncrementRotationHorizontal is not implemented')
 
     @method
     def IncrementRotationVertical(self, Increment: object) -> object:  # noqa: N803 - native named argument

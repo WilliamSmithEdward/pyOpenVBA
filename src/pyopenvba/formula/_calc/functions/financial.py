@@ -1915,8 +1915,9 @@ def AMORDEGRC(
     half = 0.0
     for index in range(1, which + 1):
         if left < 0 or index >= life:
-            depreciation = 0.0
-        elif index == life - 2:
+            # From here on every period takes nothing, however far the one asked for is.
+            return 0.0
+        if index == life - 2:
             half = value * 0.5
             depreciation = half
         elif index == life - 1:

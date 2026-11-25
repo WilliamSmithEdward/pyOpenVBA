@@ -35,6 +35,18 @@ USED_UP: dict[int, str] = {
            'past 0 and 1 (tests/fixtures/worksheet_function_rivals.json); Confidence_Norm, Growth and LinEst missed in the '
            'last digit and left the rounds',
 }
+#: The clean rounds, 60105 and 60106, ran on the same code, and promoted each row with no difference in either. These
+#: functions differ in them, and their rows stay PARTIAL.
+_LAST = 'the model answers a unit away in the fifteenth significant digit'
+KNOWN: dict[tuple[int, str], str] = {
+    (60105, 'Confidence'): _LAST,
+    (60105, 'ErfC_Precise'): _LAST,
+    (60105, 'RandArray'): 'its numbers are random draws, which no prediction can match',
+    (60106, 'Index'): "Index(range, Null) late bound is error 1004 in Excel, where the model takes Null as a blank row and "
+                      "answers the whole column",
+    (60106, 'TInv'): _LAST,
+    (60106, 'ZTest'): _LAST + ', far out in the tail',
+}
 
 
 def _as_measured(seed: int, answer: str) -> str:
@@ -51,9 +63,19 @@ def test_each_call_as_excel_answered(record: dict[str, Any], typed: bool) -> Non
     cases = [case for case in record['cases'] if case['function'] not in ROUNDS.LAST_DIGIT | ROUNDS.REFUSING]
     tag = 'typed' if typed else 'late'
     answers = ROUNDS.model_answers(cases, typed, record['seed'] >= ROUNDS.ESCAPES_FROM)
-    assert [(case['function'], case['setup'], case['arguments'], case[tag], answer)
-            for case, answer in zip(cases, answers, strict=True)
-            if not ROUNDS.refused(answer) and _as_measured(record['seed'], answer) != case[tag]] == []
+    wrong = [(case['function'], case['setup'], case['arguments'], case[tag], answer)
+             for case, answer in zip(cases, answers, strict=True)
+             if not ROUNDS.refused(answer) and _as_measured(record['seed'], answer) != case[tag]]
+    assert [one for one in wrong if (record['seed'], one[0]) not in KNOWN] == []
+
+
+def test_the_known_differences_still_differ() -> None:
+    for record in RECORDS:
+        cases = [case for case in record['cases'] if (record['seed'], case['function']) in KNOWN]
+        answers = ROUNDS.model_answers(cases, False, record['seed'] >= ROUNDS.ESCAPES_FROM)
+        found = {case['function'] for case, answer in zip(cases, answers, strict=True)
+                 if _as_measured(record['seed'], answer) != case['late'] or case['typed'] != case['model_typed']}
+        assert found == {function for seed, function in KNOWN if seed == record['seed']}
 
 
 @pytest.mark.parametrize('record', RECORDS, ids=lambda record: str(record['seed']))

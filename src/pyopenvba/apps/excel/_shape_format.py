@@ -25,7 +25,7 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import MISSING, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_integer, to_number, to_text
 from pyopenvba.shapes._read_look import Paint, read_look, read_style
-from pyopenvba.shapes._values import FillGradient, FillLine, FillPicture, GradientPoint, emu, points
+from pyopenvba.shapes._values import FillGradient, FillLine, FillPicture, GradientPoint, emu, only_three_d, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -272,7 +272,7 @@ class _Format(HeldPart):
 
     def look(self) -> FillLine:
         shape = self.shape
-        if shape.fill_line is not None:
+        if shape.fill_line is not None and not (shape.source and only_three_d(shape.fill_line)):
             return shape.fill_line
         if not shape.source or shape.kind not in _LOADED_KINDS:
             return FillLine()
@@ -295,8 +295,11 @@ class _Format(HeldPart):
             # A save writes the group's markup as it came, so the change would be lost.
             raise VBAUnsupportedError("Changing the fill or line of a shape in a group from a file is not implemented")
         self.owner.guard("Fill" if isinstance(self, FillFormat) else "Line")
-        if self.shape.fill_line is None:
+        if self.shape.fill_line is None or self.shape.source and only_three_d(self.shape.fill_line):
+            # What ThreeD set on a shape from a file is kept with its fill and line, read from the file.
+            three_d = None if self.shape.fill_line is None else self.shape.fill_line.three_d
             self.shape.fill_line = self.look()
+            self.shape.fill_line.three_d = three_d
             if self.shape.source:
                 refs = read_style(self.shape.source)
                 self.shape.fill_line.style_fill = refs.fill.scheme if refs.fill is not None else None

@@ -254,8 +254,18 @@ ROUNDS: dict[int, list[str]] = {
          f't.SetThreeDFormat 18{AGAIN}t.SetPresetCamera 1', f't.RotationY = 15: t.Visible = msoFalse{AGAIN}t.RotationY = 25',
          f't.ProjectText = msoFalse: t.ContourWidth = 2{AGAIN}t.ContourWidth = 0', f't.SetPresetCamera 47: t.FieldOfView = 15{AGAIN}t.SetPresetCamera 2'],
 }
+#: Round 11: every kind of value host_completeness.md names, given to each settable property and each method's argument, on a
+#: fresh shape, and on one formatted, saved and opened again; each read in place and its saved markup recorded.
+KIND_VALUES = ['2.5', '"3"', '"x"', '""', 'Null', 'Empty', 'True', 'CCur(1.5)', '#1/2/1900#', 'ws.Range("A1,C1")']
+KIND_PROPERTIES = ['BevelBottomDepth', 'BevelBottomInset', 'BevelBottomType', 'BevelTopDepth', 'BevelTopInset', 'BevelTopType', 'ContourWidth', 'Depth',
+                   'ExtrusionColorType', 'FieldOfView', 'LightAngle', 'Perspective', 'PresetLighting', 'PresetLightingDirection',
+                   'PresetLightingSoftness', 'PresetMaterial', 'ProjectText', 'RotationX', 'RotationY', 'RotationZ', 'Visible', 'Z']
+KIND_METHODS = ['IncrementRotationX', 'IncrementRotationY', 'IncrementRotationZ', 'SetExtrusionDirection', 'SetPresetCamera', 'SetThreeDFormat']
+_KINDS = ([f't.{name} = {value}' for name in KIND_PROPERTIES for value in KIND_VALUES] +
+          [f't.{name} {value}' for name in KIND_METHODS for value in KIND_VALUES])
+ROUNDS[11] = _KINDS + [f't.SetThreeDFormat 7{AGAIN}{statement}' for statement in _KINDS]
 #: The shapes of each round where not all of them.
-ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text']}
+ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text'], 11: ['rect']}
 ROUND = 1
 
 

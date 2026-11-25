@@ -148,11 +148,32 @@ def _size(value: object, largest: float, refused: float, what: str) -> float:
     """A size Excel takes up to its largest, refusing with the parameter error from the value measured; between them, and
     below nothing, the answer is not known."""
     wanted = _single(value)
-    if wanted >= refused:
+    if wanted >= refused or wanted == -1:
+        # -1 was measured as True (tests/fixtures/three_d_round_11.json).
         raise error(*_BAD_VALUE)
     if wanted > largest or wanted < 0:
         raise VBAUnsupportedError(f'{what} of {wanted} is not implemented')
     return wanted
+
+
+def _choice(value: object) -> int:
+    """An enumerated member's value: msoFalse and msoTrue, as Empty and True are, are the parameter error for each of them
+    (tests/fixtures/three_d_round_11.json to three_d_round_13.json)."""
+    wanted = int(to_integer(value, 'Long'))
+    if wanted in (0, -1):
+        raise error(*_BAD_VALUE)
+    return wanted
+
+
+def _drop_hidden_scene(three_d: ShapeThreeD) -> None:
+    """Perspective and SetThreeDFormat on a hidden format write a scene3d in place of the hidden one
+    (tests/fixtures/three_d_round_12.json)."""
+    if three_d.hidden is None:
+        return
+    three_d.scene = True
+    _move(ShapeThreeD(), three_d.hidden, _PARTS[0][0])
+    if three_d.hidden.blank():
+        three_d.hidden = None
 
 
 def _plain_rotation(camera: str, rotation: tuple[int, int, int] | None) -> tuple[int, int, int] | None:
@@ -298,11 +319,17 @@ class ThreeDFormat(HeldPart):
 
     @setter('Visible')
     def _visible(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long')) != 0
+        number = int(to_integer(value, 'Long'))
         three_d = self.held()
         if three_d is None:
             # Neither way changes a format nothing was set on.
             return
+        if number in (2, 3):
+            # Neither shows nor hides (tests/fixtures/three_d_round_12.json).
+            return
+        if number not in (0, -1):
+            raise VBAUnsupportedError(f'Visible = {number} on a ThreeD that is set is not implemented')
+        wanted = number == -1
         if wanted and (three_d.hidden is None or three_d.scene):
             # Showing a format that shows changes nothing, what is hidden staying hidden.
             return
@@ -351,7 +378,7 @@ class ThreeDFormat(HeldPart):
         return VBAInt(next(kind for kind, preset in _BEVELS.items() if preset == bevel[0]), 'Long')
 
     def _set_bevel_type(self, top: bool, value: object) -> None:
-        wanted = int(to_integer(value, 'Long'))
+        wanted = _choice(value)
         if wanted == 1:
             # None takes the bevel away, and writes the sp3d without a scene of its own.
             self._put_bevel(self.change(scene=False, body=True), top, None)
@@ -478,7 +505,7 @@ class ThreeDFormat(HeldPart):
 
     @setter('PresetMaterial')
     def _preset_material(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long'))
+        wanted = _choice(value)
         if not 1 <= wanted <= len(_MATERIALS):
             raise VBAUnsupportedError(f'PresetMaterial {wanted} is not implemented')
         three_d = self.old_preset('body', body=True)
@@ -527,7 +554,9 @@ class ThreeDFormat(HeldPart):
 
     @setter('ExtrusionColorType')
     def _extrusion_color_type(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long'))
+        wanted = _choice(value)
+        if wanted == 3:
+            raise error(*_BAD_VALUE)
         if wanted not in (1, 2):
             raise VBAUnsupportedError(f'ExtrusionColorType {wanted} is not implemented')
         if wanted == 1:
@@ -550,7 +579,7 @@ class ThreeDFormat(HeldPart):
 
     @method
     def SetPresetCamera(self, PresetCamera: object) -> object:  # noqa: N803 - native named argument
-        wanted = int(to_integer(PresetCamera, 'Long'))
+        wanted = _choice(PresetCamera)
         if wanted not in _CAMERAS:
             raise VBAUnsupportedError(f'SetPresetCamera {wanted} is not implemented')
         # In place of what the camera was, its rot and field of view with it.
@@ -566,16 +595,23 @@ class ThreeDFormat(HeldPart):
     @setter('Perspective')
     def _perspective(self, value: object) -> None:
         number = int(to_integer(value, 'Long'))
-        if number not in (0, -1):
-            # Only msoTrue and msoFalse; 2.5, "3" and a date are the parameter error (tests/fixtures/three_d_round_11.json).
-            raise error(*_BAD_VALUE)
-        wanted = number == -1
         held = self.scene()
         now = 'orthographicFront' if held is None else held.camera
+        if number in (-2, 2, 3):
+            # 2.5, "3" and a date are the parameter error (tests/fixtures/three_d_round_11.json), as -2 is; 1 is msoFalse
+            # (three_d_round_12.json, three_d_round_13.json).
+            raise error(*_BAD_VALUE)
+        if number == -3 and not (held is not None and _CAMERAS[_CAMERA_NUMBERS[now]][2]):
+            # The toggle was measured from a camera with perspective only, where it takes it away.
+            raise VBAUnsupportedError('Perspective = msoTriStateToggle without perspective is not implemented')
+        if number not in (-3, -1, 0, 1):
+            raise VBAUnsupportedError(f'Perspective = {number} is not implemented')
+        wanted = number == -1
         # From any old camera, from whichever side, the camera faces front.
         if now != 'orthographicFront' and not now.startswith(('legacyOblique', 'legacyPerspective')):
             raise VBAUnsupportedError(f'Perspective on the {now} camera is not implemented')
         three_d = self.change()
+        _drop_hidden_scene(three_d)
         three_d.camera = 'legacyPerspectiveFront' if wanted else 'legacyObliqueFront'
         # Either way the camera's rot is written out.
         three_d.rotation = three_d.rotation or (0, 0, 0)
@@ -604,7 +640,7 @@ class ThreeDFormat(HeldPart):
 
     @method
     def SetExtrusionDirection(self, PresetExtrusionDirection: object) -> object:  # noqa: N803 - native named argument
-        wanted = int(to_integer(PresetExtrusionDirection, 'Long'))
+        wanted = _choice(PresetExtrusionDirection)
         if wanted not in _SIDES:
             raise VBAUnsupportedError(f'SetExtrusionDirection {wanted} is not implemented')
         three_d = self.old_preset('body')
@@ -633,11 +669,12 @@ class ThreeDFormat(HeldPart):
 
     @method
     def SetThreeDFormat(self, PresetThreeDFormat: object) -> object:  # noqa: N803 - native named argument
-        wanted = int(to_integer(PresetThreeDFormat, 'Long'))
+        wanted = _choice(PresetThreeDFormat)
         if wanted not in _FORMATS:
             raise VBAUnsupportedError(f'SetThreeDFormat {wanted} is not implemented')
         # In place of the camera, its rot, the depth and the material; the rest stays.
         three_d = self.change(body=True)
+        _drop_hidden_scene(three_d)
         three_d.camera, three_d.rotation, three_d.extrusion_h, three_d.material = _FORMATS[wanted]
         three_d.fov = None
         return EMPTY
@@ -651,7 +688,7 @@ class ThreeDFormat(HeldPart):
 
     @setter('PresetLighting')
     def _preset_lighting(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long'))
+        wanted = _choice(value)
         if not 1 <= wanted <= len(_RIGS):
             raise VBAUnsupportedError(f'PresetLighting {wanted} is not implemented')
         held = self.scene()
@@ -696,7 +733,7 @@ class ThreeDFormat(HeldPart):
 
     @setter('PresetLightingDirection')
     def _preset_lighting_direction(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long'))
+        wanted = _choice(value)
         if wanted not in _DIRECTED:
             raise VBAUnsupportedError(f'PresetLightingDirection {wanted} is not implemented')
         three_d = self.old_preset('scene')
@@ -723,7 +760,7 @@ class ThreeDFormat(HeldPart):
 
     @setter('PresetLightingSoftness')
     def _preset_lighting_softness(self, value: object) -> None:
-        wanted = int(to_integer(value, 'Long'))
+        wanted = _choice(value)
         kinds = {number: kind for kind, number in _SOFTNESS.items()}
         if wanted not in kinds:
             raise VBAUnsupportedError(f'PresetLightingSoftness {wanted} is not implemented')

@@ -38,7 +38,15 @@ SHAPES = {'open': 'ws.Shapes.AddPolyline(Pts(10, 10, 110, 10, 60, 80))',
           'closed5': 'ws.Shapes.AddPolyline(Pts(20, 10, 120, 30, 90, 90, 40, 70, 10, 40, 20, 10))',
           'curve1': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50))',
           'curve3': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50, 140, 0, 170, 60, 200, 50, 230, 40, 260, 40, 290, 50))',
-          'curveclosed': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50, 140, 0, 170, 60, 10, 50))'}
+          'curveclosed': 'ws.Shapes.AddCurve(Pts(10, 50, 40, 100, 80, 100, 110, 50, 140, 0, 170, 60, 10, 50))',
+          'zig': 'ws.Shapes.AddPolyline(Pts(30, 20, 70, 90, 110, 25, 150, 95, 190, 30, 230, 100))',
+          'square': 'ws.Shapes.AddPolyline(Pts(40, 40, 140, 40, 140, 140, 40, 140, 40, 40))',
+          'built': 'BuiltLines(ws)',
+          'slant': 'ws.Shapes.AddPolyline(Pts(12.5, 7.25, 98.75, 63.5, 45.5, 120.25))',
+          'tall': 'ws.Shapes.AddPolyline(Pts(60, 5, 90, 200, 30, 120, 75, 60))',
+          'pent': 'ws.Shapes.AddPolyline(Pts(100, 20, 160, 60, 140, 130, 60, 130, 40, 60, 100, 20))',
+          'line2': 'ws.Shapes.AddPolyline(Pts(200, 100, 20, 30))',
+          'wave': 'ws.Shapes.AddPolyline(Pts(15, 50, 45, 20, 75, 50, 105, 20, 135, 50))'}
 READS = ['TypeName(n)', 'TypeName(n.Parent)', 'n.Count', 'sh.Left', 'sh.Top', 'sh.Width', 'sh.Height', 'sh.Type',
          'sh.AutoShapeType', 'ws.Shapes.Count']
 _LINE = 'msoSegmentLine'
@@ -77,8 +85,56 @@ ROUNDS[2] = ['', 'n.SetPosition 1, 15, 15', 'n.SetPosition 2, 100, 20', 'n.SetPo
              'n.SetEditingType 1, msoEditingCorner', 'n.SetEditingType n.Count, msoEditingCorner', 'n.SetPosition 1, 15, 15: n.SetEditingType 2, msoEditingCorner',
              f'{_GROW}{AGAIN}n.SetPosition 2, 300, 5', f'{AGAIN}{_GROW}', 'n.Delete n.Count: n.Delete n.Count',
              'n.Delete 1: n.Delete 1: n.Delete 1']
+#: Rounds 3 and 4, held out on the code that answered rounds 1 and 2: freeforms of lines edited in ways not tried.
+ROUNDS[3] = ['', 'n.SetPosition 3, 80, 50', 'n.SetPosition 1, 0, 0', 'n.SetPosition 2, 400, 300', 'n.SetPosition 1, 35.75, 22.5',
+             'n.SetPosition n.Count, 1, 1', 'n.SetPosition 2, -5, 60', 'n.SetPosition 1, 80, 50: n.SetPosition 3, 20, 20',
+             'n.SetPosition 2, 50, 300', f'n.Insert 3, {_LINE}, msoEditingCorner, 90, 60', f'n.Insert 1, {_LINE}, msoEditingAuto, 300, 10',
+             f'n.Insert 2, {_LINE}, msoEditingSymmetric, 60.25, 30.5', f'n.Insert 1, {_CURVE}, msoEditingCorner, 40, 30, 60, 40, 80, 50',
+             f'n.Insert n.Count, {_CURVE}, msoEditingAuto, 120, 70', f'n.Insert 1, {_LINE}, msoEditingCorner, 0, 300',
+             f'n.Insert -1, {_LINE}, msoEditingCorner, 50, 50', f'n.Insert 2, 2, msoEditingCorner, 50, 50',
+             'n.Delete 3', 'n.Delete n.Count: n.Delete 1', 'n.Delete -1', 'n.Delete 1: n.SetPosition 2, 90, 15',
+             f'n.SetSegmentType 2, {_CURVE}', f'n.SetSegmentType n.Count, {_CURVE}: n.Delete 1', f'n.SetSegmentType 1, -1',
+             f'n.SetSegmentType 3, {_LINE}', 'n.SetEditingType 1, msoEditingSmooth', 'n.SetEditingType n.Count + 1, msoEditingCorner',
+             'n.SetEditingType 2, -1', f'n.SetPosition 2, 60, 60{AGAIN}', f'n.Delete 2{AGAIN}n.Delete 1',
+             f'n.Insert 2, {_LINE}, msoEditingCorner, 70, 20{AGAIN}', f'{AGAIN}n.Insert 1, {_LINE}, msoEditingCorner, 70, 20']
+ROUNDS[4] = ['n.SetPosition 2, 75, 45', 'n.SetPosition 1, 2, 3', 'n.SetPosition 3, 350, 250', 'n.SetPosition n.Count, 66.6, 33.3',
+             'n.SetPosition 2, -30, -30', 'n.SetPosition 1, 45, 45: n.SetPosition 2, 55, 55', 'n.SetPosition 3, 10, 400',
+             f'n.Insert 2, {_LINE}, msoEditingCorner, 33, 66', f'n.Insert n.Count, {_LINE}, msoEditingAuto, 3, 160',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 45.125, 50.875', f'n.Insert 2, {_CURVE}, msoEditingCorner, 50, 30, 70, 50, 90, 40',
+             f'n.Insert 3, {_CURVE}, msoEditingAuto, 75, 75', f'n.Insert 1, {_LINE}, msoEditingCorner, 500, 500',
+             f'n.Insert n.Count + 1, {_LINE}, msoEditingCorner, 50, 50', f'n.Insert 1, 5, msoEditingCorner, 50, 50',
+             'n.Delete 2: n.Delete 2', 'n.Delete n.Count - 1', 'n.Delete n.Count + 1', 'n.Delete 2: n.SetPosition 1, 150, 150',
+             f'n.SetSegmentType 3, {_CURVE}', f'n.SetSegmentType 1, {_CURVE}: n.Delete n.Count', f'n.SetSegmentType n.Count + 1, {_CURVE}',
+             f'n.SetSegmentType 1, {_LINE}', 'n.SetEditingType 2, msoEditingSymmetric', 'n.SetEditingType -1, msoEditingCorner',
+             'n.SetEditingType 1, 4', f'n.SetPosition 1, 5, 95{AGAIN}', f'n.Delete 1{AGAIN}n.SetPosition 1, 20, 20',
+             f'n.SetSegmentType 2, {_CURVE}{AGAIN}', f'{AGAIN}n.Delete n.Count']
+#: Rounds 5 and 6, held out on the code that answered rounds 1 to 4.
+ROUNDS[5] = ['', 'n.SetPosition 2, 120, 40', 'n.SetPosition 1, 250, 10', 'n.SetPosition n.Count, 300, 250', 'n.SetPosition 3, 5, 5',
+             'n.SetPosition 2, 40.5, 40', 'n.SetPosition 1, -10, 50', 'n.SetPosition 2, 70, 70: n.SetPosition 1, 20, 20',
+             'n.SetPosition 1, 300, 300: n.SetPosition 2, 50, 50', f'n.Insert 1, {_LINE}, msoEditingCorner, 80, 80',
+             f'n.Insert 2, {_LINE}, msoEditingAuto, 350, 20', f'n.Insert n.Count, {_LINE}, msoEditingCorner, 10, 300',
+             f'n.Insert 2, {_LINE}, msoEditingCorner, 7.5, 9', f'n.Insert 1, {_CURVE}, msoEditingCorner, 70, 70, 80, 80, 90, 90',
+             f'n.Insert 2, {_CURVE}, msoEditingAuto, 66, 44', f'n.Insert 3, {_CURVE}, msoEditingSmooth, 66, 44',
+             f'n.Insert 0, {_LINE}, msoEditingCorner, 50, 50', 'n.Delete 2', 'n.Delete n.Count', 'n.Delete 1: n.Delete n.Count',
+             'n.Delete 2: n.SetPosition 2, 400, 400', 'n.Delete 0', f'n.SetSegmentType 2, {_CURVE}: n.SetSegmentType 2, {_LINE}',
+             f'n.SetSegmentType n.Count, {_CURVE}', f'n.SetSegmentType 1, {_CURVE}: n.SetPosition 1, 5, 5', 'n.SetSegmentType 2, 3',
+             'n.SetEditingType 2, msoEditingCorner', 'n.SetEditingType 0, 9', f'n.SetPosition 1, 50, 50{AGAIN}',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 90, 90{AGAIN}n.Delete 1', f'{AGAIN}n.SetPosition 1, 50, 50']
+ROUNDS[6] = ['n.SetPosition 2, 110, 110', 'n.SetPosition 1, 0, 300', 'n.SetPosition n.Count, 450, 20', 'n.SetPosition 2, 1, 1',
+             'n.SetPosition 3, 55.25, 60', 'n.SetPosition 2, 100, -40', 'n.SetPosition 1, 30, 30: n.SetPosition 1, 250, 250',
+             'n.SetPosition 2, 5, 150: n.SetPosition 3, 200, 10', f'n.Insert 1, {_LINE}, msoEditingCorner, 33, 33',
+             f'n.Insert n.Count, {_LINE}, msoEditingAuto, 400, 300', f'n.Insert 2, {_LINE}, msoEditingCorner, 0, 0',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 12, 12.5', f'n.Insert 2, {_CURVE}, msoEditingCorner, 50, 60, 60, 70, 70, 80',
+             f'n.Insert 1, {_CURVE}, msoEditingAuto, 99, 11', f'n.Insert 1, {_LINE}, msoEditingSmooth, 20, 120',
+             f'n.Insert n.Count + 1, {_LINE}, msoEditingCorner, 50, 50', 'n.Delete 1', 'n.Delete 3', 'n.Delete 2: n.Delete 1',
+             'n.Delete n.Count: n.SetPosition 1, 300, 5', 'n.Delete n.Count + 1', f'n.SetSegmentType 1, {_CURVE}',
+             f'n.SetSegmentType 3, {_CURVE}: n.Delete 1', f'n.SetSegmentType n.Count, {_LINE}', 'n.SetSegmentType 0, 1',
+             'n.SetEditingType n.Count, msoEditingAuto', 'n.SetEditingType 2, 7', f'n.SetPosition 2, 300, 20{AGAIN}',
+             f'n.Delete 2{AGAIN}n.SetPosition 1, 9, 9', f'{AGAIN}n.Insert 1, {_LINE}, msoEditingCorner, 50, 50']
 #: The shapes of each round where not all of them.
-ROUND_SHAPES: dict[int, list[str]] = {1: ['open', 'closed', 'curve', 'mixed'], 2: ['open', 'closed', 'two', 'four', 'five', 'closed5', 'curve1', 'curve3', 'curveclosed']}
+ROUND_SHAPES: dict[int, list[str]] = {5: ['tall', 'pent', 'line2', 'wave', 'four', 'slant'], 6: ['tall', 'pent', 'line2', 'wave', 'zig', 'built'],
+                                      3:['zig', 'square', 'built', 'slant', 'five', 'two'], 4: ['zig', 'square', 'built', 'slant', 'open', 'four'],
+                                      1:['open', 'closed', 'curve', 'mixed'], 2: ['open', 'closed', 'two', 'four', 'five', 'closed5', 'curve1', 'curve3', 'curveclosed']}
 ROUND = 1
 
 
@@ -135,6 +191,14 @@ Private Function MixedShape(ByVal ws As Object) As Object
     Set MixedShape = b.ConvertToShape
 End Function
 
+Private Function BuiltLines(ByVal ws As Object) As Object
+    Dim b As Object
+    Set b = ws.Shapes.BuildFreeform(msoEditingCorner, 25, 15)
+    b.AddNodes msoSegmentLine, msoEditingAuto, 125, 35
+    b.AddNodes msoSegmentLine, msoEditingAuto, 95, 85
+    Set BuiltLines = b.ConvertToShape
+End Function
+
 Private Function Listed(ByVal n As Object) As String
     Dim i As Long, c As Long, s As String, p As Variant, t As String
     On Error Resume Next
@@ -161,15 +225,22 @@ End Function
 PART = 8
 
 
-def macro(chosen: list[tuple[int, list[Any]]]) -> str:
+#: The read of each node's EditingType, which a model run can leave out.
+EDITING_READ = 'Err.Clear: t = CStr(n.Item(i).EditingType)'
+#: What a node's EditingType reads where a model run left it out.
+LEFT_OUT = 'refused'
+
+
+def macro(chosen: list[tuple[int, list[Any]]], editing: bool = True) -> str:
     typed = chosen[0][1][2]
+    helpers = HELPERS if editing else HELPERS.replace(EDITING_READ, f'Err.Clear: t = "{LEFT_OUT}"')
     declare = ('    Dim wb As Workbook, ws As Worksheet, sh As Shape, n As ShapeNodes, o As Object, v As Variant, s As String\n' if typed else
                '    Dim wb As Object, ws As Object, sh As Object, n As Object, o As Object, v As Variant, s As String\n')
     parts = [chosen[at:at + PART] for at in range(0, len(chosen), PART)]
     procedures = ''.join(f'Private Sub Part{k}(ByRef out As String, ByVal folder As String)\n{declare}    On Error Resume Next\n'
                          f'{"".join(_case(case, index) for index, case in part)}End Sub\n' for k, part in enumerate(parts))
     calls = ''.join(f'    Part{k} out, folder\n' for k in range(len(parts)))
-    return (f'{HELPERS}{procedures}Function Probe(ByVal folder As String) As String\n    Dim out As String\n'
+    return (f'{helpers}{procedures}Function Probe(ByVal folder As String) As String\n    Dim out As String\n'
             '    Application.DisplayAlerts = False\n'
             f'{calls}    Application.DisplayAlerts = True\n    Probe = Mid(out, {len(SEPARATOR) + 1})\nEnd Function\n')
 
@@ -185,7 +256,7 @@ def shape_xml(folder: Path, index: int) -> str:
     return ''.join(found[:2])
 
 
-def _run(case: list[Any], index: int, folder: Path) -> list[str] | None:
+def _run(case: list[Any], index: int, folder: Path, editing: bool = True) -> list[str] | None:
     """The model's answer to the case, split, or None where it refuses."""
     from pyopenvba.apps.excel import ExcelApplication
     from pyopenvba.exceptions import VBACompileError, VBAUnsupportedError
@@ -193,7 +264,7 @@ def _run(case: list[Any], index: int, folder: Path) -> list[str] | None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()
     try:
-        app.add_module(macro([(index, case)]), name='H')
+        app.add_module(macro([(index, case)], editing), name='H')
         return str(app.run('H.Probe', str(folder))).split('|')
     except VBACompileError:
         return ['does not compile']
@@ -204,6 +275,9 @@ def _run(case: list[Any], index: int, folder: Path) -> list[str] | None:
 def alone(case: list[Any], index: int, folder: Path) -> list[str]:
     """The model's answer to one case run by itself, and the shape's saved markup; "refused" where it refuses."""
     whole = _run(case, index, folder)
+    if whole is None:
+        # Refused for its nodes' EditingType, the rest of it can still answer.
+        whole = _run(case, index, folder, editing=False)
     if whole is None:
         return ['refused', '']
     return ['|'.join(whole), shape_xml(folder, index) if whole != ['does not compile'] else '']

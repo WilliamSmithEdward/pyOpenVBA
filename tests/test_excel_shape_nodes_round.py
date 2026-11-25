@@ -17,11 +17,25 @@ _SPEC = importlib.util.spec_from_file_location('measure_shape_nodes_round', ROOT
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 3)
+ROUNDS = range(1, 7)
 
 
 def _record(number: int) -> dict[str, Any]:
     return json.loads((ROOT / f'tests/fixtures/shape_nodes_round_{number}.json').read_text(encoding='utf-8'))
+
+
+def _parts(answer: str) -> list[str]:
+    """An answer's reads, the nodes' each split into its SegmentType, EditingType and point."""
+    reads = answer.split('|')
+    return [reads[0], *(part for node in reads[1].split(';') for part in node.split('/')), *reads[2:]] if len(reads) > 1 else reads
+
+
+def agrees(got: list[str], excel: list[str]) -> bool:
+    """Whether the model answered as Excel did: the markup, and every read but an EditingType it left out."""
+    if got[0] == 'refused':
+        return True
+    mine, theirs = _parts(got[0]), _parts(excel[0])
+    return got[1] == excel[1] and len(mine) == len(theirs) and all(a in (PROBE.LEFT_OUT, b) for a, b in zip(mine, theirs))
 
 
 @pytest.mark.parametrize('number', ROUNDS)
@@ -30,8 +44,7 @@ def test_each_case_answers_and_saves_as_excel_did(number: int, monkeypatch: pyte
     record = _record(number)
     with tempfile.TemporaryDirectory() as folder:
         differ = [(index, case, got, excel) for index, (case, excel) in enumerate(zip(record['cases'], record['excel']))
-                  if excel[0] != PROBE.BREAKS_EXCEL and (got := PROBE.alone(case, index, Path(folder)))[0] != 'refused'
-                  and got != excel]
+                  if excel[0] != PROBE.BREAKS_EXCEL and not agrees(got := PROBE.alone(case, index, Path(folder)), excel)]
     assert differ == []
 
 

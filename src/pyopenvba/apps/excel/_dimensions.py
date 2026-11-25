@@ -714,7 +714,26 @@ class SheetDimensions:
         fonts: dict[int, tuple[int, int] | str | None] = {}
         lines: dict[int, tuple[int, int]] = {}
         wrapped_pixels: dict[int, int] = {}
+        # A row with a format and no cells, and no wrapped height kept, comes out the same as every other with that
+        # format: worked out once each (a format on a million rows makes a million of them).
+        # A Style hashes slowly, and such rows mostly share one, so the last one is tried by identity first.
+        bare: dict[Style, tuple[tuple[int, int] | str | None, tuple[int, int]]] = {}
+        last: tuple[Style | None, tuple[tuple[int, int] | str | None, tuple[int, int]] | None] = (None, None)
         for row in special:
+            if row not in by_row:
+                record = self.rows[row]
+                own = record.style
+                if own is not None and record.wrapped is None:
+                    if own is last[0] and last[1] is not None:
+                        found = last[1]
+                    else:
+                        found = bare.get(own)
+                        if found is None:
+                            found = bare[own] = (_row_fonts([_font_entry(own, False)], normal_entry, unknown),
+                                                 _first_lines([], [(0, _lines(own))]))
+                        last = (own, found)
+                    fonts[row], lines[row] = found
+                    continue
             cells = sorted(by_row.get(row, []), key=lambda found: found[0])
             entries: list[tuple[int, int] | str | None] = []
             for column, cell in cells:

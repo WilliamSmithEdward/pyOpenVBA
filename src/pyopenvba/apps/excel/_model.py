@@ -7795,11 +7795,25 @@ class Range(ExcelObject):
                 row, column = step_row, step_column
                 step_row, step_column = following(row, column)
         else:
-            while inside(step_row, step_column):
-                row, column = step_row, step_column
-                if occupied(row, column) or (row, column) in table_ends:
-                    break
-                step_row, step_column = following(row, column)
+            # Across a gap it stops at the nearest shown cell ahead that holds something, or at a table's last row; with
+            # neither, at the last shown line before the edge, or where it is if every line ahead is hidden. These are
+            # found from the cells the sheet holds rather than by stepping over a million empty ones.
+            at, fixed = (row, column) if down else (column, row)
+            step = down or across
+            axis, other = (0, 1) if down else (1, 0)
+            hidden = dims.row_hidden if down else dims.column_hidden
+            stops = [key[axis] for key in self.sheet.cells_ if key[other] == fixed and (key[axis] - at) * step > 0
+                     and occupied(*key)]
+            stops += [key[axis] for key in table_ends if key[other] == fixed and (key[axis] - at) * step > 0]
+            shown = [one for one in stops if not hidden(one)]
+            if shown:
+                at = min(shown) if step > 0 else max(shown)
+            else:
+                edge = (MAX_ROWS if down else MAX_COLUMNS) if step > 0 else 1
+                while edge != at and hidden(edge):
+                    edge -= step
+                at = edge
+            row, column = (at, fixed) if down else (fixed, at)
         return Range(self.sheet, [Area(row, column, row, column, self.first.sheet)])
 
     @method

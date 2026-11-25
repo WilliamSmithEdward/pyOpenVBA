@@ -428,8 +428,8 @@ that column out again from the classes, and fails a VERIFIED row whose
 code can reach a reported gap, through its own class or through plain
 functions anywhere in the package, unless
 `tests/fixtures/verified_gaps_accepted.json` gives a reason a reviewer
-can check. That list holds size limits and a filtered sheet whose rows are
-hidden by default. A row covers the member wherever a macro reaches it: a Font
+can check. That list is empty while no VERIFIED row reaches a reported gap.
+A row covers the member wherever a macro reaches it: a Font
 row covers a chart's font as well as a cell's.
 
 What VERIFIED claims is limited. It says the row's calls matched live Excel

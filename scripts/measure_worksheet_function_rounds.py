@@ -114,7 +114,7 @@ def _scaled(arguments: str, rng: random.Random) -> str:
     return ''.join(NUMBER.sub(move, piece) if outside else piece for piece, outside in _outside(arguments))
 
 
-def variants(arguments: str, rng: random.Random) -> list[tuple[str, str]]:
+def variants(arguments: str, rng: random.Random, arrays: bool = False) -> list[tuple[str, str]]:
     """The ways one measured call is varied: (setup statement, arguments)."""
     made = [('', _scaled(arguments, rng))]
     parts = _top_level(arguments)
@@ -126,17 +126,77 @@ def variants(arguments: str, rng: random.Random) -> list[tuple[str, str]]:
     if parts:
         at = rng.randrange(len(parts))
         made.append((rng.choice(OTHER_KINDS), ', '.join('k' if index == at else part for index, part in enumerate(parts))))
+    if numeric and arrays:
+        # From ARRAYS_FROM: one number given as an array of two, which Excel answers item by item, alone and with another
+        # kind of value in a second place, as the held-out array rounds did (tests/fixtures/worksheet_function_heldout.json).
+        at = rng.choice(numeric)
+        pair = f'Array({parts[at]}, {_scaled(parts[at], rng)})'
+        made.append(('', ', '.join(pair if index == at else part for index, part in enumerate(parts))))
+        others = [index for index in range(len(parts)) if index != at]
+        if others:
+            other = rng.choice(others)
+            made.append((rng.choice(OTHER_KINDS), ', '.join(pair if index == at else 'k' if index == other else part
+                                                             for index, part in enumerate(parts))))
     return [(setup, varied) for setup, varied in made if varied != arguments or setup]
 
 
+#: The first round whose calls give a number as an array as well.
+ARRAYS_FROM = 60107
+
+
+#: Rounds from CHECK_FROM ask again the rows these rounds made VERIFIED, by a number given as an array alone, two calls a
+#: function: rounds 60105 and 60106 gave none.
+CHECK_FROM = 60201
+#: What these rounds write in a row's evidence, which tells the rows they made VERIFIED.
+EVIDENCE = 'tests/fixtures/worksheet_function_rounds/'
+
+
+def verified_functions() -> list[str]:
+    with open(ROOT / 'docs' / 'excel_checklist.csv', encoding='utf-8') as handle:
+        return sorted(row['member'] for row in csv.DictReader(handle)
+                      if row['object'] == 'WorksheetFunction' and row['status'] == 'VERIFIED' and EVIDENCE in row['evidence'])
+
+
+def asked(seed: int) -> list[str]:
+    """The functions a round asks."""
+    return verified_functions() if seed >= CHECK_FROM else partial_functions()
+
+
+def _check_calls(seed: int) -> list[dict[str, str]]:
+    rng = random.Random(seed)
+    known = bases()
+    chosen: list[dict[str, str]] = []
+    for name in verified_functions():
+        made: list[dict[str, str]] = []
+        for arguments in known.get(name.lower(), []):
+            parts = _top_level(arguments)
+            places = [at for at, part in enumerate(parts)
+                      if NUMBER.fullmatch(part.lstrip('-')) or re.fullmatch(r'"(?:[^"]|"")*"|#[^#]*#', part)]
+            for at in places:
+                part = parts[at]
+                pair = f'Array({part}, {_scaled(part, rng) if NUMBER.fullmatch(part.lstrip("-")) else part})'
+                lifted = [pair if index == at else one for index, one in enumerate(parts)]
+                made.append({'function': name, 'setup': '', 'arguments': ', '.join(lifted)})
+                others = [index for index in range(len(parts)) if index != at]
+                if others:
+                    other = rng.choice(others)
+                    made.append({'function': name, 'setup': rng.choice(OTHER_KINDS),
+                                 'arguments': ', '.join('k' if index == other else one for index, one in enumerate(lifted))})
+        chosen += rng.sample(made, min(2, len(made)))
+    rng.shuffle(chosen)
+    return chosen
+
+
 def calls(seed: int) -> list[dict[str, str]]:
+    if seed >= CHECK_FROM:
+        return _check_calls(seed)
     rng = random.Random(seed)
     known = bases()
     every: list[dict[str, str]] = []
     first: list[dict[str, str]] = []
     for name in partial_functions():
         made = [{'function': name, 'setup': setup, 'arguments': varied}
-                for arguments in known.get(name.lower(), []) for setup, varied in variants(arguments, rng)]
+                for arguments in known.get(name.lower(), []) for setup, varied in variants(arguments, rng, seed >= ARRAYS_FROM)]
         if made:
             pick = rng.choice(made)
             first.append(pick)

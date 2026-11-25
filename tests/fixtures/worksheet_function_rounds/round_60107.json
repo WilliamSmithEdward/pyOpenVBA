@@ -1,0 +1,2107 @@
+{
+ "seed": 60107,
+ "predicted_at": "2026-11-25T19:49:07.099750+00:00",
+ "predictions_sha256_16": "293f59ea0cc7a8f7",
+ "cases": [
+  {
+   "function": "Subtotal",
+   "setup": "k = True",
+   "arguments": "Array(9, 90), k",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Sequence",
+   "setup": "",
+   "arguments": "30",
+   "model_late": "Array(1 To 30, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6 Double:7 Double:8 Double:9 Double:10 Double:11 Double:12 Double:13 Double:14 Double:15 Double:16 Double:17 Double:18 Double:19 Double:20 Double:21 Double:22 Double:23 Double:24 Double:25 Double:26 Double:27 Double:28 Double:29 Double:30",
+   "model_typed": "Array(1 To 30, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5 Double:6 Double:7 Double:8 Double:9 Double:10 Double:11 Double:12 Double:13 Double:14 Double:15 Double:16 Double:17 Double:18 Double:19 Double:20 Double:21 Double:22 Double:23 Double:24 Double:25 Double:26 Double:27 Double:28 Double:29 Double:30"
+  },
+  {
+   "function": "Bin2Hex",
+   "setup": "",
+   "arguments": "\"11111011\", Array(4, 12)",
+   "model_late": "Array(1 To 2) String:00FB Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"C1:C5\"), 9",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "ws.Range(\"A3\"), ws.Range(\"A1:B5\"), 3, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rank_Eq",
+   "setup": "",
+   "arguments": "1.5, ws.Range(\"A1:A5\")",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "BesselI",
+   "setup": "k = \"abc\"",
+   "arguments": "k, 1",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "k = True",
+   "arguments": "Array(3.5, 7), k, 1",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BesselY",
+   "setup": "",
+   "arguments": "Array(2.5, 3.5), 1",
+   "model_late": "Array(1 To 2) Double:0.145918137508313 Double:0.410188416627698",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ErfC_Precise",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Choose",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(1, 2), k",
+   "model_late": "Array(1 To 2) String:x Error:2015",
+   "model_typed": "Array(1 To 2) String:x Error:2015"
+  },
+  {
+   "function": "BesselJ",
+   "setup": "",
+   "arguments": "\"1.9\", 2",
+   "model_late": "Double:0.329925828669785",
+   "model_typed": "Double:0.329925828669785"
+  },
+  {
+   "function": "Confidence",
+   "setup": "k = True",
+   "arguments": "0.05, 2.5, k",
+   "model_late": "Double:4.89990996135013",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "k = Empty",
+   "arguments": "\"c\", k, 0",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "Array(3, 1), 3, \"0\"",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 3.5",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:B5\"), 2, True",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Forecast_Linear",
+   "setup": "",
+   "arguments": "\"30\", Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "model_late": "Double:20.2",
+   "model_typed": "Double:20.2"
+  },
+  {
+   "function": "Index",
+   "setup": "k = Empty",
+   "arguments": "k, 2, Array(2, 1)",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Oct2Hex",
+   "setup": "ws.Range(\"K1\").Value = 4",
+   "arguments": "\"100\", ws.Range(\"K1\")",
+   "model_late": "String:0040",
+   "model_typed": "String:0040"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "Array(1, 2, 3), ws.Range(\"K1\")",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"z\", ws.Range(\"B1:B5\"), \"0\"",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(2, 3, 1.5), 6",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "ws.Range(\"K1\").Value = 0",
+   "arguments": "\"c\", ws.Range(\"B1:B5\"), ws.Range(\"K1\")",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), \"3\"",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), \"0\", 1",
+   "model_late": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5",
+   "model_typed": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), \"0\"",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "BesselJ",
+   "setup": "ws.Range(\"K1\").Value = 1.9",
+   "arguments": "ws.Range(\"K1\"), 2",
+   "model_late": "Double:0.329925828669785",
+   "model_typed": "Double:0.329925828669785"
+  },
+  {
+   "function": "XLookup",
+   "setup": "k = Empty",
+   "arguments": "\"z\", k, ws.Range(\"A1:A5\"), \"none\"",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "Array(3, 1.5), ws.Range(\"A1:B5\"), 2",
+   "model_late": "Array(1 To 2) String:c String:a",
+   "model_typed": "Array(1 To 2) String:c String:a"
+  },
+  {
+   "function": "Match",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "\"b\", k, Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rri",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, 10000, Array(11000, 5500)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Choose",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(2, 20), k, \"b\", \"c\"",
+   "model_late": "Array(1 To 2) String:b Error:2015",
+   "model_typed": "Array(1 To 2) String:b Error:2015"
+  },
+  {
+   "function": "Sequence",
+   "setup": "",
+   "arguments": "Array(3, 1.5)",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "Array(1 To 2) Double:1 Double:1"
+  },
+  {
+   "function": "BesselI",
+   "setup": "ws.Range(\"K1\").Value = 1",
+   "arguments": "1.5, ws.Range(\"K1\")",
+   "model_late": "Double:0.981666428475166",
+   "model_typed": "Double:0.981666428475166"
+  },
+  {
+   "function": "BesselJ",
+   "setup": "",
+   "arguments": "1.9, Array(2, 6)",
+   "model_late": "Array(1 To 2) Double:0.329925828669785 Double:8.96512062070471E-04",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Confidence",
+   "setup": "",
+   "arguments": "0.05, \"2.5\", 50",
+   "model_late": "Double:0.692951912174839",
+   "model_typed": "Double:0.692951912174839"
+  },
+  {
+   "function": "HLookup",
+   "setup": "k = Empty",
+   "arguments": "k, ws.Range(\"G1:J2\"), Array(2, 6), False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "ws.Range(\"K1\").Value = 3.5",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:A5\"), 1",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Permutationa",
+   "setup": "k = Empty",
+   "arguments": "3, k",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:3 Double:3",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rate",
+   "setup": "k = Null",
+   "arguments": "4*12, Array(-200, -100), k",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "\"2\", \"a\", \"b\", \"c\"",
+   "model_late": "String:b",
+   "model_typed": "String:b"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = True",
+   "arguments": "9, ws.Range(\"A1:B5\"), k, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "HLookup",
+   "setup": "",
+   "arguments": "\"z\", ws.Range(\"G1:J2\"), 1, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "k = True",
+   "arguments": "k, 3, 0",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "k, 0, Array(1, 3)",
+   "model_late": "Array(1 To 2) Boolean:True Error:2023",
+   "model_typed": "Array(1 To 2) Boolean:True Error:2023"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "2, Array(1, 2, 3), Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:2 Double:2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), Array(2, 3), k",
+   "model_late": "Array(1 To 2) Double:3 Error:2023",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, 0, Array(2, 4)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "Array(1 To 2) Error:2007 Error:2007"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "Array(4, 2), \"a\", \"b\"",
+   "model_late": "Array(1 To 2) Error:2015 String:b",
+   "model_typed": "Array(1 To 2) Error:2015 String:b"
+  },
+  {
+   "function": "ErfC_Precise",
+   "setup": "",
+   "arguments": "Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:0.157299207050285 Double:4.67773498104727E-03",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "3, \"a\", \"b\", \"c\"",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 0",
+   "arguments": "ws.Range(\"D1:E3\"), ws.Range(\"K1\"), 1",
+   "model_late": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5",
+   "model_typed": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5"
+  },
+  {
+   "function": "RandArray",
+   "setup": "ws.Range(\"K1\").Value = 5",
+   "arguments": "1, 1, 5, ws.Range(\"K1\"), True",
+   "model_late": "Array(1 To 1) Double:5",
+   "model_typed": "Array(1 To 1) Double:5"
+  },
+  {
+   "function": "MinIfs",
+   "setup": "k = \"abc\"",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), k",
+   "model_late": "Double:0",
+   "model_typed": "Double:0"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "3, ws.Range(\"A1:B5\"), Array(2, 3), False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Permutationa",
+   "setup": "",
+   "arguments": "\"3\", 2",
+   "model_late": "Double:9",
+   "model_typed": "Double:9"
+  },
+  {
+   "function": "Forecast_Linear",
+   "setup": "k = Null",
+   "arguments": "Array(30, 90), k, Array(1, 2, 3, 4, 5)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SumIf",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "ws.Range(\"B1:B5\"), \"b\", k",
+   "model_late": "Double:0",
+   "model_typed": "Double:0"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), Array(2, 3), 0",
+   "model_late": "model VBAUnsupportedError: WorksheetFunction.Index over an array whose items each find several cells is not implemented",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ZTest",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, 4, Array(1, 2)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RandArray",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, 1, 5, 5, True",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "2, Array(1, 2, 3), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "30, ws.Range(\"A1:B5\"), 3, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Permutationa",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "ws.Range(\"K1\"), 2",
+   "model_late": "Double:9",
+   "model_typed": "Double:9"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:B5\"), 2, False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Match",
+   "setup": "k = True",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), k",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "CountIf",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, \"*\"",
+   "model_late": "Double:0",
+   "model_typed": "Double:0"
+  },
+  {
+   "function": "Match",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, 3, Array(0, 1)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AverageIf",
+   "setup": "k = True",
+   "arguments": "ws.Range(\"B1:B5\"), \"b\", k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Sequence",
+   "setup": "ws.Range(\"K1\").Value = 10",
+   "arguments": "2, 3, ws.Range(\"K1\"), -1",
+   "model_late": "Array(1 To 2, 1 To 3) Double:10 Double:9 Double:8 Double:7 Double:6 Double:5",
+   "model_typed": "Array(1 To 2, 1 To 3) Double:10 Double:9 Double:8 Double:7 Double:6 Double:5"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "6, ws.Range(\"A1:B5\"), 3",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "3, ws.Range(\"A1:B5\"), \"2\"",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Sequence",
+   "setup": "k = True",
+   "arguments": "2, Array(3, 30), 10, k",
+   "model_late": "Array(1 To 2) Double:10 Double:10",
+   "model_typed": "Array(1 To 2) Double:10 Double:10"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "ws.Range(\"D1:E3\"), 0, k",
+   "model_late": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5",
+   "model_typed": "Array(1 To 3, 1 To 1) Double:1 Double:3 Double:5"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"2\", Array(1, 2, 3), 0",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rank_Eq",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(3, 6), k",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Oct2Hex",
+   "setup": "",
+   "arguments": "\"100\", 12",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(2, 3)",
+   "model_late": "Array(1 To 2) Error:2023 Error:2023",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "ws.Range(\"K1\").Value = 0",
+   "arguments": "\"b\", Array(\"a\", \"b\"), ws.Range(\"K1\")",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "Sequence",
+   "setup": "",
+   "arguments": "\"3\"",
+   "model_late": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3",
+   "model_typed": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3"
+  },
+  {
+   "function": "Index",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 0, k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "RandArray",
+   "setup": "k = True",
+   "arguments": "1, k, Array(5, 6), 5, True",
+   "model_late": "Array(1 To 2) Double:5 Error:2015",
+   "model_typed": "Array(1 To 2) Double:5 Error:2015"
+  },
+  {
+   "function": "Bin2Hex",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(4, 12)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "8, \"a\", \"b\"",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Oct2Bin",
+   "setup": "",
+   "arguments": "\"3\", \"3\"",
+   "model_late": "String:011",
+   "model_typed": "String:011"
+  },
+  {
+   "function": "Rank_Eq",
+   "setup": "",
+   "arguments": "\"3\", ws.Range(\"A1:A5\")",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Match",
+   "setup": "ws.Range(\"K1\").Value = 0",
+   "arguments": "Array(3, 1), 3, ws.Range(\"K1\")",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Oct2Bin",
+   "setup": "",
+   "arguments": "\"3\", 9",
+   "model_late": "String:000000011",
+   "model_typed": "String:000000011"
+  },
+  {
+   "function": "T_Test",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), ws.Range(\"K1\"), 1",
+   "model_late": "Double:8.90093425000857E-02",
+   "model_typed": "Double:8.90093425000857E-02"
+  },
+  {
+   "function": "Forecast_Linear",
+   "setup": "k = Empty",
+   "arguments": "k, Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "model_late": "Double:2.2",
+   "model_typed": "Double:2.2"
+  },
+  {
+   "function": "ZTest",
+   "setup": "k = Empty",
+   "arguments": "k, 4, 1",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "ws.Range(\"A3\"), ws.Range(\"A1:B5\"), \"2\", False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Oct2Bin",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(3, 6)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Forecast_Linear",
+   "setup": "ws.Range(\"K1\").Value = 30",
+   "arguments": "ws.Range(\"K1\"), Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "model_late": "Double:20.2",
+   "model_typed": "Double:20.2"
+  },
+  {
+   "function": "T_Test",
+   "setup": "",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), Array(2, 4), 1",
+   "model_late": "Array(1 To 2) Double:8.90093425000857E-02 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(Array(0.5, 1), Array(4, 5)), 6, 0.5",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "BesselK",
+   "setup": "ws.Range(\"K1\").Value = 1.5",
+   "arguments": "ws.Range(\"K1\"), 1",
+   "model_late": "Double:0.277387803632259",
+   "model_typed": "Double:0.277387803632259"
+  },
+  {
+   "function": "SumIf",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, \">2\"",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "T_Test",
+   "setup": "",
+   "arguments": "Array(0.5, 1, 1.5, 40, 15), Array(1, 8, 6, 40, 2.5), 3, 10",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rank_Avg",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "2, k",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "Array(3, 1), 3, Array(0, 1)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "\"b\", Array(\"a\", \"b\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "ws.Range(\"A1:A5\"), k, 1",
+   "model_late": "Double:1",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"K1\")",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Prob",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(0.2, 0.3, 0.1, 0.4), 2",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "HLookup",
+   "setup": "",
+   "arguments": "\"q\", ws.Range(\"G1:J2\"), \"2\", False",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "Subtotal",
+   "setup": "",
+   "arguments": "Array(9, 90), ws.Range(\"A1:A5\")",
+   "model_late": "Array(1 To 2) Double:15 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HLookup",
+   "setup": "",
+   "arguments": "\"z\", ws.Range(\"G1:J2\"), Array(2, 6), False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "ws.Range(\"D1:E3\"), ws.Range(\"K1\"), 0",
+   "model_late": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "model_typed": "Array(1 To 1, 1 To 2) Double:3 Double:4"
+  },
+  {
+   "function": "Rate",
+   "setup": "",
+   "arguments": "4*12, -200, \"8000\"",
+   "model_late": "Double:7.70147248820137E-03",
+   "model_typed": "Double:7.70147248820137E-03"
+  },
+  {
+   "function": "Rate",
+   "setup": "",
+   "arguments": "4*12, Array(-200, -100), 8000",
+   "model_late": "Array(1 To 2) Double:7.70147248820137E-03 Double:-1.92014817274456E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RandArray",
+   "setup": "",
+   "arguments": "1, 1, 5, \"5\", True",
+   "model_late": "Array(1 To 1) Double:5",
+   "model_typed": "Array(1 To 1) Double:5"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "ws.Range(\"C1:C5\"), k",
+   "model_late": "Double:10",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "TInv",
+   "setup": "",
+   "arguments": "0.16392, 61",
+   "model_late": "Double:1.40897471437125",
+   "model_typed": "Double:1.40897471437125"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 1",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 2, ws.Range(\"K1\")",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "Array(2, 20), \"a\", \"b\", \"c\"",
+   "model_late": "Array(1 To 2) String:b Error:2015",
+   "model_typed": "Array(1 To 2) String:b Error:2015"
+  },
+  {
+   "function": "BesselK",
+   "setup": "",
+   "arguments": "3, 10",
+   "model_late": "Double:2459.62042660452",
+   "model_typed": "Double:2459.62042660452"
+  },
+  {
+   "function": "TInv",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "0.05464, k",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "6, ws.Range(\"A1:C5\"), 30, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Subtotal",
+   "setup": "ws.Range(\"K1\").Value = 9",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:A5\")",
+   "model_late": "Double:15",
+   "model_typed": "Double:15"
+  },
+  {
+   "function": "BesselK",
+   "setup": "k = True",
+   "arguments": "k, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:0.601907231666906 Double:1.62483888441723",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BesselY",
+   "setup": "",
+   "arguments": "\"2.5\", 1",
+   "model_late": "Double:0.145918137508313",
+   "model_typed": "Double:0.145918137508313"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), 1.5",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "\"4\", \"a\", \"b\"",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "CountIf",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, 3",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "Rank_Avg",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"F1:F3\")",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "Index",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(3, 6)",
+   "model_late": "Array(1 To 2) Error:2023 Error:2023",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), \"2\", 0",
+   "model_late": "Array(1 To 1, 1 To 2) Double:3 Double:4",
+   "model_typed": "Array(1 To 1, 1 To 2) Double:3 Double:4"
+  },
+  {
+   "function": "TInv",
+   "setup": "",
+   "arguments": "Array(0.05464, 0.5464), 60",
+   "model_late": "Array(1 To 2) Double:1.96004118712725 Double:0.606607385176697",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Subtotal",
+   "setup": "",
+   "arguments": "90, ws.Range(\"A1:A5\")",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "BesselK",
+   "setup": "",
+   "arguments": "1.5, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:0.277387803632259 Double:0.583655974166666",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CountIf",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), Array(3, 30)",
+   "model_late": "Array(1 To 2) Double:1 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "ws.Range(\"D1:E3\"), k, 0",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "k = Null",
+   "arguments": "k, ws.Range(\"B1:B5\"), Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "MaxIfs",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "ws.Range(\"A1:A5\"), k, \"<4\"",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "Prob",
+   "setup": "",
+   "arguments": "Array(0, 1, 2, 3), Array(0.2, 0.3, 0.1, 0.4), \"2\"",
+   "model_late": "Double:0.1",
+   "model_typed": "Double:0.1"
+  },
+  {
+   "function": "Index",
+   "setup": "k = Empty",
+   "arguments": "k, 3",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"C1:C5\"), \"3\"",
+   "model_late": "Empty",
+   "model_typed": "Empty"
+  },
+  {
+   "function": "ZTest",
+   "setup": "",
+   "arguments": "Array(9, 3, 3.5, 9, 60, 10, 8, 6, 2, 90), 40, 3",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "ErfC_Precise",
+   "setup": "",
+   "arguments": "2",
+   "model_late": "Double:4.67773498104727E-03",
+   "model_typed": "Double:4.67773498104727E-03"
+  },
+  {
+   "function": "Match",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "\"z\", ws.Range(\"B1:B5\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rri",
+   "setup": "ws.Range(\"K1\").Value = 10000",
+   "arguments": "96, ws.Range(\"K1\"), 11000",
+   "model_late": "Double:9.9330737629133E-04",
+   "model_typed": "Double:9.9330737629133E-04"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 0, Array(2, 4)",
+   "model_late": "Array(1 To 2) Double:2 Error:2023",
+   "model_typed": "Array(1 To 2) Double:2 Error:2023"
+  },
+  {
+   "function": "HLookup",
+   "setup": "",
+   "arguments": "\"q\", ws.Range(\"G1:J2\"), Array(2, 20), False",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "BesselY",
+   "setup": "k = Empty",
+   "arguments": "k, 1",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "\"1\", Empty",
+   "model_late": "Double:0",
+   "model_typed": "Double:0"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), 0, 3",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"z\", ws.Range(\"B1:B5\"), Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Bin2Hex",
+   "setup": "k = Null",
+   "arguments": "\"11111011\", k",
+   "model_late": "String:FB",
+   "model_typed": "String:FB"
+  },
+  {
+   "function": "Rank_Eq",
+   "setup": "",
+   "arguments": "Array(3, 6), ws.Range(\"A1:A5\")",
+   "model_late": "Array(1 To 2) Double:3 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = \"abc\"",
+   "arguments": "ws.Range(\"A3\"), ws.Range(\"A1:B5\"), Array(2, 3), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Forecast_Linear",
+   "setup": "",
+   "arguments": "Array(30, 90), Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "model_late": "Array(1 To 2) Double:20.2 Double:56.2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ZTest",
+   "setup": "",
+   "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, \"1\"",
+   "model_late": "Double:2.52109114724504E-04",
+   "model_typed": "Double:2.52109114724504E-04"
+  },
+  {
+   "function": "BesselI",
+   "setup": "",
+   "arguments": "1.5, \"1\"",
+   "model_late": "Double:0.981666428475166",
+   "model_typed": "Double:0.981666428475166"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), 3, 0",
+   "model_late": "Array(1 To 1, 1 To 2) Double:5 Double:6",
+   "model_typed": "Array(1 To 1, 1 To 2) Double:5 Double:6"
+  },
+  {
+   "function": "Oct2Hex",
+   "setup": "k = Null",
+   "arguments": "k, Array(4, 12)",
+   "model_late": "Array(1 To 2) String:0000 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"c\", ws.Range(\"B1:B5\"), Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:3 Double:3",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"b\", Array(\"a\", \"b\"), Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:2 Double:2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HLookup",
+   "setup": "k = Null",
+   "arguments": "k, ws.Range(\"G1:J2\"), 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = True",
+   "arguments": "Array(3.5, 10.5), ws.Range(\"A1:B5\"), 2, k",
+   "model_late": "Array(1 To 2) String:c String:e",
+   "model_typed": "Array(1 To 2) String:c String:e"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "3, ws.Range(\"A1:C5\"), Array(3, 4), False",
+   "model_late": "Empty",
+   "model_typed": "Empty"
+  },
+  {
+   "function": "Oct2Hex",
+   "setup": "k = Null",
+   "arguments": "k, 4",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Prob",
+   "setup": "",
+   "arguments": "Array(1, 0.5, 20, 9), Array(1.2, 0.8999999999999999, 0.05, 4), 4",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "RandArray",
+   "setup": "",
+   "arguments": "3, 2, 50, 10, True",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Sequence",
+   "setup": "",
+   "arguments": "2, Array(3, 30), 10, -1",
+   "model_late": "Array(1 To 2) Double:10 Double:10",
+   "model_typed": "Array(1 To 2) Double:10 Double:10"
+  },
+  {
+   "function": "CountIf",
+   "setup": "k = True",
+   "arguments": "ws.Range(\"B1:B5\"), k",
+   "model_late": "Double:0",
+   "model_typed": "Double:0"
+  },
+  {
+   "function": "BesselI",
+   "setup": "",
+   "arguments": "4.5, 2",
+   "model_late": "Double:10.6415173120104",
+   "model_typed": "Double:10.6415173120104"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = \"abc\"",
+   "arguments": "3, ws.Range(\"A1:B5\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "BesselJ",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "1.9, k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Match",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(1, 2, 3), Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, ws.Range(\"B1:B5\"), Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = \"abc\"",
+   "arguments": "3, ws.Range(\"A1:C5\"), Array(3, 4), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "ws.Range(\"D1:E3\"), ws.Range(\"K1\"), 2",
+   "model_late": "Double:4",
+   "model_typed": "Double:4"
+  },
+  {
+   "function": "Choose",
+   "setup": "ws.Range(\"K1\").Value = 4",
+   "arguments": "ws.Range(\"K1\"), \"a\", \"b\"",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "ZTest",
+   "setup": "ws.Range(\"K1\").Value = 1",
+   "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, ws.Range(\"K1\")",
+   "model_late": "Double:2.52109114724504E-04",
+   "model_typed": "Double:2.52109114724504E-04"
+  },
+  {
+   "function": "Prob",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "Array(0, 1, 2, 3), Array(0.2, 0.3, 0.1, 0.4), ws.Range(\"K1\")",
+   "model_late": "Double:0.1",
+   "model_typed": "Double:0.1"
+  },
+  {
+   "function": "Match",
+   "setup": "ws.Range(\"K1\").Value = 0",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), ws.Range(\"K1\")",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "4.5, ws.Range(\"A1:A5\"), 10",
+   "model_late": "Double:4",
+   "model_typed": "Double:4"
+  },
+  {
+   "function": "BesselY",
+   "setup": "",
+   "arguments": "25, 2",
+   "model_late": "Double:0.119343035139103",
+   "model_typed": "Double:0.119343035139103"
+  },
+  {
+   "function": "Choose",
+   "setup": "k = True",
+   "arguments": "1, k",
+   "model_late": "Boolean:True",
+   "model_typed": "Boolean:True"
+  },
+  {
+   "function": "Rank_Avg",
+   "setup": "",
+   "arguments": "3, ws.Range(\"F1:F3\")",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 1",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), ws.Range(\"K1\"), False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "CountIf",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), 6",
+   "model_late": "Double:0",
+   "model_typed": "Double:0"
+  },
+  {
+   "function": "CountIf",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"K1\")",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "\"9\", ws.Range(\"A1:B5\"), 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "ws.Range(\"A3\"), k, 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), 0, Array(1, 3)",
+   "model_late": "model VBAUnsupportedError: WorksheetFunction.Index over an array whose items each find several cells is not implemented",
+   "model_typed": "model VBAUnsupportedError: WorksheetFunction.Index over an array whose items each find several cells is not implemented"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 0, ws.Range(\"K1\")",
+   "model_late": "Array(1 To 2, 1 To 1) Double:2 Double:4",
+   "model_typed": "Array(1 To 2, 1 To 1) Double:2 Double:4"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"C1:C5\"), Array(3, 4)",
+   "model_late": "Array(1 To 2) Empty Boolean:True",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "ws.Range(\"A3\"), ws.Range(\"A1:B5\"), ws.Range(\"K1\"), False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Bin2Hex",
+   "setup": "",
+   "arguments": "\"11111011\", 40",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rank_Avg",
+   "setup": "",
+   "arguments": "\"2\", ws.Range(\"F1:F3\")",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), 2, Array(2, 1)",
+   "model_late": "Array(1 To 2) Double:4 Double:3",
+   "model_typed": "Array(1 To 2) Double:4 Double:3"
+  },
+  {
+   "function": "Index",
+   "setup": "ws.Range(\"K1\").Value = 1",
+   "arguments": "ws.Range(\"A1:A5\"), 0, ws.Range(\"K1\")",
+   "model_late": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "model_typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), Array(0, 0), 1",
+   "model_late": "model VBAUnsupportedError: WorksheetFunction.Index over an array whose items each find several cells is not implemented",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = Null",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), 1, k",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"b\", Array(\"a\", \"b\"), \"0\"",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "T_Test",
+   "setup": "",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), \"2\", 1",
+   "model_late": "Double:8.90093425000857E-02",
+   "model_typed": "Double:8.90093425000857E-02"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), Array(2, 3), 1",
+   "model_late": "Array(1 To 2) Double:3 Error:2023",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BesselI",
+   "setup": "k = Null",
+   "arguments": "Array(1.5, 3), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "Array(1, 2), Empty",
+   "model_late": "Array(1 To 2) Double:0 Error:2015",
+   "model_typed": "Array(1 To 2) Double:0 Error:2015"
+  },
+  {
+   "function": "Permutationa",
+   "setup": "",
+   "arguments": "Array(3, 6), 2",
+   "model_late": "Array(1 To 2) Double:9 Double:36",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), Array(3, 6)",
+   "model_late": "Array(1 To 2) Double:3 Error:2023",
+   "model_typed": "E13"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "3, ws.Range(\"A1:C5\"), \"3\", False",
+   "model_late": "Empty",
+   "model_typed": "Empty"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "3, ws.Range(\"A1:B5\"), ws.Range(\"K1\")",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "Array(3.5, 7), ws.Range(\"A1:A5\"), 1",
+   "model_late": "Array(1 To 2) Double:3 Double:5",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), 0, 2",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "T_Test",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(1, 2, 3, 4, 5), k, 2, 1",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rate",
+   "setup": "",
+   "arguments": "40*24, -2000, 16000",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(1, 2, 3), \"2\"",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "Subtotal",
+   "setup": "",
+   "arguments": "\"9\", ws.Range(\"A1:A5\")",
+   "model_late": "Double:15",
+   "model_typed": "Double:15"
+  },
+  {
+   "function": "Rank_Avg",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(2, 4), k",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rank_Eq",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:A5\")",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "\"3\", ws.Range(\"A1:B5\"), 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "AverageIf",
+   "setup": "k = True",
+   "arguments": "ws.Range(\"A1:A5\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), \"2\", 2",
+   "model_late": "Double:4",
+   "model_typed": "Double:4"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "\"c\", ws.Range(\"B1:B5\"), \"0\"",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "\"3.5\", ws.Range(\"A1:B5\"), 2, True",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(1, 2, 3), Array(2, 3)",
+   "model_late": "Array(1 To 2) Double:2 Double:3",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BesselK",
+   "setup": "",
+   "arguments": "\"1.5\", 1",
+   "model_late": "Double:0.277387803632259",
+   "model_typed": "Double:0.277387803632259"
+  },
+  {
+   "function": "Subtotal",
+   "setup": "k = Empty",
+   "arguments": "9, k",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "Choose",
+   "setup": "",
+   "arguments": "10, Empty",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), 20, 3",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rate",
+   "setup": "ws.Range(\"K1\").Value = 8000",
+   "arguments": "4*12, -200, ws.Range(\"K1\")",
+   "model_late": "Double:7.70147248820137E-03",
+   "model_typed": "Double:7.70147248820137E-03"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(3, 1.5), k, 2",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "Array(1 To 2) Error:2007 Error:2007"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "HLookup",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "\"q\", ws.Range(\"G1:J2\"), ws.Range(\"K1\"), False",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "T_Test",
+   "setup": "k = Null",
+   "arguments": "Array(1, 2, 3, 4, 5), k, Array(2, 4), 1",
+   "model_late": "Array(1 To 2) Error:2042 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Sequence",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "ws.Range(\"K1\")",
+   "model_late": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3",
+   "model_typed": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3"
+  },
+  {
+   "function": "CountIf",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), \"3\"",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), 0, \"1\"",
+   "model_late": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5",
+   "model_typed": "Array(1 To 5, 1 To 1) Double:1 Double:2 Double:3 Double:4 Double:5"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "Array(3.5, 10.5), ws.Range(\"A1:B5\"), 2, True",
+   "model_late": "Array(1 To 2) String:c String:e",
+   "model_typed": "Array(1 To 2) String:c String:e"
+  },
+  {
+   "function": "Sequence",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "2, 3, k, -1",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "3.5, ws.Range(\"A1:B5\"), k, True",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "HLookup",
+   "setup": "k = True",
+   "arguments": "k, ws.Range(\"G1:J2\"), Array(2, 20), False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), \"1\", False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Prob",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(0.2, 0.3, 0.1, 0.4), Array(2, 3)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = Empty",
+   "arguments": "ws.Range(\"D1:E3\"), Array(0, 0), k",
+   "model_late": "model VBAUnsupportedError: WorksheetFunction.Index over an array whose items each find several cells is not implemented",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = \"abc\"",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), k, 1",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Confidence",
+   "setup": "",
+   "arguments": "0.05, 2.5, Array(50, 100)",
+   "model_late": "Array(1 To 2) Double:0.692951912174839 Double:0.489990996135013",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TInv",
+   "setup": "",
+   "arguments": "\"0.05464\", 60",
+   "model_late": "Double:1.96004118712725",
+   "model_typed": "Double:1.96004118712725"
+  },
+  {
+   "function": "Sequence",
+   "setup": "",
+   "arguments": "2, 3, \"10\", -1",
+   "model_late": "Array(1 To 2, 1 To 3) Double:10 Double:9 Double:8 Double:7 Double:6 Double:5",
+   "model_typed": "Array(1 To 2, 1 To 3) Double:10 Double:9 Double:8 Double:7 Double:6 Double:5"
+  },
+  {
+   "function": "RandArray",
+   "setup": "",
+   "arguments": "1, 1, Array(5, 6), 5, True",
+   "model_late": "Array(1 To 2) Double:5 Error:2015",
+   "model_typed": "Array(1 To 2) Double:5 Error:2015"
+  },
+  {
+   "function": "CountIf",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(3, 30)",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "HLookup",
+   "setup": "",
+   "arguments": "\"q\", ws.Range(\"G1:J2\"), 4, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "CountIf",
+   "setup": "k = \"abc\"",
+   "arguments": "k, \">2\"",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "ZTest",
+   "setup": "",
+   "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:2.52109114724504E-04 Double:4.09951605001915E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Oct2Bin",
+   "setup": "",
+   "arguments": "\"3\", Array(3, 6)",
+   "model_late": "Array(1 To 2) String:011 String:000011",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rank_Eq",
+   "setup": "k = \"abc\"",
+   "arguments": "k, ws.Range(\"A1:A5\")",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TInv",
+   "setup": "ws.Range(\"K1\").Value = 0.05464",
+   "arguments": "ws.Range(\"K1\"), 60",
+   "model_late": "Double:1.96004118712725",
+   "model_typed": "Double:1.96004118712725"
+  },
+  {
+   "function": "BesselJ",
+   "setup": "k = Empty",
+   "arguments": "k, Array(2, 6)",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Match",
+   "setup": "ws.Range(\"K1\").Value = 0",
+   "arguments": "\"z\", ws.Range(\"B1:B5\"), ws.Range(\"K1\")",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Permutationa",
+   "setup": "k = True",
+   "arguments": "Array(3, 6), k",
+   "model_late": "Array(1 To 2) Double:3 Double:6",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "k, 2, 2",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(9, 10), ws.Range(\"A1:B5\"), k, False",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "Array(1 To 2) Error:2015 Error:2015"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 2, \"1\"",
+   "model_late": "Double:3",
+   "model_typed": "Double:3"
+  },
+  {
+   "function": "Rri",
+   "setup": "",
+   "arguments": "96, 10000, Array(11000, 5500)",
+   "model_late": "Array(1 To 2) Double:9.9330737629133E-04 Double:-6.20811826334278E-03",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Bin2Hex",
+   "setup": "",
+   "arguments": "\"11111011\", \"4\"",
+   "model_late": "String:00FB",
+   "model_typed": "String:00FB"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), 0, \"2\"",
+   "model_late": "Array(1 To 2, 1 To 1) Double:2 Double:4",
+   "model_typed": "Array(1 To 2, 1 To 1) Double:2 Double:4"
+  },
+  {
+   "function": "TInv",
+   "setup": "k = True",
+   "arguments": "Array(0.05464, 0.5464), k",
+   "model_late": "Array(1 To 2) Double:11.622543639979 Double:0.863908084661082",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Index",
+   "setup": "k = True",
+   "arguments": "k, 2",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Confidence",
+   "setup": "k = \"abc\"",
+   "arguments": "k, 2.5, Array(50, 100)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rank_Avg",
+   "setup": "",
+   "arguments": "Array(2, 4), ws.Range(\"F1:F3\")",
+   "model_late": "Array(1 To 2) Double:2 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ErfC_Precise",
+   "setup": "ws.Range(\"K1\").Value = 1",
+   "arguments": "ws.Range(\"K1\")",
+   "model_late": "Double:0.157299207050285",
+   "model_typed": "Double:0.157299207050285"
+  },
+  {
+   "function": "Choose",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "ws.Range(\"K1\"), \"a\", \"b\", \"c\"",
+   "model_late": "String:b",
+   "model_typed": "String:b"
+  },
+  {
+   "function": "VLookup",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "3, k, Array(2, 3), False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "4.5, ws.Range(\"A1:B5\"), 4, True",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Rate",
+   "setup": "k = Empty",
+   "arguments": "4*12, k, 8000",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "BesselI",
+   "setup": "",
+   "arguments": "Array(1.5, 3), 1",
+   "model_late": "Array(1 To 2) Double:0.981666428475166 Double:3.95337021714292",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HLookup",
+   "setup": "k = Null",
+   "arguments": "\"q\", k, 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Oct2Hex",
+   "setup": "",
+   "arguments": "\"100\", \"4\"",
+   "model_late": "String:0040",
+   "model_typed": "String:0040"
+  },
+  {
+   "function": "Match",
+   "setup": "",
+   "arguments": "4, Array(3, 4, 4), 0",
+   "model_late": "Double:2",
+   "model_typed": "Double:2"
+  },
+  {
+   "function": "BesselK",
+   "setup": "k = Null",
+   "arguments": "k, 1",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "\"C\", k, Array(1, 2), False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Oct2Hex",
+   "setup": "",
+   "arguments": "\"100\", Array(4, 12)",
+   "model_late": "Array(1 To 2) String:0040 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HLookup",
+   "setup": "",
+   "arguments": "\"z\", ws.Range(\"G1:J2\"), \"2\", False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "BesselY",
+   "setup": "k = \"abc\"",
+   "arguments": "Array(2.5, 3.5), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Choose",
+   "setup": "k = \"abc\"",
+   "arguments": "Array(4, 2), \"a\", k",
+   "model_late": "Array(1 To 2) Error:2015 String:abc",
+   "model_typed": "Array(1 To 2) Error:2015 String:abc"
+  },
+  {
+   "function": "Index",
+   "setup": "",
+   "arguments": "Array(Array(2, 3), Array(9, 2)), 1, 6",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "k = \"abc\"",
+   "arguments": "3, k, 3, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Forecast_Linear",
+   "setup": "",
+   "arguments": "300, Array(6, 12, 15, 8, 50), Array(3, 20, 30, 8, 6)",
+   "model_late": "Double:-64.4385758998435",
+   "model_typed": "Double:-64.4385758998435"
+  },
+  {
+   "function": "BesselJ",
+   "setup": "",
+   "arguments": "0.95, 6",
+   "model_late": "Double:1.54455217889345E-05",
+   "model_typed": "Double:1.54455217889345E-05"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "\"C\", ws.Range(\"B1:B5\"), Array(1, 2), False",
+   "model_late": "String:c",
+   "model_typed": "String:c"
+  },
+  {
+   "function": "Index",
+   "setup": "k = Null",
+   "arguments": "k, Array(3, 4)",
+   "model_late": "Array(1 To 2) Error:2023 Error:2023",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Bin2Hex",
+   "setup": "ws.Range(\"K1\").Value = 4",
+   "arguments": "\"11111011\", ws.Range(\"K1\")",
+   "model_late": "String:00FB",
+   "model_typed": "String:00FB"
+  },
+  {
+   "function": "Match",
+   "setup": "k = Null",
+   "arguments": "\"C\", k, Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Sequence",
+   "setup": "",
+   "arguments": "6, 30, 100, -2",
+   "model_late": "Array(1 To 6, 1 To 30) Double:100 Double:98 Double:96 Double:94 Double:92 Double:90 Double:88 Double:86 Double:84 Double:82 Double:80 Double:78 Double:76 Double:74 Double:72 Double:70 Double:68 Double:66 Double:64 Double:62 Double:60 Double:58 Double:56 Double:54 Double:52 Double:50 Double:48 Double:46 Double:44 Double:42 Double:40 Double:38 Double:36 Double:34 Double:32 Double:30 Double:28 Double:26 Double:24 Double:22 Double:20 Double:18 Double:16 Double:14 Double:12 Double:10 Double:8 Double:6 Double:4 Double:2 Double:0 Double:-2 Double:-4 Double:-6 Double:-8 Double:-10 Double:-12 Double:-14 Double:-16 Double:-18 Double:-20 Double:-22 Double:-24 Double:-26 Double:-28 Double:-30 Double:-32 Double:-34 Double:-36 Double:-38 Double:-40 Double:-42 Double:-44 Double:-46 Double:-48 Double:-50 Double:-52 Double:-54 Double:-56 Double:-58 Double:-60 Double:-62 Double:-64 Double:-66 Double:-68 Double:-70 Double:-72 Double:-74 Double:-76 Double:-78 Double:-80 Double:-82 Double:-84 Double:-86 Double:-88 Double:-90 Double:-92 Double:-94 Double:-96 Double:-98 Double:-100 Double:-102 Double:-104 Double:-106 Double:-108 Double:-110 Double:-112 Double:-114 Double:-116 Double:-118 Double:-120 Double:-122 Double:-124 Double:-126 Double:-128 Double:-130 Double:-132 Double:-134 Double:-136 Double:-138 Double:-140 Double:-142 Double:-144 Double:-146 Double:-148 Double:-150 Double:-152 Double:-154 Double:-156 Double:-158 Double:-160 Double:-162 Double:-164 Double:-166 Double:-168 Double:-170 Double:-172 Double:-174 Double:-176 Double:-178 Double:-180 Double:-182 Double:-184 Double:-186 Double:-188 Double:-190 Double:-192 Double:-194 Double:-196 Double:-198 Double:-200 Double:-202 Double:-204 Double:-206 Double:-208 Double:-210 Double:-212 Double:-214 Double:-216 Double:-218 Double:-220 Double:-222 Double:-224 Double:-226 Double:-228 Double:-230 Double:-232 Double:-234 Double:-236 Double:-238 Double:-240 Double:-242 Double:-244 Double:-246 Double:-248 Double:-250 Double:-252 Double:-254 Double:-256 Double:-258",
+   "model_typed": "Array(1 To 6, 1 To 30) Double:100 Double:98 Double:96 Double:94 Double:92 Double:90 Double:88 Double:86 Double:84 Double:82 Double:80 Double:78 Double:76 Double:74 Double:72 Double:70 Double:68 Double:66 Double:64 Double:62 Double:60 Double:58 Double:56 Double:54 Double:52 Double:50 Double:48 Double:46 Double:44 Double:42 Double:40 Double:38 Double:36 Double:34 Double:32 Double:30 Double:28 Double:26 Double:24 Double:22 Double:20 Double:18 Double:16 Double:14 Double:12 Double:10 Double:8 Double:6 Double:4 Double:2 Double:0 Double:-2 Double:-4 Double:-6 Double:-8 Double:-10 Double:-12 Double:-14 Double:-16 Double:-18 Double:-20 Double:-22 Double:-24 Double:-26 Double:-28 Double:-30 Double:-32 Double:-34 Double:-36 Double:-38 Double:-40 Double:-42 Double:-44 Double:-46 Double:-48 Double:-50 Double:-52 Double:-54 Double:-56 Double:-58 Double:-60 Double:-62 Double:-64 Double:-66 Double:-68 Double:-70 Double:-72 Double:-74 Double:-76 Double:-78 Double:-80 Double:-82 Double:-84 Double:-86 Double:-88 Double:-90 Double:-92 Double:-94 Double:-96 Double:-98 Double:-100 Double:-102 Double:-104 Double:-106 Double:-108 Double:-110 Double:-112 Double:-114 Double:-116 Double:-118 Double:-120 Double:-122 Double:-124 Double:-126 Double:-128 Double:-130 Double:-132 Double:-134 Double:-136 Double:-138 Double:-140 Double:-142 Double:-144 Double:-146 Double:-148 Double:-150 Double:-152 Double:-154 Double:-156 Double:-158 Double:-160 Double:-162 Double:-164 Double:-166 Double:-168 Double:-170 Double:-172 Double:-174 Double:-176 Double:-178 Double:-180 Double:-182 Double:-184 Double:-186 Double:-188 Double:-190 Double:-192 Double:-194 Double:-196 Double:-198 Double:-200 Double:-202 Double:-204 Double:-206 Double:-208 Double:-210 Double:-212 Double:-214 Double:-216 Double:-218 Double:-220 Double:-222 Double:-224 Double:-226 Double:-228 Double:-230 Double:-232 Double:-234 Double:-236 Double:-238 Double:-240 Double:-242 Double:-244 Double:-246 Double:-248 Double:-250 Double:-252 Double:-254 Double:-256 Double:-258"
+  },
+  {
+   "function": "Sequence",
+   "setup": "k = True",
+   "arguments": "k",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "Prob",
+   "setup": "",
+   "arguments": "Array(0, 1, 2, 3), Array(0.2, 0.3, 0.1, 0.4), Array(2, 3)",
+   "model_late": "Array(1 To 2) Double:0.1 Double:0.4",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Choose",
+   "setup": "k = Empty",
+   "arguments": "2, \"a\", \"b\", k",
+   "model_late": "String:b",
+   "model_typed": "String:b"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 3",
+   "arguments": "3, ws.Range(\"A1:C5\"), ws.Range(\"K1\"), False",
+   "model_late": "Empty",
+   "model_typed": "Empty"
+  },
+  {
+   "function": "Rri",
+   "setup": "",
+   "arguments": "96, \"10000\", 11000",
+   "model_late": "Double:9.9330737629133E-04",
+   "model_typed": "Double:9.9330737629133E-04"
+  },
+  {
+   "function": "XLookup",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "\"c\", k, ws.Range(\"A1:A5\")",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "ws.Range(\"K1\").Value = 9",
+   "arguments": "ws.Range(\"K1\"), ws.Range(\"A1:B5\"), 2, False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "VLookup",
+   "setup": "",
+   "arguments": "Array(9, 10), ws.Range(\"A1:B5\"), 2, False",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "Array(1 To 2) Error:2042 Error:2042"
+  },
+  {
+   "function": "Rri",
+   "setup": "",
+   "arguments": "48, 20000, 22000",
+   "model_late": "Double:1.98760141212651E-03",
+   "model_typed": "Double:1.98760141212651E-03"
+  },
+  {
+   "function": "Confidence",
+   "setup": "ws.Range(\"K1\").Value = 2.5",
+   "arguments": "0.05, ws.Range(\"K1\"), 50",
+   "model_late": "Double:0.692951912174839",
+   "model_typed": "Double:0.692951912174839"
+  },
+  {
+   "function": "Permutationa",
+   "setup": "",
+   "arguments": "6, 1",
+   "model_late": "Double:6",
+   "model_typed": "Double:6"
+  },
+  {
+   "function": "HLookup",
+   "setup": "ws.Range(\"K1\").Value = 2",
+   "arguments": "\"z\", ws.Range(\"G1:J2\"), ws.Range(\"K1\"), False",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  }
+ ]
+}

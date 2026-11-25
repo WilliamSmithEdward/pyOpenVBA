@@ -42,6 +42,7 @@ style_changes.json add what a macro does to a style:
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from dataclasses import replace
 from typing import TYPE_CHECKING, Final
@@ -173,7 +174,16 @@ OUTLINE: Final = {f"{kind}level_{level}": (f"{kind.title()}Level_{level}", built
 
 def _body_font(stylesheet: S.Stylesheet) -> S.Font:
     """The theme's body font as Excel writes it for a built-in style."""
-    return S.parse_font(_BODY.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
+    return S.parse_font(_fixed(stylesheet, _BODY.replace("{minor}", _typeface(stylesheet.built_in_fonts[1]))))
+
+
+def _fixed(stylesheet: S.Stylesheet, xml: str) -> str:
+    """A built-in style's part with its theme colours fixed where the stylesheet makes them so: in a file with no theme
+    part, as the 2007 theme's colours, their tints kept (tests/fixtures/tool_books/spellings.json)."""
+    colours = stylesheet.built_in_colours
+    if colours is None:
+        return xml
+    return re.sub(r'theme="(\d+)"', lambda found: f'rgb="FF{colours[int(found.group(1))]}"', xml)
 
 
 def _typeface(name: str) -> str:
@@ -199,7 +209,7 @@ def _built_in(stylesheet: S.Stylesheet, name: str) -> S.CellStyle | None:
         if font is None:
             value = stylesheet.opening_font
         else:
-            value = S.parse_font(font.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
+            value = S.parse_font(_fixed(stylesheet, font.replace("{minor}", _typeface(stylesheet.built_in_fonts[1]))))
         own = S.Style(number_format=stylesheet.number_formats[0], font=value, fill=S.parse_fill(_NO_FILL),
                       border=S.parse_border(_NO_BORDER))
         return S.CellStyle(own, frozenset({"font"}), name=title, builtin=builtin, level=level)
@@ -212,10 +222,10 @@ def _built_in(stylesheet: S.Stylesheet, name: str) -> S.CellStyle | None:
         # The copy of the Normal font Excel's table held from the start, whatever a macro made Normal since.
         value = stylesheet.opening_font
     else:
-        major, minor = stylesheet.theme_fonts
-        value = S.parse_font(font.replace("{major}", _typeface(major)).replace("{minor}", _typeface(minor)))
-    own = S.Style(number_format=stylesheet.number_formats[number], font=value, fill=S.parse_fill(fill),
-                  border=S.parse_border(border))
+        major, minor = stylesheet.built_in_fonts
+        value = S.parse_font(_fixed(stylesheet, font.replace("{major}", _typeface(major)).replace("{minor}", _typeface(minor))))
+    own = S.Style(number_format=stylesheet.number_formats[number], font=value, fill=S.parse_fill(_fixed(stylesheet, fill)),
+                  border=S.parse_border(_fixed(stylesheet, border)))
     return S.CellStyle(own, frozenset(_PARTS[letter] for letter in letters), name=title, builtin=builtin, rank=rank)
 
 
@@ -367,7 +377,7 @@ def _holders(book: Workbook) -> list[Cell | RowRecord | ColumnRecord]:
 def latent(stylesheet: S.Stylesheet) -> S.Latent:
     """The fonts, fills and borders of the standard built-in styles, in Excel's own order, the theme's body
     font first: the places a save's new parts take ahead of what a macro made (see Stylesheet.meet)."""
-    major, minor = stylesheet.theme_fonts
+    major, minor = stylesheet.built_in_fonts
     fonts: list[S.Font] = [_body_font(stylesheet)]
     fills: list[S.Fill] = []
     borders: list[S.Border] = []
@@ -375,10 +385,10 @@ def latent(stylesheet: S.Stylesheet) -> S.Latent:
         if font is None:
             value = stylesheet.opening_font
         else:
-            value = S.parse_font(font.replace("{major}", _typeface(major)).replace("{minor}", _typeface(minor)))
+            value = S.parse_font(_fixed(stylesheet, font.replace("{major}", _typeface(major)).replace("{minor}", _typeface(minor))))
         if value not in fonts:
             fonts.append(value)
-        filled, edged = S.parse_fill(fill), S.parse_border(border)
+        filled, edged = S.parse_fill(_fixed(stylesheet, fill)), S.parse_border(_fixed(stylesheet, border))
         if filled not in fills:
             fills.append(filled)
         if edged not in borders:

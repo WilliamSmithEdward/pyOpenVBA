@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
-from pyopenvba.apps.excel._styles import applying
+from pyopenvba.apps.excel._styles import applying, same_automatic
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._application_more import Timer
     from pyopenvba.apps.excel._dialogs import FileDialog as FileDialogObject
-    from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._clipboard import Clip, TextClip
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._document_properties import Properties
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -373,7 +373,8 @@ class Application(ExcelObject):
         "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
         "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate",
         "NewWorkbook", "SheetBeforeDelete", "SheetFollowHyperlink", "WindowActivate", "WindowDeactivate",
-        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart", "AfterCalculate"})
+        "WindowResize", "WorkbookBeforePrint", "WorkbookNewChart", "AfterCalculate", "WorkbookBeforeXmlImport", "WorkbookAfterXmlImport",
+        "WorkbookBeforeXmlExport", "WorkbookAfterXmlExport"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -414,6 +415,8 @@ class Application(ExcelObject):
         self.copied_chart: tuple[ShapeValue, ChartState, object] | None = None
         #: What CopyPicture put on the clipboard, for as long as the clipboard holds it: the clipboard as it was left (see _output).
         self.copied_picture: tuple[object] | None = None
+        #: A shape's text Copy or Cut put on the clipboard, and the clipboard then, which it lasts as long as (see _clipboard.text_copied).
+        self.copied_text: tuple[TextClip, object] | None = None
         #: What the clipboard holds other than cells, and the clipboard then, which it lasts as long as (see _clipboard.clipboard_formats).
         self.held_formats: tuple[tuple[int, ...] | None, object] | None = None
         #: Cells copied straight after a kind of copy that Excel answers ClipboardFormats for at random (see _clipboard).
@@ -882,6 +885,22 @@ class Application(ExcelObject):
 
         windows = Windows(self)
         return windows if Index is MISSING else windows.vba_get("Item", [Index])
+
+    @method
+    def DoubleClick(self) -> object:
+        """A double-click on the active cell, as a macro gives one in an Excel not shown
+        (tests/fixtures/double_click.json): anywhere but a pivot table it does nothing at all, raising no
+        BeforeDoubleClick. In a pivot table, where Excel shows a value's detail on a new sheet or opens its Show
+        Detail dialog, it reports itself unsupported."""
+        from pyopenvba.apps.excel._pivot_cells import double_clicked
+
+        sheet = self.active_book.active_sheet if self.active_book is not None else None
+        if not isinstance(sheet, Worksheet):
+            raise VBAUnsupportedError("Application.DoubleClick with no worksheet active is not implemented")
+        cell = sheet.active_cell
+        if isinstance(cell, Range):
+            double_clicked(cell)
+        return EMPTY
 
     @method
     def Goto(self, Reference: object = MISSING, Scroll: object = MISSING) -> object:
@@ -1968,7 +1987,7 @@ class Workbook(ExcelObject):
         "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
         "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
         "SheetPivotTableUpdate", "SheetPivotTableChangeSync", "BeforePrint", "NewChart", "SheetBeforeDelete", "SheetFollowHyperlink",
-        "WindowActivate", "WindowDeactivate", "WindowResize"})
+        "WindowActivate", "WindowDeactivate", "WindowResize", "BeforeXmlImport", "AfterXmlImport", "BeforeXmlExport", "AfterXmlExport"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
@@ -2068,6 +2087,13 @@ class Workbook(ExcelObject):
         #: The kinds of part a loaded workbook came with, its relationships' types and a few markers, which the
         #: collections the model holds nothing in refuse to read as empty (see _empty_collections).
         self.held_kinds: set[str] = set()
+        #: The XML maps (see _xml_maps), how many maps and schemas have been numbered, and whether the parts need writing.
+        self.xml_maps: list[object] = []
+        self.xml_maps_made = 0
+        self.xml_schemas_made = 0
+        self.xml_maps_changed = False
+        #: Why a file's XML maps were left unread, which every XML map member then reports; "" where they were read.
+        self.xml_maps_unread = ""
         #: What the file's query tables said when read or last saved, None where it has none (see _query_tables).
         self.query_baseline: list[str] | None = None
         #: The connections of the workbook's query tables, and the names a deletion cost the file (see _query_tables).
@@ -2629,13 +2655,49 @@ class Workbook(ExcelObject):
     def Excel4IntlMacroSheets(self, Index: object = MISSING) -> object:
         return self._empty("Excel4IntlMacroSheets", Index)
 
+    #: XmlImportXml's ImportMap and an ExportXml's Data are written back to the caller's variable (see _xml_maps).
+    vba_slot_arguments = frozenset({"xmlimportxml", "xmlimport"})
+
     @member
     def XmlMaps(self, Index: object = MISSING) -> object:
-        return self._empty("XmlMaps", Index)
+        from pyopenvba.apps.excel._xml_maps import XmlMaps
+
+        found = XmlMaps(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
 
     @member
     def XmlNamespaces(self, Index: object = MISSING) -> object:
-        return self._empty("XmlNamespaces", Index)
+        from pyopenvba.apps.excel._xml_maps import XmlNamespaces
+
+        found = XmlNamespaces(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
+
+    @method
+    def XmlImportXml(self, Data: object = MISSING, ImportMap: object = MISSING, Overwrite: object = MISSING,  # noqa: N803
+                     Destination: object = MISSING) -> object:
+        """With a map, its ImportXml (tests/fixtures/xml_maps.json); with none, which Excel infers a schema for, it reports itself."""
+        from pyopenvba.apps.excel._xml_maps import plain, workbook_import
+
+        if Data is MISSING or ImportMap is MISSING:
+            raise error(449, "Argument not optional")
+        return workbook_import(self, to_text(plain(Data)), ImportMap, plain(Overwrite), plain(Destination))
+
+    @method
+    def XmlImport(self, Url: object = MISSING, ImportMap: object = MISSING, Overwrite: object = MISSING,  # noqa: N803
+                  Destination: object = MISSING) -> object:
+        from pyopenvba.apps.excel._xml_maps import plain, read_url, workbook_import
+
+        if ImportMap is MISSING:
+            raise error(449, "Argument not optional")
+        text, url = read_url(self, plain(Url), "Workbook.XmlImport")
+        return workbook_import(self, text, ImportMap, plain(Overwrite), plain(Destination), url=url)
+
+    @method
+    def SaveAsXMLData(self, Filename: object = MISSING, Map: object = MISSING) -> object:  # noqa: N803 - native names
+        from pyopenvba.apps.excel._xml_maps import save_as_xml_data
+
+        save_as_xml_data(self, Filename, Map)
+        return EMPTY
 
     @member
     def CustomViews(self, Index: object = MISSING) -> object:
@@ -3705,6 +3767,13 @@ class Worksheet(ExcelObject):
             spec = super(ExcelObject, self).vba_member(name)
             raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' "
                                      "failed")
+        if self.book.closed:
+            # Held past its workbook's close, a member is 424 through an Object and the same automation error through a
+            # Worksheet; TypeName still answers (tests/fixtures/used_range.json, held_sheet).
+            spec = super(ExcelObject, self).vba_member(name)
+            if BINDING.late:
+                raise error(424, "Object required")
+            raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' failed")
         return super().vba_member(name)
 
     def __init__(self, book: Workbook, name: str) -> None:
@@ -3719,6 +3788,14 @@ class Worksheet(ExcelObject):
         #: macro added, which Excel leaves without one.
         self.code_name = ""
         self.cells_: dict[tuple[int, int], Cell] = {}
+        # Formatted cells a format on whole rows or columns left saying nothing since UsedRange was last read, with the
+        # format each had: Excel keeps them until a read of UsedRange, and a union's later area still sees them (probe
+        # 28, round 16006 #38). Cells the model makes and drops within one change are not among them.
+        self.unread_dropped: dict[tuple[int, int], Style] = {}
+        # How deep a format on whole rows, columns or the sheet is running, and the cells that stood before the change a
+        # macro is making (see _row_formats.one_statement).
+        self.formatting_whole = 0
+        self.statement_cells: frozenset[tuple[int, int]] | None = None
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
         self.shared_groups: dict[int, Area] = {}
@@ -3856,6 +3933,9 @@ class Worksheet(ExcelObject):
         self.notes: dict[tuple[int, int], Note] = {}
         #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
         self.held_kinds: set[str] = set()
+        #: The cells mapped one by one to XML (see _xml_maps), and the part a file keeps them in.
+        self.xml_cells: dict[tuple[int, int], Any] = {}
+        self.xml_cells_part = ""
         #: The chart sheet this sheet carries the chart of, which no tab shows (see _chart_sheets).
         self.chart_sheet: ChartSheet | None = None
         #: The sheet's query tables, the newest first (see _query_tables).
@@ -4324,6 +4404,7 @@ class Worksheet(ExcelObject):
 
     @member
     def UsedRange(self) -> object:
+        self.unread_dropped.clear()
         bounds = self.used_bounds()
         if bounds is None:
             return Range(self, [Area(1, 1, 1, 1, self.name)])
@@ -4380,6 +4461,23 @@ class Worksheet(ExcelObject):
         # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
         return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
 
+    @method
+    def PivotTableWizard(self, SourceType: object = MISSING, SourceData: object = MISSING,  # noqa: N803
+                         TableDestination: object = MISSING, TableName: object = MISSING,  # noqa: N803
+                         RowGrand: object = MISSING, ColumnGrand: object = MISSING, SaveData: object = MISSING,  # noqa: N803
+                         HasAutoFormat: object = MISSING, AutoPage: object = MISSING, Reserved: object = MISSING,  # noqa: N803
+                         BackgroundQuery: object = MISSING, OptimizeCache: object = MISSING,  # noqa: N803
+                         PageFieldOrder: object = MISSING, PageFieldWrapCount: object = MISSING,  # noqa: N803
+                         ReadData: object = MISSING, Connection: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._pivot_create import wizard
+
+        return wizard(self, SourceType, SourceData, TableDestination, TableName,
+                      {"RowGrand": RowGrand, "ColumnGrand": ColumnGrand, "SaveData": SaveData,
+                       "HasAutoFormat": HasAutoFormat}, ReadData,
+                      {"AutoPage": AutoPage, "Reserved": Reserved, "BackgroundQuery": BackgroundQuery,
+                       "OptimizeCache": OptimizeCache, "PageFieldOrder": PageFieldOrder,
+                       "PageFieldWrapCount": PageFieldWrapCount, "Connection": Connection})
+
     @member
     def PrintedCommentPages(self) -> object:
         return VBAInt(0, "Long")
@@ -4387,14 +4485,14 @@ class Worksheet(ExcelObject):
     @method
     def XmlDataQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
                      Map: object = MISSING) -> object:
-        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+        if self.book.xml_maps:
             raise VBAUnsupportedError("XmlDataQuery in a workbook with XML maps is not implemented")
         return NOTHING
 
     @method
     def XmlMapQuery(self, XPath: object = MISSING, SelectionNamespaces: object = MISSING,
                     Map: object = MISSING) -> object:
-        if self.book.package is not None and self.book.package.has("xl/xmlMaps.xml"):
+        if self.book.xml_maps:
             raise VBAUnsupportedError("XmlMapQuery in a workbook with XML maps is not implemented")
         return NOTHING
 
@@ -4808,16 +4906,22 @@ class Worksheet(ExcelObject):
         """Whether a cell says anything: a value, a formula, or a format apart from the one it would inherit.
 
         Excel keeps a cell with nothing in it only while its format differs
-        from its row's or column's, and lets it go the moment it does not.
+        from its row's or column's, and lets it go the moment it does not. A
+        border line in the automatic colour is the same line however the file
+        spells it (tests/fixtures/border_rounds.json).
         """
         if cell.value is not EMPTY or cell.formula or cell.html_id or cell.ignored_errors:
             return True
-        return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
+        mine, inherited = cell.style or self.book.stylesheet.default, self.inherited_style(row, column)
+        return mine != inherited and same_automatic(mine) != same_automatic(inherited)
 
     def settle(self, row: int, column: int) -> None:
         """Drop the cell at a position if it no longer says anything."""
         found = self.cells_.get((row, column))
         if found is not None and not self.holds(row, column, found):
+            if (found.style is not None and self.formatting_whole and self.statement_cells is not None
+                    and (row, column) in self.statement_cells):
+                self.unread_dropped[(row, column)] = found.style
             del self.cells_[(row, column)]
 
     def restyle(self, row: int, column: int, style: Style) -> None:
@@ -4857,7 +4961,7 @@ class Worksheet(ExcelObject):
         live.extend(self.notes)
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
-        rows.extend(self.dims.shaped_rows())
+        rows.extend(self.dims.shaped_rows() - self.dims.opened_shapes)
         columns = [column for _, column in live]
         columns.extend(self.dims.used_columns())
         if not rows and not columns:
@@ -6593,12 +6697,25 @@ class Range(ExcelObject):
     def ShowDetail(self) -> object:
         from pyopenvba.apps.excel._outline import read_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import read_value_detail, value_cell
+
+            if value_cell(self) is not None:
+                read_value_detail()
         return read_detail(self)
 
     @setter('ShowDetail')
     def _set_show_detail(self, value: object) -> None:
         from pyopenvba.apps.excel._outline import set_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import drill, value_cell
+
+            # A pivot table's value shows the records behind it (drill-through).
+            table = value_cell(self)
+            if table is not None:
+                drill(table, self, value, select=True)
+                return
         set_detail(self, value)
 
     @member
@@ -6761,12 +6878,10 @@ class Range(ExcelObject):
 
     @member
     def XPath(self) -> object:
-        from pyopenvba.apps.excel._range_members import XPath
+        """The cells' XML mapping (see _xml_maps): of one cell, or one column of them; a wider block is out of range."""
+        from pyopenvba.apps.excel._xml_maps import cell_xpath
 
-        # Of one cell only (tests/fixtures/unassessed_more.json, xpath_block).
-        if len(self.areas) != 1 or self.first.top != self.first.bottom or self.first.left != self.first.right:
-            raise error(-2147024809, "The specified value is out of range.")
-        return XPath(self)
+        return cell_xpath(self)
 
     @member
     def CellControl(self) -> object:
@@ -8113,7 +8228,13 @@ class Range(ExcelObject):
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         style = cell.style or self.sheet.book.stylesheet.default
-        self._store(row, column, typed(value, style.number_format, raw=raw, epoch_1904=self.sheet.book.epoch_1904))
+        result = typed(value, style.number_format, raw=raw, epoch_1904=self.sheet.book.epoch_1904)
+        if value == "" and isinstance(value, str) and self.sheet.tables and self.sheet.book.xml_maps:
+            from pyopenvba.apps.excel._xml_maps import keeps_empty_text
+
+            if keeps_empty_text(self.sheet, row, column):
+                result = replace(result, value="")
+        self._store(row, column, result)
 
     def store_typed(self, row: int, column: int, result: Typed) -> None:
         """Put what a feature typed into one cell, as a write puts it (see _store): TextToColumns's fields."""

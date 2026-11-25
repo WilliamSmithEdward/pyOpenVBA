@@ -22,7 +22,7 @@ from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_reports import PivotReport
@@ -456,7 +456,10 @@ class PivotTable(HeldPart, ExcelObject):
     def ChangeConnection(self, conn: object = MISSING) -> object:
         from pyopenvba.apps.excel._connections import WorkbookConnection
 
-        # A table over a list takes no connection: 5 for a connection, 13 for anything else.
+        # A table over a list takes no connection: 5 for a connection, 1004 for Nothing, 13 for anything else, however it
+        # is passed (tests/fixtures/pivot_table_more.json, change_connection.json).
+        if conn is NOTHING:
+            raise error(1004)
         raise error(5 if isinstance(conn, WorkbookConnection) else 13)
 
     @method
@@ -723,23 +726,27 @@ class PivotTable(HeldPart, ExcelObject):
 
     @member
     def RowGrand(self) -> object:
-        return self.root.get('rowGrandTotals', '1') not in ('0', 'false')
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes
+
+        return self.root.get(grand_attributes(self.root)[0], '1') not in ('0', 'false')
 
     @member
     def ColumnGrand(self) -> object:
-        return self.root.get('colGrandTotals', '1') not in ('0', 'false')
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes
+
+        return self.root.get(grand_attributes(self.root)[1], '1') not in ('0', 'false')
 
     @setter('RowGrand')
     def set_row_grand(self, value: object) -> None:
-        from pyopenvba.apps.excel._pivot_forms import set_table_flag
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes, set_table_flag
 
-        set_table_flag(self, 'rowGrandTotals', value)
+        set_table_flag(self, grand_attributes(self.root)[0], value)
 
     @setter('ColumnGrand')
     def set_column_grand(self, value: object) -> None:
-        from pyopenvba.apps.excel._pivot_forms import set_table_flag
+        from pyopenvba.apps.excel._pivot_forms import grand_attributes, set_table_flag
 
-        set_table_flag(self, 'colGrandTotals', value)
+        set_table_flag(self, grand_attributes(self.root)[1], value)
 
     @method
     def RowAxisLayout(self, RowLayout: object) -> object:
@@ -1506,6 +1513,7 @@ class PivotField(HeldPart, ExcelObject):
     def CalculatedItems(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivot_items import CalculatedItems
 
+        self._not_data(1004)
         items = CalculatedItems(self)
         return items if Index is MISSING else items.Item(Index)
 
@@ -1537,6 +1545,7 @@ class PivotField(HeldPart, ExcelObject):
     def ParentItems(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivot_groups import parent_items
 
+        self._not_data(1004)
         collection = parent_items(self)
         return collection if Index is MISSING else collection.Item(Index)
 
@@ -1563,9 +1572,16 @@ class PivotField(HeldPart, ExcelObject):
 
     # -- tests/fixtures/pivot_reads.json
 
+    def _not_data(self, number: int) -> None:
+        """The data field refuses what only a field of items answers: ParentItems, ChildItems and CalculatedItems with 1004,
+        AllItemsVisible with 5; its PivotItems, VisibleItems and HiddenItems answer empty (tests/fixtures/data_field_members.json)."""
+        if self.data:
+            raise error(number)
+
     @member
     def AllItemsVisible(self) -> object:
         """False once an item is hidden by hand or a page chosen; a caption or value filter leaves it True."""
+        self._not_data(5)
         if any(item.get('h') == '1' for item in self.root.findall(f'{NS}items/{NS}item')):
             return False
         return not any(entry.get('fld') == str(self.index) and entry.get('item') is not None
@@ -1585,7 +1601,8 @@ class PivotField(HeldPart, ExcelObject):
 
     @member
     def ChildItems(self) -> object:
-        """Empty: a field over a list has no levels of items."""
+        """Empty: a field over a list has no levels of items; the data field refuses it."""
+        self._not_data(1004)
         return PivotItems(self, [])
 
     @method

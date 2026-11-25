@@ -1,0 +1,13 @@
+{
+ "measured_at": "2026-11-17T19:22:44.774450+00:00",
+ "standard_height": 14.5,
+ "source": "Private Function Boxes(c As Object) As String\n    Dim x As Object, s As String\n    For Each x In c\n        s = s & \";\" & x.Left & \",\" & x.Top & \",\" & x.Width & \",\" & x.Height\n    Next\n    Boxes = Mid(s, 2)\nEnd Function\n\nPublic Function Row(ByVal which As String) As String\n    Dim wb As Workbook, ws As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Buttons.Add 100, 70, 60, 30: ws.Buttons.Add 100, 130, 60, 30\n    ws.Arcs.Add 10, 70, 60, 120: ws.Arcs.Add 10, 130, 60, 180\n    s = ws.StandardHeight & \"|\"\n    On Error Resume Next\n    Select Case which\n    Case \"top 300\": ws.Buttons.Top = 300\n    Case \"top 0\": ws.Buttons.Top = 0\n    Case \"top 37.5\": ws.Buttons.Top = 37.5\n    Case \"one arc height\": ws.Arcs(1).Height = 37.5\n    Case \"arcs height\": ws.Arcs.Height = 75\n    End Select\n    s = s & \"E\" & Err.Number & \"|\" & Boxes(ws.Buttons) & \"|\" & Boxes(ws.Arcs) & \"|\" & ws.StandardHeight\n    wb.Close False\n    Row = s\nEnd Function\n",
+ "cases": {
+  "none": "14.5|E0|100,70,60,30;100,130,60,30|60,70,60,120;60,130,60,180|14.5",
+  "top 300": "14.5|E0|100,240,60,30;100,300,60,30|60,70,60,120;60,130,60,180|14.5",
+  "top 0": "14.5|E0|100,0,60,30;100,60,60,30|60,70,60,120;60,130,60,180|14.5",
+  "top 37.5": "14.5|E0|100,0,60,30;100,60,60,30|60,70,60,120;60,130,60,180|14.5",
+  "one arc height": "14.5|E0|100,70,60,30;100,130,60,30|60,70,60,37.5;60,130,60,180|14.5",
+  "arcs height": "14.5|E0|100,70,60,30;100,130,60,30|60,70,60,37.5;60,130,60,37.5|14.5"
+ }
+}

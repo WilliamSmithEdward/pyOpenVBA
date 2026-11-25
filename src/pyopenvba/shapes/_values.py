@@ -257,6 +257,8 @@ class TextLook:
     font_ea: str | None = None
     font_cs: str | None = None
     font_sym: str | None = None
+    #: Text TextRange2.Paste put there, which Excel writes with every setting spelled out (tests/fixtures/text_range2_round_10.json).
+    font_pasted: bool = False
     font_effects: str | None = None
     font_highlight: str | None = None
     font_underline_line: str | None = None
@@ -329,6 +331,23 @@ class GradientPoint:
 
 #: FillFormat.GradientStyle by angle in sixty-thousandths of a degree, with its opposite.
 _STYLE_ANGLES = {5400000: 1, 16200000: 1, 0: 2, 10800000: 2, 2700000: 3, 13500000: 3, 8100000: 4, 18900000: 4}
+
+
+@dataclass(frozen=True, slots=True)
+class FillPicture:
+    """Excel: a fill of a picture from a file, UserPicture's stretched over the shape or UserTextured's tiled across it, the image held
+    in the shape's own image (tests/fixtures/fill_format_round_2.json). A texture setting writes the blipFill's dpi and rotWithShape and
+    an empty srcRect; one on a stretched picture tiles it, turned both ways."""
+
+    tiled: bool
+    #: The tile's offsets in EMU, its scales in thousandths of a percent, its flip and its alignment.
+    tx: int = 0
+    ty: int = 0
+    sx: int = 100000
+    sy: int = 100000
+    flip: str = "none"
+    align: str = "tl"
+    edited: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -445,6 +464,7 @@ class FillLine:
     fill_back_scheme: str | None = None
     fill_back_mods: tuple[tuple[str, int], ...] = ()
     fill_gradient: FillGradient | None = None
+    fill_picture: FillPicture | None = None
     #: InsetPen's algn.
     line_align: str | None = None
     #: Each end's type, w and len as set, and those a hidden line had when it was hidden.

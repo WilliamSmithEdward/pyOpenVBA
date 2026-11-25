@@ -2,7 +2,8 @@
 
 Measured in live Excel (scripts/measure_object_roundtrip.py, tests/fixtures/object_roundtrip.json). A shape's own spPr wins over its
 style's fillRef and lnRef, whose colours come from the theme and whose line width comes from the theme's list. Gradients, pictures
-and custom dashes are not read: a macro reaching them is told so, rather than given a wrong answer.
+and custom dashes are not read, nor picture fills but the ones UserPicture and UserTextured write: a macro reaching them
+is told so, rather than given a wrong answer.
 """
 from __future__ import annotations
 
@@ -11,7 +12,7 @@ from dataclasses import dataclass
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import ConnectorLink, FillLine, Shape
+from pyopenvba.shapes._values import ConnectorLink, FillLine, FillPicture, Shape
 
 _COLOUR = re.compile(r'<a:(srgbClr|schemeClr|sysClr|prstClr|scrgbClr|hslClr)\b([^>]*?)(?:/>|>(.*?)</a:\1>)', re.DOTALL)
 _MOD = re.compile(r'<a:(\w+)\b[^>]*?\bval="(-?\d+)"')
@@ -101,6 +102,8 @@ def read_look(markup: str) -> FillLine:
                 look.fill_solid = paint.rgb is None and paint.scheme is None
         elif tag == "a:pattFill":
             _read_pattern(look, piece)
+        elif tag == "a:blipFill":
+            _read_picture_fill(look, piece)
         else:
             raise VBAUnsupportedError(f"The fill and line of a shape with {tag[2:]} are not implemented")
     if line is not None:
@@ -117,6 +120,33 @@ def read_look(markup: str) -> FillLine:
         if paint is not None:
             look.line_rgb, look.line_scheme, look.line_mods = paint.rgb, paint.scheme, paint.mods
     return look
+
+
+#: A picture fill as Excel writes UserPicture's and UserTextured's, and the texture settings on them (tests/fixtures/fill_format_round_2.json):
+#: a setting adds dpi, rotWithShape and an empty srcRect. Any other blipFill, with blip effects, a crop or a linked image, is not read.
+_PICTURE_FILL = re.compile(
+    r'<a:blipFill( dpi="0" rotWithShape="1")?><a:blip(?: xmlns:r="http://schemas\.openxmlformats\.org/officeDocument/2006/relationships")?'
+    r' r:embed="([^"]+)"/>(<a:srcRect/>)?(?:<a:stretch><a:fillRect/></a:stretch>|<a:tile tx="(-?\d+)" ty="(-?\d+)" sx="(-?\d+)"'
+    r' sy="(-?\d+)" flip="(none|x|y|xy)" algn="(tl|t|tr|l|ctr|r|bl|b|br)"/>)</a:blipFill>')
+
+
+def picture_fill_relationship(markup: str) -> str | None:
+    """The relationship of the image a shape's picture fill shows, read as read_look reads the fill."""
+    found = _PICTURE_FILL.search(properties(markup))
+    return None if found is None else found.group(2)
+
+
+def _read_picture_fill(look: FillLine, piece: str) -> None:
+    """Excel answers a picture fill opened again as it did before the save (tests/fixtures/fill_format_round_2.json): its colours read
+    white, as UserPicture leaves them."""
+    found = _PICTURE_FILL.fullmatch(piece)
+    if found is None or bool(found.group(1)) != bool(found.group(3)):
+        raise VBAUnsupportedError("The fill and line of a shape with a blipFill Excel's UserPicture or UserTextured does not write are not implemented")
+    tiled = found.group(4) is not None
+    look.fill_picture = (FillPicture(True, int(found.group(4)), int(found.group(5)), int(found.group(6)), int(found.group(7)),
+                                     found.group(8), found.group(9), bool(found.group(1)))
+                         if tiled else FillPicture(False, edited=bool(found.group(1))))
+    look.fill_rgb, look.fill_back_rgb = "FFFFFF", "FFFFFF"
 
 
 def _read_pattern(look: FillLine, piece: str) -> None:

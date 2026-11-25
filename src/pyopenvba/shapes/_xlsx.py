@@ -33,7 +33,7 @@ from pyopenvba.shapes import _drawingml as dml
 from pyopenvba.shapes._adjustments import ADJUSTMENTS, DARK_TEXT
 from pyopenvba.shapes._read_look import read_picture, with_fill_line
 from pyopenvba.shapes._read_text import loaded_text, read_text
-from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, Shape, ShapeEffects, TextLine,
+from pyopenvba.shapes._values import (PRESET_GEOMETRY, ControlInfo, FillGradient, FillLine, FillPicture, Shape, ShapeEffects, TextLine,
                                       TextLook, child_space, emu, points, to_child)
 
 #: The anchors a sheet's drawing is made of.
@@ -1551,7 +1551,7 @@ def _new_picture(shape: Shape) -> str:
         f'<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" {blip}<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
         f'<xdr:spPr><a:xfrm{_xfrm_attributes(shape)}><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
-        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}</xdr:spPr></xdr:pic>")
+        f"{_PICTURE_FILLS.get(shape.picture_fill or '', '')}{OLD_SHADOW if shape.shadow_added else ''}</xdr:spPr></xdr:pic>")
 
 
 def _new_element(shape: Shape) -> str:
@@ -1617,6 +1617,15 @@ def _new_element(shape: Shape) -> str:
     )
 
 
+def _picture_fill(picture: FillPicture, relationship: str) -> str:
+    """A fill of a picture from a file, as Excel writes it (tests/fixtures/fill_format_round_2.json)."""
+    edited = ' dpi="0" rotWithShape="1"' if picture.edited else ""
+    how = (f'<a:tile tx="{picture.tx}" ty="{picture.ty}" sx="{picture.sx}" sy="{picture.sy}" flip="{picture.flip}" algn="{picture.align}"/>'
+           if picture.tiled else "<a:stretch><a:fillRect/></a:stretch>")
+    return (f'<a:blipFill{edited}><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="{relationship}"/>'
+            f'{"<a:srcRect/>" if picture.edited else ""}{how}</a:blipFill>')
+
+
 def _fill_line(shape: Shape) -> str:
     """The fill and line a shape's spPr holds: a text box's own, and only what Shape.Fill and Shape.Line set on top of
     the style, as Excel writes them (tests/fixtures/shape_fill_line.json)."""
@@ -1635,7 +1644,9 @@ def _fill_line(shape: Shape) -> str:
     if look.fill_gradient is not None:
         fill_paint = _gradient(look.fill_gradient)
     fill = ""
-    if look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
+    if look.fill_picture is not None and shape.image_relationship:
+        fill = _picture_fill(look.fill_picture, shape.image_relationship)
+    elif look.fill_hidden or (look.fill_bare and shape.kind != "picture"):
         fill = "<a:noFill/>"
     elif look.fill_bare:
         pass  # A picture with no fill of its own stays without one (tests/fixtures/shape_settings_kept.json).
@@ -1855,8 +1866,18 @@ def _text_line(line: TextLine) -> str:
     return f"<a:ln{attributes}><a:solidFill>{ink}</a:solidFill>{dash}</a:ln>"
 
 
+#: What Excel spells out on a run TextRange2.Paste put in an AutoShape's text, past its size and bold (tests/fixtures/text_range2_round_10.json).
+_PASTED_ATTRIBUTES = ' i="0" u="none" strike="noStrike" kern="0" cap="none" spc="0" normalizeH="0" baseline="0" noProof="0"'
+_PASTED_CHILDREN = ('<a:ln><a:noFill/></a:ln><a:solidFill><a:prstClr val="white"/></a:solidFill><a:effectLst/><a:uLnTx/><a:uFillTx/>'
+                    '<a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/>')
+#: How a pasted run's attributes begin, which _props writes ahead of its lang, as Excel does.
+_KUMIMOJI = ' kumimoji="0"'
+
+
 def _font_markup(look: TextLook) -> tuple[str, str]:
     """What Characters.Font writes on a run or a paragraph's end: its attributes and its children."""
+    if look.font_pasted:
+        return f'{_KUMIMOJI} sz="{round(look.font_size * 100)}" b="{1 if look.font_bold else 0}"{_PASTED_ATTRIBUTES}', _PASTED_CHILDREN
     attributes = f' sz="{round(look.font_size * 100)}"'
     if look.font_bold is not None:
         attributes += f' b="{1 if look.font_bold else 0}"'
@@ -1917,7 +1938,8 @@ def text_run_spans(shape: Shape) -> list[tuple[int, int]]:
 
 
 def _props(tag: str, markup: tuple[str, str]) -> str:
-    return f'<{tag} lang="en-US"{markup[0]}>{markup[1]}</{tag}>' if markup[1] else f'<{tag} lang="en-US"{markup[0]}/>'
+    head = f'{_KUMIMOJI} lang="en-US"{markup[0][len(_KUMIMOJI):]}' if markup[0].startswith(_KUMIMOJI) else f' lang="en-US"{markup[0]}'
+    return f'<{tag}{head}>{markup[1]}</{tag}>' if markup[1] else f'<{tag}{head}/>'
 
 
 def _marked_paragraphs(shape: Shape, look: TextLook) -> str | None:

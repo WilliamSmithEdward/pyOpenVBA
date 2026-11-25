@@ -1649,6 +1649,7 @@ class ChartArea(Created):
         self.chart.admit_read()
         ChartObject(self.chart.sheet, self.chart.shape).made_active('area')
         self.chart.sheet.book.application.copied_chart = None
+        self.chart.sheet.book.application.copied_text = None
         from pyopenvba.apps.excel._clipboard import CHART_AREA_FORMATS, hold_formats
 
         hold_formats(self.chart.sheet.book.application, CHART_AREA_FORMATS)
@@ -3185,6 +3186,16 @@ class Chart(ElementProperties, HeldPart):
         self.keeps_look(f'tick{found.entry.tag}', wanted)
         self.changed()
         found.entry.present = wanted and self.state.chart_type not in NO_AXES
+
+    @method
+    def SetDefaultChart(self, Name: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """xlBuiltIn, the default Excel starts with, is taken and changes nothing. Excel takes a chart type as well, and
+        Charts.Add then makes that type (tests/fixtures/set_default_chart.json); how such a chart saves was not
+        measured, so any other default is refused."""
+        self.admit_read()
+        if isinstance(Name, (int, float)) and not isinstance(Name, bool) and int(to_integer(Name, 'Long')) == 21:
+            return EMPTY
+        raise VBAUnsupportedError('SetDefaultChart with a default other than xlBuiltIn is not implemented')
 
     @method
     def SetSourceData(self, Source: object = MISSING, PlotBy: object = MISSING) -> object:

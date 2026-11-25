@@ -343,9 +343,14 @@ class Shapes(VBACollection, ItemDefault, HeldPart):
             raise error(1004, "AddPicture method of Shapes class failed")
         if linked:
             raise _unsupported("a linked picture")
+        from pyopenvba.interpreter._files import final_path, native_path
+
+        given = to_text(Filename)
+        # The one string opened, past the gate above: a backslash a separator off Windows too, links and .. resolved.
+        opened = final_path(given)
+        source = Path(native_path(given))
         try:
-            source = Path(to_text(Filename))
-            data = source.read_bytes()
+            data = Path(opened).read_bytes()
         except OSError:
             raise error(1004, "AddPicture method of Shapes class failed") from None
         wide, tall, kind = _image_points(data)
@@ -628,6 +633,33 @@ class ShapeRange(VBACollection, HeldPart):
         from pyopenvba.apps.excel._shape_effects import RangeReflection
 
         return RangeReflection(self)
+
+    @method(name="_Default")
+    def hidden_default(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Item, bound early; bound late Excel raises 438 (tests/fixtures/shape_format_rows.json)."""
+        if BINDING.late:
+            raise error(438, "Object doesn't support this property or method")
+        return self.vba_lookup(Index, self.vba_items())
+
+    # One shape's PictureFormat, Callout, Nodes and Vertices are its own; several shapes' are below
+    # (tests/fixtures/shape_format_rows.json).
+    @member
+    def PictureFormat(self) -> object:
+        return self.shapes[0].vba_get("PictureFormat") if len(self.shapes) == 1 else RangePictureFormat(self)
+
+    @member
+    def Callout(self) -> object:
+        return self.shapes[0].vba_get("Callout") if len(self.shapes) == 1 else RangeCallout(self)
+
+    @member
+    def Nodes(self) -> object:
+        return self.shapes[0].vba_get("Nodes") if len(self.shapes) == 1 else RangeNodes(self)
+
+    @member
+    def Vertices(self) -> object:
+        if len(self.shapes) == 1:
+            return self.shapes[0].vba_get("Vertices")
+        raise _no_vertices("ShapeRange")
 
     @method
     def PickUp(self) -> object:
@@ -1236,6 +1268,11 @@ class ShapeObject(_Drawn):
 
     @member
     def Vertices(self) -> object:
+        # A new AutoShape has none and reads Empty; a picture's fail (tests/fixtures/shape_format_rows.json).
+        if not self.shape.source and self.shape.kind == "shape":
+            return EMPTY
+        if not self.shape.source and self.shape.kind == "picture":
+            raise _no_vertices("Shape")
         return _vba_points(_freeform_points(self))
 
     @member
@@ -2539,6 +2576,11 @@ def _freeform_points(owner: ShapeObject) -> list[tuple[int, tuple[float, float]]
     return found
 
 
+def _no_vertices(owner: str) -> VBARuntimeError:
+    """Vertices where there are none to give: a picture's, or a range of several shapes'."""
+    return error(-2147467259, f"Method 'Vertices' of object '{owner}' failed")
+
+
 def _vba_points(points: list[tuple[int, tuple[float, float]]]) -> VBAArray:
     """Points as Excel gives them: Singles, n rows of x and y from 1."""
     made = VBAArray([(1, len(points)), (1, 2)], element_type="Single")
@@ -2566,6 +2608,9 @@ class ShapeNodes(HeldPart):
 
     @member
     def Count(self) -> object:
+        # A new picture has no nodes (tests/fixtures/shape_format_rows.json).
+        if not self.owner.shape.source and self.owner.shape.kind == "picture":
+            return VBAInt(0, "Long")
         return VBAInt(len(_freeform_points(self.owner)), "Long")
 
     @member(default=True, kind="method")
@@ -2635,6 +2680,86 @@ class RangeAdjustments(Created):
     def _item(self, Index: object, value: object) -> None:
         for part in self.parts():
             part.vba_set("Item", value, (Index,))
+
+
+class _RangeFormat(Created):
+    """A format of a ShapeRange of several shapes (tests/fixtures/shape_format_rows.json): a read raises what the first
+    shape that raises gives, and otherwise answers what every shape reads. A measure the shapes do not share reads
+    Excel's mixed Single; any other value they do not share is refused, not measured."""
+
+    vba_type_name = ""
+    #: The member of each shape that gives its own format.
+    format_name = ""
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    def shared(self, name: str, measure: bool = False) -> object:
+        values = [cast(HeldPart, one.vba_get(self.format_name)).vba_get(name) for one in self.range.shapes]
+        if all(value == values[0] for value in values[1:]):
+            return values[0]
+        if measure:
+            return VBASingle(-2147483648.0)
+        raise _unsupported(f"{self.vba_type_name}.{name} of shapes that differ")
+
+
+class RangePictureFormat(_RangeFormat):
+    vba_type_name = "PictureFormat"
+    format_name = "PictureFormat"
+
+    @member
+    def Brightness(self) -> object:
+        return self.shared("Brightness", measure=True)
+
+    @member
+    def Contrast(self) -> object:
+        return self.shared("Contrast", measure=True)
+
+    @member
+    def CropLeft(self) -> object:
+        return self.shared("CropLeft", measure=True)
+
+    @member
+    def CropRight(self) -> object:
+        return self.shared("CropRight", measure=True)
+
+    @member
+    def CropTop(self) -> object:
+        return self.shared("CropTop", measure=True)
+
+    @member
+    def CropBottom(self) -> object:
+        return self.shared("CropBottom", measure=True)
+
+    @member
+    def ColorType(self) -> object:
+        return self.shared("ColorType")
+
+
+class RangeCallout(_RangeFormat):
+    vba_type_name = "CalloutFormat"
+    format_name = "Callout"
+
+    @member
+    def Type(self) -> object:
+        return self.shared("Type")
+
+    @member
+    def AutoAttach(self) -> object:
+        return self.shared("AutoAttach")
+
+
+class RangeNodes(Created):
+    """A ShapeRange's nodes over several shapes: none (tests/fixtures/shape_format_rows.json)."""
+
+    vba_type_name = "ShapeNodes"
+
+    def __init__(self, shapes: ShapeRange) -> None:
+        self.range = shapes
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(0, "Long")
 
 
 class RangeConnector(Created):
@@ -3427,6 +3552,8 @@ class _ShapeFontBase(HeldPart):
         return _RunLook(base, shape.text_marks[at] if shape.text_marks and count else {}, [], False)
 
     def changed(self) -> TextLook:
+        if any(self._pasted_marks()[1]):
+            raise _unsupported("changing the font of text TextRange2.Paste put there")
         base = self.frame._changed()  # pyright: ignore[reportPrivateUsage]
         shape = self.characters.owner.shape
         at, count = self.characters.span()
@@ -3438,6 +3565,29 @@ class _ShapeFontBase(HeldPart):
         if not shape.text_marks:
             shape.text_marks = [{} for _ in shape.text]
         return _RunLook(base, shape.text_marks[at], shape.text_marks[at:at + count], False)
+
+    def _pasted_marks(self) -> tuple[list[dict[str, object]], list[bool]]:
+        shape = self.characters.owner.shape
+        at, count = self.characters.span()
+        marks = shape.text_marks[at:at + count] if shape.text_marks and count else []
+        return marks, [bool(mark.get("font_pasted")) for mark in marks]
+
+    def _pasted_read(self, member: str) -> object | None:
+        """A read over text TextRange2.Paste put there: TextRange2's Font answers it alone as any text; with other text, Bold
+        is mixed where that text has no bold of its own, as Excel has a setting spelled out against one left out
+        (tests/fixtures/text_range2_round_9.json, text_range2_round_10.json)."""
+        marks, pasted = self._pasted_marks()
+        if not any(pasted) or member in ("Parent", "Application", "Creator"):
+            return None
+        if not isinstance(self, ShapeFont2):
+            raise _unsupported(f"Characters.Font.{member} of text TextRange2.Paste put there")
+        if all(pasted):
+            return None
+        if member == "Bold" and (len({bool(mark.get("font_bold")) for mark in marks}) > 1
+                                 or any("font_bold" not in mark for mark, one in zip(marks, pasted) if not one)):
+            # Mixed: by value, or by a setting spelled out against one left out (tests/fixtures/text_range2_round_13.json).
+            return VBAInt(-2, "Long")
+        raise _unsupported(f"Font2.{member} over text TextRange2.Paste put there and other text together")
 
     def values(self, names: tuple[str, ...]) -> list[tuple[object, ...]]:
         """These settings of each character in the range."""
@@ -3455,6 +3605,9 @@ class _ShapeFontBase(HeldPart):
 
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         spec = self.vba_member(name)
+        pasted = self._pasted_read(spec.name if spec is not None else name)
+        if pasted is not None:
+            return pasted
         rule = self.mixed.get(spec.name) if spec is not None else None
         if rule is not None and len(set(self.values(rule[0]))) > 1:
             return rule[1](self)
@@ -4462,6 +4615,93 @@ class TextRange2(_ShapeText):
         self.owner.sheet.drawing_changed()
         return TextRange2(self.owner, at, 1)
 
+    # -- the clipboard, as live Excel answered it (tests/fixtures/text_range2_round_9.json, text_range2_round_10.json)
+
+    def _copied(self, member: str) -> tuple[int, int]:
+        from pyopenvba.apps.excel._clipboard import TextClip, text_copied
+
+        at, count = self.span()
+        shape = self.owner.shape
+        if not count:
+            raise _unsupported(f"TextRange2.{member} of no text")
+        if self.at is not None and count == len(shape.text):
+            raise _unsupported(f"TextRange2.{member} of all the text through Characters")
+        empty: dict[str, object] = {}
+        marks = tuple(dict(mark) for mark in shape.text_marks[at:at + count]) if shape.text_marks else tuple(dict(empty) for _ in range(count))
+        text_copied(self.owner.sheet.book.application, TextClip(shape.text[at:at + count], marks, self.at is None))
+        return at, count
+
+    @method
+    def Copy(self) -> object:
+        """The text on the clipboard with its settings, all of it bringing its paragraph's end. CutCopyMode stays 0."""
+        self._copied("Copy")
+        return EMPTY
+
+    @method
+    def Cut(self) -> object:
+        """The text on the clipboard, then gone."""
+        at, count = self._copied("Cut")
+        _edit_text(self.owner, at, count, "")
+        return EMPTY
+
+    @method
+    def Paste(self) -> object:
+        return self._pasted(None)
+
+    @method
+    def PasteSpecial(self, Format: object = MISSING) -> object:
+        return self._pasted(int(to_number(Format)) if Format is not MISSING else None)
+
+    def _pasted(self, format_number: int | None) -> object:
+        """The copied text in place of the range: a range of no length takes it where it stands, at the end too. Paste writes each
+        character with every setting spelled out; PasteSpecial's plain text joins the run before it. Nothing copied is error
+        -2147024809."""
+        from pyopenvba.apps.excel._clipboard import held_text
+        from pyopenvba.shapes._xlsx import _font_markup  # pyright: ignore[reportPrivateUsage]
+
+        application = self.owner.sheet.book.application
+        clip = held_text(application)
+        if clip is None:
+            if application.clipboard is not None:
+                raise _unsupported("pasting copied cells into a shape's text")
+            held = application.held_formats
+            if application.copied_chart is not None or (held is not None and held[1] is application.clipboard):
+                raise _unsupported("pasting a chart or picture into a shape's text")
+            raise error(-2147024809, "The parameter is incorrect.")
+        if format_number not in (None, 4):
+            raise _unsupported(f"TextRange2.PasteSpecial in format {format_number}")
+        if clip.whole:
+            raise _unsupported("pasting all of a shape's text, which brings its paragraph's settings")
+        shape = self.owner.shape
+        if shape.kind != "shape" or shape.source:
+            raise _unsupported("pasting into the text of a shape other than a new AutoShape")
+        if _font_markup(shape.text_look or TextLook()) != _font_markup(TextLook()):
+            raise _unsupported("pasting into a shape's text whose font has settings of its own")
+        at, count = self.span()
+        if self.at is not None and not count and at == 0:
+            raise _unsupported("pasting at the start of a shape's text, which Excel answers without putting the text there")
+        plain = format_number == 4
+        if not plain and any(set(mark) - {"font_bold"} for mark in clip.marks):
+            raise _unsupported("pasting text with settings other than bold")
+        # A paste that reaches the text's end writes its paragraph's end after it (tests/fixtures/text_range2_round_11.json).
+        ending = at + count == len(shape.text)
+        _edit_text(self.owner, at, count, clip.text)
+        if not plain:
+            if not shape.text_marks:
+                shape.text_marks = [{} for _ in shape.text]
+            for offset, mark in enumerate(clip.marks):
+                shape.text_marks[at + offset] = {"font_pasted": True, **({"font_bold": True} if mark.get("font_bold") else {})}
+            if ending and shape.text_end is None:
+                # Its paragraph's end is written, plain, after the pasted run.
+                shape.text_end = {}
+        return TextRange2(self.owner, at, len(clip.text))
+
+    @method
+    def InsertChartField(self, ChartFieldType: object = MISSING, Formula: object = MISSING, Position: object = MISSING) -> object:
+        """A chart field belongs in a chart's text: in a shape's, any field is the parameter error (tests/fixtures/text_range2_round_8.json)."""
+        self.span()
+        raise error(-2147024809, "The parameter is incorrect.")
+
     @method
     def LtrRun(self) -> object:
         return EMPTY
@@ -4886,6 +5126,7 @@ def chart_copied(sheet: Worksheet, shape: Shape) -> None:
     application = sheet.book.application
     # It ends a copy of cells (tests/fixtures/clipboard_formats.json).
     application.clipboard = None
+    application.copied_text = None
     application.copied_chart = (deepcopy(shape), deepcopy(chart), application.clipboard)
     from pyopenvba.apps.excel._clipboard import SHAPE_FORMATS, hold_formats
 

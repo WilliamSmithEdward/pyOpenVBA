@@ -126,6 +126,8 @@ class Plan(NamedTuple):
     dims: str
     out: Path
     sample: int
+    #: The edits a case may make before or after it reaches the object; the table rounds' four when empty.
+    edits: tuple[str, ...] = ()
 
 
 def setup(kind: str, seed: int) -> str:
@@ -201,7 +203,7 @@ def calls(seed: int, plan: Plan | None = None) -> list[dict[str, str]]:
     chosen = [rng.choice(group) for group in by_member.values()]
     rest = [one for one in every if one not in chosen]
     chosen += rng.sample(rest, max(0, plan.sample - len(chosen)))
-    edits = ['', 'ws.Rows(1).Insert', 'ws.Columns(1).Insert', 'wsL.Rows(1).Insert']
+    edits = list(plan.edits) or ['', 'ws.Rows(1).Insert', 'ws.Columns(1).Insert', 'wsL.Rows(1).Insert']
     for one in chosen:
         one['kind'] = rng.choice(KINDS)
         one['edit'] = rng.choice(edits)
@@ -333,8 +335,15 @@ def measure(seed: int, chunks: int, plan: Plan | None = None) -> None:
                             while left:
                                 case = left.pop(0)
                                 done = excel.run_vba(source(case, typed, seed, plan), 'One', (str(folder),), timeout=60.0, line_numbers=False)
-                                case[tag] = str(done.value) if done.ok else f'no answer: {str(done)[:600]}'
-                                if not done.ok:
+                                if done.ok:
+                                    case[tag] = str(done.value)
+                                elif done.outcome == 'vba-error' and done.error is not None:
+                                    # The macro itself failed where On Error did not reach, as at its closing Close: that is
+                                    # Excel's answer, not a run that failed, and the next case gets a new Excel.
+                                    case[tag] = f'macro error {done.error.number}'
+                                    break
+                                else:
+                                    case[tag] = f'no answer: {str(done)[:600]}'
                                     break
                 finally:
                     release_lock(lock, owner)

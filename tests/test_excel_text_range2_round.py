@@ -1,6 +1,7 @@
-"""TextRange2's members and text methods as live Excel answered seven held-out rounds (scripts/measure_text_range2_round.py), each case
+"""TextRange2's members and text methods as live Excel answered held-out rounds (scripts/measure_text_range2_round.py), each case
 run alone, and from round 4 what the statements write to the file. Rounds 6 and 7 ran on this code with its predictions written first,
-and every case answered as Excel did."""
+and every case answered as Excel did. Rounds 8 to 10 measured what the model lacked: For Each, the bounds, InsertChartField and the
+text clipboard, rounds 9 and 10 each case from a clipboard it set itself."""
 from __future__ import annotations
 
 import importlib.util
@@ -16,7 +17,21 @@ _SPEC = importlib.util.spec_from_file_location('measure_text_range2_round', ROOT
 assert _SPEC is not None and _SPEC.loader is not None
 PROBE: Any = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(PROBE)
-ROUNDS = range(1, 8)
+ROUNDS = range(1, 14)
+#: Cases where Excel's own clipboard failed, left out of the comparison. Excel could not open the clipboard
+#: (CLIPBRD_E_CANT_OPEN, -2147221040, as another program, here Remote Desktop's clipboard, held it), or a paste
+#: that went through elsewhere did nothing, answered 424 or failed with 1004 (round 8's case 12 had no clipboard
+#: of its own set first). Round 11's case 16 is the probe's own: its Copy of Characters past the text's end fails,
+#: as round 13 measured and the model answers, so its Paste sets nothing and p is the earlier case's range, from a
+#: workbook since closed (424), where a case run alone has p Nothing (91).
+CLIPBOARD_FAILED = {8: [12], 11: [16, 31, 32, 33, 34, 36, 37, 38, 40, 41], 12: [19, 24]}
+
+
+def test_characters_past_the_text_s_end_are_the_parameter_error() -> None:
+    """Round 13: read, copied or cut, late or typed, a range running past the end, or from 0, raises -2147024809."""
+    record = _record(13)
+    past = [excel for case, excel in zip(record['cases'], record['excel']) if case[0] == '"wxyz"']
+    assert len(past) == 24 and all(one.startswith('e-2147024809') for one in past)
 
 
 def _record(number: int) -> dict[str, Any]:
@@ -25,10 +40,12 @@ def _record(number: int) -> dict[str, Any]:
 
 
 @pytest.mark.parametrize('number', ROUNDS)
-def test_each_case_answers_as_excel_did(number: int) -> None:
+def test_each_case_answers_as_excel_did(number: int, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(PROBE, 'ROUND', number)
     record = _record(number)
-    differ = [(case[0], case[-1], got, excel) for case, excel in zip(record['cases'], record['excel'])
-              if (got := PROBE.alone(case)) != excel and got != 'refused']
+    failed = CLIPBOARD_FAILED.get(number, [])
+    differ = [(index, case[0], case[-1], got, excel) for index, (case, excel) in enumerate(zip(record['cases'], record['excel']))
+              if index not in failed and (got := PROBE.alone(case)) != excel and got != 'refused']
     assert differ == []
 
 
@@ -37,9 +54,31 @@ def test_the_held_out_rounds_are_answered_without_a_refusal(number: int) -> None
     assert [case for case in _record(number)['cases'] if PROBE.alone(case) == 'refused'] == []
 
 
-@pytest.mark.parametrize('number', range(4, 8))
+@pytest.mark.parametrize('number', range(4, 9))
 def test_the_statements_write_the_file_as_excel_did(number: int) -> None:
     excel = _record(number)['excel_markup']
     with tempfile.TemporaryDirectory() as folder:
         written = PROBE.model_markup(Path(folder))
     assert written[:len(excel)] == excel
+
+
+def test_a_paste_writes_the_file_as_excel_did(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Round 10's markup, each statement alone: what the model pastes is written as Excel wrote it, and it refuses the rest by
+    name (an HTML paste, copied cells, all the text with its paragraph)."""
+    monkeypatch.setattr(PROBE, 'ROUND', 10)
+    excel = _record(10)['excel_markup']
+    with tempfile.TemporaryDirectory() as folder:
+        written = PROBE.model_markup_each(Path(folder))
+    assert [index for index, (mine, theirs) in enumerate(zip(written, excel)) if mine not in (theirs, 'refused')] == []
+    assert [index for index, mine in enumerate(written) if mine == 'refused'] == [4, 6, 7]
+
+
+@pytest.mark.parametrize(('number', 'failed'), [(11, []), (12, [0])])
+def test_a_held_out_paste_writes_the_file_as_excel_did(number: int, failed: list[int], monkeypatch: pytest.MonkeyPatch) -> None:
+    """Rounds 11 and 12, held out on the clipboard: each statement's markup is Excel's, all answered. Round 12's first paste did
+    nothing in Excel, the same statement having pasted in round 11."""
+    monkeypatch.setattr(PROBE, 'ROUND', number)
+    excel = _record(number)['excel_markup']
+    with tempfile.TemporaryDirectory() as folder:
+        written = PROBE.model_markup_each(Path(folder))
+    assert [index for index, (mine, theirs) in enumerate(zip(written, excel)) if mine != theirs] == failed

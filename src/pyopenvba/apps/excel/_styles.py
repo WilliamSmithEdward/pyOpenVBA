@@ -490,6 +490,18 @@ APPLY_FLAGS: Final = {"number_format": "applyNumberFormat", "font": "applyFont",
 PARTS: Final = frozenset(APPLY_FLAGS)
 
 
+def same_automatic(style: Style) -> Style:
+    """A format with every border line in the automatic colour spelled one way, ``indexed="64"``, as ``auto="1"`` is the
+    same colour to Excel when it weighs whether a cell says anything (tests/fixtures/border_rounds.json)."""
+    def side(found: Side) -> Side:
+        return replace(found, color=FOREGROUND) if found.color is not None and found.color.kind == "auto" else found
+
+    border = style.border
+    plain = replace(border, left=side(border.left), right=side(border.right), top=side(border.top),
+                    bottom=side(border.bottom), diagonal=side(border.diagonal))
+    return style if plain == border else replace(style, border=plain)
+
+
 def applying(style: Style, part: str, **changes: object) -> Style:
     """The format with one part set by a macro: changed as asked, and applied from now on."""
     return replace(style, applied=style.applied | {part}, **changes)  # type: ignore[arg-type]
@@ -948,6 +960,10 @@ class Stylesheet:
                              palette if len(palette) >= 64 else ())
         #: The theme's heading and body typefaces, which Excel's built-in cell styles are written in.
         self.theme_fonts = parse_theme_fonts(theme_xml) if theme_xml else DEFAULT_THEME_FONTS
+        #: The typefaces and theme colours the built-in styles Excel adds are made in: the theme's, except in a file with no
+        #: theme part, whose built-in styles take Excel's 2007 theme as fixed colours (see _io.read_stylesheet).
+        self.built_in_fonts = self.theme_fonts
+        self.built_in_colours: tuple[str, ...] | None = None
         #: Every format by id, as Range.NumberFormat spells it; the file's own spelling is read through from_file.
         self.number_formats: dict[int, str] = dict(BUILTIN)
         #: The numFmt elements the file spells out, by the id Excel gives each on opening.

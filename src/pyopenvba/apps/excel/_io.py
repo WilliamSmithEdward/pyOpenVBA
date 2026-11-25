@@ -20,7 +20,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, NamedTuple
 
-from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference, split_sheet
+from pyopenvba._a1 import MAX_COLUMNS, Area, column_letter, column_number, parse_area, parse_reference, split_sheet
 from pyopenvba._relationships import in_office_order
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
@@ -275,6 +275,13 @@ def load_workbook(application: Application, path: Path, *, _passed: object = Non
 
             read_tab(sheet, sheet_xml)
     book.next_sheet_id = max((sheet.sheet_id for sheet in book.tabs()), default=0) + 1
+    for sheet in book.sheets_:
+        if sheet.part_name:
+            sheet.xml_cells_part = next((_resolved(target) for kind, target in _sheet_relationships(package, sheet.part_name).values()
+                                         if kind == "tableSingleCells"), "")
+    from pyopenvba.apps.excel._xml_maps import read_parts as read_xml_maps
+
+    read_xml_maps(book, package, {})
     _read_threads(book, package)
     book.held_kinds = {kind.rsplit("/", 1)[-1] for _, kind in _relationships(package).values()} | {
         marker for marker in ("customWorkbookViews", "webPublishObjects") if f"<{marker}" in workbook_xml}
@@ -309,6 +316,12 @@ def load_workbook(application: Application, path: Path, *, _passed: object = Non
     from pyopenvba.apps.excel._hidden_names import read_from_file
 
     read_from_file(book)
+    for sheet in book.sheets_:
+        # Excel keeps no record for a row a file's borders or fonts draw taller until an edit there works the row out
+        # again, so such a row counts toward the used block only through the file's own record (tests/fixtures/used_range.json).
+        sheet.dims.opened_shapes = sheet.dims.shaped_rows() - sheet.dims.listed_rows
+        sheet.dims.opened = True
+        sheet.dims.opened_base = sheet.dims.column_style(MAX_COLUMNS)
     return book
 
 
@@ -393,7 +406,9 @@ def _template_style_parts() -> tuple[str, str]:
     return (template.read("xl/styles.xml").decode("utf-8"), template.read("xl/theme/theme1.xml").decode("utf-8"))
 
 
-#: What a file with no theme part reads as: Excel's 2007 theme, not the one a new workbook has now (tests/fixtures/tool_books/spellings.json).
+#: Excel's 2007 theme. A file with no theme part takes the theme a new workbook has now for its colours, but the built-in
+#: styles Excel adds to it take this theme's typefaces and its colours as fixed ones (tests/fixtures/tool_books/spellings.json,
+#: tests/fixtures/no_theme.json).
 _NO_THEME = ('<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:themeElements><a:clrScheme name="Office">'
              '<a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>'
              '<a:dk2><a:srgbClr val="1F497D"/></a:dk2><a:lt2><a:srgbClr val="EEECE1"/></a:lt2><a:accent1><a:srgbClr val="4F81BD"/></a:accent1>'
@@ -415,7 +430,14 @@ def read_stylesheet(package: OpcFile | None) -> Stylesheet:
         if re.fullmatch(r"xl/theme/theme\d+\.xml", part):
             theme = package.read(part).decode("utf-8", errors="replace")
             break
-    return Stylesheet(styles or _template_style_parts()[0], theme or _NO_THEME)
+    if theme:
+        return Stylesheet(styles or _template_style_parts()[0], theme)
+    from pyopenvba.apps.excel._styles import parse_theme, parse_theme_fonts
+
+    found = Stylesheet(styles or _template_style_parts()[0], _template_style_parts()[1])
+    found.built_in_fonts = parse_theme_fonts(_NO_THEME)
+    found.built_in_colours = parse_theme(_NO_THEME)
+    return found
 
 
 def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Stylesheet,
@@ -436,6 +458,7 @@ def _read_sheet(sheet: Worksheet, xml: str, strings: list[str], stylesheet: Styl
     match = _SHEET_DATA.search(xml)
     if match and match.group(2) != "/>":
         _read_cells(sheet, match.group(3) or "", strings, stylesheet, metadata)
+    sheet.dims.drop_redundant_formats()
     stated = re.search(r"<dimension\b[^>]*/>", xml)
     if sheet.dims.tidied or (stated is not None and _with_dimension(stated.group(0), sheet) != stated.group(0)):
         # What Excel let go of on opening the file is gone from it when Excel saves, and the
@@ -1868,6 +1891,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     _resize_loaded_tables(book, package)
     _drop_gone_tables(book, package)
     _write_tables(book, package)
+    from pyopenvba.apps.excel._xml_maps import write_parts as write_xml_maps
+
+    write_xml_maps(book, package, _add_sheet_relationship)
     _drop_gone_pivot_tables(book, package)
     from pyopenvba.apps.excel._pivot_create import write as write_pivots
     from pyopenvba.apps.excel._pivots import number_parts

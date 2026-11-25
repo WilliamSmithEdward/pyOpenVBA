@@ -88,7 +88,8 @@ app = ExcelApplication(sandbox=False)   # VBA may save, open and export files
 ```
 
 That covers `Workbook.Save`, `SaveAs` and `SaveCopyAs`, `Workbooks.Open` and
-`OpenText`, `Worksheet.SetBackgroundPicture`, `VBComponent.Export`,
+`OpenText`, `Worksheet.SetBackgroundPicture`, `FillFormat.UserPicture` and
+`UserTextured`, `VBComponent.Export`,
 `VBComponents.Import`, `CodeModule.AddFromFile`, a workbook link's status, and
 the same open and save members in Word and PowerPoint. It also covers what
 pyOpenVBA implements only with it off, such as `Open`, `Kill`, `Dir`, `Environ` and the HTTP
@@ -1389,6 +1390,17 @@ cells show, their formulas, their formats, number formats with values
 or formulas, all but borders, or column widths
 (`tests/fixtures/paste.json`, 49 layouts).
 
+* A shape's text has its own copy. `TextRange2.Copy` and `Cut` put the
+  text on the clipboard with its settings. They end a copy of cells, and
+  a copy of cells, or cells copied straight to a destination, ends them.
+  `CutCopyMode` reads 0 after one, and setting it to False leaves the
+  text there. `TextRange2.Paste` puts the text in place of a range, or
+  where a range of no length stands, and `Worksheet.Paste` types it into
+  cells down from the destination. Pasting at the very start of a text,
+  all of a text with its paragraph, copied cells into a shape's text,
+  HTML or RTF, and `Range.PasteSpecial` of text report themselves
+  (`tests/fixtures/text_range2_round_9.json` to `_12.json`). Excel's
+  own paste failed at random in a few live cases, over Remote Desktop.
 * A paste reads the source when it pastes, so a cell changed after the
   copy pastes as it is now; writing to a cell does not end a copy, and a
   copy can be pasted any number of times. A cut ends with its paste and
@@ -3153,6 +3165,16 @@ not establish complete calculation scheduling, iteration, or event conformance.
   members are reachable through `GroupItems`, but `ShapeRange.Group`
   reports itself rather than making one.
 - **Pictures cannot yet be created.** `AddPicture` reports itself unsupported.
+  A shape's fill can hold one: `FillFormat.UserPicture` stretches a PNG, JPEG
+  or GIF over it and `UserTextured` tiles one, as Excel does. The file goes
+  into the workbook as it is, however large; only its first bytes are read,
+  to name its content type. A BMP, a JPEG or GIF named `.png`, or anything
+  else Excel converts reports itself unsupported, as does `PresetTextured`,
+  whose textures are Excel's own pictures. A picture fill reads back from a
+  book opened again as it did before the save. Changing one there, hiding a
+  picture fill or making it see-through, and setting `TextureTile` to
+  `msoTrue` on a picture fill or to `msoFalse` on a stretched picture
+  report themselves unsupported.
   Excel embedded charts can be created and saved for eight common chart kinds;
   editing imported chart contents and broader chart formatting remain incomplete.
 - A type-suffixed name is the same variable as the name without it, so

@@ -42,7 +42,11 @@ SHAPES = {'open': 'ws.Shapes.AddPolyline(Pts(10, 10, 110, 10, 60, 80))',
           'zig': 'ws.Shapes.AddPolyline(Pts(30, 20, 70, 90, 110, 25, 150, 95, 190, 30, 230, 100))',
           'square': 'ws.Shapes.AddPolyline(Pts(40, 40, 140, 40, 140, 140, 40, 140, 40, 40))',
           'built': 'BuiltLines(ws)',
-          'slant': 'ws.Shapes.AddPolyline(Pts(12.5, 7.25, 98.75, 63.5, 45.5, 120.25))'}
+          'slant': 'ws.Shapes.AddPolyline(Pts(12.5, 7.25, 98.75, 63.5, 45.5, 120.25))',
+          'tall': 'ws.Shapes.AddPolyline(Pts(60, 5, 90, 200, 30, 120, 75, 60))',
+          'pent': 'ws.Shapes.AddPolyline(Pts(100, 20, 160, 60, 140, 130, 60, 130, 40, 60, 100, 20))',
+          'line2': 'ws.Shapes.AddPolyline(Pts(200, 100, 20, 30))',
+          'wave': 'ws.Shapes.AddPolyline(Pts(15, 50, 45, 20, 75, 50, 105, 20, 135, 50))'}
 READS = ['TypeName(n)', 'TypeName(n.Parent)', 'n.Count', 'sh.Left', 'sh.Top', 'sh.Width', 'sh.Height', 'sh.Type',
          'sh.AutoShapeType', 'ws.Shapes.Count']
 _LINE = 'msoSegmentLine'
@@ -104,8 +108,32 @@ ROUNDS[4] = ['n.SetPosition 2, 75, 45', 'n.SetPosition 1, 2, 3', 'n.SetPosition 
              f'n.SetSegmentType 1, {_LINE}', 'n.SetEditingType 2, msoEditingSymmetric', 'n.SetEditingType -1, msoEditingCorner',
              'n.SetEditingType 1, 4', f'n.SetPosition 1, 5, 95{AGAIN}', f'n.Delete 1{AGAIN}n.SetPosition 1, 20, 20',
              f'n.SetSegmentType 2, {_CURVE}{AGAIN}', f'{AGAIN}n.Delete n.Count']
+#: Rounds 5 and 6, held out on the code that answered rounds 1 to 4.
+ROUNDS[5] = ['', 'n.SetPosition 2, 120, 40', 'n.SetPosition 1, 250, 10', 'n.SetPosition n.Count, 300, 250', 'n.SetPosition 3, 5, 5',
+             'n.SetPosition 2, 40.5, 40', 'n.SetPosition 1, -10, 50', 'n.SetPosition 2, 70, 70: n.SetPosition 1, 20, 20',
+             'n.SetPosition 1, 300, 300: n.SetPosition 2, 50, 50', f'n.Insert 1, {_LINE}, msoEditingCorner, 80, 80',
+             f'n.Insert 2, {_LINE}, msoEditingAuto, 350, 20', f'n.Insert n.Count, {_LINE}, msoEditingCorner, 10, 300',
+             f'n.Insert 2, {_LINE}, msoEditingCorner, 7.5, 9', f'n.Insert 1, {_CURVE}, msoEditingCorner, 70, 70, 80, 80, 90, 90',
+             f'n.Insert 2, {_CURVE}, msoEditingAuto, 66, 44', f'n.Insert 3, {_CURVE}, msoEditingSmooth, 66, 44',
+             f'n.Insert 0, {_LINE}, msoEditingCorner, 50, 50', 'n.Delete 2', 'n.Delete n.Count', 'n.Delete 1: n.Delete n.Count',
+             'n.Delete 2: n.SetPosition 2, 400, 400', 'n.Delete 0', f'n.SetSegmentType 2, {_CURVE}: n.SetSegmentType 2, {_LINE}',
+             f'n.SetSegmentType n.Count, {_CURVE}', f'n.SetSegmentType 1, {_CURVE}: n.SetPosition 1, 5, 5', 'n.SetSegmentType 2, 3',
+             'n.SetEditingType 2, msoEditingCorner', 'n.SetEditingType 0, 9', f'n.SetPosition 1, 50, 50{AGAIN}',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 90, 90{AGAIN}n.Delete 1', f'{AGAIN}n.SetPosition 1, 50, 50']
+ROUNDS[6] = ['n.SetPosition 2, 110, 110', 'n.SetPosition 1, 0, 300', 'n.SetPosition n.Count, 450, 20', 'n.SetPosition 2, 1, 1',
+             'n.SetPosition 3, 55.25, 60', 'n.SetPosition 2, 100, -40', 'n.SetPosition 1, 30, 30: n.SetPosition 1, 250, 250',
+             'n.SetPosition 2, 5, 150: n.SetPosition 3, 200, 10', f'n.Insert 1, {_LINE}, msoEditingCorner, 33, 33',
+             f'n.Insert n.Count, {_LINE}, msoEditingAuto, 400, 300', f'n.Insert 2, {_LINE}, msoEditingCorner, 0, 0',
+             f'n.Insert 1, {_LINE}, msoEditingCorner, 12, 12.5', f'n.Insert 2, {_CURVE}, msoEditingCorner, 50, 60, 60, 70, 70, 80',
+             f'n.Insert 1, {_CURVE}, msoEditingAuto, 99, 11', f'n.Insert 1, {_LINE}, msoEditingSmooth, 20, 120',
+             f'n.Insert n.Count + 1, {_LINE}, msoEditingCorner, 50, 50', 'n.Delete 1', 'n.Delete 3', 'n.Delete 2: n.Delete 1',
+             'n.Delete n.Count: n.SetPosition 1, 300, 5', 'n.Delete n.Count + 1', f'n.SetSegmentType 1, {_CURVE}',
+             f'n.SetSegmentType 3, {_CURVE}: n.Delete 1', f'n.SetSegmentType n.Count, {_LINE}', 'n.SetSegmentType 0, 1',
+             'n.SetEditingType n.Count, msoEditingAuto', 'n.SetEditingType 2, 7', f'n.SetPosition 2, 300, 20{AGAIN}',
+             f'n.Delete 2{AGAIN}n.SetPosition 1, 9, 9', f'{AGAIN}n.Insert 1, {_LINE}, msoEditingCorner, 50, 50']
 #: The shapes of each round where not all of them.
-ROUND_SHAPES: dict[int, list[str]] = {3: ['zig', 'square', 'built', 'slant', 'five', 'two'], 4: ['zig', 'square', 'built', 'slant', 'open', 'four'],
+ROUND_SHAPES: dict[int, list[str]] = {5: ['tall', 'pent', 'line2', 'wave', 'four', 'slant'], 6: ['tall', 'pent', 'line2', 'wave', 'zig', 'built'],
+                                      3:['zig', 'square', 'built', 'slant', 'five', 'two'], 4: ['zig', 'square', 'built', 'slant', 'open', 'four'],
                                       1:['open', 'closed', 'curve', 'mixed'], 2: ['open', 'closed', 'two', 'four', 'five', 'closed5', 'curve1', 'curve3', 'curveclosed']}
 ROUND = 1
 

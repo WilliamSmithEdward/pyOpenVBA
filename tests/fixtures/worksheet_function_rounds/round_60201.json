@@ -1,0 +1,2331 @@
+{
+ "seed": 60201,
+ "predicted_at": "2026-11-25T19:54:17.954217+00:00",
+ "predictions_sha256_16": "271393c09c47fe5d",
+ "cases": [
+  {
+   "function": "IntRate",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "#2/15/2008#, Array(#5/15/2008#, #5/15/2008#), 1000000, 1014420, k",
+   "model_late": "Array(1 To 5, 1 To 2) Double:5.86413333333333E-02 Double:5.86413333333333E-02 Double:0.05768 Double:0.05768 Double:5.84811111111111E-02 Double:5.84811111111111E-02 Double:0.05768 Double:0.05768 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Unichar",
+   "setup": "",
+   "arguments": "Array(66, 33)",
+   "model_late": "Array(1 To 2) String:B String:!",
+   "model_typed": "E13"
+  },
+  {
+   "function": "WeekNum",
+   "setup": "",
+   "arguments": "Array(#3/9/2012#, #3/9/2012#), 2",
+   "model_late": "Array(1 To 2) Double:11 Double:11",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ExponDist",
+   "setup": "",
+   "arguments": "0.2, Array(10, 11), False",
+   "model_late": "Array(1 To 2) Double:1.35335283236613 Double:1.21883474198567",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NormInv",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, Array(40, 400), 1.5",
+   "model_late": "Array(1 To 5, 1 To 2) Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Norm_Inv",
+   "setup": "",
+   "arguments": "0.908789, 40, Array(1.5, 2.5)",
+   "model_late": "Array(1 To 2) Double:42.0000020095662 Double:43.3333366826103",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Erf_Precise",
+   "setup": "",
+   "arguments": "Array(1, 0.5)",
+   "model_late": "Array(1 To 2) Double:0.842700792949715 Double:0.520499877813047",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CountIfs",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), \">1\", ws.Range(\"F1:F5\"), Array(\"<3\", \"<3\")",
+   "model_late": "Array(1 To 2) Double:2 Double:2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ddb",
+   "setup": "",
+   "arguments": "2400, 300, Array(10, 20), 1",
+   "model_late": "Array(1 To 2) Double:480 Double:240",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DStDev",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ChiSq_Dist_RT",
+   "setup": "",
+   "arguments": "18.307, Array(10, 20)",
+   "model_late": "Array(1 To 2) Double:5.00005890913981E-02 Double:0.567192500410036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Vdb",
+   "setup": "",
+   "arguments": "2400, 300, 10*365, Array(0, 0), 1",
+   "model_late": "Array(1 To 2) Double:1.31506849315068 Double:1.31506849315068",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DSum",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:2 Double:2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IfError",
+   "setup": "",
+   "arguments": "5, Array(0, 1)",
+   "model_late": "Array(1 To 2) Double:5 Double:5",
+   "model_typed": "Array(1 To 2) Double:5 Double:5"
+  },
+  {
+   "function": "ChiSq_Dist",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, Array(1, 2), True",
+   "model_late": "Array(1 To 5, 1 To 2) Double:0.682689492137086 Double:0.393469340287367 Double:0.842700792949715 Double:0.632120558828558 Double:0.91673548333645 Double:0.77686983985157 Double:0.954499736103642 Double:0.864664716763387 Double:0.974652681322532 Double:0.917915001376101",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NormDist",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "42, k, Array(1.5, 2.5), False",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Binom_Inv",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "6, k, Array(0.75, 0.375)",
+   "model_late": "Array(1 To 5, 1 To 2) Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddFPrice",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, #3/1/2021#, #10/15/2008#, #3/1/2009#, 0.0785, 0.0625, 100, Array(2, 1), 1",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImProduct",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(\"3+4i\", \"3+4i\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "TBillYield",
+   "setup": "k = Empty",
+   "arguments": "k, #6/1/2008#, Array(98.45, 49.225)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NegBinomDist",
+   "setup": "k = Empty",
+   "arguments": "10, Array(5, 6), k",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dollar",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(1234.567, 12345.67), k",
+   "model_late": "Array(1 To 5, 1 To 2) String:$1,234.6 String:$12,345.7 String:$1,234.57 String:$12,345.67 String:$1,234.567 String:$12,345.670 String:$1,234.5670 String:$12,345.6700 String:$1,234.56700 String:$12,345.67000",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IntRate",
+   "setup": "k = True",
+   "arguments": "#2/15/2008#, k, 1000000, Array(1014420, 10144200), 2",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupNum",
+   "setup": "k = \"abc\"",
+   "arguments": "Array(#1/25/2007#, #1/25/2007#), #11/15/2008#, k, 1",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ReplaceB",
+   "setup": "",
+   "arguments": "Array(\"abcdef\", \"abcdef\"), 2, 3, \"X\"",
+   "model_late": "Array(1 To 2) String:aXef String:aXef",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Effect",
+   "setup": "",
+   "arguments": "0.0525, Array(4, 5)",
+   "model_late": "Array(1 To 2) Double:5.35426673707584E-02 Double:5.36141371529406E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Transpose",
+   "setup": "",
+   "arguments": "Array(5, 50)",
+   "model_late": "Array(1 To 2, 1 To 1) Double:5 Double:50",
+   "model_typed": "Array(1 To 2, 1 To 1) Double:5 Double:50"
+  },
+  {
+   "function": "Sort",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "ws.Range(\"F1:F3\"), Array(1, 3), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "HypGeomDist",
+   "setup": "k = \"abc\"",
+   "arguments": "k, 4, Array(8, 16), 20",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImCos",
+   "setup": "",
+   "arguments": "Array(\"1+i\", \"1+i\")",
+   "model_late": "Array(1 To 2) String:0.833730025131149-0.988897705762865i String:0.833730025131149-0.988897705762865i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSinh",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:-27.0168132580039+3.85373803791938i String:-27.0168132580039+3.85373803791938i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Weibull",
+   "setup": "",
+   "arguments": "105, 20, Array(100, 200), True",
+   "model_late": "Array(1 To 2) Double:0.929581390069277 Double:2.53037867376236E-06",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DStDev",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "FDist",
+   "setup": "k = Null",
+   "arguments": "15.2069, k, Array(4, 2)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E94"
+  },
+  {
+   "function": "USDollar",
+   "setup": "",
+   "arguments": "1234.567, Array(2, 20)",
+   "model_late": "Array(1 To 2) String:$1,234.57 String:$1,234.56700000000000000000",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DGet",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"r\", \"r\"), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "Array(1 To 2) Error:2015 Error:2015"
+  },
+  {
+   "function": "TBillPrice",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "#3/31/2008#, k, Array(0.09, 0.18)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ipmt",
+   "setup": "",
+   "arguments": "0.1/12, 1, Array(36, 18), 8000",
+   "model_late": "Array(1 To 2) Double:-66.6666666666667 Double:-66.6666666666667",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Gamma_Inv",
+   "setup": "",
+   "arguments": "Array(0.068094, 1.068094), 9, 2",
+   "model_late": "Array(1 To 2) Double:10.0000111914372 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BinomDist",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(6, 18), 10, 0.5, k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "YieldMat",
+   "setup": "",
+   "arguments": "#3/15/2008#, #11/3/2008#, #11/8/2007#, 0.0625, 100.0123, Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:6.09543336915387E-02 Double:6.09543336915387E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Norm_Dist",
+   "setup": "",
+   "arguments": "42, Array(40, 400), 1.5, True",
+   "model_late": "Array(1 To 2) Double:0.908788780274132 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Npv",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(0.1, 0.30000000000000004), -10000, 3000, 4200, k",
+   "model_late": "Array(1 To 2) Double:-3456.04808414726 Double:-4005.46199362767",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImDiv",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(\"10+24i\", \"10+24i\")",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddFYield",
+   "setup": "",
+   "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, Array(0.0575, 0.5750000000000001), 84.5, 100, 2, 0",
+   "model_late": "Array(1 To 2) Double:7.72455415972989E-02 Double:0.681887736549686",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogInv",
+   "setup": "k = True",
+   "arguments": "Array(0.039084, 0.117252), k, 1.2",
+   "model_late": "Array(1 To 2) Double:0.32834206457096 Double:0.652722085875981",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Effect",
+   "setup": "",
+   "arguments": "Array(0.0525, 0.105), 4",
+   "model_late": "Array(1 To 2) Double:5.35426673707584E-02 Double:0.109207201369629",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Vdb",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "2400, k, 10*365, 0, Array(1, 3)",
+   "model_late": "Array(1 To 5, 1 To 2) Double:1.31506849315068 Double:3.94304411786631 Double:1.31506849315068 Double:3.94304411786631 Double:1.31506849315068 Double:3.94304411786631 Double:1.31506849315068 Double:3.94304411786631 Double:1.31506849315068 Double:3.94304411786631",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Poisson",
+   "setup": "",
+   "arguments": "Array(2, 4), 5, True",
+   "model_late": "Array(1 To 2) Double:0.124652019483081 Double:0.440493285065212",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Permut",
+   "setup": "",
+   "arguments": "Array(100, 300), 3",
+   "model_late": "Array(1 To 2) Double:970200 Double:26730600",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Lcm",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(2, 4)",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "CumIPmt",
+   "setup": "",
+   "arguments": "0.0075, 360, Array(125000, 250000), 13, 24, 0",
+   "model_late": "Array(1 To 2) Double:-11135.2321307508 Double:-22270.4642615017",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Beta_Inv",
+   "setup": "",
+   "arguments": "Array(0.685470581, 1.6854705810000001), 8, 10, 1, 3",
+   "model_late": "Array(1 To 2) Double:1.99999999996314 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImReal",
+   "setup": "",
+   "arguments": "Array(\"6-9i\", \"6-9i\")",
+   "model_late": "Array(1 To 2) Double:6 Double:6",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NumberValue",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, \",\", Array(\".\", \".\")",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Convert",
+   "setup": "",
+   "arguments": "68, \"F\", Array(\"C\", \"C\")",
+   "model_late": "Array(1 To 2) Double:20 Double:20",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DGet",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"r\", \"r\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:3 Double:3",
+   "model_typed": "Array(1 To 2) Double:3 Double:3"
+  },
+  {
+   "function": "DCount",
+   "setup": "k = Empty",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E424"
+  },
+  {
+   "function": "AmorLinc",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(2400, 24000), #8/19/2008#, #12/31/2008#, k, 1, 0.15, 1",
+   "model_late": "Array(1 To 5, 1 To 2) Double:360 Double:3600 Double:360 Double:3600 Double:360 Double:3600 Double:360 Double:3600 Double:360 Double:3600",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Syd",
+   "setup": "",
+   "arguments": "30000, 7500, 10, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:4090.90909090909 Double:3681.81818181818",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Gamma",
+   "setup": "",
+   "arguments": "Array(2.5, 1.25)",
+   "model_late": "Array(1 To 2) Double:1.32934038817914 Double:0.906402477055477",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Convert",
+   "setup": "",
+   "arguments": "68, Array(\"F\", \"F\"), \"C\"",
+   "model_late": "Array(1 To 2) Double:20 Double:20",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DMin",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(\"s\", \"s\"), ws.Range(\"G1:G2\")",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "Expon_Dist",
+   "setup": "",
+   "arguments": "Array(0.2, 0.1), 10, True",
+   "model_late": "Array(1 To 2) Double:0.864664716763387 Double:0.632120558828558",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupDays",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "#1/25/2011#, Array(#11/15/2011#, #11/15/2011#), k, 1",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Lookup",
+   "setup": "k = \"abc\"",
+   "arguments": "Array(4.5, 5.5), k, ws.Range(\"B1:B5\")",
+   "model_late": "Array(1 To 2) Error:2042 Error:2042",
+   "model_typed": "Array(1 To 2) Error:2042 Error:2042"
+  },
+  {
+   "function": "ChiSq_Dist_RT",
+   "setup": "k = Empty",
+   "arguments": "k, Array(10, 20)",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Replace",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "\"abcdef\", k, 3, Array(\"X\", \"X\")",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RandBetween",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(3, 1.5)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "EDate",
+   "setup": "k = Null",
+   "arguments": "k, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:31 Double:60",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ExponDist",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(10, 11), False",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupPcd",
+   "setup": "k = True",
+   "arguments": "k, Array(#11/15/2011#, #11/15/2011#), 2, 1",
+   "model_late": "Array(1 To 2) Double:-46 Double:-46",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Erf",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(1.5, 2.5)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NumberValue",
+   "setup": "",
+   "arguments": "Array(\"2.500,27\", \"2.500,27\"), \",\", \".\"",
+   "model_late": "Array(1 To 2) Double:2500.27 Double:2500.27",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImCot",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:0.00490118239430447-0.999266927805902i String:0.00490118239430447-0.999266927805902i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Db",
+   "setup": "k = Empty",
+   "arguments": "Array(1000000, 10000000), k, 6, 1, 7",
+   "model_late": "Array(1 To 2) Double:583333.333333333 Double:5833333.33333333",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ValueToText",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, Array(1, 10)",
+   "model_late": "Array(1 To 5, 1 To 2) String:1 Error:2015 String:2 Error:2015 String:3 Error:2015 String:4 Error:2015 String:5 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Poisson",
+   "setup": "k = True",
+   "arguments": "Array(2, 4), k, True",
+   "model_late": "Array(1 To 2) Double:0.919698602928606 Double:0.996340153172656",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Price",
+   "setup": "k = Null",
+   "arguments": "#2/15/2008#, #11/15/2017#, 0.0575, k, 100, 2, Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:156.0625 Double:156.0625",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Text",
+   "setup": "",
+   "arguments": "Array(1234.5, 3703.5), \"#,##0.00\"",
+   "model_late": "Array(1 To 2) String:1,234.50 String:3,703.50",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DollarFr",
+   "setup": "",
+   "arguments": "Array(1.125, 2.125), 16",
+   "model_late": "Array(1 To 2) Double:1.02 Double:2.02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SeriesSum",
+   "setup": "",
+   "arguments": "0.785398163, Array(0, 0), 2, Array(1, -0.5, 0.041666667)",
+   "model_late": "Array(1 To 2) Double:0.707429207116671 Double:0.707429207116671",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupPcd",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "#1/25/2011#, k, Array(2, 20), 1",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "T_Inv",
+   "setup": "k = Empty",
+   "arguments": "k, Array(2, 1)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ipmt",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(1, 2), 36, 8000",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Z_Test",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(4, 12)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AmorDegrc",
+   "setup": "k = \"abc\"",
+   "arguments": "2400, #8/19/2008#, k, 300, 1, Array(0.15, 0.075), 1",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "FInv",
+   "setup": "",
+   "arguments": "0.01, Array(6, 60), 4",
+   "model_late": "Array(1 To 2) Double:15.2068648611575 Double:13.6521981906875",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogNormDist",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(3.5, 10.5), 1.2",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Z_Test",
+   "setup": "",
+   "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), Array(4, 12)",
+   "model_late": "Array(1 To 2) Double:9.05741968513638E-02 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "GeStep",
+   "setup": "",
+   "arguments": "Array(5, 10), 4",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Delta",
+   "setup": "k = Null",
+   "arguments": "k, Array(4, 2)",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SumIfs",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", k, Array(\"<5\", \"<5\")",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "MIrr",
+   "setup": "",
+   "arguments": "Array(-120000, 39000, 30000, 21000, 37000, 46000), 0.1, Array(0.12, 1.2)",
+   "model_late": "Array(1 To 2) Double:0.126094130365905 Double:0.648761671876918",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Norm_Inv",
+   "setup": "k = Empty",
+   "arguments": "Array(0.908789, 0.4543945), 40, k",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogNormDist",
+   "setup": "",
+   "arguments": "4, 3.5, Array(1.2, 2.4)",
+   "model_late": "Array(1 To 2) Double:3.90835557068005E-02 Double:0.189237216590729",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NegBinom_Dist",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "10, Array(5, 6), k, True",
+   "model_late": "Array(1 To 5, 1 To 2) Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "GammaDist",
+   "setup": "",
+   "arguments": "Array(10.00001131, 5.000005655), 9, 2, True",
+   "model_late": "Array(1 To 2) Double:6.80940038697873E-02 Double:1.14026161609817E-03",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Duration",
+   "setup": "k = True",
+   "arguments": "#7/1/2018#, #1/1/2048#, k, 0.09, Array(2, 4), 1",
+   "model_late": "Array(1 To 2) Double:9.38229271407351 Double:9.2012534560666",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DCountA",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "ImAbs",
+   "setup": "",
+   "arguments": "Array(\"5+12i\", \"5+12i\")",
+   "model_late": "Array(1 To 2) Double:13 Double:13",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BetaInv",
+   "setup": "",
+   "arguments": "0.685470581, Array(8, 24), 10, 1, 3",
+   "model_late": "Array(1 To 2) Double:1.99999999996314 Double:2.4935332125748",
+   "model_typed": "E13"
+  },
+  {
+   "function": "YieldDisc",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(#2/16/2008#, #2/16/2008#), k, 99.795, 100, 2",
+   "model_late": "Array(1 To 5, 1 To 2) Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogNorm_Dist",
+   "setup": "k = Empty",
+   "arguments": "k, 3.5, Array(1.2, 2.2), True",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Fixed",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(1234.567, 1235.567), k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "MRound",
+   "setup": "",
+   "arguments": "Array(10, 100), 3",
+   "model_late": "Array(1 To 2) Double:9 Double:99",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Replace",
+   "setup": "",
+   "arguments": "\"abcdef\", 2, 3, Array(\"X\", \"X\")",
+   "model_late": "Array(1 To 2) String:aXef String:aXef",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DCount",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "MDuration",
+   "setup": "",
+   "arguments": "#1/1/2008#, #1/1/2016#, Array(0.08, 0.04), 0.09, 2, 1",
+   "model_late": "Array(1 To 2) Double:5.73566981391884 Double:6.39568428347047",
+   "model_typed": "E13"
+  },
+  {
+   "function": "PriceMat",
+   "setup": "k = True",
+   "arguments": "Array(#2/15/2008#, #2/15/2008#), #4/13/2008#, #11/11/2007#, 0.061, 0.061, k",
+   "model_late": "Array(1 To 2) Double:99.9846814130076 Double:99.9846814130076",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DVar",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "F_Inv_RT",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "0.01, k, Array(4, 8)",
+   "model_late": "Array(1 To 5, 1 To 2) Double:21.1976895843913 Double:11.2586241432726 Double:18 Double:8.64911064067352 Double:16.6943692371751 Double:7.59099194759885 Double:15.9770248525577 Double:7.00607662295559 Double:15.5218575444252 Double:6.63182516450959",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DAverage",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "Gamma_Inv",
+   "setup": "k = Null",
+   "arguments": "k, Array(9, 90), 2",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E94"
+  },
+  {
+   "function": "Nominal",
+   "setup": "k = Null",
+   "arguments": "k, Array(4, 40)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TTest",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(2, 4, 5, 4, 5), Array(2, 4), 2",
+   "model_late": "Array(1 To 2) Error:2007 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HypGeomDist",
+   "setup": "",
+   "arguments": "1, Array(4, 8), 8, 20",
+   "model_late": "Array(1 To 2) Double:0.363261093911249 Double:5.02976899261729E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImArgument",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\")",
+   "model_late": "Array(1 To 2) Double:0.927295218001612 Double:0.927295218001612",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Db",
+   "setup": "",
+   "arguments": "1000000, 100000, Array(6, 12), 1, 7",
+   "model_late": "Array(1 To 2) Double:186083.333333333 Double:102083.333333333",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TTest",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(2, 4, 5, 4, 5), 2, Array(2, 4)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Binom_Inv",
+   "setup": "k = Empty",
+   "arguments": "6, Array(0.5, 1), k",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IfNa",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(\"na\", \"na\")",
+   "model_late": "Array(1 To 2) String:x String:x",
+   "model_typed": "Array(1 To 2) String:x String:x"
+  },
+  {
+   "function": "Received",
+   "setup": "",
+   "arguments": "#2/15/2008#, Array(#5/15/2008#, #5/15/2008#), 1000000, 0.0575, 2",
+   "model_late": "Array(1 To 2) Double:1014584.6544071 Double:1014584.6544071",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Binom_Dist",
+   "setup": "k = \"abc\"",
+   "arguments": "6, Array(10, 30), 0.5, k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TBillYield",
+   "setup": "",
+   "arguments": "#3/31/2008#, Array(#6/1/2008#, #6/1/2008#), 98.45",
+   "model_late": "Array(1 To 2) Double:9.14169629253426E-02 Double:9.14169629253426E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImLog10",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\")",
+   "model_late": "Array(1 To 2) String:0.698970004336019+0.402719196273373i String:0.698970004336019+0.402719196273373i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AccrIntM",
+   "setup": "",
+   "arguments": "#1/1/2020#, Array(#6/1/2020#, #6/1/2020#), 0.05, 1000",
+   "model_late": "Array(1 To 2) Double:20.8333333333333 Double:20.8333333333333",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Weibull_Dist",
+   "setup": "",
+   "arguments": "105, 20, Array(100, 200), False",
+   "model_late": "Array(1 To 2) Double:3.55888640245036E-02 Double:4.81976280447913E-07",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSum",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\"), \"5-3i\"",
+   "model_late": "String:11+5i",
+   "model_typed": "String:11+5i"
+  },
+  {
+   "function": "T_Dist",
+   "setup": "",
+   "arguments": "60, Array(1, 2), True",
+   "model_late": "Array(1 To 2) Double:0.994695326367377 Double:0.999861168954703",
+   "model_typed": "E13"
+  },
+  {
+   "function": "FInv",
+   "setup": "",
+   "arguments": "Array(0.01, 0.02), 6, 4",
+   "model_late": "Array(1 To 2) Double:15.2068648611575 Double:10.4185897161202",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ispmt",
+   "setup": "k = \"abc\"",
+   "arguments": "0.1/12, k, Array(36, 18), 8000000",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ErfC",
+   "setup": "",
+   "arguments": "Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:0.157299207050285 Double:4.67773498104727E-03",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImCsch",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:-0.036275889628626-0.0051744731840194i String:-0.036275889628626-0.0051744731840194i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImLn",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\")",
+   "model_late": "Array(1 To 2) String:1.6094379124341+0.927295218001612i String:1.6094379124341+0.927295218001612i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dec2Bin",
+   "setup": "",
+   "arguments": "Array(-100, -200)",
+   "model_late": "Array(1 To 2) String:1110011100 String:1100111000",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Expon_Dist",
+   "setup": "",
+   "arguments": "0.2, Array(10, 11), True",
+   "model_late": "Array(1 To 2) Double:0.864664716763387 Double:0.889196841637666",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TextJoin",
+   "setup": "",
+   "arguments": "\",\", False, Array(\"a\", \"a\"), \"\", \"b\"",
+   "model_late": "String:a,a,,b",
+   "model_typed": "String:a,a,,b"
+  },
+  {
+   "function": "ImSin",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:-7.61923172032141-6.548120040911i String:-7.61923172032141-6.548120040911i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DollarFr",
+   "setup": "k = Empty",
+   "arguments": "k, Array(16, 32)",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DStDevP",
+   "setup": "k = Empty",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E424"
+  },
+  {
+   "function": "ValueToText",
+   "setup": "",
+   "arguments": "\"a\", Array(1, 10)",
+   "model_late": "Array(1 To 2) String:\"a\" Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Substitute",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "\"a-b-c\", \"-\", Array(\"+\", \"+\"), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "PriceMat",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "#2/15/2008#, #4/13/2008#, k, 0.061, 0.061, Array(0, 0)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImExp",
+   "setup": "",
+   "arguments": "Array(\"1+i\", \"1+i\")",
+   "model_late": "Array(1 To 2) String:1.46869393991589+2.28735528717884i String:1.46869393991589+2.28735528717884i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dec2Bin",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(9, 10), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RandBetween",
+   "setup": "",
+   "arguments": "3, Array(3, 1.5)",
+   "model_late": "Array(1 To 2) Double:3 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "WorkDay_Intl",
+   "setup": "",
+   "arguments": "#1/1/2012#, Array(30, 300), 0",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ceiling_Math",
+   "setup": "k = True",
+   "arguments": "-2.5, k, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:-3 Double:-3",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupDaysNc",
+   "setup": "k = True",
+   "arguments": "#1/25/2011#, k, Array(2, 3), 1",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImCosh",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:-27.0349456030742+3.85115333481178i String:-27.0349456030742+3.85115333481178i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DollarDe",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(16, 160)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "MDuration",
+   "setup": "",
+   "arguments": "#1/1/2008#, #1/1/2016#, 0.08, 0.09, Array(2, 3), 1",
+   "model_late": "Array(1 To 2) Double:5.73566981391884 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Days360",
+   "setup": "k = Null",
+   "arguments": "k, Array(#12/31/2020#, #12/31/2020#), True",
+   "model_late": "Array(1 To 2) Double:43560 Double:43560",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Norm_Dist",
+   "setup": "k = Null",
+   "arguments": "k, 40, Array(1.5, 15), True",
+   "model_late": "Array(1 To 2) Double:5.73478250200242E-157 Double:3.83038056758974E-03",
+   "model_typed": "E94"
+  },
+  {
+   "function": "YieldDisc",
+   "setup": "",
+   "arguments": "#2/16/2008#, #3/1/2008#, 99.795, Array(100, 200), 2",
+   "model_late": "Array(1 To 2) Double:5.28225719868583E-02 Double:25.8199308582594",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dec2Oct",
+   "setup": "",
+   "arguments": "Array(58, 59), 3",
+   "model_late": "Array(1 To 2) String:072 String:073",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSub",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(\"13+4i\", \"13+4i\"), k",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AccrIntM",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "#1/1/2020#, Array(#6/1/2020#, #6/1/2020#), 0.05, k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DMax",
+   "setup": "k = Null",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"s\", \"s\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "DAverage",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:2 Double:2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "YieldMat",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, #11/3/2008#, #11/8/2007#, 0.0625, 100.0123, Array(0, 0)",
+   "model_late": "Array(1 To 5, 1 To 2) Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DVarP",
+   "setup": "k = True",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "NetworkDays_Intl",
+   "setup": "",
+   "arguments": "Array(#1/1/2006#, #1/1/2006#), #1/31/2006#, \"0010001\"",
+   "model_late": "Array(1 To 2) Double:22 Double:22",
+   "model_typed": "E13"
+  },
+  {
+   "function": "FDist",
+   "setup": "",
+   "arguments": "15.2069, Array(6, 7), 4",
+   "model_late": "Array(1 To 2) Double:9.99995699723731E-03 Double:9.71805026003879E-03",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DProduct",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Imaginary",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\")",
+   "model_late": "Array(1 To 2) Double:4 Double:4",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DVarP",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Npv",
+   "setup": "",
+   "arguments": "0.1, -10000, 3000, 4200, Array(6800, 13600)",
+   "model_late": "Double:9632.97340593973",
+   "model_typed": "Double:9632.97340593973"
+  },
+  {
+   "function": "EoMonth",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(#1/15/2020#, #1/15/2020#), k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ArrayToText",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(1, 2)",
+   "model_late": "Array(1 To 2) String:{\"abc\"} Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DProduct",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:2 Double:2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Beta_Inv",
+   "setup": "",
+   "arguments": "0.685470581, 8, Array(10, 20), 1, 3",
+   "model_late": "Array(1 To 2) Double:1.99999999996314 Double:1.64611043756645",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BetaInv",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(0.685470581, 1.370941162), k, 10, 1, 3",
+   "model_late": "Array(1 To 5, 1 To 2) Double:1.21845776371945 Error:2036 Double:1.40518502378552 Error:2036 Double:1.55203903038145 Error:2036 Double:1.67243461755629 Error:2036 Double:1.77353749792051 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Fixed",
+   "setup": "",
+   "arguments": "Array(1234.567, 12345.67), -1, True",
+   "model_late": "Array(1 To 2) String:1230 String:12350",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AccrInt",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "#1/1/2020#, #7/1/2020#, Array(#3/1/2020#, #3/1/2020#), 0.05, 1000, k",
+   "model_late": "Array(1 To 5, 1 To 2) Double:8.33333333333333 Double:8.33333333333333 Double:8.33333333333333 Double:8.33333333333333 Error:2036 Error:2036 Double:8.33333333333333 Double:8.33333333333333 Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImLog2",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\")",
+   "model_late": "Array(1 To 2) String:2.32192809488736+1.33780421245098i String:2.32192809488736+1.33780421245098i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddFPrice",
+   "setup": "",
+   "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, 0.0785, 0.0625, 100, 2, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:113.597717474079 Double:113.598799608325",
+   "model_typed": "E13"
+  },
+  {
+   "function": "PercentRank_Exc",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(2, 20), 4",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Munit",
+   "setup": "",
+   "arguments": "Array(2, 20)",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Sort",
+   "setup": "",
+   "arguments": "ws.Range(\"F1:F3\"), 1, Array(-1, -2)",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Complex",
+   "setup": "",
+   "arguments": "3, Array(4, 12), \"j\"",
+   "model_late": "Array(1 To 2) String:3+4j String:3+12j",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Nominal",
+   "setup": "k = True",
+   "arguments": "Array(0.053543, 0.160629), k",
+   "model_late": "Array(1 To 2) Double:5.35429999999999E-02 Double:0.160629",
+   "model_typed": "E13"
+  },
+  {
+   "function": "WorkDay",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(151, 302)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "EDate",
+   "setup": "k = Null",
+   "arguments": "Array(#1/31/2020#, #1/31/2020#), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "EoMonth",
+   "setup": "k = Empty",
+   "arguments": "k, Array(0, 0)",
+   "model_late": "Array(1 To 2) Double:31 Double:31",
+   "model_typed": "E13"
+  },
+  {
+   "function": "T_Inv",
+   "setup": "k = True",
+   "arguments": "Array(0.75, 2.25), k",
+   "model_late": "Array(1 To 2) Double:1 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IfError",
+   "setup": "k = True",
+   "arguments": "k, Array(\"x\", \"x\")",
+   "model_late": "Array(1 To 2) Boolean:True Boolean:True",
+   "model_typed": "Array(1 To 2) Boolean:True Boolean:True"
+  },
+  {
+   "function": "ImCsc",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:-0.0754898329158637+0.0648774713706355i String:-0.0754898329158637+0.0648774713706355i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Aggregate",
+   "setup": "",
+   "arguments": "9, Array(0, 0), ws.Range(\"A1:A5\")",
+   "model_late": "Array(1 To 2) Double:15 Double:15",
+   "model_typed": "E13"
+  },
+  {
+   "function": "WorkDay_Intl",
+   "setup": "k = Null",
+   "arguments": "Array(#1/1/2012#, #1/1/2012#), k, 0",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "PriceDisc",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "#2/16/2008#, k, Array(0.0525, 1.0525), 100, 2",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NetworkDays",
+   "setup": "k = \"abc\"",
+   "arguments": "#10/1/2012#, Array(#3/1/2013#, #3/1/2013#), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CritBinom",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, 0.5, Array(0.75, 2.25)",
+   "model_late": "Array(1 To 5, 1 To 2) Double:1 Error:2036 Double:1 Error:2036 Double:2 Error:2036 Double:3 Error:2036 Double:3 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NormDist",
+   "setup": "",
+   "arguments": "42, 40, Array(1.5, 2.5), False",
+   "model_late": "Array(1 To 2) Double:0.109340049783996 Double:0.115876621104593",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SqrtPi",
+   "setup": "",
+   "arguments": "Array(2, 6)",
+   "model_late": "Array(1 To 2) Double:2.506628274631 Double:4.34160752734961",
+   "model_typed": "E13"
+  },
+  {
+   "function": "F_Inv_RT",
+   "setup": "",
+   "arguments": "0.01, Array(6, 60), 4",
+   "model_late": "Array(1 To 2) Double:15.2068648611575 Double:13.6521981906875",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Aggregate",
+   "setup": "k = Null",
+   "arguments": "Array(14, 140), k, ws.Range(\"A1:A5\"), 2",
+   "model_late": "Array(1 To 2) Double:4 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Substitute",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(\"a-b-c\", \"a-b-c\"), k, \"+\"",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogNorm_Inv",
+   "setup": "",
+   "arguments": "Array(0.039084, 1.039084), 3.5, 1.2",
+   "model_late": "Array(1 To 2) Double:4.00002521868064 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Lcm",
+   "setup": "",
+   "arguments": "5, Array(2, 4)",
+   "model_late": "Double:20",
+   "model_typed": "Double:20"
+  },
+  {
+   "function": "FactDouble",
+   "setup": "",
+   "arguments": "Array(6, 12)",
+   "model_late": "Array(1 To 2) Double:48 Double:46080",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AccrInt",
+   "setup": "k = \"abc\"",
+   "arguments": "#1/1/2020#, #7/1/2020#, k, 0.05, 1000, Array(2, 20)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CumPrinc",
+   "setup": "",
+   "arguments": "0.0075, Array(360, 361), 125000, 13, 24, 0",
+   "model_late": "Array(1 To 2) Double:-934.107123420898 Double:-926.651079257033",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddLYield",
+   "setup": "",
+   "arguments": "#4/20/2008#, Array(#6/15/2008#, #6/15/2008#), #12/24/2007#, 0.0375, 99.875, 100, 2, 0",
+   "model_late": "Array(1 To 2) Double:4.51922356291692E-02 Double:4.51922356291692E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NormInv",
+   "setup": "",
+   "arguments": "Array(0.908789, 0.4543945), 40, 1.5",
+   "model_late": "Array(1 To 2) Double:42.0000020095662 Double:39.8281507534599",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DStDevP",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SumIfs",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), Array(\">1\", \">1\"), ws.Range(\"A1:A5\"), \"<5\"",
+   "model_late": "Array(1 To 2) Double:9 Double:9",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NetworkDays_Intl",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(#1/1/2006#, #1/1/2006#), k, \"0010001\"",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IsEven",
+   "setup": "",
+   "arguments": "Array(2.5, 1.25)",
+   "model_late": "Array(1 To 2) Boolean:True Boolean:False",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImPower",
+   "setup": "",
+   "arguments": "Array(\"2+3i\", \"2+3i\"), 3",
+   "model_late": "Array(1 To 2) String:-46+9.00000000000001i String:-46+9.00000000000001i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Lookup",
+   "setup": "",
+   "arguments": "Array(\"c\", \"c\"), ws.Range(\"B1:B5\")",
+   "model_late": "Array(1 To 2) String:c String:c",
+   "model_typed": "Array(1 To 2) String:c String:c"
+  },
+  {
+   "function": "Phi",
+   "setup": "",
+   "arguments": "Array(0.75, 0.375)",
+   "model_late": "Array(1 To 2) Double:0.301137432154804 Double:0.371855093869769",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddLPrice",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(#2/7/2008#, #2/7/2008#), #6/15/2008#, #10/15/2007#, k, 0.0405, 100, 2, 0",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Disc",
+   "setup": "",
+   "arguments": "#1/25/2018#, Array(#6/15/2018#, #6/15/2018#), 97.975, 100, 1",
+   "model_late": "Array(1 To 2) Double:5.24202127659577E-02 Double:5.24202127659577E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dec2Oct",
+   "setup": "",
+   "arguments": "58, Array(3, 6)",
+   "model_late": "Array(1 To 2) String:072 String:000072",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Gcd",
+   "setup": "k = \"abc\"",
+   "arguments": "Array(5, 2.5), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Quotient",
+   "setup": "",
+   "arguments": "Array(5, 2.5), 2",
+   "model_late": "Array(1 To 2) Double:2 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImProduct",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(\"5-3i\", \"5-3i\")",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Received",
+   "setup": "",
+   "arguments": "#2/15/2008#, #5/15/2008#, Array(1000000, 3000000), 0.0575, 2",
+   "model_late": "Array(1 To 2) Double:1014584.6544071 Double:3043753.96322131",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TBillPrice",
+   "setup": "",
+   "arguments": "#3/31/2008#, Array(#6/1/2008#, #6/1/2008#), 0.09",
+   "model_late": "Array(1 To 2) Double:98.45 Double:98.45",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DCountA",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Binom_Dist",
+   "setup": "",
+   "arguments": "Array(6, 60), 10, 0.5, False",
+   "model_late": "Array(1 To 2) Double:0.205078125 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "MIrr",
+   "setup": "",
+   "arguments": "Array(-120000, 39000, 30000, 21000, 37000, 46000), Array(0.1, 0.30000000000000004), 0.12",
+   "model_late": "Array(1 To 2) Double:0.126094130365905 Double:0.126094130365905",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AverageIfs",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"), Array(\"<5\", \"<5\")",
+   "model_late": "Array(1 To 2) Double:3 Double:3",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogInv",
+   "setup": "k = Empty",
+   "arguments": "k, Array(3.5, 7), 1.2",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Erf",
+   "setup": "",
+   "arguments": "Array(0.745, 1.745)",
+   "model_late": "Array(1 To 2) Double:0.707928920095738 Double:0.986405476033715",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Syd",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(7500, 3750), 10, 1",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CountIfs",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "ws.Range(\"A1:A5\"), Array(\">1\", \">1\"), k, \"<3\"",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CumIPmt",
+   "setup": "",
+   "arguments": "0.0075, 360, 125000, 13, 24, Array(0, 1)",
+   "model_late": "Array(1 To 2) Double:-11135.2321307508 Double:-11052.3395838718",
+   "model_typed": "E13"
+  },
+  {
+   "function": "GammaInv",
+   "setup": "k = Empty",
+   "arguments": "0.068094, k, Array(2, 20)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupDayBs",
+   "setup": "",
+   "arguments": "#1/25/2011#, Array(#11/15/2011#, #11/15/2011#), 2, 1",
+   "model_late": "Array(1 To 2) Double:71 Double:71",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ceiling_Math",
+   "setup": "",
+   "arguments": "Array(-2.5, -3.5), 2, 1",
+   "model_late": "Array(1 To 2) Double:-4 Double:-4",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddFYield",
+   "setup": "",
+   "arguments": "Array(#11/11/2008#, #11/11/2008#), #3/1/2021#, #10/15/2008#, #3/1/2009#, 0.0575, 84.5, 100, 2, 0",
+   "model_late": "Array(1 To 2) Double:7.72455415972989E-02 Double:7.72455415972989E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RoundUp",
+   "setup": "",
+   "arguments": "2.341, Array(1, 10)",
+   "model_late": "Array(1 To 2) Double:2.4 Double:2.341",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Delta",
+   "setup": "",
+   "arguments": "Array(5, 2.5)",
+   "model_late": "Array(1 To 2) Double:0 Double:0",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DMin",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"s\", \"s\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:4 Double:4",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dec2Hex",
+   "setup": "",
+   "arguments": "Array(100, 200), 4",
+   "model_late": "Array(1 To 2) String:0064 String:00C8",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Gcd",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(24, 72), k",
+   "model_late": "Double:1",
+   "model_typed": "Double:1"
+  },
+  {
+   "function": "BahtText",
+   "setup": "",
+   "arguments": "Array(1234.5, 617.25)",
+   "model_late": "Array(1 To 2) String:หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์ String:หกร้อยสิบเจ็ดบาทยี่สิบห้าสตางค์",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IfNa",
+   "setup": "",
+   "arguments": "CVErr(xlErrNA), Array(\"na\", \"na\")",
+   "model_late": "Array(1 To 2) String:na String:na",
+   "model_typed": "Array(1 To 2) String:na String:na"
+  },
+  {
+   "function": "F_Dist",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(15.2069, 152.069), k, 4, True",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSub",
+   "setup": "",
+   "arguments": "Array(\"13+4i\", \"13+4i\"), \"5+3i\"",
+   "model_late": "Array(1 To 2) String:8+i String:8+i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSech",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:-0.0362534969158689-0.00516434460775318i String:-0.0362534969158689-0.00516434460775318i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IsOdd",
+   "setup": "",
+   "arguments": "Array(5, 6)",
+   "model_late": "Array(1 To 2) Boolean:True Boolean:False",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ispmt",
+   "setup": "",
+   "arguments": "0.1/12, 1, Array(36, 18), 8000000",
+   "model_late": "Array(1 To 2) Double:-64814.8148148148 Double:-62962.962962963",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rank",
+   "setup": "",
+   "arguments": "Array(3, 30), ws.Range(\"A1:A5\"), 1",
+   "model_late": "Array(1 To 2) Double:3 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "GammaInv",
+   "setup": "",
+   "arguments": "0.068094, 9, Array(2, 20)",
+   "model_late": "Array(1 To 2) Double:10.0000111914372 Double:100.000111914372",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Norm_S_Dist",
+   "setup": "k = Null",
+   "arguments": "Array(1.333333, 2.333333), k",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "IsEven",
+   "setup": "",
+   "arguments": "Array(-1, -2)",
+   "model_late": "Array(1 To 2) Boolean:False Boolean:True",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Binom_Dist_Range",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "60, k, Array(48, 480)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DSum",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"q\", \"q\"), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "PercentRank_Exc",
+   "setup": "",
+   "arguments": "ws.Range(\"A1:A5\"), Array(2, 20), 4",
+   "model_late": "Array(1 To 2) Double:0.3333 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SortBy",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "ws.Range(\"B1:B5\"), k, Array(1, 2)",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "Price",
+   "setup": "k = Null",
+   "arguments": "Array(#2/15/2008#, #2/15/2008#), #11/15/2017#, 0.0575, 95.04287, k, 2, 0",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Dollar",
+   "setup": "",
+   "arguments": "Array(1234.567, 12345.67), 2",
+   "model_late": "Array(1 To 2) String:$1,234.57 String:$12,345.67",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ChiSq_Dist",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(0.5, 0.25), k, True",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ChiDist",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(18.307, 19.307), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "FVSchedule",
+   "setup": "k = True",
+   "arguments": "Array(1, 10), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogNorm_Inv",
+   "setup": "",
+   "arguments": "0.039084, 3.5, Array(1.2, 3.5999999999999996)",
+   "model_late": "Array(1 To 2) Double:4.00002521868064 Double:5.83615496325316E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "WeekNum",
+   "setup": "k = Empty",
+   "arguments": "Array(#3/9/2012#, #3/9/2012#), k",
+   "model_late": "Array(1 To 2) Double:10 Double:10",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupDaysNc",
+   "setup": "",
+   "arguments": "Array(#1/25/2011#, #1/25/2011#), #11/15/2011#, 2, 1",
+   "model_late": "Array(1 To 2) Double:110 Double:110",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupNcd",
+   "setup": "",
+   "arguments": "Array(#1/25/2011#, #1/25/2011#), #11/15/2011#, 2, 1",
+   "model_late": "Array(1 To 2) Double:40678 Double:40678",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupNum",
+   "setup": "k = Empty",
+   "arguments": "#1/25/2007#, Array(#11/15/2008#, #11/15/2008#), k, 1",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImDiv",
+   "setup": "",
+   "arguments": "Array(\"-238+240i\", \"-238+240i\"), \"10+24i\"",
+   "model_late": "Array(1 To 2) String:5+12i String:5+12i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupDays",
+   "setup": "k = Null",
+   "arguments": "#1/25/2011#, k, 2, Array(1, 3)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ArrayToText",
+   "setup": "",
+   "arguments": "ws.Range(\"D1:E3\"), Array(1, 2)",
+   "model_late": "Array(1 To 2) String:{1,2;3,4;5,6} Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ReplaceB",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "\"abcdef\", Array(2, 20), k, \"X\"",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupNcd",
+   "setup": "",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, Array(1, 2)",
+   "model_late": "Array(1 To 2) Double:40678 Double:40678",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SortBy",
+   "setup": "",
+   "arguments": "ws.Range(\"B1:B5\"), ws.Range(\"F1:F3\"), Array(1, 2)",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "FilterXML",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(\"<a><b>1</b><b>2</b></a>\", \"<a><b>1</b><b>2</b></a>\"), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "GeStep",
+   "setup": "k = True",
+   "arguments": "Array(5, 10), k",
+   "model_late": "Array(1 To 2) Double:1 Double:1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "T_Dist",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(60, 120), 1, k",
+   "model_late": "Array(1 To 5, 1 To 2) Double:0.994695326367377 Double:0.997347479014947 Double:0.994695326367377 Double:0.997347479014947 Double:0.994695326367377 Double:0.997347479014947 Double:0.994695326367377 Double:0.997347479014947 Double:0.994695326367377 Double:0.997347479014947",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ChiDist",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, Array(10, 20)",
+   "model_late": "Array(1 To 5, 1 To 2) Double:0.999827884370044 Double:0.999999999829033 Double:0.996340153172656 Double:0.999999888574522 Double:0.981424063777859 Double:0.999995902499024 Double:0.947346982656289 Double:0.999953501924983 Double:0.891178018914151 Double:0.999722647905379",
+   "model_typed": "E13"
+  },
+  {
+   "function": "BinomDist",
+   "setup": "",
+   "arguments": "6, 10, Array(0.5, 0.25), True",
+   "model_late": "Array(1 To 2) Double:0.828125 Double:0.996494293212891",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CoupDayBs",
+   "setup": "",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, Array(1, 10)",
+   "model_late": "Array(1 To 2) Double:71 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddLPrice",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "#2/7/2008#, #6/15/2008#, #10/15/2007#, k, 0.0405, 100, Array(2, 4), 0",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "CumPrinc",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "k, 360, 125000, 13, Array(24, 12), 0",
+   "model_late": "Array(1 To 5, 1 To 2) Double:-8.92740891895466E-97 Error:2036 Double:-6.08369747937712E-156 Error:2036 Double:-6.37900438848409E-198 Error:2036 Double:-1.74980057265929E-230 Error:2036 Double:-4.34600162033738E-257 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RoundDown",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(2.345, 3.345), k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Weibull_Dist",
+   "setup": "k = \"abc\"",
+   "arguments": "k, 20, Array(100, 200), False",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ChiSq_Inv_RT",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(0.05, 0.15000000000000002), k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DMax",
+   "setup": "",
+   "arguments": "ws.Range(\"G1:J2\"), Array(\"s\", \"s\"), ws.Range(\"G1:G2\")",
+   "model_late": "Array(1 To 2) Double:4 Double:4",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DVar",
+   "setup": "k = Null",
+   "arguments": "k, Array(\"q\", \"q\"), ws.Range(\"G1:G2\")",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "Poisson_Dist",
+   "setup": "",
+   "arguments": "2, Array(5, 50), False",
+   "model_late": "Array(1 To 2) Double:8.42243374885683E-02 Double:2.4109373099549E-19",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TBillEq",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(#6/1/2008#, #6/1/2008#), 0.0914",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RoundUp",
+   "setup": "k = True",
+   "arguments": "Array(2.341, 1.1705), k",
+   "model_late": "Array(1 To 2) Double:2.4 Double:1.2",
+   "model_typed": "E13"
+  },
+  {
+   "function": "MRound",
+   "setup": "",
+   "arguments": "10, Array(3, 9)",
+   "model_late": "Array(1 To 2) Double:9 Double:9",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NetworkDays",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(#3/1/2013#, #3/1/2013#)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "OddLYield",
+   "setup": "k = \"abc\"",
+   "arguments": "#4/20/2008#, #6/15/2008#, #12/24/2007#, 0.0375, 99.875, k, Array(2, 20), 0",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Days360",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "k, Array(#12/31/2020#, #12/31/2020#)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HypGeom_Dist",
+   "setup": "k = Empty",
+   "arguments": "Array(1, 10), 4, 8, k, True",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Permut",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(100, 300), k",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Quotient",
+   "setup": "",
+   "arguments": "-10, Array(3, 9)",
+   "model_late": "Array(1 To 2) Double:-3 Double:-1",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Duration",
+   "setup": "",
+   "arguments": "#7/1/2018#, #1/1/2048#, 0.08, 0.09, Array(2, 4), 1",
+   "model_late": "Array(1 To 2) Double:10.9191452815919 Double:10.7086433693604",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Binom_Dist_Range",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "Array(60, 120), k, 48",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Weibull",
+   "setup": "k = Empty",
+   "arguments": "105, 20, Array(100, 200), k",
+   "model_late": "Array(1 To 2) Double:3.55888640245036E-02 Double:4.81976280447913E-07",
+   "model_typed": "E13"
+  },
+  {
+   "function": "PriceDisc",
+   "setup": "",
+   "arguments": "#2/16/2008#, #3/1/2008#, 0.0525, Array(100, 101), 2",
+   "model_late": "Array(1 To 2) Double:99.7958333333333 Double:100.793791666667",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Disc",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "#1/25/2018#, #6/15/2018#, k, Array(100, 50), 1",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSum",
+   "setup": "",
+   "arguments": "\"3+4i\", Array(\"5-3i\", \"5-3i\")",
+   "model_late": "String:13-2i",
+   "model_typed": "String:13-2i"
+  },
+  {
+   "function": "Dec2Hex",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(100, 200), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TBillEq",
+   "setup": "",
+   "arguments": "#3/31/2008#, #6/1/2008#, Array(0.0914, 0.9139999999999999)",
+   "model_late": "Array(1 To 2) Double:0.094151493565943 Double:1.09981802117812",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImTan",
+   "setup": "",
+   "arguments": "Array(\"4+3i\", \"4+3i\")",
+   "model_late": "Array(1 To 2) String:0.00490825806749606+1.00070953606723i String:0.00490825806749606+1.00070953606723i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Complex",
+   "setup": "k = CVErr(xlErrDiv0)",
+   "arguments": "k, Array(4, 8)",
+   "model_late": "Array(1 To 2) Error:2007 Error:2007",
+   "model_typed": "E13"
+  },
+  {
+   "function": "GammaDist",
+   "setup": "k = Null",
+   "arguments": "Array(10.00001131, 5.000005655), k, 2, True",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "LogNorm_Dist",
+   "setup": "",
+   "arguments": "4, 3.5, Array(1.2, 2.2), True",
+   "model_late": "Array(1 To 2) Double:3.90835557068005E-02 Double:0.168332582629926",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Norm_S_Dist",
+   "setup": "",
+   "arguments": "Array(1.333333, 2.333333), True",
+   "model_late": "Array(1 To 2) Double:0.908788725604095 Double:0.990184662630722",
+   "model_typed": "E13"
+  },
+  {
+   "function": "FVSchedule",
+   "setup": "",
+   "arguments": "Array(1, 10), Array(0.09, 0.11, 0.1)",
+   "model_late": "Array(1 To 2) Double:1.33089 Double:13.3089",
+   "model_typed": "E13"
+  },
+  {
+   "function": "HypGeom_Dist",
+   "setup": "",
+   "arguments": "1, 4, 8, Array(20, 40), True",
+   "model_late": "Array(1 To 2) Double:0.465428276573787 Double:0.827661669766933",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AverageIfs",
+   "setup": "k = True",
+   "arguments": "k, ws.Range(\"A1:A5\"), Array(\">1\", \">1\"), ws.Range(\"A1:A5\"), \"<5\"",
+   "model_late": "E1004",
+   "model_typed": "E424"
+  },
+  {
+   "function": "CritBinom",
+   "setup": "",
+   "arguments": "6, 0.5, Array(0.75, 2.25)",
+   "model_late": "Array(1 To 2) Double:4 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AmorLinc",
+   "setup": "k = True",
+   "arguments": "2400, #8/19/2008#, #12/31/2008#, Array(300, 600), 1, 0.15, k",
+   "model_late": "Array(1 To 2) Double:360 Double:360",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ChiSq_Inv_RT",
+   "setup": "k = Null",
+   "arguments": "k, Array(10, 11)",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E94"
+  },
+  {
+   "function": "F_Dist",
+   "setup": "",
+   "arguments": "15.2069, 6, Array(4, 5), True",
+   "model_late": "Array(1 To 2) Double:0.990000043002763 Double:0.99550756014639",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Rank",
+   "setup": "",
+   "arguments": "Array(3, 6), ws.Range(\"A1:A5\")",
+   "model_late": "Array(1 To 2) Double:3 Error:2042",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Ddb",
+   "setup": "",
+   "arguments": "2400, 300, 10, Array(1, 10)",
+   "model_late": "Array(1 To 2) Double:480 Double:22.1225472000003",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImConjugate",
+   "setup": "",
+   "arguments": "Array(\"3+4i\", \"3+4i\")",
+   "model_late": "Array(1 To 2) String:3-4i String:3-4i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NegBinomDist",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(10, 11), k, 0.25",
+   "model_late": "Array(1 To 5, 1 To 2) Double:1.40783786773682E-02 Double:1.05587840080261E-02 Double:3.87155413627625E-02 Double:3.16763520240784E-02 Double:5.80733120441437E-02 Double:5.14740720391273E-02 Double:0.062912754714489 Double:6.00530840456486E-02 Double:5.50486603751779E-02 Double:5.62997662927955E-02",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImPower",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(\"2+3i\", \"2+3i\"), k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "ImSqrt",
+   "setup": "",
+   "arguments": "Array(\"1+i\", \"1+i\")",
+   "model_late": "Array(1 To 2) String:1.09868411346781+0.455089860562227i String:1.09868411346781+0.455089860562227i",
+   "model_typed": "E13"
+  },
+  {
+   "function": "RoundDown",
+   "setup": "",
+   "arguments": "Array(2.345, 3.345), 1",
+   "model_late": "Array(1 To 2) Double:2.3 Double:3.3",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Poisson_Dist",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "Array(2, 6), 5, k",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "DollarDe",
+   "setup": "",
+   "arguments": "Array(1.02, 2.04), 16",
+   "model_late": "Array(1 To 2) Double:1.125 Double:2.25",
+   "model_typed": "E13"
+  },
+  {
+   "function": "F_Inv",
+   "setup": "",
+   "arguments": "0.01, Array(6, 12), 4",
+   "model_late": "Array(1 To 2) Double:0.109309914124579 Double:0.184776233140265",
+   "model_typed": "E13"
+  },
+  {
+   "function": "F_Inv",
+   "setup": "k = Null",
+   "arguments": "Array(0.01, 0.02), k, 4",
+   "model_late": "Array(1 To 2) Error:2036 Error:2036",
+   "model_typed": "E13"
+  },
+  {
+   "function": "NegBinom_Dist",
+   "setup": "",
+   "arguments": "10, Array(5, 6), 0.25, True",
+   "model_late": "Array(1 To 2) Double:0.313514058478177 Double:0.189654572634026",
+   "model_typed": "E13"
+  },
+  {
+   "function": "WorkDay",
+   "setup": "k = Null",
+   "arguments": "Array(#10/1/2008#, #10/1/2008#), k",
+   "model_late": "E1004",
+   "model_typed": "E1004"
+  },
+  {
+   "function": "FilterXML",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(\"//b\", \"//b\")",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "AmorDegrc",
+   "setup": "",
+   "arguments": "2400, #8/19/2008#, Array(#12/31/2008#, #12/31/2008#), 300, 1, 0.15, 1",
+   "model_late": "Array(1 To 2) Double:776 Double:776",
+   "model_typed": "E13"
+  },
+  {
+   "function": "TextJoin",
+   "setup": "Set k = ws.Range(\"A1:A5\")",
+   "arguments": "Array(\",\", \",\"), k, ws.Range(\"B1:B3\")",
+   "model_late": "E1004",
+   "model_typed": "E13"
+  },
+  {
+   "function": "SeriesSum",
+   "setup": "Set k = ws.Range(\"C2\")",
+   "arguments": "0.785398163, Array(0, 0), k, Array(1, -0.5, 0.041666667)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  },
+  {
+   "function": "Text",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(\"#,##0.00\", \"#,##0.00\")",
+   "model_late": "Array(1 To 2) String:abc String:abc",
+   "model_typed": "E13"
+  },
+  {
+   "function": "USDollar",
+   "setup": "k = \"abc\"",
+   "arguments": "k, Array(2, 20)",
+   "model_late": "Array(1 To 2) Error:2015 Error:2015",
+   "model_typed": "E13"
+  }
+ ]
+}

@@ -308,6 +308,25 @@ class SheetDimensions:
         #: Columns hidden while they kept a width of their own. Excel's used
         #: block takes them in and keeps them, whatever the column does next.
         self.kept_columns: set[int] = set()
+        #: Rows an opened file's borders or fonts drew taller with no row record in the file: Excel's used block leaves
+        #: them out (see _io.load_workbook).
+        self.opened_shapes: set[int] = set()
+        #: Every row an opened file lists a row element for, whatever it says.
+        self.listed_rows: set[int] = set()
+        #: Whether the sheet came from a file, whose column XFD holds the sheet's format for the used block (see
+        #: used_columns).
+        self.opened = False
+        #: The first column of the last format set across more than half the columns to the last one, 1 for the whole
+        #: sheet, or None; and the columns of that set formatted alone since (see formatted_columns).
+        self.wide_left: int | None = None
+        self.since_wide: set[int] = set()
+        self.wide_plain: int | None = None
+        #: While that format goes on, its columns are not ones formatted apart.
+        self.widening = False
+        #: The columns that kept their own format through the last such format.
+        self.own_before_wide: set[int] = set()
+        #: An opened file's column XFD format, against which its columns count (see formatted_columns).
+        self.opened_base: Style | None = None
         #: Rows their fonts make another height than the standard row, or
         #: give another descent: row -> (quarter pixels, descent in twips).
         self._grown: dict[int, tuple[int, int]] = {}
@@ -351,7 +370,6 @@ class SheetDimensions:
         if data is not None:
             for tag in re.findall(r"<row\b" + _DIMENSION_CONTENT + r"/?>", data.group(1)):
                 self._load_row(_dimension_attributes(tag))
-        self._drop_redundant_formats()
 
     def _style_read(self, text: str) -> tuple[Style, int]:
         stylesheet = self.sheet.book.stylesheet
@@ -400,17 +418,20 @@ class SheetDimensions:
             record.height = self.default_quarters()
         record.hidden = attrs.get("hidden") in ("1", "true")
         record.extra = {key: value for key, value in attrs.items() if key not in _ROW_OWN}
+        self.listed_rows.add(row)
         # When every row is hidden by default, a row the file lists is one it shows.
         if not record.empty() or self.zero_height:
             self.rows[row] = record
 
-    def _drop_redundant_formats(self) -> None:
-        """What Excel lets go of when it opens a file: formats that change nothing a cell shows.
+    def drop_redundant_formats(self) -> None:
+        """What Excel lets go of when it opens a file, once its cells are read: formats that change nothing a cell shows.
 
         A column in the default format has none, and a row format goes when
-        every column shows it already. Excel takes a format that differs from
-        another only in its apply flags as that format, so a row a macro set
-        to not bold, saved and opened again, has no format left.
+        every column without a cell of its own in that row shows it already;
+        a cell left saying nothing then goes too. Excel takes a format that
+        differs from another only in its apply flags as that format, so a row
+        a macro set to not bold, saved and opened again, has no format left
+        (tests/fixtures/used_range.json).
         """
         default = self.sheet.book.stylesheet.default
         for column, record in list(self.columns.items()):
@@ -419,23 +440,33 @@ class SheetDimensions:
                 self.tidied = self.columns_changed = True
                 if record.empty():
                     del self.columns[column]
-        shown: set[Style] = set()
-        styled = 0
+        # How many columns show each format, and which columns each row has cells in.
+        shown: dict[Style, int] = {}
         for record in self.columns.values():
             if record.style is not None:
-                shown.add(record.style)
-                styled += 1
-        if styled < MAX_COLUMNS:
-            shown.add(default)
-        if len(shown) != 1:
-            return
-        (everywhere,) = shown
+                shown[record.style] = shown.get(record.style, 0) + 1
+        plain = MAX_COLUMNS - sum(shown.values())
+        if plain:
+            shown[default] = shown.get(default, 0) + plain
+        cells: dict[int, list[int]] = {}
+        for row, column in self.sheet.cells_:
+            cells.setdefault(row, []).append(column)
         for row, record in list(self.rows.items()):
-            if record.style == everywhere:
-                record.style, record.xf = None, -1
-                self.tidied = True
-                if record.empty() and not self.zero_height:
-                    del self.rows[row]
+            if record.style is None:
+                continue
+            left = dict(shown)
+            for column in cells.get(row, ()):
+                found = self.columns.get(column)
+                style = found.style if found is not None and found.style is not None else default
+                left[style] -= 1
+            if [style for style, count in left.items() if count] != [record.style]:
+                continue
+            record.style, record.xf = None, -1
+            self.tidied = True
+            if record.empty() and not self.zero_height:
+                del self.rows[row]
+            for column in cells.get(row, ()):
+                self.sheet.settle(row, column)
 
     def _wrapped_pixels(self, row: int, column: int, cell: Cell, style: Style, *, formulas: bool = False) -> int | str:
         """How tall a cell's wrapped text makes its row, in pixels, as if it stood alone; 0 where it adds nothing, or the reason the model
@@ -1302,19 +1333,45 @@ class SheetDimensions:
         found.update(self.formatted_columns())
         return sorted(found)
 
-    def formatted_columns(self) -> list[int]:
-        """Columns whose format is not the sheet's own, which the last column's is.
+    def went_wide(self, left: int) -> None:
+        """A format went on more than half the columns from ``left`` to the last one, or on the whole sheet from 1. A
+        column that had a format of its own keeps its own record and counts as one formatted alone; one that had none
+        shows the sheet's format from now on (see formatted_columns)."""
+        if self.wide_left is None:
+            own = {column for column, record in self.columns.items() if record.style is not None and column >= left}
+        else:
+            # After another such format, the columns of their own are those it left out and those formatted apart since.
+            own = {column for column in [*range(left, self.wide_left), *self.since_wide] if column >= left}
+        self.wide_left, self.since_wide, self.widening, self.own_before_wide = left, own, True, set(own)
+        # A column the set reached with no format of its own, short of its first, which the set may line apart.
+        self.wide_plain = next((column for column in range(left + 1, MAX_COLUMNS + 1) if column not in own), None)
 
-        Formatting the whole sheet formats every column, and Excel counts
-        none of them in the used block; a column formatted apart from the
-        rest counts, and so does one left in the default format beside them.
-        Excel reads a file's columns the same way: whatever format column XFD
-        has is the sheet's.
+    def wide_format(self) -> Style | None:
+        """The sheet's format after a format went on more than half its columns: a column's the set reached that had no
+        format of its own."""
+        return None if self.wide_plain is None else self.column_style(self.wide_plain)
+
+    def formatted_columns(self) -> list[int]:
+        """Columns apart from the sheet's format: they count toward the used block, and a row format crossing one
+        leaves a cell there.
+
+        A format set across more than half the columns to the last one, or
+        on the whole sheet, is the sheet's: Excel formats every column and
+        gives those before the set back what they had, each its own. After
+        that a column counts while its format is apart from the one the set
+        gave a column with none of its own (wide_format). A file's columns count
+        against the format its column XFD had when it was opened, so XFD
+        counts too once a macro formats it apart. Otherwise the formatted
+        columns count (tests/fixtures/used_range.json,
+        tests/fixtures/clear_rows_formats.json,
+        tests/fixtures/row_formats/row_formats.json).
         """
-        sheet_format = self.column_style(MAX_COLUMNS)
-        if sheet_format is None:
-            return [column for column, record in self.columns.items() if record.style is not None]
-        return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet_format]
+        if self.wide_left is not None:
+            sheet = self.wide_format()
+            return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != sheet]
+        if self.opened and self.opened_base is not None:
+            return [column for column in range(1, MAX_COLUMNS + 1) if self.column_style(column) != self.opened_base]
+        return [column for column, record in self.columns.items() if record.style is not None]
 
     def columns_written(self) -> bool:
         """Whether the sheet's cols element has to be written again."""

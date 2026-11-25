@@ -36,7 +36,7 @@ from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel._held import HeldPart
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
-from pyopenvba.apps.excel._styles import applying
+from pyopenvba.apps.excel._styles import applying, same_automatic
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._files import native_path, on_disk, respell_file
 from pyopenvba.interpreter._objects import BINDING, MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -885,6 +885,22 @@ class Application(ExcelObject):
 
         windows = Windows(self)
         return windows if Index is MISSING else windows.vba_get("Item", [Index])
+
+    @method
+    def DoubleClick(self) -> object:
+        """A double-click on the active cell, as a macro gives one in an Excel not shown
+        (tests/fixtures/double_click.json): anywhere but a pivot table it does nothing at all, raising no
+        BeforeDoubleClick. In a pivot table, where Excel shows a value's detail on a new sheet or opens its Show
+        Detail dialog, it reports itself unsupported."""
+        from pyopenvba.apps.excel._pivot_cells import double_clicked
+
+        sheet = self.active_book.active_sheet if self.active_book is not None else None
+        if not isinstance(sheet, Worksheet):
+            raise VBAUnsupportedError("Application.DoubleClick with no worksheet active is not implemented")
+        cell = sheet.active_cell
+        if isinstance(cell, Range):
+            double_clicked(cell)
+        return EMPTY
 
     @method
     def Goto(self, Reference: object = MISSING, Scroll: object = MISSING) -> object:
@@ -3701,6 +3717,13 @@ class Worksheet(ExcelObject):
             spec = super(ExcelObject, self).vba_member(name)
             raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' "
                                      "failed")
+        if self.book.closed:
+            # Held past its workbook's close, a member is 424 through an Object and the same automation error through a
+            # Worksheet; TypeName still answers (tests/fixtures/used_range.json, held_sheet).
+            spec = super(ExcelObject, self).vba_member(name)
+            if BINDING.late:
+                raise error(424, "Object required")
+            raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' failed")
         return super().vba_member(name)
 
     def __init__(self, book: Workbook, name: str) -> None:
@@ -3715,6 +3738,14 @@ class Worksheet(ExcelObject):
         #: macro added, which Excel leaves without one.
         self.code_name = ""
         self.cells_: dict[tuple[int, int], Cell] = {}
+        # Formatted cells a format on whole rows or columns left saying nothing since UsedRange was last read, with the
+        # format each had: Excel keeps them until a read of UsedRange, and a union's later area still sees them (probe
+        # 28, round 16006 #38). Cells the model makes and drops within one change are not among them.
+        self.unread_dropped: dict[tuple[int, int], Style] = {}
+        # How deep a format on whole rows, columns or the sheet is running, and the cells that stood before the change a
+        # macro is making (see _row_formats.one_statement).
+        self.formatting_whole = 0
+        self.statement_cells: frozenset[tuple[int, int]] | None = None
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
         self.shared_groups: dict[int, Area] = {}
@@ -4323,6 +4354,7 @@ class Worksheet(ExcelObject):
 
     @member
     def UsedRange(self) -> object:
+        self.unread_dropped.clear()
         bounds = self.used_bounds()
         if bounds is None:
             return Range(self, [Area(1, 1, 1, 1, self.name)])
@@ -4378,6 +4410,23 @@ class Worksheet(ExcelObject):
                                    for table in self.pivot_tables])
         # ws.PivotTables(Null) is the collection (tests/fixtures/excel_everyday_14.json).
         return tables if Index is MISSING or Index is NULL else tables.vba_get("Item", [Index])
+
+    @method
+    def PivotTableWizard(self, SourceType: object = MISSING, SourceData: object = MISSING,  # noqa: N803
+                         TableDestination: object = MISSING, TableName: object = MISSING,  # noqa: N803
+                         RowGrand: object = MISSING, ColumnGrand: object = MISSING, SaveData: object = MISSING,  # noqa: N803
+                         HasAutoFormat: object = MISSING, AutoPage: object = MISSING, Reserved: object = MISSING,  # noqa: N803
+                         BackgroundQuery: object = MISSING, OptimizeCache: object = MISSING,  # noqa: N803
+                         PageFieldOrder: object = MISSING, PageFieldWrapCount: object = MISSING,  # noqa: N803
+                         ReadData: object = MISSING, Connection: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._pivot_create import wizard
+
+        return wizard(self, SourceType, SourceData, TableDestination, TableName,
+                      {"RowGrand": RowGrand, "ColumnGrand": ColumnGrand, "SaveData": SaveData,
+                       "HasAutoFormat": HasAutoFormat}, ReadData,
+                      {"AutoPage": AutoPage, "Reserved": Reserved, "BackgroundQuery": BackgroundQuery,
+                       "OptimizeCache": OptimizeCache, "PageFieldOrder": PageFieldOrder,
+                       "PageFieldWrapCount": PageFieldWrapCount, "Connection": Connection})
 
     @member
     def PrintedCommentPages(self) -> object:
@@ -4807,16 +4856,22 @@ class Worksheet(ExcelObject):
         """Whether a cell says anything: a value, a formula, or a format apart from the one it would inherit.
 
         Excel keeps a cell with nothing in it only while its format differs
-        from its row's or column's, and lets it go the moment it does not.
+        from its row's or column's, and lets it go the moment it does not. A
+        border line in the automatic colour is the same line however the file
+        spells it (tests/fixtures/border_rounds.json).
         """
         if cell.value is not EMPTY or cell.formula or cell.html_id or cell.ignored_errors:
             return True
-        return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
+        mine, inherited = cell.style or self.book.stylesheet.default, self.inherited_style(row, column)
+        return mine != inherited and same_automatic(mine) != same_automatic(inherited)
 
     def settle(self, row: int, column: int) -> None:
         """Drop the cell at a position if it no longer says anything."""
         found = self.cells_.get((row, column))
         if found is not None and not self.holds(row, column, found):
+            if (found.style is not None and self.formatting_whole and self.statement_cells is not None
+                    and (row, column) in self.statement_cells):
+                self.unread_dropped[(row, column)] = found.style
             del self.cells_[(row, column)]
 
     def restyle(self, row: int, column: int, style: Style) -> None:
@@ -4856,7 +4911,7 @@ class Worksheet(ExcelObject):
         live.extend(self.notes)
         rows = [row for row, _ in live]
         rows.extend(self.dims.record_rows())
-        rows.extend(self.dims.shaped_rows())
+        rows.extend(self.dims.shaped_rows() - self.dims.opened_shapes)
         columns = [column for _, column in live]
         columns.extend(self.dims.used_columns())
         if not rows and not columns:
@@ -6592,12 +6647,25 @@ class Range(ExcelObject):
     def ShowDetail(self) -> object:
         from pyopenvba.apps.excel._outline import read_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import read_value_detail, value_cell
+
+            if value_cell(self) is not None:
+                read_value_detail()
         return read_detail(self)
 
     @setter('ShowDetail')
     def _set_show_detail(self, value: object) -> None:
         from pyopenvba.apps.excel._outline import set_detail
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_details import drill, value_cell
+
+            # A pivot table's value shows the records behind it (drill-through).
+            table = value_cell(self)
+            if table is not None:
+                drill(table, self, value, select=True)
+                return
         set_detail(self, value)
 
     @member

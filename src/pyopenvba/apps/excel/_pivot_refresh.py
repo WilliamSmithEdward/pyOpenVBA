@@ -334,7 +334,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
                'rowHeaderCaption colHeaderCaption mergeItem missingCaption showMissing errorCaption showError tag '
                'showDataTips editData enableDrill enableFieldProperties disableFieldList enableWizard '
                'fieldListSortAscending gridDropZones preserveFormatting fieldPrintTitles customListSort showDrill '
-               'showItems asteriskTotals', provenance=True)
+               'showItems asteriskTotals showMultipleLabel showMemberPropertyTips showDropZones', provenance=True)
     children(root, 'location pivotFields rowFields rowItems colFields colItems pageFields dataFields pivotTableStyleInfo filters '
              'extLst')
     if not readable(root):
@@ -357,9 +357,14 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
         distinct_children(field)
         attributes(field, 'name axis dataField showAll defaultSubtotal compact outline subtotalTop subtotalCaption '
                    'insertBlankRow insertPageBreak multipleItemSelectionAllowed sortType measureFilter numFmtId rankBy '
-                   'dragToRow dragToCol dragToPage '
+                   'dragToRow dragToCol dragToPage includeNewItemsInFilter '
                    + ' '.join(entry[0] for entry in SUBTOTALS.values()))
         children(field, 'items autoSortScope extLst')
+        # The wizard's fields show new items past a filter (tests/fixtures/pivot_wizard.json): only where nothing is
+        # hidden is that the same as the rest.
+        if field.get('includeNewItemsInFilter', '0') in ('1', 'true') and any(
+                item.get('h') in ('1', 'true') for item in field.iter(NS + 'item')):
+            raise unsupported('with new items shown past hidden ones')
         field_extensions(field)
         if field.get('sortType', 'manual') not in ('manual', 'ascending', 'descending') or (
                 field.find(NS + 'autoSortScope') is not None and sort_scope(field) is None):

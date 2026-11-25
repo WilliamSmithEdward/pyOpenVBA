@@ -483,10 +483,37 @@ def pivot_item(target: _model.Range) -> pivots.PivotItem:
     return item
 
 
+def double_clicked(cell: _model.Range) -> None:
+    """Application.DoubleClick on ``cell``, the active cell (tests/fixtures/double_click.json). Anywhere but a pivot
+    table nothing happens. On a pivot table's value, a grand total's among them, Excel shows the value's detail on a
+    new sheet before the active one, as Range.ShowDetail does, raising no BeforeDoubleClick (see
+    _pivot_details.drill). On the rest of a table Excel opens its Show Detail dialog, which is not built."""
+    at = cell.first
+    for table in cell.sheet.pivot_tables:
+        covered = table.vba_get('TableRange2')
+        if not isinstance(covered, _model.Range) or not any(area.contains(at.top, at.left) for area in covered.areas):
+            continue
+        try:
+            body = table.vba_get('DataBodyRange')
+        except VBARuntimeError:
+            body = None
+        if isinstance(body, _model.Range) and any(area.contains(at.top, at.left) for area in body.areas):
+            from pyopenvba.apps.excel._pivot_details import drill
+
+            # The value's detail, as ShowDetail shows it, the cell selected already (tests/fixtures/pivot_drill.json).
+            drill(table, cell, True, select=False)
+            return
+        raise VBAUnsupportedError("Application.DoubleClick on a pivot table's labels, where Excel opens its Show Detail "
+                                  "dialog, is not implemented")
+
+
 def refuse_value_write(target: _model.Range) -> None:
     """A value written into a pivot table's values: Excel raises the table's PivotTableChangeSync and refuses it with 1004, writing
-    nothing (tests/fixtures/workbook_macro_events.json pivot_value_edit). Only cells wholly inside one table's DataBodyRange are
-    measured; a write elsewhere in a table goes on as before."""
+    nothing (tests/fixtures/workbook_macro_events.json pivot_value_edit), and Change fires all the same
+    (tests/fixtures/pivot_wizard.json). A table whose EnableDataValueEditing is on takes the value: it stays in the cell,
+    the totals keep theirs, and the next refresh puts the computed value back; PivotTableAfterValueChange, which only
+    an OLAP table raises, does not fire. Only cells wholly inside one table's DataBodyRange are measured; a write
+    elsewhere in a table goes on as before."""
     from pyopenvba.apps.excel import _events
 
     for table in target.sheet.pivot_tables:
@@ -497,5 +524,8 @@ def refuse_value_write(target: _model.Range) -> None:
         if isinstance(body, _model.Range) and all(
                 any(whole.top <= area.top and area.bottom <= whole.bottom and whole.left <= area.left and area.right <= whole.right
                     for whole in body.areas) for area in target.areas):
+            if table.root.get('editData', '0') in ('1', 'true'):
+                return
             _events.pivot_synced(table)
+            _events.after_edit(target)
             raise error(1004, "Application-defined or object-defined error")

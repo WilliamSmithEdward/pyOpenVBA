@@ -1091,10 +1091,13 @@ def _held_rows_and_columns(sheet: Worksheet) -> tuple[set[int], int, int]:
         # A formatted column holds the columns beside it, with a line or none (tests/fixtures/border_neighbours.json).
         if record.style is not None:
             columns += [max(column - 1, 1), column, min(column + 1, MAX_COLUMNS)]
-    for row, column in sheet.cells_:
+    # Cells dropped since UsedRange was last read still hold, as Excel keeps them until then (probe 28).
+    held = [((row, column), sheet.style_at(row, column)) for row, column in sheet.cells_]
+    held += [(place, style) for place, style in sheet.unread_dropped.items() if place not in sheet.cells_]
+    for (row, column), style in held:
         rows.add(row)
         columns.append(column)
-        border = sheet.style_at(row, column).border
+        border = style.border
         if any(side.style for side in (border.left, border.top, border.bottom, border.right)):
             if row < MAX_ROWS:
                 rows.add(row + 1)
@@ -1208,6 +1211,11 @@ def change_side(sheet: Worksheet, row: int, column: int, index: int, change: Cal
         theirs = sheet.style_at(row, column)
         cleared = replace(theirs.border, **{opposite: S.NO_SIDE})
         sheet.restyle(row, column, S.applying(theirs, "border", border=cleared))
+
+
+def _coloured(side: S.Side) -> bool:
+    """A line with a colour of its own, not the automatic one however it is spelled."""
+    return bool(side.style) and side.color is not None and side.color.kind != "auto" and side.color != S.FOREGROUND
 
 
 def _automatic(side: S.Side) -> S.Side:
@@ -1354,8 +1362,10 @@ class Border(ExcelObject):
             last = name in ("bottom", "right")
             kind = _row_formats.whole(area)
             # Whole rows read their right edge in their first row's first column, whole columns their bottom edge in their
-            # first column's first row (tests/fixtures/border_gaps.json, tests/fixtures/used_range.json).
-            first = (kind == "rows" and name == "right") or (kind == "columns" and name == "bottom")
+            # first column's first row, and the sheet both in A1 (tests/fixtures/border_gaps.json,
+            # tests/fixtures/used_range.json, tests/fixtures/border_rounds.json).
+            first = ((kind == "rows" and name == "right") or (kind == "columns" and name == "bottom")
+                     or (kind == "sheet" and last))
             if first:
                 # What that cell stores, not a neighbour's line showing there.
                 return own_side(sheet, area.top, area.left, name)
@@ -1420,6 +1430,10 @@ class Border(ExcelObject):
 
     def apply(self, change: Callable[[S.Side], S.Side]) -> None:
         """Set the border on each area -- each visible area, on a filtered sheet, measured for the bottom edge."""
+        with _row_formats.one_statement(self.target.sheet):
+            self._apply(change)
+
+    def _apply(self, change: Callable[[S.Side], S.Side]) -> None:
         sheet = self.target.sheet
         areas = visible_areas(self.target) or self.target.areas
         _row_formats.refuse_past_half(areas)
@@ -1440,6 +1454,13 @@ class Border(ExcelObject):
                 row, column = places[-1] if name in ("bottom", "right") else places[0]
                 if effective_side(sheet, row, column, name).style:
                     return
+        elif (self.index in (11, 12) and _leaves_lines(change) and len(areas) == 1 and not self.collection
+              and not _row_formats.whole(areas[0]) and (areas[0].columns if self.index == 11 else areas[0].rows) > 2):
+            # Across several pairs, no colour on an inside border changes nothing where its first pair shows a line, and
+            # takes every line between the cells away where it shows none (probe 26).
+            if self.side().style:
+                return
+            change = _exactly(S.NO_SIDE)
         if self.index in EDGES and not self.collection:
             # An edge set alone across more than half the sheet to its last column or row can draw nothing
             # (tests/fixtures/used_range.json).
@@ -1449,16 +1470,31 @@ class Border(ExcelObject):
         if self.index in (5, 6) and (len(areas) > 1 or areas[0].rows * areas[0].columns > 1):
             # A diagonal on a union first copies outlines to its later areas as an edge does, whatever it sets
             # (tests/fixtures/border_union.json).
+            block = sheet.used_bounds()
             self._copy_outlines(areas)
             self._many_diagonals(areas, change)
+            last = areas[0]
+            if (len(areas) == 1 and _row_formats.whole(last) == "columns" and last.left == MAX_COLUMNS
+                    and block is not None and block[1] == 1 and block[3] == MAX_COLUMNS):
+                # On the last column, with the used block across every column, the column loses its left line, in
+                # its format and its cells (probe 29).
+                _row_formats.format_columns(sheet, MAX_COLUMNS, MAX_COLUMNS,
+                                            lambda style: S.applying(style, "border", border=replace(style.border, left=S.NO_SIDE)))
             return
         parts = [area for area in areas if not _row_formats.border_area(sheet, area, self.index, change, together=self.together)]
         _within_limit(parts)
         if self.index in EDGES and len(parts) > 1:
             self._across_areas(parts, change)
             return
+        # A bottom or right edge on several rows of cells, with the used block reaching below them, gives each of the rows
+        # the left line the first cell has of its own (probe 29).
+        block = sheet.used_bounds() if self.index in (9, 10) and len(parts) == 1 and parts[0].rows > 1 else None
+        first_left = own_side(sheet, parts[0].top, parts[0].left, "left") if block is not None else S.NO_SIDE
         if self.index in EDGES or self.index in (11, 12):
             self._touch(parts)
+        if block is not None and block[2] > parts[0].bottom and first_left.style:
+            for row in range(parts[0].top + 1, parts[0].bottom + 1):
+                change_side(sheet, row, parts[0].left, 7, _exactly(first_left), clear_neighbour=False)
         for area in parts:
             if self.index in (5, 6):
                 for row in range(area.top, area.bottom + 1):
@@ -1689,6 +1725,10 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         return [side for index in self._indexes() for side in found[index]]
 
     def _set_all(self, what: str, value: object) -> None:
+        with _row_formats.one_statement(self.target.sheet):
+            self._set_each(what, value)
+
+    def _set_each(self, what: str, value: object) -> None:
         # A colour set over the whole collection, whatever the colour, marks the fill applied as well: an invisible
         # difference that keeps a cell apart from a row or column format otherwise equal to its own, and that Excel
         # writes as applyFill (tests/fixtures/used_range.json).
@@ -1705,9 +1745,14 @@ class Borders(VBACollection, ItemDefault, ExcelObject):
         for index in self._indexes():
             border = Border(self.target, index, together=True, collection=True)
             horizontal = index in (8, 9, 12)
+            # The colour stays where the lines run across every row (horizontal) or every column (vertical): a column's
+            # inside horizontals, a row's inside verticals (probe 27); two rows' inside horizontal goes automatic
+            # (round 16002 #109).
+            keeps = all((area.rows == MAX_ROWS) if horizontal else (area.columns == MAX_COLUMNS) for area in self.target.areas)
             if restyling and any((area.rows if horizontal else area.columns) > 1 for area in self.target.areas):
                 change = side_change(what, value)
-                border.apply(lambda side, change=change: _automatic(change(side)))  # type: ignore[misc]
+                border.apply(lambda side, change=change, keeps=keeps: change(side)  # type: ignore[misc]
+                             if keeps and _coloured(side) else _automatic(change(side)))
             else:
                 border.assign(what, value)
         if colour:

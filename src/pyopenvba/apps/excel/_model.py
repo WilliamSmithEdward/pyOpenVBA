@@ -3738,6 +3738,14 @@ class Worksheet(ExcelObject):
         #: macro added, which Excel leaves without one.
         self.code_name = ""
         self.cells_: dict[tuple[int, int], Cell] = {}
+        # Formatted cells a format on whole rows or columns left saying nothing since UsedRange was last read, with the
+        # format each had: Excel keeps them until a read of UsedRange, and a union's later area still sees them (probe
+        # 28, round 16006 #38). Cells the model makes and drops within one change are not among them.
+        self.unread_dropped: dict[tuple[int, int], Style] = {}
+        # How deep a format on whole rows, columns or the sheet is running, and the cells that stood before the change a
+        # macro is making (see _row_formats.one_statement).
+        self.formatting_whole = 0
+        self.statement_cells: frozenset[tuple[int, int]] | None = None
         #: The shared formulas: each one's block, which moves with inserts and deletes as a reference does,
         #: by the key its cells' Cell.shared holds (see _shared).
         self.shared_groups: dict[int, Area] = {}
@@ -4346,6 +4354,7 @@ class Worksheet(ExcelObject):
 
     @member
     def UsedRange(self) -> object:
+        self.unread_dropped.clear()
         bounds = self.used_bounds()
         if bounds is None:
             return Range(self, [Area(1, 1, 1, 1, self.name)])
@@ -4860,6 +4869,9 @@ class Worksheet(ExcelObject):
         """Drop the cell at a position if it no longer says anything."""
         found = self.cells_.get((row, column))
         if found is not None and not self.holds(row, column, found):
+            if (found.style is not None and self.formatting_whole and self.statement_cells is not None
+                    and (row, column) in self.statement_cells):
+                self.unread_dropped[(row, column)] = found.style
             del self.cells_[(row, column)]
 
     def restyle(self, row: int, column: int, style: Style) -> None:

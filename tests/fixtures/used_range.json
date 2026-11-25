@@ -12436,6 +12436,3850 @@
 "excel": "0,0,0,$B$2:$E$4/$E$4/$A$1048576/$XFD$1/$A$1/$B$2:$E$4;0;$B$2:$E$4/$E$4/$A$1048576/$XFD$1/$A$1/$B$2:$E$4;0"
 }
 ]
+},
+{
+"name": "ur24",
+"about": "A bottom edge on whole columns over a line in the last row, the sheet's right and bottom edges read and set, the collection's LineStyle over a heavier line",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\n",
+"suffix": "\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"ws.Range(\"A1048576\").Borders(9).Weight = xlThick",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Columns(1).Borders(9).Color = 65280",
+"s = s & \"[9 \" & ws.Range(\"A1048576\").Borders(9).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(9).Color & \" \" & ws.Range(\"A1048576\").Borders(9).Weight & \" \" & ws.Range(\"A1048576\").Borders(9).ColorIndex & \"]\"",
+"s = s & \"[9 \" & ws.Columns(1).Borders(9).LineStyle & \" \" & ws.Columns(1).Borders(9).Color & \" \" & ws.Columns(1).Borders(9).Weight & \" \" & ws.Columns(1).Borders(9).ColorIndex & \"]",
+"ws.Columns(1).Borders(9).LineStyle = xlDouble",
+"ws.Columns(1).Borders(9).Weight = xlMedium",
+"ws.Columns(1).Borders(9).ColorIndex = xlColorIndexNone",
+"ws.Columns(\"A:XFC\").Borders(9).Color = 65280",
+"s = s & \"[9 \" & ws.Range(\"A1048576\").Borders(9).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(9).Color & \" \" & ws.Range(\"A1048576\").Borders(9).Weight & \" \" & ws.Range(\"A1048576\").Borders(9).ColorIndex & \"]",
+"ws.Columns(\"A:C\").Borders(9).Color = 65280",
+"s = s & \"[9 \" & ws.Range(\"C1048576\").Borders(9).LineStyle & \" \" & ws.Range(\"C1048576\").Borders(9).Color & \" \" & ws.Range(\"C1048576\").Borders(9).Weight & \" \" & ws.Range(\"C1048576\").Borders(9).ColorIndex & \"]",
+"ws.Range(\"A1048576\").Borders.LineStyle = xlDash",
+"ws.Rows(1048576).Borders(9).Color = 255",
+"ws.Rows(1048576).Borders.LineStyle = xlDash",
+"ws.Range(\"A1048576\").Value = 1",
+"ws.Columns(\"B:D\").Borders(9).Color = 65280",
+"s = s & \"[9 \" & ws.Range(\"B1048576\").Borders(9).LineStyle & \" \" & ws.Range(\"B1048576\").Borders(9).Color & \" \" & ws.Range(\"B1048576\").Borders(9).Weight & \" \" & ws.Range(\"B1048576\").Borders(9).ColorIndex & \"]",
+"s = s & \"[9 \" & ws.Cells.Borders(9).LineStyle & \" \" & ws.Cells.Borders(9).Color & \" \" & ws.Cells.Borders(9).Weight & \" \" & ws.Cells.Borders(9).ColorIndex & \"]\"",
+"s = s & \"(t \" & TypeName(ws.Cells.Borders(9).ThemeColor) & \")\"",
+"s = s & \"[10 \" & ws.Cells.Borders(10).LineStyle & \" \" & ws.Cells.Borders(10).Color & \" \" & ws.Cells.Borders(10).Weight & \" \" & ws.Cells.Borders(10).ColorIndex & \"]\"",
+"s = s & \"(t \" & TypeName(ws.Cells.Borders(10).ThemeColor) & \")",
+"ws.Range(\"A1\").Borders(9).Color = 255",
+"ws.Range(\"A1\").Borders(10).Color = 255",
+"ws.Range(\"B1\").Borders(10).Color = 255",
+"ws.Columns(\"XFD\").Borders(10).Color = 255",
+"ws.Range(\"A2\").Borders(8).Color = 255",
+"ws.Rows(1048576).Borders(9).Weight = xlHairline",
+"ws.Cells.Borders(9).Color = 65280",
+"s = s & \"[9 \" & ws.Cells.Borders(9).LineStyle & \" \" & ws.Cells.Borders(9).Color & \" \" & ws.Cells.Borders(9).Weight & \" \" & ws.Cells.Borders(9).ColorIndex & \"]",
+"ws.Cells.Borders(9).LineStyle = xlDouble",
+"ws.Rows(1048576).Interior.Color = 65535",
+"s = s & \"(fill \" & ws.Range(\"A1048576\").Interior.Color & \")",
+"s = s & \"[8 \" & ws.Range(\"A1048576\").Borders(8).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(8).Color & \" \" & ws.Range(\"A1048576\").Borders(8).Weight & \" \" & ws.Range(\"A1048576\").Borders(8).ColorIndex & \"]",
+"ws.Cells.Borders(9).Weight = xlThick",
+"ws.Columns(\"XFD\").Borders(10).Weight = xlHairline",
+"ws.Cells.Borders(10).Color = 65280",
+"s = s & \"[10 \" & ws.Range(\"XFD1\").Borders(10).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(10).Color & \" \" & ws.Range(\"XFD1\").Borders(10).Weight & \" \" & ws.Range(\"XFD1\").Borders(10).ColorIndex & \"]",
+"ws.Range(\"B2\").Borders(9).Weight = xlMedium",
+"ws.Range(\"B2\").Borders.LineStyle = xlDash",
+"s = s & \"[9 \" & ws.Range(\"B2\").Borders(9).LineStyle & \" \" & ws.Range(\"B2\").Borders(9).Color & \" \" & ws.Range(\"B2\").Borders(9).Weight & \" \" & ws.Range(\"B2\").Borders(9).ColorIndex & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"B2\").Borders(8).LineStyle & \" \" & ws.Range(\"B2\").Borders(8).Color & \" \" & ws.Range(\"B2\").Borders(8).Weight & \" \" & ws.Range(\"B2\").Borders(8).ColorIndex & \"]",
+"ws.Range(\"B2\").Borders(9).LineStyle = xlDash",
+"s = s & \"[9 \" & ws.Range(\"B2\").Borders(9).LineStyle & \" \" & ws.Range(\"B2\").Borders(9).Color & \" \" & ws.Range(\"B2\").Borders(9).Weight & \" \" & ws.Range(\"B2\").Borders(9).ColorIndex & \"]",
+"ws.Range(\"XFD1\").Borders(9).Weight = xlMedium",
+"ws.Columns(\"XFD\").Borders.LineStyle = xlDash",
+"s = s & \"[9 \" & ws.Range(\"XFD1\").Borders(9).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(9).Color & \" \" & ws.Range(\"XFD1\").Borders(9).Weight & \" \" & ws.Range(\"XFD1\").Borders(9).ColorIndex & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"XFD2\").Borders(8).LineStyle & \" \" & ws.Range(\"XFD2\").Borders(8).Color & \" \" & ws.Range(\"XFD2\").Borders(8).Weight & \" \" & ws.Range(\"XFD2\").Borders(8).ColorIndex & \"]",
+"ws.Range(\"B2\").Borders(9).Weight = xlThick",
+"ws.Range(\"XFD1\").Borders(9).Weight = xlThick",
+"ws.Range(\"B2\").Borders(9).Weight = xlHairline",
+"ws.Range(\"XFD1\").Borders(9).Weight = xlHairline",
+"ws.Rows(2).Borders.LineStyle = xlDash",
+"ws.Range(\"B2\").Borders.LineStyle = xlContinuous"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+0,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+0,
+1,
+6,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+0,
+1,
+7,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+0,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1:$XFC$1;[9 -4142 0 2 -4142]0:$A$1:$XFC$1;saved:$A$1"
+},
+{
+"middle": [
+0,
+1,
+10,
+1,
+3,
+1,
+11
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1:$C$1;[9 -4142 0 2 -4142]0:$A$1:$C$1;[9 -4142 0 2 -4142]0:$A$1:$C$1;saved:$A$1"
+},
+{
+"middle": [
+12,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+6,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+7,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$XFC$1048576;[9 -4115 0 2 -4105]0:$A$1048576:$XFC$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+10,
+1,
+3,
+1,
+11
+],
+"args": [
+"{folder}/11.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$C$1048576;[9 -4115 0 2 -4105]0:$A$1048576:$C$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$C$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/12.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/13.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+6,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/14.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+7,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/15.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/16.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$XFC$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$XFC$1048576;saved:$A$1048576:$XFC$1048576"
+},
+{
+"middle": [
+13,
+1,
+10,
+1,
+3,
+1,
+11
+],
+"args": [
+"{folder}/17.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$C$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$C$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$C$1048576;saved:$A$1048576:$C$1048576"
+},
+{
+"middle": [
+14,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/18.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+14,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/19.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+14,
+1,
+6,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/20.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+14,
+1,
+7,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/21.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+14,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/22.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$XFC$1048576;[9 -4115 0 2 -4105]0:$A$1048576:$XFC$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+14,
+1,
+10,
+1,
+3,
+1,
+11
+],
+"args": [
+"{folder}/23.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$C$1048576;[9 -4115 0 2 -4105]0:$A$1048576:$C$1048576;[9 -4115 0 2 -4105]0:$A$1048576:$C$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/24.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/25.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+6,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/26.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+7,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/27.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/28.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$XFC$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$XFC$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+10,
+1,
+3,
+1,
+11
+],
+"args": [
+"{folder}/29.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$C$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$C$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$C$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+16,
+1,
+3,
+1,
+17
+],
+"args": [
+"{folder}/30.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576:$D$1048576;[9 1 0 4 -4105]0:$A$1048576:$D$1048576;[9 -4142 0 2 -4142]0:$A$1048576:$D$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/31.xlsx"
+],
+"excel": "[9 -4142 0 2 -4142]0:$A$1;(t Null)0:$A$1;[10 -4142 0 2 -4142]0:$A$1;(t Null)0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+22,
+1,
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/32.xlsx"
+],
+"excel": "0:$A$1;[9 1 255 2 3]0:$A$1;5:$A$1;[10 -4142 0 2 -4142]0:$A$1;(t Null)0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+23,
+1,
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/33.xlsx"
+],
+"excel": "0:$A$1;[9 -4142 0 2 -4142]0:$A$1;(t Null)0:$A$1;[10 1 255 2 3]0:$A$1;5:$A$1;saved:$A$1"
+},
+{
+"middle": [
+24,
+1,
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/34.xlsx"
+],
+"excel": "0:$B$1;[9 -4142 0 2 -4142]0:$B$1;(t Null)0:$B$1;[10 -4142 0 2 -4142]0:$B$1;(t Null)0:$B$1;saved:$B$1"
+},
+{
+"middle": [
+13,
+1,
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/35.xlsx"
+],
+"excel": "0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;(t Null)0:$A$1048576;[10 -4142 0 2 -4142]0:$A$1048576;(t Null)0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+25,
+1,
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/36.xlsx"
+],
+"excel": "0:$XFD$1;[9 -4142 0 2 -4142]0:$XFD$1;(t Null)0:$XFD$1;[10 -4142 0 2 -4142]0:$XFD$1;(t Null)0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+26,
+1,
+18,
+1,
+19,
+1,
+20,
+1,
+21
+],
+"args": [
+"{folder}/37.xlsx"
+],
+"excel": "0:$A$2;[9 -4142 0 2 -4142]0:$A$2;(t Null)0:$A$2;[10 -4142 0 2 -4142]0:$A$2;(t Null)0:$A$2;saved:$A$2"
+},
+{
+"middle": [
+27,
+1,
+28,
+1,
+3,
+1,
+29
+],
+"args": [
+"{folder}/38.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+27,
+1,
+30,
+1,
+9
+],
+"args": [
+"{folder}/39.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+27,
+1,
+31,
+1,
+28,
+1,
+3,
+1,
+32
+],
+"args": [
+"{folder}/40.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;(fill 65535)0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+14,
+1,
+28,
+1,
+3,
+1,
+33
+],
+"args": [
+"{folder}/41.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[9 -4115 0 2 -4105]0:$A$1048576;[8 -4115 0 2 -4105]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+28,
+1,
+9
+],
+"args": [
+"{folder}/42.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1;[9 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+15,
+1,
+27,
+1,
+34,
+1,
+9
+],
+"args": [
+"{folder}/43.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2 -4142]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+35,
+1,
+36,
+1,
+37
+],
+"args": [
+"{folder}/44.xlsx"
+],
+"excel": "0:$XFD$1;0:$A$1;[10 -4142 0 2 -4142]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+38,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/45.xlsx"
+],
+"excel": "0:$B$2;0:$B$2;[9 -4115 0 -4138 -4105]0:$B$2;[8 -4115 0 2 -4105]0:$B$2;saved:$B$2"
+},
+{
+"middle": [
+38,
+1,
+42,
+1,
+43
+],
+"args": [
+"{folder}/46.xlsx"
+],
+"excel": "0:$B$2;0:$B$2;[9 -4115 0 -4138 -4105]0:$B$2;saved:$B$2"
+},
+{
+"middle": [
+44,
+1,
+45,
+1,
+46,
+1,
+47
+],
+"args": [
+"{folder}/47.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;[9 -4115 0 2 -4105]0:$XFD$1;[8 -4115 0 2 -4105]0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+48,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/48.xlsx"
+],
+"excel": "0:$B$2:$B$3;0:$B$2;[9 -4115 0 2 -4105]0:$B$2;[8 -4115 0 2 -4105]0:$B$2;saved:$B$2"
+},
+{
+"middle": [
+48,
+1,
+42,
+1,
+43
+],
+"args": [
+"{folder}/49.xlsx"
+],
+"excel": "0:$B$2:$B$3;0:$B$2;[9 -4115 0 2 -4105]0:$B$2;saved:$B$2"
+},
+{
+"middle": [
+49,
+1,
+45,
+1,
+46,
+1,
+47
+],
+"args": [
+"{folder}/50.xlsx"
+],
+"excel": "0:$XFD$1:$XFD$2;0:$XFD$1;[9 -4115 0 2 -4105]0:$XFD$1;[8 -4115 0 2 -4105]0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+50,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/51.xlsx"
+],
+"excel": "0:$B$2;0:$B$2;[9 -4115 0 2 -4105]0:$B$2;[8 -4115 0 2 -4105]0:$B$2;saved:$B$2"
+},
+{
+"middle": [
+50,
+1,
+42,
+1,
+43
+],
+"args": [
+"{folder}/52.xlsx"
+],
+"excel": "0:$B$2;0:$B$2;[9 -4115 0 2 -4105]0:$B$2;saved:$B$2"
+},
+{
+"middle": [
+51,
+1,
+45,
+1,
+46,
+1,
+47
+],
+"args": [
+"{folder}/53.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;[9 -4115 0 2 -4105]0:$XFD$1;[8 -4115 0 2 -4105]0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+38,
+1,
+52,
+1,
+43
+],
+"args": [
+"{folder}/54.xlsx"
+],
+"excel": "0:$B$2;0:$A$2;[9 -4115 0 2 -4105]0:$A$2;saved:$A$2"
+},
+{
+"middle": [
+38,
+1,
+53,
+1,
+43
+],
+"args": [
+"{folder}/55.xlsx"
+],
+"excel": "0:$B$2;0:$B$2;[9 1 0 -4138 -4105]0:$B$2;saved:$B$2"
+}
+]
+},
+{
+"name": "ur25",
+"about": "Which last-row bottom and last-column right lines a bottom or right edge takes away: those without a top or left line beside them",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"Range(\"A1048576\").Borders(9).Weight = xlThick",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Range(\"A1048576\").Borders(8).Color = 255",
+"ws.Columns(1).Borders(9).Color = 65280",
+"s = s & \"[9 \" & ws.Range(\"A1048576\").Borders(9).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(9).Color & \" \" & ws.Range(\"A1048576\").Borders(9).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"A1048576\").Borders(8).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(8).Color & \" \" & ws.Range(\"A1048576\").Borders(8",
+"ws.Range(\"A1048576\").Borders(7).Color = 255",
+"ws.Range(\"A1048576\").Borders(10).Color = 255",
+"ws.Range(\"A1048576\").Interior.Color = 65535",
+"ws.Range(\"A1048576\").Borders(5).Color = 255",
+"Range(\"A1048576\").Value = 1",
+"ws.Range(\"A1048576\").Borders(9).Weight = xlThick",
+"Range(\"A1048576\").BorderAround xlContinuous, xlThick",
+"Range(\"A1048576\").Borders.LineStyle = xlDash",
+"ws.Range(\"A1048576\").Borders(9).Color = 255",
+"Rows(1048576).Borders(8).Color = 255",
+"ws.Rows(1048576).Borders(9).Color = 255",
+"Rows(1048576).Borders(9).Color = 255",
+"ws.Rows(1048576).Interior.Color = 65535",
+"ws.Cells.Borders(9).Color = 65280",
+"Range(\"XFD1\").Borders(10).Weight = xlThick",
+"ws.Range(\"XFD1\").Borders(7).Color = 255",
+"ws.Cells.Borders(10).Color = 65280",
+"s = s & \"[10 \" & ws.Range(\"XFD1\").Borders(10).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(10).Color & \" \" & ws.Range(\"XFD1\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"XFD1\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(7).Color & \" \" & ws.Range(\"XFD1\").Borders(7",
+"ws.Rows(1).Borders(10).Color = 65280",
+"Range(\"XFD1\").Borders.LineStyle = xlDash",
+"Columns(\"XFD\").Borders(10).Color = 255",
+"ws.Columns(\"XFD\").Borders(7).Color = 255"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 1 0 4]0:$A$1048576;[8 1 255 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+6,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+7,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+8,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+9,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+10,
+1,
+11,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$A$1048575:$A$1048576;0:$A$1048575:$A$1048576;[9 1 0 4]0:$A$1048575:$A$1048576;[8 1 0 4]0:$A$1048575:$A$1048576;saved:$A$1048575:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+14,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4115 255 2]0:$A$1048576;[8 -4115 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+16,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 1 255 2]0:$A$1048576;[8 1 255 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+17,
+1,
+18,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+19,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 1 0 4]0:$A$1048576;[8 1 255 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+6,
+1,
+19,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/11.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+0,
+1,
+8,
+1,
+19,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/12.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 -4142 0 2]0:$A$1048576;[8 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+12,
+1,
+19,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/13.xlsx"
+],
+"excel": "0:$A$1048575:$A$1048576;0:$A$1048575:$A$1048576;[9 1 0 4]0:$A$1048575:$A$1048576;[8 1 0 4]0:$A$1048575:$A$1048576;saved:$A$1048575:$A$1048576"
+},
+{
+"middle": [
+15,
+1,
+16,
+1,
+19,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/14.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;0:$A$1048576;[9 1 255 2]0:$A$1048576;[8 1 255 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+20,
+1,
+21,
+1,
+22,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/15.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;0:$XFD$1;[10 1 0 4]0:$XFD$1;[7 1 255 2]0:$XFD$1;saved:$XFD$1"
+},
+{
+"middle": [
+20,
+1,
+21,
+1,
+25,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/16.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;0:$XFD$1;[10 1 0 4]0:$XFD$1;[7 1 255 2]0:$XFD$1;saved:$XFD$1"
+},
+{
+"middle": [
+20,
+1,
+22,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/17.xlsx"
+],
+"excel": "0:$XFD$1;0:$A$1;[10 -4142 0 2]0:$A$1;[7 -4142 0 2]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+20,
+1,
+25,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/18.xlsx"
+],
+"excel": "0:$XFD$1;0:$A$1;[10 -4142 0 2]0:$A$1;[7 -4142 0 2]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+26,
+1,
+22,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/19.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;[10 -4115 0 2]0:$XFD$1;[7 -4115 0 2]0:$XFD$1;saved:$XFD$1"
+},
+{
+"middle": [
+26,
+1,
+25,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/20.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;[10 -4115 0 2]0:$XFD$1;[7 -4115 0 2]0:$XFD$1;saved:$XFD$1"
+},
+{
+"middle": [
+27,
+1,
+28,
+1,
+22,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/21.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;0:$XFD$1;[10 1 255 2]0:$XFD$1;[7 1 255 2]0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+27,
+1,
+28,
+1,
+25,
+1,
+23,
+1,
+24
+],
+"args": [
+"{folder}/22.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;0:$XFD$1;[10 1 255 2]0:$XFD$1;[7 1 255 2]0:$XFD$1;saved:$1:$1",
+"differs": "UsedRange after a save: a right edge on row 1 beside column XFD's left and right lines, where Excel counts row 1 only"
+}
+]
+},
+{
+"name": "ur26",
+"about": "Inside verticals on whole columns, no colour across inside pairs, and rounds 16003 #11 and 16004 #79 taken apart",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.R",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"ange(\"C1\").Borders(10).LineStyle = xlDouble",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Columns(\"A:XFC\").Borders(11).Color = 65280",
+"s = s & \"[10 \" & ws.Range(\"C1\").Borders(10).LineStyle & \" \" & ws.Range(\"C1\").Borders(10).Color & \" \" & ws.Range(\"C1\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"D1\").Borders(7).LineStyle & \" \" & ws.Range(\"D1\").Borders(7).Color & \" \" & ws.Range(\"D1\").Borders(7",
+"ws.Columns(\"B:D\").Borders(11).Color = 65280",
+"ange(\"C1\").Borders(10).LineStyle = xlContinuous",
+"ange(\"C1\").Borders(10).LineStyle = xlDash",
+"ws.Columns(\"A:XFC\").Borders(11).Weight = xlThick",
+"s = s & \"[10 \" & ws.Range(\"C1\").Borders(10).LineStyle & \" \" & ws.Range(\"C1\").Borders(10).Color & \" \" & ws.Range(\"C1\").Borders(10",
+"ws.Columns(\"A:XFC\").Borders(11).ColorIndex = 3",
+"ange(\"C1\").Borders(10).Weight = xlThick",
+"ange(\"B1\").Borders(10).LineStyle = xlSlantDashDot",
+"ws.Range(\"A1:C1\").Borders(11).ColorIndex = xlColorIndexNone",
+"s = s & \"[10 \" & ws.Range(\"A1\").Borders(10).LineStyle & \" \" & ws.Range(\"A1\").Borders(10).Color & \" \" & ws.Range(\"A1\").Borders(10).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"B1\").Borders(10).LineStyle & \" \" & ws.Range(\"B1\").Borders(10).Color & \" \" & ws.Range(\"B1\").Borders(10).Weight & \"]\"",
+"s = s & \"[11 \" & ws.Range(\"A1:C1\").Borders(11).LineStyle & \" \" & ws.Range(\"A1:C1\").Borders(11).Color & \" \" & ws.Range(\"A1:C1\").Borders(11",
+"ws.Range(\"A1:C1\").Borders(11).LineStyle = xlNone",
+"ange(\"A1\").Borders(10).LineStyle = xlSlantDashDot",
+"ange(\"A1:C1\").Borders(11).LineStyle = xlSlantDashDot",
+"ange(\"A1\").Borders(10).LineStyle = xlDash",
+"ws.Range(\"B1\").Borders(10).LineStyle = xlSlantDashDot",
+"ows(\"1:2\").Borders.LineStyle = xlContinuous",
+"s = s & \"[7 \" & ws.Range(\"A3\").Borders(7).LineStyle & \" \" & ws.Range(\"A3\").Borders(7).Color & \" \" & ws.Range(\"A3\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"A16\").Borders(7).LineStyle & \" \" & ws.Range(\"A16\").Borders(7).Color & \" \" & ws.Range(\"A16\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"A17\").Borders(7).LineStyle & \" \" & ws.Range(\"A17\").Borders(7).Color & \" \" & ws.Range(\"A17\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"A18\").Borders(7).LineStyle & \" \" & ws.Range(\"A18\").Borders(7).Color & \" \" & ws.Range(\"A18\").Borders(7",
+"ws.Rows(\"1:3\").Borders(10).LineStyle = xlDouble",
+"ange(\"A1\").Interior.Color = 65535",
+"ws.Rows(\"1:2\").Borders.LineStyle = xlContinuous",
+"ange(\"C1048576\").Interior.Color = 65535",
+"ws.Range(\"C1048576\").Borders(10).Color = 255",
+"ws.Range(\"A1\").Interior.Color = 65535",
+"ws.Range(\"B1:D3\").Borders(12).Weight = xlMedium",
+"s = s & \"[10 \" & ws.Range(\"D2\").Borders(10).LineStyle & \" \" & ws.Range(\"D2\").Borders(10).Color & \" \" & ws.Range(\"D2\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"B3\").Borders(7).LineStyle & \" \" & ws.Range(\"B3\").Borders(7).Color & \" \" & ws.Range(\"B3\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"A3\").Borders(10).LineStyle & \" \" & ws.Range(\"A3\").Borders(10).Color & \" \" & ws.Range(\"A3\").Borders(10",
+"ange(\"XFD1\").Borders(11).Color = 5",
+"ows(1048576).Font.Bold = True",
+"ws.Range(\"XFD1\").Borders(11).Color = 5",
+"ws.Rows(1048576).Font.Bold = True"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$XFC$1;[10 1 65280 2]0:$A$1:$XFC$1;[7 1 65280 2]0:$A$1:$XFC$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+0,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$C$1;0:$B$1:$D$1;[10 1 65280 2]0:$B$1:$D$1;[7 1 65280 2]0:$B$1:$D$1;saved:$B$1:$D$1"
+},
+{
+"middle": [
+6,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$XFC$1;[10 1 65280 2]0:$A$1:$XFC$1;[7 1 65280 2]0:$A$1:$XFC$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+6,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$C$1;0:$B$1:$D$1;[10 1 65280 2]0:$B$1:$D$1;[7 1 65280 2]0:$B$1:$D$1;saved:$B$1:$D$1"
+},
+{
+"middle": [
+7,
+1,
+2,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$XFC$1;[10 1 65280 2]0:$A$1:$XFC$1;[7 1 65280 2]0:$A$1:$XFC$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+7,
+1,
+5,
+1,
+3,
+1,
+4
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$C$1;0:$B$1:$D$1;[10 1 65280 2]0:$B$1:$D$1;[7 1 65280 2]0:$B$1:$D$1;saved:$B$1:$D$1"
+},
+{
+"middle": [
+0,
+1,
+8,
+1,
+9
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$XFC$1;[10 1 0 4]0:$A$1:$XFC$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+0,
+1,
+10,
+1,
+9
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$XFC$1;[10 1 255 2]0:$A$1:$XFC$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+11,
+1,
+2,
+1,
+9
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$C$1;0:$A$1:$XFC$1;[10 1 65280 2]0:$A$1:$XFC$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+12,
+1,
+13,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$B$1;0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[11 -4142 0 2]0:$A$1:$C$1;saved:$A$1"
+},
+{
+"middle": [
+12,
+1,
+17,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$B$1;0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[11 -4142 0 2]0:$A$1:$C$1;saved:$A$1"
+},
+{
+"middle": [
+18,
+1,
+13,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/11.xlsx"
+],
+"excel": "0:$A$1;0:$A$1;[10 13 0 -4138]0:$A$1;[10 -4142 0 2]0:$A$1;[11 13 0 -4138]0:$A$1;saved:$A$1"
+},
+{
+"middle": [
+18,
+1,
+17,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/12.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[11 -4142 0 2]0:$A$1:$C$1;saved:$A$1"
+},
+{
+"middle": [
+19,
+1,
+13,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/13.xlsx"
+],
+"excel": "0:$A$1:$C$1;0:$A$1:$C$1;[10 13 0 -4138]0:$A$1:$C$1;[10 13 0 -4138]0:$A$1:$C$1;[11 13 0 -4138]0:$A$1:$C$1;saved:$A$1:$C$1"
+},
+{
+"middle": [
+19,
+1,
+17,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/14.xlsx"
+],
+"excel": "0:$A$1:$C$1;0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[11 -4142 0 2]0:$A$1:$C$1;saved:$A$1"
+},
+{
+"middle": [
+20,
+1,
+21,
+1,
+13,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/15.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$B$1;0:$A$1:$B$1;[10 -4115 0 2]0:$A$1:$B$1;[10 13 0 -4138]0:$A$1:$B$1;[11 -4115 0 2]0:$A$1:$B$1;saved:$A$1:$B$1"
+},
+{
+"middle": [
+20,
+1,
+21,
+1,
+17,
+1,
+14,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/16.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$B$1;0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[10 -4142 0 2]0:$A$1:$C$1;[11 -4142 0 2]0:$A$1:$C$1;saved:$A$1"
+},
+{
+"middle": [
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/17.xlsx"
+],
+"excel": "0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+22,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/18.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$2"
+},
+{
+"middle": [
+28,
+1,
+29,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/19.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;[7 -4142 0 2]0:$A$1:$A$2;saved:$A$1:$A$2"
+},
+{
+"middle": [
+28,
+1,
+29,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/20.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$2;0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$2"
+},
+{
+"middle": [
+30,
+1,
+31,
+1,
+29,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/21.xlsx"
+],
+"excel": "0:$C$1048576;0:$C$1048576;0:$C:$C;[7 -4142 0 2]0:$C:$C;[7 -4142 0 2]0:$C:$C;[7 -4142 0 2]0:$C:$C;[7 -4142 0 2]0:$C:$C;saved:$C:$C"
+},
+{
+"middle": [
+30,
+1,
+31,
+1,
+29,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/22.xlsx"
+],
+"excel": "0:$C$1048576;0:$C$1048576;0:$C:$C;0:$A:$C;[7 1 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;saved:$A:$C",
+"differs": "A right edge on rows 1 to 3 after rows 1 and 2's collection, with C1048576 formatted: Excel gives A3 a left line and counts columns A to C"
+},
+{
+"middle": [
+30,
+1,
+32,
+1,
+31,
+1,
+29,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/23.xlsx"
+],
+"excel": "0:$C$1048576;0:$A:$C;0:$A:$C;0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+30,
+1,
+32,
+1,
+31,
+1,
+29,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/24.xlsx"
+],
+"excel": "0:$C$1048576;0:$A:$C;0:$A:$C;0:$A:$C;0:$A:$C;[7 1 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;[7 -4142 0 2]0:$A:$C;saved:$A:$C",
+"differs": "The same with A1 filled too"
+},
+{
+"middle": [
+22,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/25.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$B$1:$D$3;[10 1 0 2]0:$B$1:$D$3;[7 -4142 0 2]0:$B$1:$D$3;[10 -4142 0 2]0:$B$1:$D$3;saved:$B$1:$D$3"
+},
+{
+"middle": [
+37,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/26.xlsx"
+],
+"excel": "0:$XFD$1;0:$B$1:$XFD$3;[10 -4142 0 2]0:$B$1:$XFD$3;[7 -4142 0 2]0:$B$1:$XFD$3;[10 -4142 0 2]0:$B$1:$XFD$3;saved:$B$1:$D$3"
+},
+{
+"middle": [
+38,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/27.xlsx"
+],
+"excel": "0:$A$1048576;0:$B:$D;[10 -4142 0 2]0:$B:$D;[7 -4142 0 2]0:$B:$D;[10 -4142 0 2]0:$B:$D;saved:$B:$D"
+},
+{
+"middle": [
+22,
+1,
+39,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/28.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$XFC$1:$XFC$2;0:$B$1:$XFC$3;[10 1 0 2]0:$B$1:$XFC$3;[7 -4142 0 2]0:$B$1:$XFC$3;[10 -4142 0 2]0:$B$1:$XFC$3;saved:$B$1:$XFC$3",
+"differs": "An inside horizontal's weight on B1:D3 after rows 1 and 2's collection and an inside vertical on XFD1: Excel counts B1:XFC3, the inside vertical having touched XFC1:XFC2"
+},
+{
+"middle": [
+22,
+1,
+40,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/29.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$A:$A;0:$B:$D;[10 1 0 2]0:$B:$D;[7 1 0 2]0:$B:$D;[10 1 0 2]0:$B:$D;saved:$B:$D",
+"differs": "The same after row 1048576 went bold instead: Excel lines B3's left and A3's right"
+},
+{
+"middle": [
+37,
+1,
+40,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/30.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD:$XFD;0:$B:$XFD;[10 -4142 0 2]0:$B:$XFD;[7 -4142 0 2]0:$B:$XFD;[10 -4142 0 2]0:$B:$XFD;saved:$B:$D"
+},
+{
+"middle": [
+22,
+1,
+39,
+1,
+40,
+1,
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/31.xlsx"
+],
+"excel": "0:$A$1:$A$2;0:$XFC$1:$XFC$2;0:$XFC:$XFC;0:$B:$XFC;[10 1 0 2]0:$B:$XFC;[7 1 0 2]0:$B:$XFC;[10 1 0 2]0:$B:$XFC;saved:$B:$XFC",
+"differs": "All three steps: Excel counts B:XFC and lines B3's left and A3's right"
+}
+]
+},
+{
+"name": "ur27",
+"about": "The collection over coloured lines, a range's edge under a block reaching below, a whole row's left edge, union outline copies, diagonals on whole columns",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"Rows(5).Borders(11).Color = 65280",
+"s = s & Err.Number & \":\" & ws.UsedRange.Address & \";\": Err.Clear",
+"ws.Rows(5).Borders.LineStyle = xlDash",
+"s = s & \"[7 \" & ws.Range(\"B5\").Borders(7).LineStyle & \" \" & ws.Range(\"B5\").Borders(7).Color & \" \" & ws.Range(\"B5\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"B5\").Borders(10).LineStyle & \" \" & ws.Range(\"B5\").Borders(10).Color & \" \" & ws.Range(\"B5\").Borders(10).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"B5\").Borders(8).LineStyle & \" \" & ws.Range(\"B5\").Borders(8).Color & \" \" & ws.Range(\"B5\").Borders(8",
+"ws.Rows(5).Borders.Weight = xlMedium",
+"Rows(1048576).Borders(11).Color = 65280",
+"ws.Rows(1048576).Borders.LineStyle = xlDash",
+"s = s & \"[7 \" & ws.Range(\"B1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"B1048576\").Borders(7).Color & \" \" & ws.Range(\"B1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"B1048576\").Borders(10).LineStyle & \" \" & ws.Range(\"B1048576\").Borders(10).Color & \" \" & ws.Range(\"B1048576\").Borders(10).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"B1048576\").Borders(8).LineStyle & \" \" & ws.Range(\"B1048576\").Borders(8).Color & \" \" & ws.Range(\"B1048576\").Borders(8",
+"ws.Rows(1048576).Borders.Weight = xlMedium",
+"Range(\"A5:C5\").Borders(11).Color = 65280",
+"ws.Range(\"A5:C5\").Borders.LineStyle = xlDash",
+"ws.Range(\"A5:C5\").Borders.Weight = xlMedium",
+"Range(\"B5\").Borders(7).Color = 65280",
+"Columns(\"B:C\").Borders(12).Color = 65280",
+"ws.Columns(\"B:C\").Borders.LineStyle = xlDash",
+"ws.Columns(\"B:C\").Borders.Weight = xlMedium",
+"Rows(5).Borders.LineStyle = xlDash",
+"Rows(5).Borders.Weight = xlMedium",
+"Range(\"A1\").Borders(7).LineStyle = xlDash",
+"ws.Range(\"A1:A3\").Borders(10).Color = 65280",
+"s = s & \"[7 \" & ws.Range(\"A1\").Borders(7).LineStyle & \" \" & ws.Range(\"A1\").Borders(7).Color & \" \" & ws.Range(\"A1\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"A2\").Borders(7).LineStyle & \" \" & ws.Range(\"A2\").Borders(7).Color & \" \" & ws.Range(\"A2\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"A3\").Borders(7).LineStyle & \" \" & ws.Range(\"A3\").Borders(7).Color & \" \" & ws.Range(\"A3\").Borders(7).Weight & \"]\"",
+"s = s & \"[9 \" & ws.Range(\"A3\").Borders(9).LineStyle & \" \" & ws.Range(\"A3\").Borders(9).Color & \" \" & ws.Range(\"A3\").Borders(9",
+"ws.Range(\"A1:A3\").Borders(10).LineStyle = xlContinuous",
+"ws.Range(\"A1:A3\").Borders(9).Color = 65280",
+"Range(\"A2\").Borders(7).LineStyle = xlDash",
+"ws.Range(\"A1\").Borders(8).Weight = xlMedium",
+"Range(\"A1\").Borders.LineStyle = xlDash",
+"Range(\"B1\").Borders(8).LineStyle = xlDash",
+"ws.Range(\"B1:D1\").Borders(9).Color = 65280",
+"s = s & \"[8 \" & ws.Range(\"C1\").Borders(8).LineStyle & \" \" & ws.Range(\"C1\").Borders(8).Color & \" \" & ws.Range(\"C1\").Borders(8).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"D1\").Borders(8).LineStyle & \" \" & ws.Range(\"D1\").Borders(8).Color & \" \" & ws.Range(\"D1\").Borders(8",
+"Rows(5).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"s = s & \"[7 \" & ws.Range(\"A5\").Borders(7).LineStyle & \" \" & ws.Range(\"A5\").Borders(7).Color & \" \" & ws.Range(\"A5\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"C5\").Borders(7).LineStyle & \" \" & ws.Range(\"C5\").Borders(7).Color & \" \" & ws.Range(\"C5\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"C5\").Borders(10).LineStyle & \" \" & ws.Range(\"C5\").Borders(10).Color & \" \" & ws.Range(\"C5\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"XFD5\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD5\").Borders(7).Color & \" \" & ws.Range(\"XFD5\").Borders(7",
+"Rows(5).Borders(7).Color = 255",
+"Rows(5).Borders(7).LineStyle = xlContinuous",
+"Rows(5).Borders(7).Weight = xlThick",
+"Rows(1048576).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"s = s & \"[7 \" & ws.Range(\"A1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(7).Color & \" \" & ws.Range(\"A1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"C1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"C1048576\").Borders(7).Color & \" \" & ws.Range(\"C1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"C1048576\").Borders(10).LineStyle & \" \" & ws.Range(\"C1048576\").Borders(10).Color & \" \" & ws.Range(\"C1048576\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"XFD1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD1048576\").Borders(7).Color & \" \" & ws.Range(\"XFD1048576\").Borders(7",
+"Rows(1048576).Borders(7).Color = 255",
+"Rows(1048576).Borders(7).LineStyle = xlContinuous",
+"Rows(1048576).Borders(7).Weight = xlThick",
+"Range(\"C5\").Value = 1",
+"ws.Rows(5).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"s = s & \"[10 \" & ws.Range(\"C5\").Borders(10).LineStyle & \" \" & ws.Range(\"C5\").Borders(10).Color & \" \" & ws.Range(\"C5\").Borders(10",
+"Range(\"B2\").Borders(9).Weight = xlThin",
+"ws.Range(\"B2,D3\").Borders(7).LineStyle = xlContinuous",
+"s = s & \"[7 \" & ws.Range(\"D3\").Borders(7).LineStyle & \" \" & ws.Range(\"D3\").Borders(7).Color & \" \" & ws.Range(\"D3\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"D3\").Borders(10).LineStyle & \" \" & ws.Range(\"D3\").Borders(10).Color & \" \" & ws.Range(\"D3\").Borders(10).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"D3\").Borders(8).LineStyle & \" \" & ws.Range(\"D3\").Borders(8).Color & \" \" & ws.Range(\"D3\").Borders(8).Weight & \"]\"",
+"s = s & \"[9 \" & ws.Range(\"D3\").Borders(9).LineStyle & \" \" & ws.Range(\"D3\").Borders(9).Color & \" \" & ws.Range(\"D3\").Borders(9",
+"ws.Range(\"B2,D3\").Borders(10).LineStyle = xlContinuous",
+"Columns(\"B:C\").Borders.LineStyle = xlDash",
+"Range(\"B2\").Borders(10).LineStyle = xlDash",
+"Range(\"B2\").Borders.LineStyle = xlDash",
+"Columns(\"XFD\").Borders(7).Weight = xlThin",
+"ws.Columns(\"XFD\").Borders(5).Weight = xlMedium",
+"s = s & \"[7 \" & ws.Range(\"XFD1\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(7).Color & \" \" & ws.Range(\"XFD1\").Borders(7).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"XFD1\").Borders(8).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(8).Color & \" \" & ws.Range(\"XFD1\").Borders(8).Weight & \"]\"",
+"s = s & \"[5 \" & ws.Range(\"XFD1\").Borders(5).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(5).Color & \" \" & ws.Range(\"XFD1\").Borders(5",
+"ws.Columns(\"XFD\").Borders(6).Weight = xlMedium",
+"s = s & \"[6 \" & ws.Range(\"XFD1\").Borders(6).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(6).Color & \" \" & ws.Range(\"XFD1\").Borders(6",
+"Columns(3).Borders(7).Weight = xlThin",
+"ws.Columns(3).Borders(5).Weight = xlMedium",
+"s = s & \"[7 \" & ws.Range(\"C1\").Borders(7).LineStyle & \" \" & ws.Range(\"C1\").Borders(7).Color & \" \" & ws.Range(\"C1\").Borders(7).Weight & \"]\"",
+"s = s & \"[5 \" & ws.Range(\"C1\").Borders(5).LineStyle & \" \" & ws.Range(\"C1\").Borders(5).Color & \" \" & ws.Range(\"C1\").Borders(5",
+"ws.Columns(3).Borders(6).Weight = xlMedium",
+"s = s & \"[6 \" & ws.Range(\"C1\").Borders(6).LineStyle & \" \" & ws.Range(\"C1\").Borders(6).Color & \" \" & ws.Range(\"C1\").Borders(6",
+"Rows(2).Borders(8).Weight = xlThin",
+"ws.Rows(2).Borders(5).Weight = xlMedium",
+"s = s & \"[8 \" & ws.Range(\"A2\").Borders(8).LineStyle & \" \" & ws.Range(\"A2\").Borders(8).Color & \" \" & ws.Range(\"A2\").Borders(8).Weight & \"]\"",
+"s = s & \"[5 \" & ws.Range(\"A2\").Borders(5).LineStyle & \" \" & ws.Range(\"A2\").Borders(5).Color & \" \" & ws.Range(\"A2\").Borders(5",
+"ws.Rows(2).Borders(6).Weight = xlMedium",
+"s = s & \"[6 \" & ws.Range(\"A2\").Borders(6).LineStyle & \" \" & ws.Range(\"A2\").Borders(6).Color & \" \" & ws.Range(\"A2\").Borders(6",
+"Range(\"C1\").Borders(7).Weight = xlThin",
+"ws.Range(\"C1\").Borders(5).Weight = xlMedium",
+"ws.Range(\"C1\").Borders(6).Weight = xlMedium"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0:$A$5;0:$A$5;[7 -4115 65280 2]0:$A$5;[10 -4115 65280 2]0:$A$5;[8 -4115 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+0,
+1,
+6,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0:$A$5;0:$A$4:$A$5;[7 1 65280 -4138]0:$A$4:$A$5;[10 1 65280 -4138]0:$A$4:$A$5;[8 1 0 -4138]0:$A$4:$A$5;saved:$A$4:$A$5"
+},
+{
+"middle": [
+7,
+1,
+8,
+1,
+9,
+1,
+10,
+1,
+11
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048576;[7 -4115 65280 2]0:$A$1048576;[10 -4115 65280 2]0:$A$1048576;[8 -4115 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+7,
+1,
+12,
+1,
+9,
+1,
+10,
+1,
+11
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0:$A$1048576;0:$A$1048575:$A$1048576;[7 1 65280 -4138]0:$A$1048575:$A$1048576;[10 1 65280 -4138]0:$A$1048575:$A$1048576;[8 1 0 -4138]0:$A$1048575:$A$1048576;saved:$A$1048575:$A$1048576"
+},
+{
+"middle": [
+13,
+1,
+14,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0:$A$5:$C$5;0:$A$5:$C$5;[7 -4115 0 2]0:$A$5:$C$5;[10 -4115 0 2]0:$A$5:$C$5;[8 -4115 0 2]0:$A$5:$C$5;saved:$A$5:$C$5"
+},
+{
+"middle": [
+13,
+1,
+15,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0:$A$5:$C$5;0:$A$4:$C$5;[7 1 0 -4138]0:$A$4:$C$5;[10 1 0 -4138]0:$A$4:$C$5;[8 1 0 -4138]0:$A$4:$C$5;saved:$A$4:$C$5"
+},
+{
+"middle": [
+16,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0:$B$5;0:$A$5;[7 -4115 0 2]0:$A$5;[10 -4115 0 2]0:$A$5;[8 -4115 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+16,
+1,
+6,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0:$B$5;0:$A$4:$A$5;[7 1 0 -4138]0:$A$4:$A$5;[10 1 0 -4138]0:$A$4:$A$5;[8 1 0 -4138]0:$A$4:$A$5;saved:$A$4:$A$5"
+},
+{
+"middle": [
+17,
+1,
+18,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0:$B$1:$C$1;0:$B$1:$C$1;[7 -4115 0 2]0:$B$1:$C$1;[10 -4115 0 2]0:$B$1:$C$1;[8 -4115 65280 2]0:$B$1:$C$1;saved:$B$1:$C$1"
+},
+{
+"middle": [
+17,
+1,
+19,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0:$B$1:$C$1;0:$B$1:$C$1;[7 1 0 -4138]0:$B$1:$C$1;[10 1 0 -4138]0:$B$1:$C$1;[8 1 65280 -4138]0:$B$1:$C$1;saved:$B$1:$C$1"
+},
+{
+"middle": [
+20,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0:$A$5;[7 -4115 0 2]0:$A$5;[10 -4115 0 2]0:$A$5;[8 -4115 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+21,
+1,
+3,
+1,
+4,
+1,
+5
+],
+"args": [
+"{folder}/11.xlsx"
+],
+"excel": "0:$A$4:$A$5;[7 1 0 -4138]0:$A$4:$A$5;[10 1 0 -4138]0:$A$4:$A$5;[8 1 0 -4138]0:$A$4:$A$5;saved:$A$4:$A$5"
+},
+{
+"middle": [
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/12.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+22,
+1,
+28,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/13.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+22,
+1,
+29,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/14.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 1 65280 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+30,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/15.xlsx"
+],
+"excel": "0:$A$2;0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+30,
+1,
+28,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/16.xlsx"
+],
+"excel": "0:$A$2;0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+30,
+1,
+29,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/17.xlsx"
+],
+"excel": "0:$A$2;0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 1 65280 2]0:$A$1:$A$3;saved:$A$2:$A$3"
+},
+{
+"middle": [
+22,
+1,
+31,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/18.xlsx"
+],
+"excel": "0:$A$1;0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+22,
+1,
+31,
+1,
+28,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/19.xlsx"
+],
+"excel": "0:$A$1;0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+22,
+1,
+31,
+1,
+29,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/20.xlsx"
+],
+"excel": "0:$A$1;0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 1 65280 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+32,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/21.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+32,
+1,
+28,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/22.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 -4142 0 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+32,
+1,
+29,
+1,
+24,
+1,
+25,
+1,
+26,
+1,
+27
+],
+"args": [
+"{folder}/23.xlsx"
+],
+"excel": "0:$A$1;0:$A$1:$A$3;[7 -4115 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[7 -4142 0 2]0:$A$1:$A$3;[9 1 65280 2]0:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+33,
+1,
+34,
+1,
+35,
+1,
+36
+],
+"args": [
+"{folder}/24.xlsx"
+],
+"excel": "0:$B$1;0:$B$1:$D$1;[8 -4142 0 2]0:$B$1:$D$1;[8 -4142 0 2]0:$B$1:$D$1;saved:$B$1:$D$1"
+},
+{
+"middle": [
+37,
+1,
+38,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/25.xlsx"
+],
+"excel": "0:$A$5;[7 -4142 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;[10 -4142 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;saved:$A$1"
+},
+{
+"middle": [
+42,
+1,
+38,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/26.xlsx"
+],
+"excel": "0:$A$5;[7 -4142 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;[10 -4142 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;saved:$A$1"
+},
+{
+"middle": [
+43,
+1,
+38,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/27.xlsx"
+],
+"excel": "0:$A$5;[7 1 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;[10 -4142 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+44,
+1,
+38,
+1,
+39,
+1,
+40,
+1,
+41
+],
+"args": [
+"{folder}/28.xlsx"
+],
+"excel": "0:$A$5;[7 1 0 4]0:$A$5;[7 -4142 0 2]0:$A$5;[10 -4142 0 2]0:$A$5;[7 -4142 0 2]0:$A$5;saved:$A$5"
+},
+{
+"middle": [
+45,
+1,
+46,
+1,
+47,
+1,
+48,
+1,
+49
+],
+"args": [
+"{folder}/29.xlsx"
+],
+"excel": "0:$A$1048576;[7 -4142 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;[10 -4142 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;saved:$A$1"
+},
+{
+"middle": [
+50,
+1,
+46,
+1,
+47,
+1,
+48,
+1,
+49
+],
+"args": [
+"{folder}/30.xlsx"
+],
+"excel": "0:$A$1048576;[7 -4142 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;[10 -4142 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;saved:$A$1"
+},
+{
+"middle": [
+51,
+1,
+46,
+1,
+47,
+1,
+48,
+1,
+49
+],
+"args": [
+"{folder}/31.xlsx"
+],
+"excel": "0:$A$1048576;[7 1 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;[10 -4142 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+52,
+1,
+46,
+1,
+47,
+1,
+48,
+1,
+49
+],
+"args": [
+"{folder}/32.xlsx"
+],
+"excel": "0:$A$1048576;[7 1 0 4]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;[10 -4142 0 2]0:$A$1048576;[7 -4142 0 2]0:$A$1048576;saved:$A$1048576"
+},
+{
+"middle": [
+53,
+1,
+54,
+1,
+38,
+1,
+39,
+1,
+55
+],
+"args": [
+"{folder}/33.xlsx"
+],
+"excel": "0:$C$5;0:$C$5;[7 -4142 0 2]0:$C$5;[7 -4142 0 2]0:$C$5;[10 -4142 0 2]0:$C$5;saved:$C$5"
+},
+{
+"middle": [
+56,
+1,
+18,
+1,
+57,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/34.xlsx"
+],
+"excel": "0:$B$2;0:$B$1:$C$1;0:$B$2:$D$3;[7 1 0 2]0:$B$2:$D$3;[10 -4115 0 2]0:$B$2:$D$3;[8 -4142 0 2]0:$B$2:$D$3;[9 -4142 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+56,
+1,
+18,
+1,
+62,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/35.xlsx"
+],
+"excel": "0:$B$2;0:$B$1:$C$1;0:$B$2:$D$3;[7 -4115 0 2]0:$B$2:$D$3;[10 1 0 2]0:$B$2:$D$3;[8 -4142 0 2]0:$B$2:$D$3;[9 -4142 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+63,
+1,
+57,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/36.xlsx"
+],
+"excel": "0:$B$1:$C$1;0:$B$2:$D$3;[7 1 0 2]0:$B$2:$D$3;[10 -4115 0 2]0:$B$2:$D$3;[8 -4142 0 2]0:$B$2:$D$3;[9 -4142 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+63,
+1,
+62,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/37.xlsx"
+],
+"excel": "0:$B$1:$C$1;0:$B$2:$D$3;[7 -4115 0 2]0:$B$2:$D$3;[10 1 0 2]0:$B$2:$D$3;[8 -4142 0 2]0:$B$2:$D$3;[9 -4142 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+64,
+1,
+57,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/38.xlsx"
+],
+"excel": "0:$B$2;0:$B$2:$D$3;[7 1 0 2]0:$B$2:$D$3;[10 -4142 0 2]0:$B$2:$D$3;[8 -4142 0 2]0:$B$2:$D$3;[9 -4142 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+64,
+1,
+62,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/39.xlsx"
+],
+"excel": "0:$B$2;0:$B$2:$D$3;[7 -4142 0 2]0:$B$2:$D$3;[10 1 0 2]0:$B$2:$D$3;[8 -4142 0 2]0:$B$2:$D$3;[9 -4142 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+65,
+1,
+57,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/40.xlsx"
+],
+"excel": "0:$B$2;0:$B$2:$D$3;[7 1 0 2]0:$B$2:$D$3;[10 -4142 0 2]0:$B$2:$D$3;[8 -4115 0 2]0:$B$2:$D$3;[9 -4115 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+65,
+1,
+62,
+1,
+58,
+1,
+59,
+1,
+60,
+1,
+61
+],
+"args": [
+"{folder}/41.xlsx"
+],
+"excel": "0:$B$2;0:$B$2:$D$3;[7 -4142 0 2]0:$B$2:$D$3;[10 1 0 2]0:$B$2:$D$3;[8 -4115 0 2]0:$B$2:$D$3;[9 -4115 0 2]0:$B$2:$D$3;saved:$B$2:$D$3"
+},
+{
+"middle": [
+66,
+1,
+67,
+1,
+68,
+1,
+69,
+1,
+70
+],
+"args": [
+"{folder}/42.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;[7 1 0 2]0:$XFD$1;[8 -4142 0 2]0:$XFD$1;[5 1 0 -4138]0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+66,
+1,
+71,
+1,
+68,
+1,
+69,
+1,
+72
+],
+"args": [
+"{folder}/43.xlsx"
+],
+"excel": "0:$XFD$1;0:$XFD$1;[7 1 0 2]0:$XFD$1;[8 -4142 0 2]0:$XFD$1;[6 1 0 -4138]0:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+73,
+1,
+74,
+1,
+75,
+1,
+35,
+1,
+76
+],
+"args": [
+"{folder}/44.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;[7 1 0 2]0:$C$1;[8 -4142 0 2]0:$C$1;[5 1 0 -4138]0:$C$1;saved:$C$1"
+},
+{
+"middle": [
+73,
+1,
+77,
+1,
+75,
+1,
+35,
+1,
+78
+],
+"args": [
+"{folder}/45.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;[7 1 0 2]0:$C$1;[8 -4142 0 2]0:$C$1;[6 1 0 -4138]0:$C$1;saved:$C$1"
+},
+{
+"middle": [
+79,
+1,
+80,
+1,
+25,
+1,
+81,
+1,
+82
+],
+"args": [
+"{folder}/46.xlsx"
+],
+"excel": "0:$A$2;0:$A$2;[7 -4142 0 2]0:$A$2;[8 1 0 2]0:$A$2;[5 1 0 -4138]0:$A$2;saved:$A$2"
+},
+{
+"middle": [
+79,
+1,
+83,
+1,
+25,
+1,
+81,
+1,
+84
+],
+"args": [
+"{folder}/47.xlsx"
+],
+"excel": "0:$A$2;0:$A$2;[7 -4142 0 2]0:$A$2;[8 1 0 2]0:$A$2;[6 1 0 -4138]0:$A$2;saved:$A$2"
+},
+{
+"middle": [
+85,
+1,
+86,
+1,
+75,
+1,
+35,
+1,
+76
+],
+"args": [
+"{folder}/48.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;[7 1 0 2]0:$C$1;[8 -4142 0 2]0:$C$1;[5 1 0 -4138]0:$C$1;saved:$C$1"
+},
+{
+"middle": [
+85,
+1,
+87,
+1,
+75,
+1,
+35,
+1,
+78
+],
+"args": [
+"{folder}/49.xlsx"
+],
+"excel": "0:$C$1;0:$C$1;[7 1 0 2]0:$C$1;[8 -4142 0 2]0:$C$1;[6 1 0 -4138]0:$C$1;saved:$C$1"
+}
+]
+},
+{
+"name": "ur29",
+"about": "What far from the target changes an edge or a diagonal, with no UsedRange read between steps",
+"entry": "M.Probe",
+"prefix": "Public Function Probe(path As String) As String\nDim wb, ws, s: Application.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\ns = \"\"\nOn Error Resume Next\nws.",
+"suffix": ").Weight & \"]\"\ns = s & Err.Number & \";\": Err.Clear\ns = s & \"end:\" & ws.UsedRange.Address & \";\"\nwb.SaveAs path, 51: wb.Close False\nSet wb = Workbooks.Open(path): Set ws = wb.Worksheets(1)\ns = s & \"saved:\" & ws.UsedRange.Address\nwb.Close False\nProbe = s\nEnd Function\n",
+"lines": [
+"Range(\"C1048576\").Borders(7).LineStyle = xlDashDot",
+"s = s & Err.Number & \";\": Err.Clear",
+"ws.Range(\"A1\").Borders(7).LineStyle = xlDash",
+"ws.Range(\"A1:A3\").Borders(10).Color = 65280",
+"s = s & \"[7 \" & ws.Range(\"A2\").Borders(7).LineStyle & \" \" & ws.Range(\"A2\").Borders(7).Color & \" \" & ws.Range(\"A2\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"A3\").Borders(7).LineStyle & \" \" & ws.Range(\"A3\").Borders(7).Color & \" \" & ws.Range(\"A3\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"A3\").Borders(10).LineStyle & \" \" & ws.Range(\"A3\").Borders(10).Color & \" \" & ws.Range(\"A3\").Borders(10",
+"ws.Range(\"A1:A3\").Borders(9).Color = 65280",
+"ws.Range(\"A1:A3\").Borders(7).Color = 65280",
+"Range(\"C1048576\").Value = 1",
+"Range(\"C1048576\").Interior.Color = 65535",
+"Range(\"C500\").Borders(7).LineStyle = xlDashDot",
+"Range(\"XFD1\").Borders(7).LineStyle = xlDashDot",
+"Range(\"A1\").Borders(7).LineStyle = xlDash",
+"ws.Range(\"A1\").Borders(8).LineStyle = xlDash",
+"s = s & \"[8 \" & ws.Range(\"A2\").Borders(8).LineStyle & \" \" & ws.Range(\"A2\").Borders(8).Color & \" \" & ws.Range(\"A2\").Borders(8).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"A3\").Borders(8).LineStyle & \" \" & ws.Range(\"A3\").Borders(8).Color & \" \" & ws.Range(\"A3\").Borders(8",
+"ws.Range(\"B1\").Borders(8).LineStyle = xlDash",
+"ws.Range(\"B1:D1\").Borders(9).Color = 65280",
+"s = s & \"[8 \" & ws.Range(\"C1\").Borders(8).LineStyle & \" \" & ws.Range(\"C1\").Borders(8).Color & \" \" & ws.Range(\"C1\").Borders(8).Weight & \"]\"",
+"s = s & \"[8 \" & ws.Range(\"D1\").Borders(8).LineStyle & \" \" & ws.Range(\"D1\").Borders(8).Color & \" \" & ws.Range(\"D1\").Borders(8",
+"Range(\"A3\").Borders(8).LineStyle = xlSlantDashDot",
+"ws.Rows(1048576).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"s = s & \"[7 \" & ws.Range(\"A1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(7).Color & \" \" & ws.Range(\"A1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"A1048576\").Borders(10).LineStyle & \" \" & ws.Range(\"A1048576\").Borders(10).Color & \" \" & ws.Range(\"A1048576\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"C1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"C1048576\").Borders(7).Color & \" \" & ws.Range(\"C1048576\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"XFD1048576\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD1048576\").Borders(7).Color & \" \" & ws.Range(\"XFD1048576\").Borders(7",
+"ws.Rows(1048576).Borders(7).Color = 255",
+"ws.Rows(5).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"s = s & \"[7 \" & ws.Range(\"A5\").Borders(7).LineStyle & \" \" & ws.Range(\"A5\").Borders(7).Color & \" \" & ws.Range(\"A5\").Borders(7).Weight & \"]\"",
+"s = s & \"[10 \" & ws.Range(\"A5\").Borders(10).LineStyle & \" \" & ws.Range(\"A5\").Borders(10).Color & \" \" & ws.Range(\"A5\").Borders(10).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"C5\").Borders(7).LineStyle & \" \" & ws.Range(\"C5\").Borders(7).Color & \" \" & ws.Range(\"C5\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"XFD5\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD5\").Borders(7).Color & \" \" & ws.Range(\"XFD5\").Borders(7",
+"Range(\"A3\").Value = 1",
+"Range(\"C3\").Borders(8).LineStyle = xlSlantDashDot",
+"Range(\"A3\").Borders(7).Color = 255",
+"Rows(1048576).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"Rows(1048576).Borders(7).Color = 255",
+"Rows(5).Borders(7).ColorIndex = xlColorIndexAutomatic",
+"Columns(\"XFD\").Borders(7).Weight = xlThin",
+"ws.Range(\"A1:C3\").Borders(9).Weight = xlThick",
+"ws.Columns(\"XFD\").Borders(5).Weight = xlMedium",
+"s = s & \"[7 \" & ws.Range(\"XFD1\").Borders(7).LineStyle & \" \" & ws.Range(\"XFD1\").Borders(7).Color & \" \" & ws.Range(\"XFD1\").Borders(7).Weight & \"]\"",
+"ws.Columns(\"XFD\").Borders(6).Weight = xlMedium",
+"ws.Range(\"A1\").Borders.LineStyle = xlContinuous",
+"ws.Rows(\"1:2\").Borders(10).Color = 5",
+"Columns(3).Borders(7).Weight = xlThin",
+"ws.Range(\"A1:B3\").Borders(9).Weight = xlThick",
+"ws.Columns(3).Borders(5).Weight = xlMedium",
+"s = s & \"[7 \" & ws.Range(\"C1\").Borders(7).LineStyle & \" \" & ws.Range(\"C1\").Borders(7).Color & \" \" & ws.Range(\"C1\").Borders(7).Weight & \"]\"",
+"s = s & \"[7 \" & ws.Range(\"C9\").Borders(7).LineStyle & \" \" & ws.Range(\"C9\").Borders(7).Color & \" \" & ws.Range(\"C9\").Borders(7"
+],
+"cases": [
+{
+"middle": [
+0,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/0.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 1 65280 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+7,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/1.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+0,
+1,
+2,
+1,
+8,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/2.xlsx"
+],
+"excel": "0;0;0;[7 -4115 65280 2]0;[7 -4115 65280 2]0;[10 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+9,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/3.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 1 65280 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+9,
+1,
+2,
+1,
+7,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/4.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+9,
+1,
+2,
+1,
+8,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/5.xlsx"
+],
+"excel": "0;0;0;[7 -4115 65280 2]0;[7 -4115 65280 2]0;[10 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+10,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/6.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 1 65280 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+10,
+1,
+2,
+1,
+7,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/7.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+10,
+1,
+2,
+1,
+8,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/8.xlsx"
+],
+"excel": "0;0;0;[7 -4115 65280 2]0;[7 -4115 65280 2]0;[10 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+11,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/9.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 1 65280 2]0;end:$A$1:$C$500;saved:$A$1:$C$500"
+},
+{
+"middle": [
+11,
+1,
+2,
+1,
+7,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/10.xlsx"
+],
+"excel": "0;0;0;[7 -4115 0 2]0;[7 -4115 0 2]0;[10 -4142 0 2]0;end:$A$1:$C$500;saved:$A$1:$C$500"
+},
+{
+"middle": [
+11,
+1,
+2,
+1,
+8,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/11.xlsx"
+],
+"excel": "0;0;0;[7 -4115 65280 2]0;[7 -4115 65280 2]0;[10 -4142 0 2]0;end:$A$1:$C$500;saved:$A$1:$C$500"
+},
+{
+"middle": [
+12,
+1,
+2,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/12.xlsx"
+],
+"excel": "0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;[10 1 65280 2]0;end:$1:$3;saved:$1:$3"
+},
+{
+"middle": [
+12,
+1,
+2,
+1,
+7,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/13.xlsx"
+],
+"excel": "0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;[10 -4142 0 2]0;end:$1:$3;saved:$1:$3"
+},
+{
+"middle": [
+12,
+1,
+2,
+1,
+8,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/14.xlsx"
+],
+"excel": "0;0;0;[7 -4115 65280 2]0;[7 -4115 65280 2]0;[10 -4142 0 2]0;end:$1:$3;saved:$1:$3"
+},
+{
+"middle": [
+13,
+1,
+3,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/15.xlsx"
+],
+"excel": "0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;[10 1 65280 2]0;end:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+13,
+1,
+7,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/16.xlsx"
+],
+"excel": "0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;[10 -4142 0 2]0;end:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+13,
+1,
+8,
+1,
+4,
+1,
+5,
+1,
+6
+],
+"args": [
+"{folder}/17.xlsx"
+],
+"excel": "0;0;[7 -4115 65280 2]0;[7 -4115 65280 2]0;[10 -4142 0 2]0;end:$A$1:$A$3;saved:$A$1:$A$3"
+},
+{
+"middle": [
+0,
+1,
+14,
+1,
+3,
+1,
+15,
+1,
+16
+],
+"args": [
+"{folder}/18.xlsx"
+],
+"excel": "0;0;0;[8 -4142 0 2]0;[8 -4142 0 2]0;end:$A:$C;saved:$A:$C"
+},
+{
+"middle": [
+0,
+1,
+17,
+1,
+18,
+1,
+19,
+1,
+20
+],
+"args": [
+"{folder}/19.xlsx"
+],
+"excel": "0;0;0;[8 -4142 0 2]0;[8 -4142 0 2]0;end:$B:$D;saved:$B:$D"
+},
+{
+"middle": [
+21,
+1,
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/20.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[10 1 0 2]0;[7 1 0 2]0;[7 1 0 2]0;end:$A$2:$A$1048576;saved:$A$2:$A$1048576"
+},
+{
+"middle": [
+21,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/21.xlsx"
+],
+"excel": "0;0;[7 1 255 2]0;[10 1 255 2]0;[7 1 255 2]0;[7 1 255 2]0;end:$A$2:$A$1048576;saved:$A$2:$A$1048576"
+},
+{
+"middle": [
+21,
+1,
+28,
+1,
+29,
+1,
+30,
+1,
+31,
+1,
+32
+],
+"args": [
+"{folder}/22.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$A$2:$A$5;saved:$A$2:$A$5"
+},
+{
+"middle": [
+33,
+1,
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/23.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[10 1 0 2]0;[7 1 0 2]0;[7 1 0 2]0;end:$A$3:$A$1048576;saved:$A$3:$A$1048576"
+},
+{
+"middle": [
+33,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/24.xlsx"
+],
+"excel": "0;0;[7 1 255 2]0;[10 1 255 2]0;[7 1 255 2]0;[7 1 255 2]0;end:$A$3:$A$1048576;saved:$A$3:$A$1048576"
+},
+{
+"middle": [
+33,
+1,
+28,
+1,
+29,
+1,
+30,
+1,
+31,
+1,
+32
+],
+"args": [
+"{folder}/25.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$A$3:$A$5;saved:$A$3:$A$5"
+},
+{
+"middle": [
+34,
+1,
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/26.xlsx"
+],
+"excel": "0;0;[7 -4142 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$C$2:$C$1048576;saved:$C$2:$C$3"
+},
+{
+"middle": [
+34,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/27.xlsx"
+],
+"excel": "0;0;[7 -4142 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$C$2:$C$1048576;saved:$C$2:$C$3"
+},
+{
+"middle": [
+34,
+1,
+28,
+1,
+29,
+1,
+30,
+1,
+31,
+1,
+32
+],
+"args": [
+"{folder}/28.xlsx"
+],
+"excel": "0;0;[7 -4142 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$C$2:$C$5;saved:$C$2:$C$3"
+},
+{
+"middle": [
+35,
+1,
+22,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/29.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[10 1 0 2]0;[7 1 0 2]0;[7 1 0 2]0;end:$A$3:$A$1048576;saved:$A$3:$A$1048576"
+},
+{
+"middle": [
+35,
+1,
+27,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/30.xlsx"
+],
+"excel": "0;0;[7 1 255 2]0;[10 1 255 2]0;[7 1 255 2]0;[7 1 255 2]0;end:$A$3:$A$1048576;saved:$A$3:$A$1048576"
+},
+{
+"middle": [
+35,
+1,
+28,
+1,
+29,
+1,
+30,
+1,
+31,
+1,
+32
+],
+"args": [
+"{folder}/31.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$A$3:$A$5;saved:$A$3:$A$5"
+},
+{
+"middle": [
+36,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/32.xlsx"
+],
+"excel": "0;[7 -4142 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$A$1048576;saved:$A$1"
+},
+{
+"middle": [
+37,
+1,
+23,
+1,
+24,
+1,
+25,
+1,
+26
+],
+"args": [
+"{folder}/33.xlsx"
+],
+"excel": "0;[7 -4142 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$A$1048576;saved:$A$1"
+},
+{
+"middle": [
+38,
+1,
+29,
+1,
+30,
+1,
+31,
+1,
+32
+],
+"args": [
+"{folder}/34.xlsx"
+],
+"excel": "0;[7 -4142 0 2]0;[10 -4142 0 2]0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$A$5;saved:$A$1"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+41,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/35.xlsx"
+],
+"excel": "0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$A$3:$XFC$4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+43,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/36.xlsx"
+],
+"excel": "0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$A$3:$XFC$4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+44,
+1,
+41,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/37.xlsx"
+],
+"excel": "0;0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$A$1:$XFC$4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+44,
+1,
+43,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/38.xlsx"
+],
+"excel": "0;0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$A$1:$XFC$4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+45,
+1,
+41,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/39.xlsx"
+],
+"excel": "0;0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$1:$4",
+"differs": "UsedRange after a save and reopen: Excel counts rows 1 to 4 whole, the model A3:XFC4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+45,
+1,
+43,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/40.xlsx"
+],
+"excel": "0;0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$1:$4",
+"differs": "UsedRange after a save and reopen: Excel counts rows 1 to 4 whole, the model A3:XFC4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+44,
+1,
+45,
+1,
+41,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/41.xlsx"
+],
+"excel": "0;0;0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$1:$4",
+"differs": "UsedRange after a save and reopen: Excel counts rows 1 to 4 whole, the model A1:XFC4"
+},
+{
+"middle": [
+39,
+1,
+40,
+1,
+44,
+1,
+45,
+1,
+43,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/42.xlsx"
+],
+"excel": "0;0;0;0;0;[7 -4142 0 2]0;[7 -4142 0 2]0;end:$1:$4;saved:$1:$4",
+"differs": "UsedRange after a save and reopen: Excel counts rows 1 to 4 whole, the model A1:XFC4"
+},
+{
+"middle": [
+39,
+1,
+41,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/43.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[7 1 0 2]0;end:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+39,
+1,
+43,
+1,
+42,
+1,
+26
+],
+"args": [
+"{folder}/44.xlsx"
+],
+"excel": "0;0;[7 1 0 2]0;[7 1 0 2]0;end:$XFD$1;saved:$A$1:$XFC$1"
+},
+{
+"middle": [
+46,
+1,
+47,
+1,
+48,
+1,
+49,
+1,
+50
+],
+"args": [
+"{folder}/45.xlsx"
+],
+"excel": "0;0;0;[7 1 0 2]0;[7 1 0 2]0;end:$A$1:$C$4;saved:$A$1:$C$4",
+"differs": "UsedRange after a save and reopen: Excel counts A1:C4, the model A3:C4"
+}
+]
 }
 ]
 }

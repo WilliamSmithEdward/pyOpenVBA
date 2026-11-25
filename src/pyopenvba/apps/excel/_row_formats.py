@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import contextlib
 import functools
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Generator, Iterable
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -175,7 +175,7 @@ _Formatter = TypeVar("_Formatter", bound=Callable[..., None])
 
 
 @contextlib.contextmanager
-def one_statement(sheet: Worksheet) -> Iterator[None]:
+def one_statement(sheet: Worksheet) -> Generator[None, None, None]:
     """One change a macro makes: the cells standing before it are the ones Excel has (see Worksheet.unread_dropped).
     Nested calls keep the outermost snapshot."""
     if sheet.statement_cells is not None:

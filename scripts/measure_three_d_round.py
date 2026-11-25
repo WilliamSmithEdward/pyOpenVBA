@@ -282,8 +282,20 @@ ROUNDS[13] = ([f't.SetPresetCamera 25: t.Depth = 6: t.BevelTopType = msoBevelSlo
                't.Z = 0: t.Visible = msoFalse', 't.Perspective = 0: t.Perspective = -1', 't.Perspective = 3', 't.Perspective = 0.4',
                't.SetPresetCamera 14: t.Perspective = -3', 't.Visible = -5: t.Z = 1', f't.SetThreeDFormat 19{AGAIN}t.RotationZ = 0',
                f't.SetThreeDFormat 7: t.BevelBottomDepth = 0{AGAIN}t.BevelBottomDepth = 0', f't.Z = 0{AGAIN}t.Z = 2', f't.SetThreeDFormat 12{AGAIN}t.IncrementRotationZ 0'])
+#: Rounds 14 and 15, held out on the code that answered rounds 12 and 13.
+_NEAR = ['t.Perspective = 1: t.Perspective = -1', 't.SetPresetCamera 15: t.Perspective = -3', 't.SetPresetCamera 3: t.Perspective = 1',
+         't.Perspective = -1: t.Perspective = 1', 't.Depth = 2: t.Visible = msoFalse: t.Perspective = msoFalse', 't.Z = 4: t.Visible = msoFalse: t.SetThreeDFormat 6',
+         't.RotationX = 10: t.Visible = msoFalse: t.SetThreeDFormat 11', 't.SetThreeDFormat 3: t.Visible = msoFalse: t.Perspective = msoTrue',
+         't.Depth = 3: t.Visible = 2', 't.Depth = 3: t.Visible = msoFalse: t.Visible = 3', 't.SetThreeDFormat 9: t.Visible = 3: t.Visible = msoFalse',
+         't.PresetLighting = 0', 't.PresetMaterial = -1', 't.SetPresetCamera 0', 't.ExtrusionColorType = 3', 't.FieldOfView = -1',
+         't.ContourWidth = -1', 't.BevelTopType = 0', f't.Depth = 4: t.Visible = msoFalse{AGAIN}t.SetThreeDFormat 14',
+         f't.LightAngle = 30: t.Visible = msoFalse{AGAIN}t.Perspective = msoTrue', f't.SetPresetCamera 17{AGAIN}t.Perspective = -3']
+ROUNDS[14] = ([f't.PresetLighting = 20: t.BevelTopType = msoBevelAngle{AGAIN}{statement}' for statement in _KINDS] +
+              [f't.SetPresetCamera 40: t.Visible = msoFalse: {statement}' for statement in _KINDS] + _NEAR)
+ROUNDS[15] = ([f't.Z = 3: t.ContourWidth = 2: t.Visible = msoFalse{AGAIN}{statement}' for statement in _KINDS] +
+              [f't.SetThreeDFormat 16: t.PresetMaterial = 5: {statement}' for statement in _KINDS] + _NEAR)
 #: The shapes of each round where not all of them.
-ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text'], 11: ['rect'], 12: ['oval'], 13: ['text']}
+ROUND_SHAPES = {2: ['rect', 'text'], 3: ['rect', 'text'], 11: ['rect'], 12: ['oval'], 13: ['text'], 14: ['rect'], 15: ['oval']}
 ROUND = 1
 
 

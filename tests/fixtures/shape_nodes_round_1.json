@@ -1,0 +1,3546 @@
+{
+ "reads": [
+  "TypeName(n)",
+  "TypeName(n.Parent)",
+  "n.Count",
+  "sh.Left",
+  "sh.Top",
+  "sh.Width",
+  "sh.Height",
+  "sh.Type",
+  "sh.AutoShapeType",
+  "ws.Shapes.Count"
+ ],
+ "cases": [
+  [
+   "open",
+   "",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 1",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 2",
+   false
+  ],
+  [
+   "open",
+   "n.Delete n.Count",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 0",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 99",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 2: n.Delete 2",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 30, 30",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition n.Count, 5, 150",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 60.5, 20.25",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 1, -20, -20",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 0, 30, 30",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 99, 30, 30",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 2000, 2000",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, msoEditingSmooth",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, msoEditingAuto",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 3, msoEditingSmooth",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 4, msoEditingSmooth",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, 9",
+   false
+  ],
+  [
+   "open",
+   "n.SetEditingType 0, msoEditingCorner",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, msoSegmentLine",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 4, msoSegmentLine",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, 9",
+   false
+  ],
+  [
+   "open",
+   "n.SetSegmentType 0, msoSegmentLine",
+   false
+  ],
+  [
+   "open",
+   "TypeName(n.Application)",
+   false
+  ],
+  [
+   "open",
+   "For Each o In n: s = s & \"+\": Next",
+   false
+  ],
+  [
+   "open",
+   "n.Item(2).Points",
+   false
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 70, 30 || ",
+   false
+  ],
+  [
+   "open",
+   "n.Delete 2 || ",
+   false
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   false
+  ],
+  [
+   "open",
+   " || n.SetPosition 2, 70, 30",
+   false
+  ],
+  [
+   "open",
+   " || n.Delete 2",
+   false
+  ],
+  [
+   "closed",
+   "",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 1",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 2",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete n.Count",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 0",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 99",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 2: n.Delete 2",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 30, 30",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition n.Count, 5, 150",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 60.5, 20.25",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, -20, -20",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 0, 30, 30",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 99, 30, 30",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 2000, 2000",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, msoEditingSmooth",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, msoEditingAuto",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 3, msoEditingSmooth",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 4, msoEditingSmooth",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, 9",
+   false
+  ],
+  [
+   "closed",
+   "n.SetEditingType 0, msoEditingCorner",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, msoSegmentLine",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 4, msoSegmentLine",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, 9",
+   false
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 0, msoSegmentLine",
+   false
+  ],
+  [
+   "closed",
+   "TypeName(n.Application)",
+   false
+  ],
+  [
+   "closed",
+   "For Each o In n: s = s & \"+\": Next",
+   false
+  ],
+  [
+   "closed",
+   "n.Item(2).Points",
+   false
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 70, 30 || ",
+   false
+  ],
+  [
+   "closed",
+   "n.Delete 2 || ",
+   false
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   false
+  ],
+  [
+   "closed",
+   " || n.SetPosition 2, 70, 30",
+   false
+  ],
+  [
+   "closed",
+   " || n.Delete 2",
+   false
+  ],
+  [
+   "curve",
+   "",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete 1",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete 2",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete n.Count",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete 0",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete 99",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete 2: n.Delete 2",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 1, 30, 30",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition n.Count, 5, 150",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 60.5, 20.25",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 1, -20, -20",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 0, 30, 30",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 99, 30, 30",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 2000, 2000",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, msoEditingSmooth",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, msoEditingAuto",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 3, msoEditingSmooth",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 4, msoEditingSmooth",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, 9",
+   false
+  ],
+  [
+   "curve",
+   "n.SetEditingType 0, msoEditingCorner",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 2, msoSegmentLine",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 4, msoSegmentLine",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 2, 9",
+   false
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 0, msoSegmentLine",
+   false
+  ],
+  [
+   "curve",
+   "TypeName(n.Application)",
+   false
+  ],
+  [
+   "curve",
+   "For Each o In n: s = s & \"+\": Next",
+   false
+  ],
+  [
+   "curve",
+   "n.Item(2).Points",
+   false
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 70, 30 || ",
+   false
+  ],
+  [
+   "curve",
+   "n.Delete 2 || ",
+   false
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   false
+  ],
+  [
+   "curve",
+   " || n.SetPosition 2, 70, 30",
+   false
+  ],
+  [
+   "curve",
+   " || n.Delete 2",
+   false
+  ],
+  [
+   "mixed",
+   "",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete 1",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete 2",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete n.Count",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete 0",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete 99",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete 2: n.Delete 2",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 1, 30, 30",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 200, 5",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition n.Count, 5, 150",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 60.5, 20.25",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 1, -20, -20",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 0, 30, 30",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 99, 30, 30",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 2000, 2000",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 1, msoEditingCorner",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, msoEditingSmooth",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, msoEditingAuto",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 3, msoEditingSmooth",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 4, msoEditingSmooth",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, 9",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 0, msoEditingCorner",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 2, msoSegmentLine",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 4, msoSegmentLine",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 2, 9",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 0, msoSegmentLine",
+   false
+  ],
+  [
+   "mixed",
+   "TypeName(n.Application)",
+   false
+  ],
+  [
+   "mixed",
+   "For Each o In n: s = s & \"+\": Next",
+   false
+  ],
+  [
+   "mixed",
+   "n.Item(2).Points",
+   false
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 70, 30 || ",
+   false
+  ],
+  [
+   "mixed",
+   "n.Delete 2 || ",
+   false
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   false
+  ],
+  [
+   "mixed",
+   " || n.SetPosition 2, 70, 30",
+   false
+  ],
+  [
+   "mixed",
+   " || n.Delete 2",
+   false
+  ],
+  [
+   "open",
+   "",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 1",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 2",
+   true
+  ],
+  [
+   "open",
+   "n.Delete n.Count",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 0",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 99",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 2: n.Delete 2",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, 30, 30",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition n.Count, 5, 150",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 60.5, 20.25",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 1, -20, -20",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 0, 30, 30",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 99, 30, 30",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 2000, 2000",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, msoEditingSmooth",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, msoEditingAuto",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 3, msoEditingSmooth",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 4, msoEditingSmooth",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 2, 9",
+   true
+  ],
+  [
+   "open",
+   "n.SetEditingType 0, msoEditingCorner",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, msoSegmentLine",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 4, msoSegmentLine",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 2, 9",
+   true
+  ],
+  [
+   "open",
+   "n.SetSegmentType 0, msoSegmentLine",
+   true
+  ],
+  [
+   "open",
+   "TypeName(n.Application)",
+   true
+  ],
+  [
+   "open",
+   "For Each o In n: s = s & \"+\": Next",
+   true
+  ],
+  [
+   "open",
+   "n.Item(2).Points",
+   true
+  ],
+  [
+   "open",
+   "n.SetPosition 2, 70, 30 || ",
+   true
+  ],
+  [
+   "open",
+   "n.Delete 2 || ",
+   true
+  ],
+  [
+   "open",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   true
+  ],
+  [
+   "open",
+   " || n.SetPosition 2, 70, 30",
+   true
+  ],
+  [
+   "open",
+   " || n.Delete 2",
+   true
+  ],
+  [
+   "closed",
+   "",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 1",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 2",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete n.Count",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 0",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 99",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 2: n.Delete 2",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, 30, 30",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition n.Count, 5, 150",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 60.5, 20.25",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 1, -20, -20",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 0, 30, 30",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 99, 30, 30",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 2000, 2000",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, msoEditingSmooth",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, msoEditingAuto",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 3, msoEditingSmooth",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 4, msoEditingSmooth",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 2, 9",
+   true
+  ],
+  [
+   "closed",
+   "n.SetEditingType 0, msoEditingCorner",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, msoSegmentLine",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 4, msoSegmentLine",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 2, 9",
+   true
+  ],
+  [
+   "closed",
+   "n.SetSegmentType 0, msoSegmentLine",
+   true
+  ],
+  [
+   "closed",
+   "TypeName(n.Application)",
+   true
+  ],
+  [
+   "closed",
+   "For Each o In n: s = s & \"+\": Next",
+   true
+  ],
+  [
+   "closed",
+   "n.Item(2).Points",
+   true
+  ],
+  [
+   "closed",
+   "n.SetPosition 2, 70, 30 || ",
+   true
+  ],
+  [
+   "closed",
+   "n.Delete 2 || ",
+   true
+  ],
+  [
+   "closed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   true
+  ],
+  [
+   "closed",
+   " || n.SetPosition 2, 70, 30",
+   true
+  ],
+  [
+   "closed",
+   " || n.Delete 2",
+   true
+  ],
+  [
+   "curve",
+   "",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete 1",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete 2",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete n.Count",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete 0",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete 99",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete 2: n.Delete 2",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 1, 30, 30",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition n.Count, 5, 150",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 60.5, 20.25",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 1, -20, -20",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 0, 30, 30",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 99, 30, 30",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 2000, 2000",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, msoEditingSmooth",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, msoEditingAuto",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 3, msoEditingSmooth",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 4, msoEditingSmooth",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 2, 9",
+   true
+  ],
+  [
+   "curve",
+   "n.SetEditingType 0, msoEditingCorner",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 2, msoSegmentLine",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 4, msoSegmentLine",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 2, 9",
+   true
+  ],
+  [
+   "curve",
+   "n.SetSegmentType 0, msoSegmentLine",
+   true
+  ],
+  [
+   "curve",
+   "TypeName(n.Application)",
+   true
+  ],
+  [
+   "curve",
+   "For Each o In n: s = s & \"+\": Next",
+   true
+  ],
+  [
+   "curve",
+   "n.Item(2).Points",
+   true
+  ],
+  [
+   "curve",
+   "n.SetPosition 2, 70, 30 || ",
+   true
+  ],
+  [
+   "curve",
+   "n.Delete 2 || ",
+   true
+  ],
+  [
+   "curve",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   true
+  ],
+  [
+   "curve",
+   " || n.SetPosition 2, 70, 30",
+   true
+  ],
+  [
+   "curve",
+   " || n.Delete 2",
+   true
+  ],
+  [
+   "mixed",
+   "",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete 1",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete 2",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete n.Count",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete 0",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete 99",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete 2: n.Delete 2",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 2, msoSegmentLine, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert n.Count, msoSegmentLine, msoEditingCorner, 250, 120",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 0, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 99, msoSegmentLine, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 20, 90, 40, 90, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 2, msoSegmentCurve, msoEditingAuto, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentCurve, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, 9, msoEditingCorner, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, 9, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, msoEditingSmooth, 50, 50",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 1, 30, 30",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 200, 5",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition n.Count, 5, 150",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 60.5, 20.25",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 1, -20, -20",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 0, 30, 30",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 99, 30, 30",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 2000, 2000",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 1, msoEditingCorner",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, msoEditingSmooth",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, msoEditingSymmetric",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, msoEditingAuto",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 3, msoEditingSmooth",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 4, msoEditingSmooth",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 2, 9",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetEditingType 0, msoEditingCorner",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 1, msoSegmentCurve",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 2, msoSegmentCurve",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 3, msoSegmentCurve",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 2, msoSegmentLine",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 4, msoSegmentLine",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 2, 9",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetSegmentType 0, msoSegmentLine",
+   true
+  ],
+  [
+   "mixed",
+   "TypeName(n.Application)",
+   true
+  ],
+  [
+   "mixed",
+   "For Each o In n: s = s & \"+\": Next",
+   true
+  ],
+  [
+   "mixed",
+   "n.Item(2).Points",
+   true
+  ],
+  [
+   "mixed",
+   "n.SetPosition 2, 70, 30 || ",
+   true
+  ],
+  [
+   "mixed",
+   "n.Delete 2 || ",
+   true
+  ],
+  [
+   "mixed",
+   "n.Insert 1, msoSegmentLine, msoEditingCorner, 50, 50 || ",
+   true
+  ],
+  [
+   "mixed",
+   " || n.SetPosition 2, 70, 30",
+   true
+  ],
+  [
+   "mixed",
+   " || n.Delete 2",
+   true
+  ]
+ ],
+ "model": [
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/+++|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/+++|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:190.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2413001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2413001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/+++++++|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:190.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2413001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2413001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:190.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2413001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2413001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;1/0/140,40;1/0/140,80;1/0/110,110;0/e-2147467259/10,110|String:ShapeNodes|String:Shape|Long:6|Single:10|Single:10|Single:130.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1651001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1651001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"381000\"/><a:pt x=\"1651000\" y=\"889000\"/><a:pt x=\"1270000\" y=\"1270000\"/></a:cubicBezTo><a:lnTo><a:pt x=\"0\" y=\"1270000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/++++++|0/0/10,10;0/e-2147467259/110,10;1/0/140,40;1/0/140,80;1/0/110,110;0/e-2147467259/10,110|String:ShapeNodes|String:Shape|Long:6|Single:10|Single:10|Single:130.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1651001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1651001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"381000\"/><a:pt x=\"1651000\" y=\"889000\"/><a:pt x=\"1270000\" y=\"1270000\"/></a:cubicBezTo><a:lnTo><a:pt x=\"0\" y=\"1270000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|0/0/10,10;0/e-2147467259/110,10;1/0/140,40;1/0/140,80;1/0/110,110;0/e-2147467259/10,110|String:ShapeNodes|String:Shape|Long:6|Single:10|Single:10|Single:130.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1651001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1651001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"381000\"/><a:pt x=\"1651000\" y=\"889000\"/><a:pt x=\"1270000\" y=\"1270000\"/></a:cubicBezTo><a:lnTo><a:pt x=\"0\" y=\"1270000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/+++|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/+++|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|0/0/10,10;0/e-2147467259/110,10;0/e-2147467259/60,80|String:ShapeNodes|String:Shape|Long:3|Single:10|Single:10|Single:100.0001|Single:70.00008|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270001\" cy=\"889001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1270001\" h=\"889001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:lnTo><a:pt x=\"635000\" y=\"889000\"/></a:lnTo><a:close/></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:190.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2413001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2413001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/+++++++|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:190.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2413001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2413001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|1/0/10,50;1/0/40,100;1/0/80,100;1/0/110,50;1/0/140,0;1/0/170,60;1/0/200,50|String:ShapeNodes|String:Shape|Long:7|Single:10|Single:0|Single:190.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"0\"/><a:ext cx=\"2413001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"2413001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"635000\"/></a:moveTo><a:cubicBezTo><a:pt x=\"381000\" y=\"1270000\"/><a:pt x=\"889000\" y=\"1270000\"/><a:pt x=\"1270000\" y=\"635000\"/></a:cubicBezTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"0\"/><a:pt x=\"2032000\" y=\"762000\"/><a:pt x=\"2413000\" y=\"635000\"/></a:cubicBezTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/|0/0/10,10;0/e-2147467259/110,10;1/0/140,40;1/0/140,80;1/0/110,110;0/e-2147467259/10,110|String:ShapeNodes|String:Shape|Long:6|Single:10|Single:10|Single:130.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1651001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1651001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"381000\"/><a:pt x=\"1651000\" y=\"889000\"/><a:pt x=\"1270000\" y=\"1270000\"/></a:cubicBezTo><a:lnTo><a:pt x=\"0\" y=\"1270000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "e0/++++++|0/0/10,10;0/e-2147467259/110,10;1/0/140,40;1/0/140,80;1/0/110,110;0/e-2147467259/10,110|String:ShapeNodes|String:Shape|Long:6|Single:10|Single:10|Single:130.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1651001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1651001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"381000\"/><a:pt x=\"1651000\" y=\"889000\"/><a:pt x=\"1270000\" y=\"1270000\"/></a:cubicBezTo><a:lnTo><a:pt x=\"0\" y=\"1270000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "e0/1|0/0/10,10;0/e-2147467259/110,10;1/0/140,40;1/0/140,80;1/0/110,110;0/e-2147467259/10,110|String:ShapeNodes|String:Shape|Long:6|Single:10|Single:10|Single:130.0001|Single:100.0001|Long:5|Long:138|Long:1",
+   "<a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1651001\" cy=\"1270001\"/></a:xfrm><a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l=\"0\" t=\"0\" r=\"0\" b=\"0\"/><a:pathLst><a:path w=\"1651001\" h=\"1270001\"><a:moveTo><a:pt x=\"0\" y=\"0\"/></a:moveTo><a:lnTo><a:pt x=\"1270000\" y=\"0\"/></a:lnTo><a:cubicBezTo><a:pt x=\"1651000\" y=\"381000\"/><a:pt x=\"1651000\" y=\"889000\"/><a:pt x=\"1270000\" y=\"1270000\"/></a:cubicBezTo><a:lnTo><a:pt x=\"0\" y=\"1270000\"/></a:lnTo></a:path></a:pathLst></a:custGeom>"
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ],
+  [
+   "refused",
+   ""
+  ]
+ ]
+}
